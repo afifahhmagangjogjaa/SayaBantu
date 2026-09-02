@@ -1,0 +1,613 @@
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <style>
+        :root{
+            --brand-500: #0ea5a4;
+            --brand-600: #08979a;
+            --muted-600: #6b7280;
+        }
+
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); }
+        .card-shadow-hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04); }
+        .hover-lift { transition: transform .25s cubic-bezier(.4,0,.2,1); }
+        .hover-lift:hover { transform: translateY(-4px); }
+        .focus-ring:focus { outline: none; box-shadow: 0 0 0 4px rgba(14,165,164,0.12); border-radius: 12px; }
+    </style>
+
+    <div class="max-w-md mx-auto pb-24">
+        <!-- Header -->
+        <div class="bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600 px-5 pt-6 pb-5 rounded-b-3xl relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="flex items-center justify-between text-white mb-4">
+                    <button onclick="window.history.back()" aria-label="Kembali" class="p-1.5 -ml-1.5 focus-ring">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+
+                    <div class="text-center flex-1">
+                        <h1 class="text-lg font-bold">Permintaan Saya</h1>
+                        <p class="text-xs text-white/90 mt-0.5">Kelola permintaan bantuan Anda</p>
+                    </div>
+
+                    <div class="w-8"></div>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="flex gap-2 overflow-x-auto pb-1">
+                    <button type="button" wire:click="$set('statusFilter', '')" role="tab"
+                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all bg-white text-primary-600 shadow-md focus-ring">
+                        Semua
+                    </button>
+                    <button type="button" wire:click="$set('statusFilter', 'menunggu_mitra')" role="tab"
+                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all bg-white/30 text-white focus-ring">
+                        Menunggu Mitra
+                    </button>
+                    <button type="button" wire:click="$set('statusFilter', 'memperoleh_mitra')" role="tab"
+                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all bg-white/30 text-white focus-ring">
+                        Diproses
+                    </button>
+                    <button type="button" wire:click="$set('statusFilter', 'selesai')" role="tab"
+                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all bg-white/30 text-white focus-ring">
+                        Selesai
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="bg-white rounded-t-[28px] -mt-4 px-5 pt-6 pb-24 min-h-[60vh] relative z-10">
+            
+            <div class="space-y-4">
+                
+                <div wire:loading class="space-y-3">
+                                            <div class="bg-gray-50 rounded-2xl p-4 card-shadow animate-pulse">
+                            <div class="flex items-center gap-3">
+                                <div class="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                                <div class="flex-1">
+                                    <div class="h-4 bg-gray-200 rounded w-3/5 mb-2"></div>
+                                    <div class="h-3 bg-gray-200 rounded w-4/5"></div>
+                                </div>
+                                <div class="w-16 h-4 bg-gray-200 rounded"></div>
+                            </div>
+                        </div>
+                                            <div class="bg-gray-50 rounded-2xl p-4 card-shadow animate-pulse">
+                            <div class="flex items-center gap-3">
+                                <div class="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                                <div class="flex-1">
+                                    <div class="h-4 bg-gray-200 rounded w-3/5 mb-2"></div>
+                                    <div class="h-3 bg-gray-200 rounded w-4/5"></div>
+                                </div>
+                                <div class="w-16 h-4 bg-gray-200 rounded"></div>
+                            </div>
+                        </div>
+                                            <div class="bg-gray-50 rounded-2xl p-4 card-shadow animate-pulse">
+                            <div class="flex items-center gap-3">
+                                <div class="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                                <div class="flex-1">
+                                    <div class="h-4 bg-gray-200 rounded w-3/5 mb-2"></div>
+                                    <div class="h-3 bg-gray-200 rounded w-4/5"></div>
+                                </div>
+                                <div class="w-16 h-4 bg-gray-200 rounded"></div>
+                            </div>
+                        </div>
+                                            <div class="bg-gray-50 rounded-2xl p-4 card-shadow animate-pulse">
+                            <div class="flex items-center gap-3">
+                                <div class="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                                <div class="flex-1">
+                                    <div class="h-4 bg-gray-200 rounded w-3/5 mb-2"></div>
+                                    <div class="h-3 bg-gray-200 rounded w-4/5"></div>
+                                </div>
+                                <div class="w-16 h-4 bg-gray-200 rounded"></div>
+                            </div>
+                        </div>
+                                    </div>
+
+                
+                
+                                    <div class="bg-white rounded-2xl p-4 card-shadow hover:card-shadow-hover transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center" style="background: #FFE5E5;">
+                                                                            <img src="http://127.0.0.1:8000/storage/helps/Lw2byfF0uvnTZilY49piSh21Uo51aWTsbssZwUl0.jpg" alt="Foto kvjdvskdsjn" class="w-full h-full object-cover" loading="lazy">
+                                                                    </div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm line-clamp-2 flex-1">kvjdvskdsjn</h3>
+                                    <div class="flex-shrink-0 text-right">
+                                        <div class="text-sm font-bold" style="color: var(--brand-600)">Rp 50.000</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">6 days ago</div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-600 line-clamp-2 mb-2">vcb vcb cvb </p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span class="truncate">Jakarta</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" wire:click="showHelp(59)" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detaiil
+                                        </button>
+                                        <button type="button" wire:click.stop="editHelp(59)" class="px-3 py-1 text-xs font-medium rounded-lg transition" style="background: rgba(14,165,164,0.1); color: var(--brand-600)">
+                                            Edit
+                                        </button>
+                                        <button type="button" wire:click.stop="deleteHelp(59)" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="bg-white rounded-2xl p-4 card-shadow hover:card-shadow-hover transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center" style="background: #E5F5FF;">
+                                                                            <img src="http://127.0.0.1:8000/storage/helps/obat-diabetes.jpg" alt="Foto Bantuan Obat Diabetes dan Pemeriksaan Gula Darah" class="w-full h-full object-cover" loading="lazy">
+                                                                    </div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm line-clamp-2 flex-1">Bantuan Obat Diabetes dan Pemeriksaan Gula Darah</h3>
+                                    <div class="flex-shrink-0 text-right">
+                                        <div class="text-sm font-bold" style="color: var(--brand-600)">Rp 200.000</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">1 week ago</div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-600 line-clamp-2 mb-2">Saya penderita diabetes yang membutuhkan obat rutin setiap bulan. Saat ini stok...</p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span class="truncate">Malang</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" wire:click="showHelp(47)" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detaiil
+                                        </button>
+                                        <button type="button" wire:click.stop="editHelp(47)" class="px-3 py-1 text-xs font-medium rounded-lg transition" style="background: rgba(14,165,164,0.1); color: var(--brand-600)">
+                                            Edit
+                                        </button>
+                                        <button type="button" wire:click.stop="deleteHelp(47)" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="bg-white rounded-2xl p-4 card-shadow hover:card-shadow-hover transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center" style="background: #FFF4E5;">
+                                                                            <img src="http://127.0.0.1:8000/storage/helps/ibu-hamil.jpg" alt="Foto Transportasi Ibu Hamil ke Rumah Sakit untuk Kontrol" class="w-full h-full object-cover" loading="lazy">
+                                                                    </div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm line-clamp-2 flex-1">Transportasi Ibu Hamil ke Rumah Sakit untuk Kontrol</h3>
+                                    <div class="flex-shrink-0 text-right">
+                                        <div class="text-sm font-bold" style="color: var(--brand-600)">Rp 100.000</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">1 week ago</div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-600 line-clamp-2 mb-2">Istri saya sedang hamil 8 bulan dan harus rutin kontrol ke Rumah Sakit setiap mi...</p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span class="truncate">Denpasar</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" wire:click="showHelp(48)" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detaiil
+                                        </button>
+                                        <button type="button" wire:click.stop="editHelp(48)" class="px-3 py-1 text-xs font-medium rounded-lg transition" style="background: rgba(14,165,164,0.1); color: var(--brand-600)">
+                                            Edit
+                                        </button>
+                                        <button type="button" wire:click.stop="deleteHelp(48)" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="bg-white rounded-2xl p-4 card-shadow hover:card-shadow-hover transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center" style="background: #E5FFE9;">
+                                                                            <img src="http://127.0.0.1:8000/storage/helps/beras.jpg" alt="Foto Bantuan Beras 10 Kg untuk Keluarga Kurang Mampu" class="w-full h-full object-cover" loading="lazy">
+                                                                    </div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm line-clamp-2 flex-1">Bantuan Beras 10 Kg untuk Keluarga Kurang Mampu</h3>
+                                    <div class="flex-shrink-0 text-right">
+                                        <div class="text-sm font-bold" style="color: var(--brand-600)">Rp 120.000</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">1 week ago</div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-600 line-clamp-2 mb-2">Keluarga kami terdiri dari 5 orang (saya, istri, dan 3 anak). Penghasilan hanya...</p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span class="truncate">Semarang</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" wire:click="showHelp(49)" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detaiil
+                                        </button>
+                                        <button type="button" wire:click.stop="editHelp(49)" class="px-3 py-1 text-xs font-medium rounded-lg transition" style="background: rgba(14,165,164,0.1); color: var(--brand-600)">
+                                            Edit
+                                        </button>
+                                        <button type="button" wire:click.stop="deleteHelp(49)" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="bg-white rounded-2xl p-4 card-shadow hover:card-shadow-hover transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center" style="background: #F5E5FF;">
+                                                                            <img src="http://127.0.0.1:8000/storage/helps/perlengkapan-sekolah.jpg" alt="Foto Perlengkapan Sekolah Anak Kelas 1 SD" class="w-full h-full object-cover" loading="lazy">
+                                                                    </div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm line-clamp-2 flex-1">Perlengkapan Sekolah Anak Kelas 1 SD</h3>
+                                    <div class="flex-shrink-0 text-right">
+                                        <div class="text-sm font-bold" style="color: var(--brand-600)">Rp 250.000</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">1 week ago</div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-600 line-clamp-2 mb-2">Anak saya baru masuk kelas 1 SD tahun ini. Butuh bantuan untuk membeli seragam,...</p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span class="truncate">Yogyakarta</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" wire:click="showHelp(50)" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detaiil
+                                        </button>
+                                        <button type="button" wire:click.stop="editHelp(50)" class="px-3 py-1 text-xs font-medium rounded-lg transition" style="background: rgba(14,165,164,0.1); color: var(--brand-600)">
+                                            Edit
+                                        </button>
+                                        <button type="button" wire:click.stop="deleteHelp(50)" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="bg-white rounded-2xl p-4 card-shadow hover:card-shadow-hover transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center" style="background: #FFE5E5;">
+                                                                            <img src="http://127.0.0.1:8000/storage/helps/pipa-bocor.jpg" alt="Foto Perbaikan Pipa Air PDAM yang Bocor di Halaman" class="w-full h-full object-cover" loading="lazy">
+                                                                    </div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm line-clamp-2 flex-1">Perbaikan Pipa Air PDAM yang Bocor di Halaman</h3>
+                                    <div class="flex-shrink-0 text-right">
+                                        <div class="text-sm font-bold" style="color: var(--brand-600)">Rp 180.000</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">1 week ago</div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-600 line-clamp-2 mb-2">Pipa PDAM di halaman rumah bocor besar sejak seminggu lalu. Tagihan air membengk...</p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span class="truncate">Malang</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" wire:click="showHelp(51)" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detaiil
+                                        </button>
+                                        <button type="button" wire:click.stop="editHelp(51)" class="px-3 py-1 text-xs font-medium rounded-lg transition" style="background: rgba(14,165,164,0.1); color: var(--brand-600)">
+                                            Edit
+                                        </button>
+                                        <button type="button" wire:click.stop="deleteHelp(51)" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="bg-white rounded-2xl p-4 card-shadow hover:card-shadow-hover transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center" style="background: #E5F5FF;">
+                                                                            <img src="http://127.0.0.1:8000/storage/helps/karpet-masjid.jpg" alt="Foto Jasa Cuci Karpet Masjid Ukuran 6x8 Meter" class="w-full h-full object-cover" loading="lazy">
+                                                                    </div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm line-clamp-2 flex-1">Jasa Cuci Karpet Masjid Ukuran 6x8 Meter</h3>
+                                    <div class="flex-shrink-0 text-right">
+                                        <div class="text-sm font-bold" style="color: var(--brand-600)">Rp 220.000</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">1 week ago</div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-600 line-clamp-2 mb-2">Karpet masjid kampung kami sudah kotor dan berbau. Ukuran sekitar 6x8 meter. But...</p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span class="truncate">Bandung</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" wire:click="showHelp(52)" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detaiil
+                                        </button>
+                                        <button type="button" wire:click.stop="editHelp(52)" class="px-3 py-1 text-xs font-medium rounded-lg transition" style="background: rgba(14,165,164,0.1); color: var(--brand-600)">
+                                            Edit
+                                        </button>
+                                        <button type="button" wire:click.stop="deleteHelp(52)" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="bg-white rounded-2xl p-4 card-shadow hover:card-shadow-hover transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center" style="background: #FFF4E5;">
+                                                                            <img src="http://127.0.0.1:8000/storage/helps/pasang-lampu.jpg" alt="Foto Pemasangan Lampu dan Stop Kontak di Kamar Baru" class="w-full h-full object-cover" loading="lazy">
+                                                                    </div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm line-clamp-2 flex-1">Pemasangan Lampu dan Stop Kontak di Kamar Baru</h3>
+                                    <div class="flex-shrink-0 text-right">
+                                        <div class="text-sm font-bold" style="color: var(--brand-600)">Rp 175.000</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">1 week ago</div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-600 line-clamp-2 mb-2">Baru renovasi rumah dan menambah satu kamar. Butuh teknisi listrik untuk memasan...</p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span class="truncate">Malang</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" wire:click="showHelp(53)" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detaiil
+                                        </button>
+                                        <button type="button" wire:click.stop="editHelp(53)" class="px-3 py-1 text-xs font-medium rounded-lg transition" style="background: rgba(14,165,164,0.1); color: var(--brand-600)">
+                                            Edit
+                                        </button>
+                                        <button type="button" wire:click.stop="deleteHelp(53)" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="bg-white rounded-2xl p-4 card-shadow hover:card-shadow-hover transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center" style="background: #E5FFE9;">
+                                                                            <img src="http://127.0.0.1:8000/storage/helps/tagihan-listrik.jpg" alt="Foto Bantuan Bayar Tagihan Listrik Bulan Ini Rp 350.000" class="w-full h-full object-cover" loading="lazy">
+                                                                    </div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm line-clamp-2 flex-1">Bantuan Bayar Tagihan Listrik Bulan Ini Rp 350.000</h3>
+                                    <div class="flex-shrink-0 text-right">
+                                        <div class="text-sm font-bold" style="color: var(--brand-600)">Rp 350.000</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">1 week ago</div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-600 line-clamp-2 mb-2">Tagihan listrik bulan ini Rp 350.000 dan sudah lewat jatuh tempo. Khawatir listr...</p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span class="truncate">Makassar</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" wire:click="showHelp(54)" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detaiil
+                                        </button>
+                                        <button type="button" wire:click.stop="editHelp(54)" class="px-3 py-1 text-xs font-medium rounded-lg transition" style="background: rgba(14,165,164,0.1); color: var(--brand-600)">
+                                            Edit
+                                        </button>
+                                        <button type="button" wire:click.stop="deleteHelp(54)" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="bg-white rounded-2xl p-4 card-shadow hover:card-shadow-hover transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center" style="background: #F5E5FF;">
+                                                                            <img src="http://127.0.0.1:8000/storage/helps/kirim-paket.jpg" alt="Foto Jasa Antar Paket ke Madiun (Barang Kecil 2 Kg)" class="w-full h-full object-cover" loading="lazy">
+                                                                    </div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="font-bold text-gray-900 text-sm line-clamp-2 flex-1">Jasa Antar Paket ke Madiun (Barang Kecil 2 Kg)</h3>
+                                    <div class="flex-shrink-0 text-right">
+                                        <div class="text-sm font-bold" style="color: var(--brand-600)">Rp 80.000</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">1 week ago</div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-600 line-clamp-2 mb-2">Saya punya paket berisi dokumen penting yang harus sampai ke Madiun hari ini ata...</p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span class="truncate">Surabaya</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" wire:click="showHelp(55)" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detaiil
+                                        </button>
+                                        <button type="button" wire:click.stop="editHelp(55)" class="px-3 py-1 text-xs font-medium rounded-lg transition" style="background: rgba(14,165,164,0.1); color: var(--brand-600)">
+                                            Edit
+                                        </button>
+                                        <button type="button" wire:click.stop="deleteHelp(55)" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                                    <div class="mt-4"><div>
+    <!--[if BLOCK]><![endif]-->        <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center justify-between">
+            <div class="flex justify-between flex-1 sm:hidden">
+                <span>
+                    <!--[if BLOCK]><![endif]-->                        <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:border-blue-700 dark:active:bg-gray-700 dark:active:text-gray-300">
+                            &laquo; Previous
+                        </span>
+                    <!--[if ENDBLOCK]><![endif]-->
+                </span>
+
+                <span>
+                    <!--[if BLOCK]><![endif]-->                        <button type="button" wire:click="nextPage('page')" x-on:click="   ($el.closest(&#039;body&#039;) || document.querySelector(&#039;body&#039;)).scrollIntoView()" wire:loading.attr="disabled" dusk="nextPage.before" class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-blue-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:border-blue-700 dark:active:bg-gray-700 dark:active:text-gray-300">
+                            Next &raquo;
+                        </button>
+                    <!--[if ENDBLOCK]><![endif]-->
+                </span>
+            </div>
+
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700 leading-5 dark:text-gray-400">
+                        <span>Showing</span>
+                        <span class="font-medium">1</span>
+                        <span>to</span>
+                        <span class="font-medium">10</span>
+                        <span>of</span>
+                        <span class="font-medium">14</span>
+                        <span>results</span>
+                    </p>
+                </div>
+
+                <div>
+                    <span class="relative z-0 inline-flex rtl:flex-row-reverse rounded-md shadow-sm">
+                        <span>
+                            
+                            <!--[if BLOCK]><![endif]-->                                <span aria-disabled="true" aria-label="&amp;laquo; Previous">
+                                    <span class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-l-md leading-5 dark:bg-gray-800 dark:border-gray-600" aria-hidden="true">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </span>
+                            <!--[if ENDBLOCK]><![endif]-->
+                        </span>
+
+                        
+                        <!--[if BLOCK]><![endif]-->                            
+                            <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->
+
+                            
+                            <!--[if BLOCK]><![endif]-->                                <!--[if BLOCK]><![endif]-->                                    <span wire:key="paginator-page-page1">
+                                        <!--[if BLOCK]><![endif]-->                                            <span aria-current="page">
+                                                <span class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 dark:bg-gray-800 dark:border-gray-600">1</span>
+                                            </span>
+                                        <!--[if ENDBLOCK]><![endif]-->
+                                    </span>
+                                                                    <span wire:key="paginator-page-page2">
+                                        <!--[if BLOCK]><![endif]-->                                            <button type="button" wire:click="gotoPage(2, 'page')" x-on:click="   ($el.closest(&#039;body&#039;) || document.querySelector(&#039;body&#039;)).scrollIntoView()" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-gray-500 focus:z-10 focus:outline-none focus:border-blue-300 focus:ring ring-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:text-gray-300 dark:active:bg-gray-700 dark:focus:border-blue-800" aria-label="Go to page 2">
+                                                2
+                                            </button>
+                                        <!--[if ENDBLOCK]><![endif]-->
+                                    </span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            <!--[if ENDBLOCK]><![endif]-->
+                        <!--[if ENDBLOCK]><![endif]-->
+
+                        <span>
+                            
+                            <!--[if BLOCK]><![endif]-->                                <button type="button" wire:click="nextPage('page')" x-on:click="   ($el.closest(&#039;body&#039;) || document.querySelector(&#039;body&#039;)).scrollIntoView()" dusk="nextPage.after" class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:border-blue-300 focus:ring ring-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150 dark:bg-gray-800 dark:border-gray-600 dark:active:bg-gray-700 dark:focus:border-blue-800" aria-label="Next &amp;raquo;">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            <!--[if ENDBLOCK]><![endif]-->
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </nav>
+    <!--[if ENDBLOCK]><![endif]-->
+</div>
+</div>
+                            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class PartnerController extends Controller
+{
+    public function blocked()
+    {
+        return view('admin.partners.blocked');
+    }
+}
