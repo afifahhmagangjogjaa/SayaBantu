@@ -14,29 +14,40 @@ class Dashboard extends Component
     {
         // If current user is an admin, scope metrics to their assigned city
         if (auth()->user() && auth()->user()->role === 'admin') {
-            $cityId = auth()->user()->city_id;
-            $totalHelps = Help::where('city_id', $cityId)->count();
-            $pendingHelps = Help::where('city_id', $cityId)->where('status', 'pending')->count();
-            $activeHelps = Help::where('city_id', $cityId)->where('status', 'active')->count();
-            $completedHelps = Help::where('city_id', $cityId)->where('status', 'completed')->count();
-            $pendingVerifications = \App\Models\Registration::where('city_id', $cityId)->where('status', 'pending_verification')->count();
-            $verifiedMitras = User::where('role', 'mitra')
-                                ->where('city_id', $cityId)
+            $cityIds = auth()->user()->getAdminCityIds();
+            $cityHelpFilter = function($q) use ($cityIds) {
+                $q->where(function($sub) use ($cityIds) {
+                    $sub->whereIn('city_id', $cityIds)
+                        ->orWhereHas('customer', function($c) use ($cityIds) {
+                            $c->whereIn('city_id', $cityIds);
+                        });
+                });
+            };
+
+            $totalHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->count() : Help::count();
+            $pendingHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->whereIn('status', ['menunggu_mitra', 'pending', 'created'])->count() : Help::whereIn('status', ['menunggu_mitra', 'pending', 'created'])->count();
+            $activeHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'partner_cancel_requested', 'memperoleh_mitra', 'in_progress', 'sedang_diproses', 'partner_arrived', 'taken', 'active'])->count() : Help::whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'partner_cancel_requested', 'memperoleh_mitra', 'in_progress', 'sedang_diproses', 'partner_arrived', 'taken', 'active'])->count();
+            $completedHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->whereIn('status', ['selesai', 'completed'])->count() : Help::whereIn('status', ['selesai', 'completed'])->count();
+            $pendingVerifications = !empty($cityIds) ? \App\Models\Registration::whereIn('city_id', $cityIds)->where('status', 'pending_verification')->count() : \App\Models\Registration::where('status', 'pending_verification')->count();
+            $verifiedMitras = !empty($cityIds) ? User::where('role', 'mitra')
+                                ->whereIn('city_id', $cityIds)
                                 ->where('verified', true)
-                                ->count();
+                                ->count() : User::where('role', 'mitra')->where('verified', true)->count();
             
             // Pending topup approvals (filtered by city)
             $pendingTopups = \App\Models\BalanceTransaction::where('type', 'topup')
                 ->where('status', 'waiting_approval')
-                ->whereHas('user', function ($q) use ($cityId) {
-                    $q->where('city_id', $cityId);
+                ->when(!empty($cityIds), function ($q) use ($cityIds) {
+                    $q->whereHas('user', function ($sq) use ($cityIds) {
+                        $sq->whereIn('city_id', $cityIds);
+                    });
                 })
                 ->count();
         } else {
             $totalHelps = Help::count();
-            $pendingHelps = Help::where('status', 'pending')->count();
-            $activeHelps = Help::where('status', 'active')->count();
-            $completedHelps = Help::where('status', 'completed')->count();
+            $pendingHelps = Help::whereIn('status', ['menunggu_mitra', 'pending', 'created'])->count();
+            $activeHelps = Help::whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'partner_cancel_requested', 'memperoleh_mitra', 'in_progress', 'sedang_diproses', 'partner_arrived', 'taken', 'active'])->count();
+            $completedHelps = Help::whereIn('status', ['selesai', 'completed'])->count();
             $pendingVerifications = 0;
             $verifiedMitras = User::where('role', 'mitra')->where('verified', true)->count();
             

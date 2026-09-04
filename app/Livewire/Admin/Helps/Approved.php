@@ -38,10 +38,16 @@ class Approved extends Component
             });
 
         // Filter by admin's city if user is admin
-        if (auth()->user() && auth()->user()->role === 'admin' && auth()->user()->city_id) {
-            $query->whereHas('customer', function ($q) {
-                $q->where('city_id', auth()->user()->city_id);
-            });
+        if (auth()->user() && auth()->user()->role === 'admin') {
+            $adminCityIds = auth()->user()->getAdminCityIds();
+            if (!empty($adminCityIds)) {
+                $query->where(function ($q) use ($adminCityIds) {
+                    $q->whereIn('city_id', $adminCityIds)
+                      ->orWhereHas('customer', function ($c) use ($adminCityIds) {
+                          $c->whereIn('city_id', $adminCityIds);
+                      });
+                });
+            }
         }
 
         $helps = $query->latest()->paginate($this->perPage);

@@ -525,6 +525,7 @@
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Kelurahan / Desa <span class="text-red-500">*</span></label>
                                             <input type="text" wire:model="kelurahan" placeholder="Nama Kelurahan"
+                                                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                             @error('kelurahan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
@@ -532,6 +533,7 @@
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Kecamatan <span class="text-red-500">*</span></label>
                                             <input type="text" wire:model="kecamatan" placeholder="Nama Kecamatan"
+                                                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                             @error('kecamatan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>

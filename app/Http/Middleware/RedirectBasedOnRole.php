@@ -20,8 +20,25 @@ class RedirectBasedOnRole
         if (Auth::check()) {
             $user = Auth::user();
 
-            // Allow status check, logout, profile, chat, and ajax endpoints to proceed for any role
-            if ($request->routeIs(['account.status.check', 'logout', 'profile.*', 'profile', 'chat.*', 'ajax.*']) || $request->is('check-account-status*', 'logout*', 'profile*', 'chat*', 'ajax*')) {
+            // Allow status check, logout, profile, chat, ajax, verification, and onboarding endpoints to proceed for any role
+            if ($request->routeIs([
+                'account.status.check',
+                'logout',
+                'profile.*',
+                'profile',
+                'chat.*',
+                'ajax.*',
+                'onboarding.*',
+                'verification.*',
+                'register.*',
+                'register',
+                'login',
+            ]) || $request->is('check-account-status*', 'logout*', 'profile*', 'chat*', 'ajax*', 'onboarding*', 'email*')) {
+                return $next($request);
+            }
+
+            // Jika belum verifikasi email atau belum selesai onboarding (password / biodata / dokumen), jangan redirect otomatis ke dashboard
+            if (!$user->hasVerifiedEmail() || empty($user->password) || !$user->is_completed) {
                 return $next($request);
             }
 
@@ -51,7 +68,6 @@ class RedirectBasedOnRole
 
             // Allow customer to access dashboard and other authenticated routes
             if ($user->role === 'customer' || $user->role === 'kustomer') {
-                // Customer can access most routes normally
                 return $next($request);
             }
         }

@@ -73,27 +73,20 @@
                 </div>
 
                 <!-- Search Bar -->
-                {{-- <div class="relative mt-4">
-                    <input type="text" wire:model.debounce.400ms="search" placeholder="Cari nama, lokasi, atau bantuan..."
-                        class="w-full px-4 py-2.5 rounded-xl bg-white/95 text-gray-900 placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-white/50 outline-none transition text-sm">
-                    <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
+                <div class="relative mt-3">
+                    <input type="text" wire:model.live.debounce.350ms="search" placeholder="Cari nama, lokasi, atau deskripsi..."
+                        class="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-white/95 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-white/80 focus:shadow-md outline-none transition text-xs font-medium">
+                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                </div> --}}
-
-                <!-- Filter Tabs - centered and symmetric -->
-                {{-- <div class="grid grid-cols-2 gap-3 mt-3">
-                    <button type="button" wire:click="$set('filterStatus', 'all')" role="tab"
-                        class="px-3 py-1.5 rounded-full text-xs font-semibold text-center transition-all {{ $filterStatus === 'all' ? 'bg-white text-[#0098e7] shadow-md' : 'bg-white/20 text-white' }}">
-                        Semua
-                    </button>
-                    <button type="button" wire:click="$set('filterStatus', 'menunggu_mitra')" role="tab"
-                        class="px-3 py-1.5 rounded-full text-xs font-semibold text-center transition-all {{ $filterStatus === 'menunggu_mitra' ? 'bg-white text-[#0098e7] shadow-md' : 'bg-white/20 text-white' }}">
-                        Menunggu Mitra
-                    </button>
-                </div> --}}
+                    @if(!empty($search))
+                        <button type="button" wire:click="$set('search', '')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    @endif
+                </div>
             </div>
 
             <!-- Curved separator (SVG) to create non-flat divider into content -->
@@ -104,33 +97,58 @@
 
         <!-- Content -->
         <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6 min-h-[60vh]">
-            <!-- Sort Filter -->
-            <div class="flex items-center justify-between mb-4">
-                <span class="text-xs text-gray-500 font-medium">Urutkan:</span>
-                <select wire:model="sortBy" class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-medium text-gray-700 focus:ring-2 focus:ring-blue-200 outline-none">
-                    <option value="latest">Terbaru</option>
-                    <option value="oldest">Terlama</option>
-                    <option value="nearby">Terdekat</option>
-                    <option value="price_high">Harga Tertinggi</option>
-                    <option value="price_low">Harga Terendah</option>
-                </select>
+            <!-- Modern Sort & Filter Header -->
+            <div class="mb-4">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-lg bg-blue-50 text-[#0098e7] flex items-center justify-center">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-gray-800">Urutkan Bantuan</span>
+                        <span class="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                            {{ $helps->total() ?? count($helps) }} tersedia
+                        </span>
+                    </div>
+
+                    <!-- Sleek Custom Dropdown Filter -->
+                    <div class="relative inline-flex items-center">
+                        <select wire:model.live="sortBy" 
+                            onchange="if(this.value === 'nearby' && navigator.geolocation){ navigator.geolocation.getCurrentPosition(p => { @this.setCoordinates(p.coords.latitude, p.coords.longitude); }); }" 
+                            class="appearance-none pl-3.5 pr-8 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-semibold text-gray-700 shadow-2xs hover:border-[#0098e7]/60 focus:border-[#0098e7] focus:ring-2 focus:ring-blue-100 outline-none transition cursor-pointer">
+                            <option value="latest">✨ Terbaru</option>
+                            <option value="nearby">📍 Terdekat</option>
+                            <option value="price_high">💰 Harga Tertinggi</option>
+                            <option value="price_low">🏷️ Harga Terendah</option>
+                            <option value="oldest">⏳ Terlama</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
             </div> 
             <div class="space-y-4">
-                @if(auth()->check() && !auth()->user()->isProfileComplete())
+                @if(auth()->check() && !empty(auth()->user()->getMissingBiodataFields()))
                     @php
-                        $missing = auth()->user()->getMissingProfileFields();
+                        $missing = auth()->user()->getMissingBiodataFields();
                     @endphp
-                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-2 flex items-start gap-3">
-                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                        </svg>
-                        <div class="flex-1">
-                            <div class="font-bold text-amber-950 text-sm">Lengkapi Profil Anda</div>
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
+                        <div class="rounded-xl shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                            <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="font-bold text-amber-950 text-sm">Lengkapi Biodata Diri Anda</div>
                             <div class="mt-1 text-amber-800 leading-relaxed">
-                                Anda perlu melengkapi data profil wajib (<strong>{{ implode(', ', $missing) }}</strong>) sebelum dapat mengambil bantuan.
+                                Mohon lengkapi data profil wajib (<strong>{{ implode(', ', $missing) }}</strong>) agar akun Anda lengkap dan dapat mengambil serta menjalankan bantuan.
                             </div>
-                            <a href="{{ route('mitra.profile.edit') }}" class="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-2xs">
-                                Lengkapi Profil Sekarang &rarr;
+                            <a href="{{ route('mitra.profile.edit') }}" class="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3.5 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-2xs">
+                                <span>Lengkapi Biodata Sekarang &rarr;</span>
                             </a>
                         </div>
                     </div>

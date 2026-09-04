@@ -16,9 +16,9 @@ class AdminWithdrawController extends Controller
         $request = request();
         $query = WithdrawRequest::with('user');
 
-        // Filter per kota yang dikelola admin (via pivot admin_city)
+        // Filter per kota yang dikelola admin
         if (auth()->user() && auth()->user()->role === 'admin') {
-            $managedCityIds = auth()->user()->managedCities()->pluck('cities.id')->toArray();
+            $managedCityIds = auth()->user()->getAdminCityIds();
             if (!empty($managedCityIds)) {
                 $query->whereHas('user', function ($q) use ($managedCityIds) {
                     $q->whereIn('city_id', $managedCityIds);
@@ -138,7 +138,7 @@ class AdminWithdrawController extends Controller
         // Summary counts - filter per kota yang dikelola admin
         $countsQuery = WithdrawRequest::query();
         if (auth()->user() && auth()->user()->role === 'admin') {
-            $managedCityIds = auth()->user()->managedCities()->pluck('cities.id')->toArray();
+            $managedCityIds = auth()->user()->getAdminCityIds();
             if (!empty($managedCityIds)) {
                 $countsQuery->whereHas('user', function ($q) use ($managedCityIds) {
                     $q->whereIn('city_id', $managedCityIds);

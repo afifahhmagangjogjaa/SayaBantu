@@ -29,8 +29,14 @@ class RatingObserver
                 'ip_address' => $ip,
                 'user_agent' => $ua,
             ]);
+
+            // Notify the user who received the rating
+            $ratee = $rating->ratee ?? ($rating->type === 'customer_to_mitra' ? $rating->mitra : $rating->user);
+            if ($ratee) {
+                $ratee->notify(new \App\Notifications\RatingReceivedNotification($rating));
+            }
         } catch (\Throwable $e) {
-            // swallow errors to avoid breaking the app
+            \Illuminate\Support\Facades\Log::warning('RatingObserver error', ['error' => $e->getMessage()]);
         }
     }
 }

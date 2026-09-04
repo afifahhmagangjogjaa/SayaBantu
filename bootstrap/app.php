@@ -20,11 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
-            'admin' => \App\Http\Middleware\EnsureAdmin::class,
-            'kustomer' => \App\Http\Middleware\EnsureKustomer::class,
+            'admin'       => \App\Http\Middleware\EnsureAdmin::class,
+            'kustomer'    => \App\Http\Middleware\EnsureKustomer::class,
             // New alias: use 'customer' everywhere going forward
-            'customer' => \App\Http\Middleware\EnsureCustomer::class,
-            'mitra' => \App\Http\Middleware\EnsureMitra::class,
+            'customer'    => \App\Http\Middleware\EnsureCustomer::class,
+            'mitra'       => \App\Http\Middleware\EnsureMitra::class,
+            
+            // Tambahkan alias ini di sini:
+            'onboarded'   => \App\Http\Middleware\EnsureOnboardingCompleted::class,
         ]);
 
         // Exclude Midtrans webhook from CSRF verification

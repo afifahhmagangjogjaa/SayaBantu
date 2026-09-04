@@ -15,14 +15,17 @@ class PartnerReportController extends Controller
         $statsQuery = PartnerReport::query();
         
         // Filter by admin's city if user is admin
-        if (auth()->user() && auth()->user()->role === 'admin' && auth()->user()->city_id) {
-            $statsQuery->where(function ($q) {
-                $q->whereHas('reporter', function ($sq) {
-                    $sq->where('city_id', auth()->user()->city_id);
-                })->orWhereHas('reportedUser', function ($sq) {
-                    $sq->where('city_id', auth()->user()->city_id);
+        if (auth()->user() && auth()->user()->role === 'admin') {
+            $adminCityIds = auth()->user()->getAdminCityIds();
+            if (!empty($adminCityIds)) {
+                $statsQuery->where(function ($q) use ($adminCityIds) {
+                    $q->whereHas('reporter', function ($sq) use ($adminCityIds) {
+                        $sq->whereIn('city_id', $adminCityIds);
+                    })->orWhereHas('reportedUser', function ($sq) use ($adminCityIds) {
+                        $sq->whereIn('city_id', $adminCityIds);
+                    });
                 });
-            });
+            }
         }
 
         // Statistik ringkasan
@@ -45,17 +48,19 @@ class PartnerReportController extends Controller
         $query = PartnerReport::with(['reporter', 'reportedUser', 'reportedHelp', 'resolvedBy']);
 
         // Filter by admin's city if user is admin
-        if (auth()->user() && auth()->user()->role === 'admin' && auth()->user()->city_id) {
-            $adminCityId = auth()->user()->city_id;
-            $query->where(function ($q) use ($adminCityId) {
-                $q->whereHas('reporter', function ($sq) use ($adminCityId) {
-                    $sq->where('city_id', $adminCityId);
-                })->orWhereHas('reportedUser', function ($sq) use ($adminCityId) {
-                    $sq->where('city_id', $adminCityId);
-                })->orWhereHas('reportedHelp', function ($sq) use ($adminCityId) {
-                    $sq->where('city_id', $adminCityId);
+        if (auth()->user() && auth()->user()->role === 'admin') {
+            $adminCityIds = auth()->user()->getAdminCityIds();
+            if (!empty($adminCityIds)) {
+                $query->where(function ($q) use ($adminCityIds) {
+                    $q->whereHas('reporter', function ($sq) use ($adminCityIds) {
+                        $sq->whereIn('city_id', $adminCityIds);
+                    })->orWhereHas('reportedUser', function ($sq) use ($adminCityIds) {
+                        $sq->whereIn('city_id', $adminCityIds);
+                    })->orWhereHas('reportedHelp', function ($sq) use ($adminCityIds) {
+                        $sq->whereIn('city_id', $adminCityIds);
+                    });
                 });
-            });
+            }
         }
 
         // Apply filters

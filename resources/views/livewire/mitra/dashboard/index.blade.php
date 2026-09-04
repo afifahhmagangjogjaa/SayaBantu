@@ -136,13 +136,15 @@
                             Rp {{ number_format($balance ?? 0, 0, ',', '.') }}
                         </h2>
                         <h2 class="text-2xl font-bold text-gray-900" x-show="!show">Rp ••••••</h2>
-                        <button @click="show = !show" class="p-1.5 hover:bg-gray-100 rounded-lg transition">
+                        <button @click="show = !show" class="p-1.5 hover:bg-gray-100 rounded-lg transition" title="Tampilkan / Sembunyikan Saldo">
+                            <!-- Saat Saldo Tersembunyi (Slashed Eye) -->
                             <svg class="w-4 h-4 text-gray-500" x-show="!show" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                            </svg>
+                            <!-- Saat Saldo Terlihat (Open Eye) -->
+                            <svg class="w-4 h-4 text-[#0098e7]" x-show="show" x-cloak style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-gray-500" x-show="show" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                             </svg>
                         </button>
                     </div>
@@ -166,27 +168,75 @@
     <!-- Main Content -->
     <div class="px-5 pt-5 pb-6">
 
-        {{-- Banner Peringatan: Mitra Belum Terverifikasi --}}
-        @if(!optional(auth()->user())->verified)
-        <div class="mb-5 rounded-2xl overflow-hidden shadow-md" style="background: linear-gradient(135deg, #fff7ed, #ffedd5);">
-            <div class="flex items-start gap-3 p-4 border border-orange-200">
-                <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-orange-800 mb-0.5">Akun Belum Terverifikasi</p>
-                    <p class="text-xs text-orange-700 leading-relaxed">Upload foto KTP dan selfie Anda agar bisa mulai mengambil bantuan. Verifikasi diperlukan untuk keamanan platform.</p>
-                    <a href="{{ route('mitra.profile.edit') }}" class="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-lg transition shadow-sm">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        {{-- Banner Status Kelengkapan Profil & Verifikasi Mitra --}}
+        @if(auth()->check())
+            @php
+                $user = auth()->user();
+                $hasKtp = !empty($user->ktp_photo) || !empty($user->ktp_path);
+                $hasSelfie = !empty($user->selfie_photo);
+                $hasDocs = $hasKtp && $hasSelfie;
+                $isVerified = (bool) $user->verified;
+                $missing = $user->getMissingBiodataFields();
+            @endphp
+
+            {{-- 1. INFO VERIFIKASI KTP / DOKUMEN (DI ATAS LENGKAPI PROFIL) --}}
+            @if(!$hasDocs)
+                {{-- Belum Upload Foto KTP & Selfie --}}
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div class="rounded-xl shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #ffffff; width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                         </svg>
-                        Upload KTP Sekarang
-                    </a>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="flex items-center gap-2">
+                            <div class="font-bold text-amber-950 text-sm">Belum Upload KTP & Selfie</div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200 text-amber-900">Wajib</span>
+                        </div>
+                        <div class="mt-1 text-amber-800 leading-relaxed">
+                            Upload foto KTP dan foto selfie Anda untuk verifikasi identitas agar dapat menjalankan pekerjaan bantuan.
+                        </div>
+                        <a href="{{ route('profile.settings.verification') }}" class="inline-flex items-center gap-1.5 font-bold text-white bg-amber-600 hover:bg-amber-700 px-3.5 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-xs">
+                            <span>Upload KTP & Selfie Sekarang</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                    </div>
                 </div>
-            </div>
-        </div>
+            @elseif(!$isVerified)
+                {{-- Banner Menunggu Verifikasi Admin (Sudah Upload KTP & Selfie) --}}
+                <div class="mb-4 rounded-2xl overflow-hidden shadow-2xs border border-blue-200 bg-blue-50/95 p-4" style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div class="rounded-xl bg-blue-100 text-blue-600 text-lg shadow-2xs" style="width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                        ⏳
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="flex items-center gap-2 mb-1">
+                            <p class="text-sm font-bold text-blue-950">Menunggu Verifikasi KTP</p>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">Dalam Proses</span>
+                        </div>
+                        <p class="text-xs text-blue-800 leading-relaxed">Foto KTP dan data pendaftaran Anda telah berhasil dikirim dan sedang dalam proses peninjauan & verifikasi oleh Admin Kota.</p>
+                    </div>
+                </div>
+            @endif
+
+            {{-- 2. INFO LENGKAPI PROFIL / BIODATA --}}
+            @if(!empty($missing))
+                <div class="mb-5 rounded-2xl overflow-hidden shadow-xs border border-amber-200 bg-amber-50/90 p-4" style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div class="rounded-xl shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <p class="text-sm font-bold text-amber-950 mb-0.5">Lengkapi Profil & Biodata Anda</p>
+                        <p class="text-xs text-amber-800 leading-relaxed">
+                            Mohon lengkapi data wajib (<span class="font-bold text-amber-950">{{ implode(', ', $missing) }}</span>) agar Anda dapat mengambil dan menjalankan bantuan.
+                        </p>
+                        <a href="{{ route('mitra.profile.edit') }}" class="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold text-xs rounded-lg transition shadow-2xs">
+                            <span>Lengkapi Biodata Sekarang &rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            @endif
         @endif
 
         <!-- GPS Tracker Component - Tampil untuk bantuan aktif -->
@@ -235,26 +285,6 @@
 
         <!-- Bantuan Tersedia Section -->
         <div class="mb-5">
-            @if(auth()->check() && !auth()->user()->isProfileComplete())
-                @php
-                    $missing = auth()->user()->getMissingProfileFields();
-                @endphp
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-4 flex items-start gap-3">
-                    <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                    </svg>
-                    <div class="flex-1">
-                        <div class="font-bold text-amber-950 text-sm">Lengkapi Profil Anda</div>
-                        <div class="mt-1 text-amber-800 leading-relaxed">
-                            Anda perlu melengkapi data profil wajib (<strong>{{ implode(', ', $missing) }}</strong>) sebelum dapat mengambil bantuan.
-                        </div>
-                        <a href="{{ route('mitra.profile.edit') }}" class="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-2xs">
-                            Lengkapi Profil Sekarang &rarr;
-                        </a>
-                    </div>
-                </div>
-            @endif
-
             <div class="flex items-center justify-between mb-3">
                 <h2 class="text-base font-bold text-gray-900">Bantuan Tersedia</h2>
                 <a href="{{ route('mitra.helps.all') }}" class="text-xs font-semibold" style="color: #0098e7;">Lihat Semua →</a>

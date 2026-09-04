@@ -15,8 +15,11 @@ trait FiltersByCityForAdmin
     {
         $user = auth()->user();
         
-        if ($user && $user->role === 'admin' && $user->city_id) {
-            $query->where($cityColumn, $user->city_id);
+        if ($user && $user->role === 'admin') {
+            $cityIds = $user->getAdminCityIds();
+            if (!empty($cityIds)) {
+                $query->whereIn($cityColumn, $cityIds);
+            }
         }
         
         return $query;
@@ -34,10 +37,13 @@ trait FiltersByCityForAdmin
     {
         $user = auth()->user();
         
-        if ($user && $user->role === 'admin' && $user->city_id) {
-            $query->whereHas($relationName, function ($q) use ($cityColumn, $user) {
-                $q->where($cityColumn, $user->city_id);
-            });
+        if ($user && $user->role === 'admin') {
+            $cityIds = $user->getAdminCityIds();
+            if (!empty($cityIds)) {
+                $query->whereHas($relationName, function ($q) use ($cityColumn, $cityIds) {
+                    $q->whereIn($cityColumn, $cityIds);
+                });
+            }
         }
         
         return $query;
@@ -51,7 +57,7 @@ trait FiltersByCityForAdmin
     protected function isAdminWithCityRestriction()
     {
         $user = auth()->user();
-        return $user && $user->role === 'admin' && $user->city_id;
+        return $user && $user->role === 'admin' && !empty($user->getAdminCityIds());
     }
 
     /**
@@ -62,6 +68,6 @@ trait FiltersByCityForAdmin
     protected function getAdminCityId()
     {
         $user = auth()->user();
-        return ($user && $user->role === 'admin') ? $user->city_id : null;
+        return ($user && $user->role === 'admin') ? ($user->city_id ?? ($user->getAdminCityIds()[0] ?? null)) : null;
     }
 }

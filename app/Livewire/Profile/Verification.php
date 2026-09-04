@@ -73,9 +73,9 @@ class Verification extends Component
             session()->flash('message', 'Data verifikasi berhasil diperbarui.');
             
             if (Auth::user()->role === 'mitra') {
-                return $this->redirectRoute('mitra.profile.edit', navigate: true);
+                return $this->redirectRoute('mitra.profile', navigate: true);
             }
-            return $this->redirectRoute('profile.settings', navigate: true);
+            return $this->redirectRoute('profile', navigate: true);
         } else {
             // Jika kedua file sudah terunggah sebelumnya, dan user tidak memilih file baru
             if ($user->ktp_photo && $user->selfie_photo) {
@@ -83,9 +83,9 @@ class Verification extends Component
                 $this->syncToRegistrations($user);
 
                 if (Auth::user()->role === 'mitra') {
-                    return $this->redirectRoute('mitra.profile.edit', navigate: true);
+                    return $this->redirectRoute('mitra.profile', navigate: true);
                 }
-                return $this->redirectRoute('profile.settings', navigate: true);
+                return $this->redirectRoute('profile', navigate: true);
             }
 
             session()->flash('error', 'Pilih minimal satu file (KTP atau Selfie) yang ingin diunggah sebelum menyimpan.');

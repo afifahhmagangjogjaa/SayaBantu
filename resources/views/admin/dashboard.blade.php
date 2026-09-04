@@ -2,30 +2,30 @@
 
 @section('content')
     @php
-        // Get current admin's city_id for filtering
-        $adminCityId = (auth()->user() && auth()->user()->role === 'admin') ? auth()->user()->city_id : null;
+        // Get current admin's city IDs for filtering
+        $adminCityIds = (auth()->user() && auth()->user()->role === 'admin') ? auth()->user()->getAdminCityIds() : [];
 
         // Collect stats server-side (filtered by admin city if applicable)
-        if ($adminCityId && class_exists(\App\Models\Help::class)) {
-            $cityHelpFilter = function($q) use ($adminCityId) {
-                $q->where(function($sub) use ($adminCityId) {
-                    $sub->where('city_id', $adminCityId)
-                        ->orWhereHas('customer', function($c) use ($adminCityId) {
-                            $c->where('city_id', $adminCityId);
+        if (!empty($adminCityIds) && class_exists(\App\Models\Help::class)) {
+            $cityHelpFilter = function($q) use ($adminCityIds) {
+                $q->where(function($sub) use ($adminCityIds) {
+                    $sub->whereIn('city_id', $adminCityIds)
+                        ->orWhereHas('customer', function($c) use ($adminCityIds) {
+                            $c->whereIn('city_id', $adminCityIds);
                         });
                 });
             };
 
             $totalHelps = \App\Models\Help::where($cityHelpFilter)->count();
-            $pendingHelps = \App\Models\Help::where($cityHelpFilter)->where('status', 'menunggu_mitra')->count();
-            $activeHelps = \App\Models\Help::where($cityHelpFilter)->whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'partner_cancel_requested', 'memperoleh_mitra', 'in_progress', 'sedang_diproses', 'partner_arrived'])->count();
+            $pendingHelps = \App\Models\Help::where($cityHelpFilter)->whereIn('status', ['menunggu_mitra', 'pending', 'created'])->count();
+            $activeHelps = \App\Models\Help::where($cityHelpFilter)->whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'partner_cancel_requested', 'memperoleh_mitra', 'in_progress', 'sedang_diproses', 'partner_arrived', 'taken', 'active'])->count();
             $completedHelps = \App\Models\Help::where($cityHelpFilter)->whereIn('status', ['selesai', 'completed'])->count();
             
-            $cityNames = \App\Models\City::where('id', $adminCityId)->pluck('name')->map(fn($n) => strtolower(trim($n)))->all();
+            $cityNames = \App\Models\City::whereIn('id', $adminCityIds)->pluck('name')->map(fn($n) => strtolower(trim($n)))->all();
 
-            // Pending verifications strictly for this admin's city
-            $pendingVerifications = \App\Models\Registration::where(function($q) use ($adminCityId, $cityNames) {
-                    $q->where('city_id', $adminCityId);
+            // Pending verifications strictly for this admin's cities
+            $pendingVerifications = \App\Models\Registration::where(function($q) use ($adminCityIds, $cityNames) {
+                    $q->whereIn('city_id', $adminCityIds);
                     if (!empty($cityNames)) {
                         $q->orWhere(function ($subQ) use ($cityNames) {
                             foreach ($cityNames as $cityName) {
@@ -36,24 +36,24 @@
                 })
                 ->whereNotIn('status', ['approved', 'rejected'])
                 ->count();
-            $verifiedMitras = \App\Models\User::where('role', 'mitra')->where('city_id', $adminCityId)->where('verified', true)->count();
+            $verifiedMitras = \App\Models\User::where('role', 'mitra')->whereIn('city_id', $adminCityIds)->where('verified', true)->count();
         } else {
             $totalHelps = class_exists(\App\Models\Help::class) ? \App\Models\Help::count() : 0;
-            $pendingHelps = class_exists(\App\Models\Help::class) ? \App\Models\Help::where('status', 'menunggu_mitra')->count() : 0;
-            $activeHelps = class_exists(\App\Models\Help::class) ? \App\Models\Help::whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'partner_cancel_requested', 'memperoleh_mitra', 'in_progress', 'sedang_diproses', 'partner_arrived'])->count() : 0;
+            $pendingHelps = class_exists(\App\Models\Help::class) ? \App\Models\Help::whereIn('status', ['menunggu_mitra', 'pending', 'created'])->count() : 0;
+            $activeHelps = class_exists(\App\Models\Help::class) ? \App\Models\Help::whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'partner_cancel_requested', 'memperoleh_mitra', 'in_progress', 'sedang_diproses', 'partner_arrived', 'taken', 'active'])->count() : 0;
             $completedHelps = class_exists(\App\Models\Help::class) ? \App\Models\Help::whereIn('status', ['selesai', 'completed'])->count() : 0;
             $pendingVerifications = \App\Models\Registration::whereNotIn('status', ['approved', 'rejected'])->count();
             $verifiedMitras = \App\Models\User::where('role', 'mitra')->where('verified', true)->count();
         }
 
-        // Latest helps - filter by admin's city
+        // Latest helps - filter by admin's cities
         if (class_exists(\App\Models\Help::class)) {
             $latestHelpsQuery = \App\Models\Help::with('customer')->latest();
-            if ($adminCityId) {
-                $latestHelpsQuery->where(function($q) use ($adminCityId) {
-                    $q->where('city_id', $adminCityId)
-                      ->orWhereHas('customer', function($sub) use ($adminCityId) {
-                          $sub->where('city_id', $adminCityId);
+            if (!empty($adminCityIds)) {
+                $latestHelpsQuery->where(function($q) use ($adminCityIds) {
+                    $q->whereIn('city_id', $adminCityIds)
+                      ->orWhereHas('customer', function($sub) use ($adminCityIds) {
+                          $sub->whereIn('city_id', $adminCityIds);
                       });
                 });
             }
@@ -62,7 +62,7 @@
             $latestHelps = collect();
         }
 
-        // prepare chart data for last 7 days - filter by admin's city
+        // prepare chart data for last 7 days - filter by admin's cities
         $chartLabels = [];
         $chartData = [];
         for ($i = 6; $i >= 0; $i--) {
@@ -70,11 +70,11 @@
             $chartLabels[] = $day->format('j M');
             if (class_exists(\App\Models\Help::class)) {
                 $chartQuery = \App\Models\Help::whereDate('created_at', $day->toDateString());
-                if ($adminCityId) {
-                    $chartQuery->where(function($q) use ($adminCityId) {
-                        $q->where('city_id', $adminCityId)
-                          ->orWhereHas('customer', function($sub) use ($adminCityId) {
-                              $sub->where('city_id', $adminCityId);
+                if (!empty($adminCityIds)) {
+                    $chartQuery->where(function($q) use ($adminCityIds) {
+                        $q->whereIn('city_id', $adminCityIds)
+                          ->orWhereHas('customer', function($sub) use ($adminCityIds) {
+                              $sub->whereIn('city_id', $adminCityIds);
                           });
                     });
                 }

@@ -82,12 +82,12 @@
                             <td class="px-2.5 py-2.5">
                                 <div class="flex items-center gap-2.5">
                                     <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                                        {{ strtoupper(substr($v->full_name ?? ($v->name ?? '-'),0,1)) }}
+                                        {{ strtoupper(substr($v->user->name ?? ($v->full_name ?? ($v->name ?? '-')),0,1)) }}
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="text-sm font-semibold text-gray-900 leading-tight truncate max-w-[160px]">{{ $v->full_name ?? ($v->name ?? '-') }}</div>
-                                        <div class="text-xs text-gray-500 truncate max-w-[160px]">{{ $v->email ?? '-' }}</div>
-                                        <div class="text-[10px] text-gray-400 mt-0.5">{{ ucfirst($v->role ?? 'customer') }} • <span class="font-mono text-gray-500">ID: #{{ $v->id }}</span></div>
+                                        <div class="text-sm font-semibold text-gray-900 leading-tight truncate max-w-[160px]">{{ $v->user->name ?? ($v->full_name ?? ($v->name ?? '-')) }}</div>
+                                        <div class="text-xs text-gray-500 truncate max-w-[160px]">{{ $v->user->email ?? ($v->email ?? '-') }}</div>
+                                        <div class="text-[10px] text-gray-400 mt-0.5">{{ ucfirst($v->user->role ?? ($v->role ?? 'customer')) }} • <span class="font-mono text-gray-500">ID: #{{ $v->id }}</span></div>
                                     </div>
                                 </div>
                             </td>
@@ -164,11 +164,11 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
                                 <div class="h-14 w-14 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xl shadow">
-                                    {{ strtoupper(substr($selected->full_name ?? ($selected->name ?? '-'),0,1)) }}
+                                    {{ strtoupper(substr($selected->user->name ?? ($selected->full_name ?? ($selected->name ?? '-')),0,1)) }}
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-semibold text-white">{{ $selected->full_name ?? ($selected->name ?? '-') }}</h3>
-                                    <div class="text-xs text-white/90 mt-0.5">ID: #{{ $selected->id }} • {{ ucfirst($selected->role ?? 'customer') }}</div>
+                                    <h3 class="text-lg font-semibold text-white">{{ $selected->user->name ?? ($selected->full_name ?? ($selected->name ?? '-')) }}</h3>
+                                    <div class="text-xs text-white/90 mt-0.5">ID: #{{ $selected->id }} • {{ ucfirst($selected->user->role ?? ($selected->role ?? 'customer')) }}</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">

@@ -15,20 +15,78 @@ class TransactionsLog extends Component
     public $search = '';
     public $type = 'all'; // types: all, topup, withdraw, other
     public $perPage = 15;
+    public $period = 'this_month'; // options: this_month, all_time, today, last_month, custom
     public $from = null;
     public $to = null;
 
-    protected $queryString = ['search' => ['except' => ''], 'type' => ['except' => 'all']];
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'type' => ['except' => 'all'],
+        'period' => ['except' => 'this_month'],
+        'from' => ['except' => ''],
+        'to' => ['except' => ''],
+    ];
 
     public function mount()
     {
-        // Set default date range only on first load
-        if (!request()->has('from') && !$this->from) {
+        if (request()->has('period')) {
+            $this->period = request('period');
+        }
+
+        if ($this->period === 'this_month') {
             $this->from = now()->startOfMonth()->format('Y-m-d');
-        }
-        if (!request()->has('to') && !$this->to) {
             $this->to = now()->format('Y-m-d');
+        } elseif ($this->period === 'all_time') {
+            $this->from = null;
+            $this->to = null;
+        } elseif ($this->period === 'today') {
+            $this->from = now()->format('Y-m-d');
+            $this->to = now()->format('Y-m-d');
+        } elseif ($this->period === 'last_month') {
+            $this->from = now()->subMonth()->startOfMonth()->format('Y-m-d');
+            $this->to = now()->subMonth()->endOfMonth()->format('Y-m-d');
+        } else {
+            if (request()->has('from')) $this->from = request('from');
+            if (request()->has('to')) $this->to = request('to');
+            if (!$this->from && !$this->to && $this->period !== 'all_time') {
+                $this->from = now()->startOfMonth()->format('Y-m-d');
+                $this->to = now()->format('Y-m-d');
+                $this->period = 'this_month';
+            }
         }
+    }
+
+    public function updatedPeriod($val)
+    {
+        $this->resetPage();
+        if ($val === 'this_month') {
+            $this->from = now()->startOfMonth()->format('Y-m-d');
+            $this->to = now()->format('Y-m-d');
+        } elseif ($val === 'all_time') {
+            $this->from = null;
+            $this->to = null;
+        } elseif ($val === 'today') {
+            $this->from = now()->format('Y-m-d');
+            $this->to = now()->format('Y-m-d');
+        } elseif ($val === 'last_month') {
+            $this->from = now()->subMonth()->startOfMonth()->format('Y-m-d');
+            $this->to = now()->subMonth()->endOfMonth()->format('Y-m-d');
+        } elseif ($val === 'custom') {
+            if (!$this->from) $this->from = now()->startOfMonth()->format('Y-m-d');
+            if (!$this->to) $this->to = now()->format('Y-m-d');
+        }
+    }
+
+    public function updatedFrom()
+    {
+        $this->period = 'custom';
+        $this->resetPage();
+    }
+
+    public function updatedTo()
+    {
+        $this->period = 'custom';
+        $this->resetPage();
     }
 
     public function updatingSearch()
@@ -45,6 +103,7 @@ class TransactionsLog extends Component
     {
         $this->search = '';
         $this->type = 'all';
+        $this->period = 'this_month';
         $this->from = now()->startOfMonth()->format('Y-m-d');
         $this->to = now()->format('Y-m-d');
         $this->resetPage();
@@ -187,6 +246,65 @@ class TransactionsLog extends Component
         }
 
         return $query;
+    }
+
+    public $showUserBalanceModal = false;
+    public $selectedUserId = null;
+    public $selectedUser = null;
+    public $selectedUserBalance = 0;
+    public $selectedUserStats = [];
+    public $selectedUserRecentTransactions = [];
+
+    public function viewUserBalance($userId)
+    {
+        $this->selectedUserId = $userId;
+        $this->selectedUser = \App\Models\User::with(['city'])->find($userId);
+
+        if ($this->selectedUser) {
+            $this->selectedUserBalance = (float) $this->selectedUser->balance;
+            $userTxQuery = BalanceTransaction::where('user_id', $userId);
+            $isMitra = $this->selectedUser->role === 'mitra';
+
+            if ($isMitra) {
+                $totalIncome = (clone $userTxQuery)->whereIn('type', ['income', 'topup'])->where('status', 'completed')->sum('amount');
+                $withdrawTx = (clone $userTxQuery)->whereIn('type', ['withdraw', 'withdraw_deduction', 'deduction'])->where('status', 'completed')->sum('amount');
+                $withdrawReq = \App\Models\WithdrawRequest::where('user_id', $userId)->whereIn('status', ['success', 'completed', 'approved'])->sum('amount');
+                $totalWithdraw = max((float)$withdrawTx, (float)$withdrawReq);
+
+                $this->selectedUserStats = [
+                    'is_mitra' => true,
+                    'total_income' => $totalIncome,
+                    'total_withdraw' => $totalWithdraw,
+                    'total_tx' => (clone $userTxQuery)->count(),
+                ];
+            } else {
+                $totalTopup = (clone $userTxQuery)->where('type', 'topup')->where('status', 'completed')->sum('amount');
+                $totalPayment = (clone $userTxQuery)->where('type', 'deduction')->where('status', 'completed')->sum('amount');
+
+                $this->selectedUserStats = [
+                    'is_mitra' => false,
+                    'total_topup' => $totalTopup,
+                    'total_payment' => $totalPayment,
+                    'total_tx' => (clone $userTxQuery)->count(),
+                ];
+            }
+
+            $this->selectedUserRecentTransactions = (clone $userTxQuery)
+                ->orderByDesc('created_at')
+                ->take(6)
+                ->get();
+
+            $this->showUserBalanceModal = true;
+        }
+    }
+
+    public function closeUserBalanceModal()
+    {
+        $this->showUserBalanceModal = false;
+        $this->selectedUserId = null;
+        $this->selectedUser = null;
+        $this->selectedUserStats = [];
+        $this->selectedUserRecentTransactions = [];
     }
 
     public function render()

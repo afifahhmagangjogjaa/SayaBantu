@@ -95,15 +95,17 @@ class TopupApproval extends Component
     {
         $user = auth()->user();
 
+        $adminCityIds = ($user && $user->role === 'admin') ? $user->getAdminCityIds() : [];
+
         // 1. Pending Table Query
         $pendingQuery = BalanceTransaction::where('type', 'topup')
             ->where('status', 'waiting_approval')
             ->with(['user', 'user.city']);
 
-        if ($user->role === 'admin' && $user->city_id) {
-            $pendingQuery->where(function ($q) use ($user) {
-                $q->whereHas('user', function ($sq) use ($user) {
-                    $sq->where('city_id', $user->city_id);
+        if (!empty($adminCityIds)) {
+            $pendingQuery->where(function ($q) use ($adminCityIds) {
+                $q->whereHas('user', function ($sq) use ($adminCityIds) {
+                    $sq->whereIn('city_id', $adminCityIds);
                 })->orWhereHas('user', function ($sq) {
                     $sq->whereNull('city_id');
                 });
@@ -132,10 +134,10 @@ class TopupApproval extends Component
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->with(['user', 'user.city']);
 
-        if ($user->role === 'admin' && $user->city_id) {
-            $historyQuery->where(function ($q) use ($user) {
-                $q->whereHas('user', function ($sq) use ($user) {
-                    $sq->where('city_id', $user->city_id);
+        if (!empty($adminCityIds)) {
+            $historyQuery->where(function ($q) use ($adminCityIds) {
+                $q->whereHas('user', function ($sq) use ($adminCityIds) {
+                    $sq->whereIn('city_id', $adminCityIds);
                 })->orWhereHas('user', function ($sq) {
                     $sq->whereNull('city_id');
                 });
@@ -164,11 +166,11 @@ class TopupApproval extends Component
             ->paginate($this->perPageHistory, ['*'], 'historyPage');
 
         // Counters
-        $baseCityScope = function ($q) use ($user) {
-            if ($user->role === 'admin' && $user->city_id) {
-                $q->where(function ($sq) use ($user) {
-                    $sq->whereHas('user', function ($ssq) use ($user) {
-                        $ssq->where('city_id', $user->city_id);
+        $baseCityScope = function ($q) use ($adminCityIds) {
+            if (!empty($adminCityIds)) {
+                $q->where(function ($sq) use ($adminCityIds) {
+                    $sq->whereHas('user', function ($ssq) use ($adminCityIds) {
+                        $ssq->whereIn('city_id', $adminCityIds);
                     })->orWhereHas('user', function ($ssq) {
                         $ssq->whereNull('city_id');
                     });

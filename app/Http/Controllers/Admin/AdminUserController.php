@@ -9,7 +9,17 @@ use App\Models\City;
 
 class AdminUserController extends Controller
 {
-    public function index(Request $request)
+    public function customers(Request $request)
+    {
+        return $this->index($request, 'customer');
+    }
+
+    public function mitra(Request $request)
+    {
+        return $this->index($request, 'mitra');
+    }
+
+    public function index(Request $request, $forcedRole = null)
     {
         $admin = auth()->user();
 
@@ -38,15 +48,24 @@ class AdminUserController extends Controller
             });
         }
 
-        // Filter by role
-        if ($request->has('role')) {
+        // Detect route or forced role
+        $currentRoute = $request->route()?->getName() ?? '';
+        if ($forcedRole === 'customer' || $currentRoute === 'admin.customers') {
+            $pageRole = 'customer';
+            $query->whereIn('role', ['customer', 'kustomer']);
+        } elseif ($forcedRole === 'mitra' || $currentRoute === 'admin.mitra') {
+            $pageRole = 'mitra';
+            $query->where('role', 'mitra');
+        } elseif ($request->has('role')) {
             $role = $request->get('role');
             if ($role !== 'all') {
                 $query->where('role', $role);
             }
+            $pageRole = $role;
         } else {
             // By default, show mitra and customer/kustomer roles to focus admin listing
             $query->whereIn('role', ['mitra', 'kustomer', 'customer']);
+            $pageRole = 'all';
         }
 
         // Filter by account status
@@ -88,7 +107,7 @@ class AdminUserController extends Controller
             }
         }
 
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'pageRole'));
     }
 
     public function show(\Illuminate\Http\Request $request, User $user)
@@ -102,20 +121,14 @@ class AdminUserController extends Controller
             ->filter()
             ->unique();
 
-        // Only restrict access when the admin is linked to one or more cities.
-        // If the admin has no city assignments, allow viewing any user.
-        if ($cityIds->isNotEmpty() && !$cityIds->contains($user->city_id)) {
-            abort(404);
+        // If admin has cities, check if target user belongs to allowed cities
+        if ($cityIds->isNotEmpty() && ! $cityIds->contains($user->city_id)) {
+            abort(403, 'Akses tidak diizinkan untuk pengguna kota lain.');
         }
 
-        // If the request is AJAX, return only the partial HTML suitable for a modal.
-        if ($request->ajax()) {
-            $user->load('city');
-            $user->city_name = optional($user->city)->name ?? optional(City::find($user->city_id))->name;
-            return view('admin.users.partials.show', compact('user'));
-        }
-
+        // Load relations and counts
         $user->load('city');
+        $user->loadCount(['helps', 'partnerReports']);
 
         return view('admin.users.show', compact('user'));
     }

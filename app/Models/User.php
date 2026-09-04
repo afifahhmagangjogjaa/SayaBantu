@@ -2,15 +2,80 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+
+    protected static function booted()
+    {
+        static::saved(function ($user) {
+            try {
+                // Find matching registration by email, nik, or previous email/nik
+                $oldEmail = $user->getOriginal('email');
+                $oldNik = $user->getOriginal('nik');
+
+                $reg = \App\Models\Registration::where('email', $user->email)
+                    ->when($oldEmail && $oldEmail !== $user->email, function ($q) use ($oldEmail) {
+                        $q->orWhere('email', $oldEmail);
+                    })
+                    ->when(!empty($user->nik), function ($q) use ($user) {
+                        $q->orWhere('nik', $user->nik);
+                    })
+                    ->when(!empty($oldNik) && $oldNik !== $user->nik, function ($q) use ($oldNik) {
+                        $q->orWhere('nik', $oldNik);
+                    })
+                    ->first();
+
+                if ($reg) {
+                    $cityName = $user->city;
+                    if (empty($cityName) && !empty($user->city_id)) {
+                        $cityName = \App\Models\City::find($user->city_id)?->name;
+                    }
+
+                    $normalizedRole = in_array($user->role, ['mitra', 'super_admin', 'admin']) ? ($user->role === 'mitra' ? 'mitra' : 'customer') : 'customer';
+
+                    $reg->update([
+                        'full_name' => $user->name,
+                        'email' => $user->email,
+                        'nik' => $user->nik ?: $reg->nik,
+                        'role' => $normalizedRole,
+                        'city_id' => $user->city_id ?: $reg->city_id,
+                        'city' => $cityName ?: $reg->city,
+                        'address' => $user->address ?: $reg->address,
+                        'rt' => $user->rt ?: $reg->rt,
+                        'rw' => $user->rw ?: $reg->rw,
+                        'kelurahan' => $user->kelurahan ?: $reg->kelurahan,
+                        'kecamatan' => $user->kecamatan ?: $reg->kecamatan,
+                        'province' => $user->province ?: $reg->province,
+                        'religion' => $user->religion ?: $reg->religion,
+                        'marital_status' => $user->marital_status ?: $reg->marital_status,
+                        'occupation' => $user->occupation ?: $reg->occupation,
+                        'place_of_birth' => $user->place_of_birth ?: $reg->place_of_birth,
+                        'date_of_birth' => $user->date_of_birth ?: $reg->date_of_birth,
+                        'gender' => $user->gender ?: $reg->gender,
+                        'status' => $user->verified ? 'approved' : ($reg->status ?: 'pending_verification'),
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Ignore sync errors during save
+            }
+        });
+
+        static::deleting(function ($user) {
+            try {
+                \App\Models\Registration::where('email', $user->email)->delete();
+            } catch (\Exception $e) {
+                // ignore
+            }
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -20,7 +85,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'email_verified_at',
         'password',
+        'is_completed',
         'role',
         'city_id',
         'ktp_path',
@@ -122,6 +189,23 @@ class User extends Authenticatable
     public function adminCities()
     {
         return $this->managedCities();
+    }
+
+    /**
+     * Get all city IDs associated with/managed by this admin.
+     *
+     * @return array
+     */
+    public function getAdminCityIds(): array
+    {
+        return City::where('admin_id', $this->id)
+            ->pluck('id')
+            ->merge($this->managedCities()->pluck('cities.id'))
+            ->push($this->city_id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
     }
 
     public function helps()
@@ -280,36 +364,13 @@ class User extends Authenticatable
     // Customer Rating Methods
     public function getCustomerAverageRatingAttribute()
     {
-        $avg = Rating::where('ratee_id', $this->id)->where('rating', '>', 0)->avg('rating');
-
-        if (!$avg) {
-            $avg = Rating::whereHas('help', function ($q) {
-                $q->where('user_id', $this->id);
-            })->where('rating', '>', 0)->avg('rating');
-        }
-
-        if (!$avg) {
-            $avg = Rating::where('user_id', $this->id)->where('rating', '>', 0)->avg('rating');
-        }
-
+        $avg = Rating::forCustomer($this->id)->avg('rating');
         return $avg ? round((float) $avg, 1) : 0;
     }
 
     public function getCustomerRatingCountAttribute()
     {
-        $count = Rating::where('ratee_id', $this->id)->where('rating', '>', 0)->count();
-
-        if (!$count) {
-            $count = Rating::whereHas('help', function ($q) {
-                $q->where('user_id', $this->id);
-            })->where('rating', '>', 0)->count();
-        }
-
-        if (!$count) {
-            $count = Rating::where('user_id', $this->id)->where('rating', '>', 0)->count();
-        }
-
-        return $count;
+        return Rating::forCustomer($this->id)->count();
     }
 
     public function getCustomerRatingBadgeAttribute()
@@ -346,36 +407,13 @@ class User extends Authenticatable
     // Mitra Rating Methods
     public function getMitraAverageRatingAttribute()
     {
-        $avg = Rating::where('ratee_id', $this->id)->avg('rating');
-
-        if (!$avg) {
-            $avg = Rating::where('mitra_id', $this->id)->avg('rating');
-        }
-
-        if (!$avg) {
-            $avg = Rating::whereHas('help', function ($q) {
-                $q->where('mitra_id', $this->id);
-            })->avg('rating');
-        }
-
+        $avg = Rating::forMitra($this->id)->avg('rating');
         return $avg ? round((float) $avg, 1) : 0;
     }
 
     public function getMitraRatingCountAttribute()
     {
-        $count = Rating::where('ratee_id', $this->id)->count();
-
-        if (!$count) {
-            $count = Rating::where('mitra_id', $this->id)->count();
-        }
-
-        if (!$count) {
-            $count = Rating::whereHas('help', function ($q) {
-                $q->where('mitra_id', $this->id);
-            })->count();
-        }
-
-        return $count;
+        return Rating::forMitra($this->id)->count();
     }
 
     // Generic Aliases for profile & components
@@ -428,11 +466,11 @@ class User extends Authenticatable
             $missing['address'] = 'Alamat Lengkap';
         }
 
-        if (empty(trim((string) $this->religion))) {
+        if (empty($this->religion)) {
             $missing['religion'] = 'Agama';
         }
 
-        if (empty(trim((string) $this->marital_status))) {
+        if (empty($this->marital_status)) {
             $missing['marital_status'] = 'Status Pernikahan';
         }
 
@@ -446,6 +484,50 @@ class User extends Authenticatable
 
         if (empty($this->selfie_photo)) {
             $missing['selfie_photo'] = 'Foto Selfie (Wajah & KTP)';
+        }
+
+        return $missing;
+    }
+
+    /**
+     * Mengembalikan daftar field biodata yang belum terisi (tanpa dokumen KTP & Selfie).
+     */
+    public function getMissingBiodataFields(): array
+    {
+        $missing = [];
+
+        if (empty(trim((string) $this->name))) {
+            $missing['name'] = 'Nama Lengkap';
+        }
+
+        $cleanNik = preg_replace('/[^0-9]/', '', (string) $this->nik);
+        if (empty($cleanNik) || strlen($cleanNik) !== 16) {
+            $missing['nik'] = 'NIK (16 Digit Angka)';
+        }
+
+        $cleanPhone = preg_replace('/[^0-9]/', '', (string) $this->phone);
+        if (empty($cleanPhone) || strlen($cleanPhone) < 10 || strlen($cleanPhone) > 13) {
+            $missing['phone'] = 'No. HP (10-13 Digit Angka)';
+        }
+
+        if (empty($this->city_id)) {
+            $missing['city_id'] = 'Kota Domisili';
+        }
+
+        if (empty(trim((string) $this->address))) {
+            $missing['address'] = 'Alamat Lengkap';
+        }
+
+        if (empty($this->religion)) {
+            $missing['religion'] = 'Agama';
+        }
+
+        if (empty($this->marital_status)) {
+            $missing['marital_status'] = 'Status Pernikahan';
+        }
+
+        if (empty(trim((string) $this->occupation))) {
+            $missing['occupation'] = 'Pekerjaan';
         }
 
         return $missing;

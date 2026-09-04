@@ -164,11 +164,12 @@ class Index extends Component
 
         $this->confirmingHelpId = null;
     }
+
     // Rating flow
     public $ratingComment = null;
     public $pendingRating = null;
     public $pendingHelpForRating = null;
-    
+    public $isAnonymous = false;
 
     // Temporary debug helper to confirm Livewire connectivity from browser
     public function testPing()
@@ -470,11 +471,14 @@ class Index extends Component
         }
 
         Rating::updateOrCreate(
-            ['help_id' => $helpId, 'user_id' => auth()->id()],
+            ['help_id' => $helpId, 'rater_id' => auth()->id(), 'type' => 'customer_to_mitra'],
             [
+                'user_id' => auth()->id(),
                 'mitra_id' => $help->mitra_id,
+                'ratee_id' => $help->mitra_id,
                 'rating' => $this->pendingRating,
                 'review' => $this->ratingComment,
+                'is_anonymous' => (bool) $this->isAnonymous,
             ]
         );
 
@@ -484,6 +488,7 @@ class Index extends Component
         $this->pendingHelpForRating = null;
         $this->pendingRating = null;
         $this->ratingComment = null;
+        $this->isAnonymous = false;
     }
 
     public function saveEdit()

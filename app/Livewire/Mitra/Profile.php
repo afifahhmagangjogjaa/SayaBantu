@@ -15,16 +15,16 @@ class Profile extends Component
         $user = auth()->user() ? auth()->user()->fresh() : null;
 
         // Get mitra statistics
-        $totalHelped = Help::where('mitra_id', $user->id)->count();
-        $completedHelps = Help::where('mitra_id', $user->id)->where('status', 'selesai')->count();
-        $averageRating = Rating::where('mitra_id', $user->id)->avg('rating') ?? 0;
-        $totalRatings = Rating::where('mitra_id', $user->id)->count();
+        $totalHelped = $user ? Help::where('mitra_id', $user->id)->count() : 0;
+        $completedHelps = $user ? Help::where('mitra_id', $user->id)->where('status', 'selesai')->count() : 0;
+        $averageRating = $user ? $user->mitra_average_rating : 0;
+        $totalRatings = $user ? $user->mitra_rating_count : 0;
 
         return view('livewire.mitra.profile.index', [
             'user' => $user,
             'totalHelped' => $totalHelped,
             'completedHelps' => $completedHelps,
-            'averageRating' => round($averageRating, 1),
+            'averageRating' => $averageRating,
             'totalRatings' => $totalRatings,
         ]);
     }

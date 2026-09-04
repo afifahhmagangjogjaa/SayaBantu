@@ -16,14 +16,12 @@ class Ratings extends Component
 
     public function render()
     {
-        $ratings = Rating::where('mitra_id', auth()->id())
-            ->with('help.user')
-            ->latest()
-            ->paginate(10);
+        $userId = auth()->id();
+        $baseQuery = Rating::forMitra($userId)->with(['rater', 'user', 'help.user', 'help.city']);
 
-        $allRatings = Rating::where('mitra_id', auth()->id())->get();
-        $totalRatings = $allRatings->count();
-        $averageRating = $totalRatings > 0 ? round($allRatings->avg('rating'), 1) : 0;
+        $ratings = (clone $baseQuery)->latest()->paginate(10);
+        $totalRatings = (clone $baseQuery)->count();
+        $averageRating = $totalRatings > 0 ? round((float)(clone $baseQuery)->avg('rating'), 1) : 0;
 
         return view('livewire.mitra.ratings.index', compact('ratings', 'totalRatings', 'averageRating'));
     }

@@ -22,9 +22,11 @@ class ActivityLive extends Component
     public function loadData()
     {
         // Filter by admin's city if user is admin
+        $adminCityIds = (auth()->user() && auth()->user()->role === 'admin') ? auth()->user()->getAdminCityIds() : [];
+
         $mitraQuery = User::where('role', 'mitra')->where('status', 'active');
-        if (auth()->user() && auth()->user()->role === 'admin' && auth()->user()->city_id) {
-            $mitraQuery->where('city_id', auth()->user()->city_id);
+        if (!empty($adminCityIds)) {
+            $mitraQuery->whereIn('city_id', $adminCityIds);
         }
         $this->mitraActive = $mitraQuery->count();
 
@@ -32,12 +34,14 @@ class ActivityLive extends Component
         $pendingQuery = Help::available();
         $inProgressQuery = Help::taken();
         
-        if (auth()->user() && auth()->user()->role === 'admin' && auth()->user()->city_id) {
-            $pendingQuery->whereHas('customer', function ($q) {
-                $q->where('city_id', auth()->user()->city_id);
+        if (!empty($adminCityIds)) {
+            $pendingQuery->where(function ($q) use ($adminCityIds) {
+                $q->whereIn('city_id', $adminCityIds)
+                  ->orWhereHas('customer', fn($c) => $c->whereIn('city_id', $adminCityIds));
             });
-            $inProgressQuery->whereHas('customer', function ($q) {
-                $q->where('city_id', auth()->user()->city_id);
+            $inProgressQuery->where(function ($q) use ($adminCityIds) {
+                $q->whereIn('city_id', $adminCityIds)
+                  ->orWhereHas('customer', fn($c) => $c->whereIn('city_id', $adminCityIds));
             });
         }
 
@@ -49,9 +53,9 @@ class ActivityLive extends Component
             ->orderBy('created_at', 'desc')
             ->limit(10);
 
-        if (auth()->user() && auth()->user()->role === 'admin' && auth()->user()->city_id) {
-            $feedQuery->whereHas('user', function ($q) {
-                $q->where('city_id', auth()->user()->city_id);
+        if (!empty($adminCityIds)) {
+            $feedQuery->whereHas('user', function ($q) use ($adminCityIds) {
+                $q->whereIn('city_id', $adminCityIds);
             });
         }
 

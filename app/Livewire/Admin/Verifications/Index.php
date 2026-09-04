@@ -171,16 +171,7 @@ class Index extends Component
         $admin = auth()->user();
         // Filter by admin's managed cities if user is admin
         if ($admin && $admin->role === 'admin') {
-            $managedCityIds = $admin->managedCities()->pluck('cities.id');
-            if ($managedCityIds->isNotEmpty()) {
-                $cityIds = $managedCityIds;
-            } else {
-                $cityIds = \App\Models\City::where('admin_id', $admin->id)
-                    ->pluck('id')
-                    ->push($admin->city_id)
-                    ->filter()
-                    ->unique();
-            }
+            $cityIds = collect($admin->getAdminCityIds());
 
             if ($cityIds->isNotEmpty()) {
                 $cityNames = \App\Models\City::whereIn('id', $cityIds)
@@ -203,8 +194,8 @@ class Index extends Component
             }
         }
         
-        $verifications = $query->latest()->paginate($this->perPage);
-        $selected = $this->selectedId ? Registration::find($this->selectedId) : null;
+        $verifications = $query->with('user')->latest()->paginate($this->perPage);
+        $selected = $this->selectedId ? Registration::with('user')->find($this->selectedId) : null;
 
         return view('admin.verifications', compact('verifications', 'selected'));
     }

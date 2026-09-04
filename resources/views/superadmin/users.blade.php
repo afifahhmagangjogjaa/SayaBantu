@@ -44,6 +44,7 @@
                 </div>
 
                 <div class="flex items-center gap-3 w-full md:w-auto flex-wrap sm:flex-nowrap">
+                    @if(!request()->routeIs('superadmin.customers*') && !request()->routeIs('superadmin.mitra*'))
                     <!-- Role Filter -->
                     <div class="relative min-w-[150px] flex-1 sm:flex-initial">
                         <select wire:model.live="roleFilter"
@@ -54,6 +55,7 @@
                             <option value="mitra">Mitra</option>
                         </select>
                     </div>
+                    @endif
 
                     <!-- Per Page Filter -->
                     <div class="relative min-w-[120px] flex-1 sm:flex-initial">
@@ -79,7 +81,9 @@
                             <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-10">No</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Nama & Email</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">No. HP</th>
+                            @if(!$roleFilter)
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Role</th>
+                            @endif
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Verified</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Kota</th>
@@ -108,6 +112,7 @@
                                 <td class="px-2.5 py-3 whitespace-nowrap text-xs text-gray-700 font-mono">
                                     {{ $user->phone ?? '-' }}
                                 </td>
+                                @if(!$roleFilter)
                                 <td class="px-2.5 py-3 whitespace-nowrap">
                                     @php
                                         $roleColors = [
@@ -123,6 +128,7 @@
                                         {{ $roleLabels[$user->role] ?? ucfirst($user->role) }}
                                     </span>
                                 </td>
+                                @endif
                                 <td class="px-2.5 py-3 whitespace-nowrap">
                                     <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full {{ $user->verified ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-600 border border-gray-200' }}">
                                         {{ $user->verified ? 'Terverifikasi' : 'Belum' }}
@@ -173,23 +179,21 @@
                                         {{-- Detail --}}
                                         <button wire:click="viewUser({{ $user->id }})" wire:loading.attr="disabled"
                                             wire:target="viewUser,editUser,confirmDelete,deleteUser"
-                                            class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-md text-xs font-semibold transition shadow-2xs"
+                                            class="p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer"
                                             title="Lihat Detail">
-                                            <svg class="w-3.5 h-3.5" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
-                                            <span>Detail</span>
                                         </button>
                                         {{-- Edit --}}
                                         <button wire:click="editUser({{ $user->id }})" wire:loading.attr="disabled"
                                             wire:target="viewUser,editUser,confirmDelete,deleteUser"
-                                            class="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-md text-xs font-semibold transition shadow-2xs"
+                                            class="p-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer"
                                             title="Edit">
-                                            <svg class="w-3.5 h-3.5" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
-                                            <span>Edit</span>
                                         </button>
                                         {{-- Toggle Status ON/OFF --}}
                                         <button type="button"
@@ -207,9 +211,9 @@
                                         {{-- Hapus --}}
                                         <button wire:click="confirmDelete({{ $user->id }})" wire:loading.attr="disabled"
                                             wire:target="viewUser,editUser,confirmDelete,deleteUser"
-                                            class="p-1 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-md text-xs font-semibold transition shadow-2xs"
+                                            class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer"
                                             title="Hapus">
-                                            <svg class="w-3.5 h-3.5" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -219,7 +223,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="px-6 py-12 text-center">
+                                <td colspan="{{ $roleFilter ? 9 : 10 }}" class="px-6 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center">
                                         <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -554,10 +558,10 @@
                 <!-- Modal header -->
                 <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-primary-600 to-primary-700">
                     <div>
-                        <h3 class="text-xl font-bold text-white">{{ $showEditModal ? 'Edit User' : 'Tambah User Baru' }}
+                        <h3 class="text-xl font-bold text-white">{{ $showEditModal ? 'Edit ' . $roleLabel : 'Tambah ' . $roleLabel . ' Baru' }}
                         </h3>
                         <p class="text-sm text-white/90">
-                            {{ $showEditModal ? 'Perbarui informasi pengguna dengan hati-hati' : 'Lengkapi formulir untuk menambah pengguna baru' }}
+                            {{ $showEditModal ? 'Perbarui informasi ' . strtolower($roleLabel) . ' dengan hati-hati' : 'Lengkapi formulir untuk menambah ' . strtolower($roleLabel) . ' baru' }}
                         </p>
                     </div>
                     <div class="flex items-center gap-2">
@@ -622,13 +626,13 @@
                                     </div>
 
                                     <div>
-                                        <label class="text-xs font-medium text-gray-700">Role <span class="text-red-500">*</span></label>
-                                        <select wire:model="role"
+                                        <label class="text-xs font-medium text-gray-700">Status Akun <span class="text-red-500">*</span></label>
+                                        <select wire:model="status"
                                             class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                            <option value="kustomer">Customer</option>
-                                            <option value="mitra">Mitra</option>
+                                            <option value="active">Aktif</option>
+                                            <option value="inactive">Nonaktif</option>
                                         </select>
-                                        @error('role') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
+                                        @error('status') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                     </div>
 
                                     <div>
@@ -743,6 +747,7 @@
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Kelurahan / Desa <span class="text-red-500">*</span></label>
                                             <input type="text" wire:model="kelurahan" placeholder="Nama Kelurahan"
+                                                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                             @error('kelurahan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
@@ -750,6 +755,7 @@
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Kecamatan <span class="text-red-500">*</span></label>
                                             <input type="text" wire:model="kecamatan" placeholder="Nama Kecamatan"
+                                                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                             @error('kecamatan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>

@@ -111,7 +111,7 @@
         <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6 min-h-[60vh]"> 
             <div class="space-y-4">
                 {{-- Loading skeleton --}}
-                <div wire:loading class="space-y-3">
+                <div wire:loading wire:target="statusFilter" class="space-y-3">
                     @for($i=0;$i<4;$i++)
                         <div class="bg-gray-50 rounded-2xl p-4 card-shadow animate-pulse">
                             <div class="flex items-center gap-3">
@@ -127,6 +127,7 @@
                 </div>
 
                 {{-- List based on filter --}}
+                <div wire:loading.remove wire:target="statusFilter" class="space-y-4">
                 @forelse($helps as $help)
                     @if($statusFilter === 'menunggu_mitra')
                         {{-- Simple Menunggu Mitra Card --}}
@@ -246,17 +247,7 @@
                                                 </div>
                                             @endif
 
-                                            @if($help->chat_messages_count > 0)
-                                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-50 text-xs text-gray-600">
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    </svg>
-                                                    {{ $help->chat_messages_count }}
-                                                </span>
-                                            @endif
-
-                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-white hover:shadow-md transition" style="background: linear-gradient(135deg, #0098e7 0%, #00b8d4 100%);" aria-label="Buka chat">
+                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-9 h-9 rounded-xl text-white hover:shadow-md transition" style="background: linear-gradient(135deg, #0098e7 0%, #00b8d4 100%);" aria-label="Buka chat">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.8L3 20l1.2-4A7.963 7.963 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                 </svg>
@@ -585,17 +576,7 @@
                                                     </div>
                                                 @endif
 
-                                                @if($help->chat_messages_count > 0)
-                                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-50 text-xs text-gray-600">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                        </svg>
-                                                        {{ $help->chat_messages_count }}
-                                                    </span>
-                                                @endif
-
-                                                <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-white hover:shadow-md transition" style="background: linear-gradient(135deg, #0098e7 0%, #00b8d4 100%);" aria-label="Buka chat">
+                                                <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-9 h-9 rounded-xl text-white hover:shadow-md transition" style="background: linear-gradient(135deg, #0098e7 0%, #00b8d4 100%);" aria-label="Buka chat">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.8L3 20l1.2-4A7.963 7.963 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                     </svg>
@@ -690,7 +671,15 @@
                                                 </div>
 
                                                 @if($pendingHelpForRating === $help->id && $pendingRating)
-                                                    <textarea wire:model.defer="ratingComment" rows="3" placeholder="Tulis ulasan Anda (opsional)" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-200 resize-none mb-3"></textarea>
+                                                    <textarea wire:model.defer="ratingComment" rows="3" placeholder="Tulis ulasan Anda (opsional)" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-200 resize-none mb-2"></textarea>
+                                                    
+                                                    <div class="mb-3 bg-white/70 p-2 rounded-lg border border-blue-100">
+                                                        <label class="flex items-center gap-2 cursor-pointer select-none">
+                                                            <input type="checkbox" wire:model.defer="isAnonymous" class="w-3.5 h-3.5 text-blue-500 rounded border-gray-300">
+                                                            <span class="text-xs text-gray-700 font-medium">Beri ulasan sebagai Anonim (Sembunyikan nama)</span>
+                                                        </label>
+                                                    </div>
+
                                                     <button type="button" wire:click="submitRating({{ $help->id }})" class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-semibold hover:bg-blue-600 transition">
                                                         Kirim Rating
                                                     </button>
@@ -719,6 +708,7 @@
                         <p class="text-xs text-gray-500 mt-1">Buat permintaan baru dengan menekan tombol <span class="font-semibold">Tambah</span></p>
                     </div>
                 @endforelse
+                </div>
 
                 <div class="mt-4">{{ $helps->links('vendor.pagination.custom') }}</div>
             </div>

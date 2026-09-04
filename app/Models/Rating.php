@@ -56,14 +56,42 @@ class Rating extends Model
     // Query Scopes
     public function scopeForMitra($query, $mitraId)
     {
-        return $query->where('ratee_id', $mitraId)
-                     ->where('type', 'customer_to_mitra');
+        return $query->where(function ($q) use ($mitraId) {
+            $q->where(function ($sub) use ($mitraId) {
+                $sub->where('ratee_id', $mitraId)
+                    ->where(function ($t) {
+                        $t->where('type', 'customer_to_mitra')
+                          ->orWhereNull('type');
+                    });
+            })->orWhere(function ($sub) use ($mitraId) {
+                $sub->where('mitra_id', $mitraId)
+                    ->where(function ($t) {
+                        $t->where('type', 'customer_to_mitra')
+                          ->orWhereNull('type');
+                    })
+                    ->where(function ($r) use ($mitraId) {
+                        $r->where('rater_id', '!=', $mitraId)
+                          ->orWhereNull('rater_id');
+                    });
+            });
+        })->where('rating', '>', 0);
     }
 
     public function scopeForCustomer($query, $customerId)
     {
-        return $query->where('ratee_id', $customerId)
-                     ->where('type', 'mitra_to_customer');
+        return $query->where(function ($q) use ($customerId) {
+            $q->where(function ($sub) use ($customerId) {
+                $sub->where('ratee_id', $customerId)
+                    ->where('type', 'mitra_to_customer');
+            })->orWhere(function ($sub) use ($customerId) {
+                $sub->where('user_id', $customerId)
+                    ->where('type', 'mitra_to_customer')
+                    ->where(function ($r) use ($customerId) {
+                        $r->where('rater_id', '!=', $customerId)
+                          ->orWhereNull('rater_id');
+                    });
+            });
+        })->where('rating', '>', 0);
     }
 
     public function scopeByRater($query, $raterId)
@@ -93,16 +121,22 @@ class Rating extends Model
         $viewer = auth()->user();
 
         // If viewer is admin, superadmin, or the rater themselves, always show real name
-        if ($viewer && (in_array($viewer->role, ['superadmin', 'admin']) || $viewer->id === $this->rater_id)) {
-            $name = optional($this->rater)->name ?? 'Pengguna';
+        if ($viewer && (in_array($viewer->role, ['superadmin', 'admin']) || $viewer->id === ($this->rater_id ?? $this->user_id))) {
+            $name = optional($this->rater)->name ?? (optional($this->user)->name ?? 'Pengguna');
             return $this->is_anonymous ? "{$name} (Anonim)" : $name;
         }
 
-        // If anonymous, mask name for mitra or public
+        // If anonymous, return "Pengguna Anonim"
         if ($this->is_anonymous) {
             return 'Pengguna Anonim';
         }
 
-        return optional($this->rater)->name ?? 'Pengguna';
+        // If not anonymous, show the real name
+        $fullName = trim(optional($this->rater)->name ?? (optional($this->user)->name ?? ''));
+        if (empty($fullName)) {
+            return 'Customer';
+        }
+
+        return $fullName;
     }
 }

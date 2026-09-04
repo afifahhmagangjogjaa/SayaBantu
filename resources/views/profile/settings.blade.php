@@ -58,41 +58,16 @@
                         <h2 class="text-xl font-bold text-gray-900 mb-1">Berhasil!</h2>
                         <p class="text-sm text-gray-600 mb-6">{{ $successMsg }}</p>
                         
-                        <button @click="show = false" 
-                                class="w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer"
-                                style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
+                        <a href="{{ route('profile') }}" 
+                           class="block w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer text-center"
+                           style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
                             Oke
-                        </button>
+                        </a>
                     </div>
                 </div>
             @endif
 
             <div class="space-y-3">
-                <!-- Data Diri Settings -->
-                <a href="{{ route('profile.settings.verification') }}"
-                    class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-[#0098e7]/30 transition">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #0098e7 0%, #0060b0 100%);">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-bold text-gray-900 text-sm">Data Diri</h3>
-                        @php $user = auth()->user(); @endphp
-                        @if(!$user->ktp_photo || !$user->selfie_photo)
-                            <p class="text-xs text-red-500 font-bold mt-0.5 flex items-center gap-1">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                                Belum Lengkap
-                            </p>
-                        @else
-                            <p class="text-xs text-green-500 font-bold mt-0.5">Sudah Lengkap</p>
-                        @endif
-                    </div>
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a>
-
                 <!-- Notification Settings -->
                 <a href="{{ route('profile.settings.notifications') }}"
                     class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-[#0098e7]/30 transition">

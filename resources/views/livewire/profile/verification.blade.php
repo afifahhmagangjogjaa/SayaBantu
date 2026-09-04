@@ -1,57 +1,10 @@
 <div>
-    @if (session()->has('message') || session()->has('status'))
-        @php
-            $successMsg = session('message') ?? session('status');
-        @endphp
-        <div x-data="{ show: true }" x-show="show" x-cloak
-             class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm">
-            <div x-show="show"
-                 x-transition:enter="transition ease-out duration-300 transform"
-                 x-transition:enter-start="opacity-0 scale-95 translate-y-4"
-                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                 class="bg-white rounded-3xl shadow-2xl max-w-xs w-full p-6 text-center border border-gray-100">
-                
-                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center shadow-inner">
-                    <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-                    </svg>
-                </div>
-                
-                <h2 class="text-xl font-bold text-gray-900 mb-1">Berhasil!</h2>
-                <p class="text-sm text-gray-600 mb-6">{{ $successMsg }}</p>
-                
-                <button @click="show = false" 
-                        class="w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer"
-                        style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
-                    Oke
-                </button>
-            </div>
-        </div>
-    @endif
-
     @if (session()->has('error'))
-        <div x-data="{ show: true }" x-show="show" x-cloak
-             class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm">
-            <div x-show="show"
-                 x-transition:enter="transition ease-out duration-300 transform"
-                 x-transition:enter-start="opacity-0 scale-95 translate-y-4"
-                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                 class="bg-white rounded-3xl shadow-2xl max-w-xs w-full p-6 text-center border border-gray-100">
-                
-                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center shadow-inner">
-                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                </div>
-                
-                <h2 class="text-xl font-bold text-gray-900 mb-1">Perhatian</h2>
-                <p class="text-sm text-gray-600 mb-6">{{ session('error') }}</p>
-                
-                <button @click="show = false" 
-                        class="w-full bg-red-600 text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer hover:bg-red-700">
-                    Mengerti
-                </button>
-            </div>
+        <div class="mb-4 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700 text-xs flex items-center gap-2">
+            <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="font-medium">{{ session('error') }}</span>
         </div>
     @endif
 

@@ -11,6 +11,15 @@ class Registration extends Model
 
     protected $table = 'registrations';
 
+    protected static function booted()
+    {
+        static::creating(function ($registration) {
+            if (empty($registration->uuid)) {
+                $registration->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
     protected $fillable = [
         'uuid',
         'role',
@@ -62,5 +71,15 @@ class Registration extends Model
             return asset('storage/' . $this->ktp_photo_path);
         }
         return null;
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'email', 'email');
+    }
+
+    public function cityRelation()
+    {
+        return $this->belongsTo(City::class, 'city_id');
     }
 }

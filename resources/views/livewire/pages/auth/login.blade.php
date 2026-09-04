@@ -33,7 +33,7 @@ new #[Layout('layouts.guest')] class extends Component {
         // Redirect to role-specific dashboard
         if ($user->role === 'mitra') {
             $redirect = route('mitra.dashboard', absolute: false);
-        } elseif ($user->role === 'kustomer') {
+        } elseif ($user->role === 'kustomer' || $user->role === 'customer') {
             $redirect = route('customer.dashboard', absolute: false);
         } else {
             // Default fallback

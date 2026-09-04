@@ -52,11 +52,11 @@
                         <h2 class="text-xl font-bold text-gray-900 mb-1">Berhasil!</h2>
                         <p class="text-sm text-gray-600 mb-6">{{ $successMsg }}</p>
                         
-                        <button @click="show = false" 
-                                class="w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer"
-                                style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
+                        <a href="{{ route('mitra.profile') }}" 
+                           class="block w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer text-center"
+                           style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
                             Oke
-                        </button>
+                        </a>
                     </div>
                 </div>
             @endif

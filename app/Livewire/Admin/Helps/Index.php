@@ -63,14 +63,16 @@ class Index extends Component
                 $query->where('status', $this->statusFilter);
             });
 
-        // Filter by admin's managed cities (admin_city pivot, fallback to users.city_id)
+        // Filter by admin's managed cities (multi-city support)
         if (auth()->user() && auth()->user()->role === 'admin') {
-            $adminCityIds = auth()->user()->managedCities()->pluck('cities.id')->toArray();
-            if (empty($adminCityIds) && auth()->user()->city_id) {
-                $adminCityIds = [auth()->user()->city_id];
-            }
+            $adminCityIds = auth()->user()->getAdminCityIds();
             if (!empty($adminCityIds)) {
-                $query->whereIn('city_id', $adminCityIds);
+                $query->where(function ($q) use ($adminCityIds) {
+                    $q->whereIn('city_id', $adminCityIds)
+                      ->orWhereHas('customer', function ($c) use ($adminCityIds) {
+                          $c->whereIn('city_id', $adminCityIds);
+                      });
+                });
             }
         }
 
@@ -79,12 +81,14 @@ class Index extends Component
         // Statistics - filtered by admin's managed cities
         $statsQuery = Help::query();
         if (auth()->user() && auth()->user()->role === 'admin') {
-            $adminCityIds = auth()->user()->managedCities()->pluck('cities.id')->toArray();
-            if (empty($adminCityIds) && auth()->user()->city_id) {
-                $adminCityIds = [auth()->user()->city_id];
-            }
+            $adminCityIds = auth()->user()->getAdminCityIds();
             if (!empty($adminCityIds)) {
-                $statsQuery->whereIn('city_id', $adminCityIds);
+                $statsQuery->where(function ($q) use ($adminCityIds) {
+                    $q->whereIn('city_id', $adminCityIds)
+                      ->orWhereHas('customer', function ($c) use ($adminCityIds) {
+                          $c->whereIn('city_id', $adminCityIds);
+                      });
+                });
             }
         }
 

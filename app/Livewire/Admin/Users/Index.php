@@ -112,6 +112,7 @@ class Index extends Component
                 'password' => bcrypt($this->password),
                 'verified' => true,
                 'email_verified_at' => now(),
+                'is_completed' => true,
             ]);
         }
 
@@ -121,13 +122,19 @@ class Index extends Component
 
     public function deleteUser($id)
     {
-        // Admins may only delete users from their city
+        // Admins may only delete users from their managed cities
         $user = User::findOrFail($id);
-        if (auth()->user() && auth()->user()->role === 'admin' && auth()->user()->city_id !== $user->city_id) {
+        if (auth()->user() && auth()->user()->role === 'admin' && !in_array($user->city_id, auth()->user()->getAdminCityIds())) {
             session()->flash('message', 'Anda tidak memiliki izin untuk menghapus user di luar wilayah Anda.');
             return;
         }
+        $userEmail = $user->email;
         $user->delete();
+        try {
+            \App\Models\Registration::where('email', $userEmail)->delete();
+        } catch (\Exception $e) {
+            // ignore
+        }
     }
 
     public function render()
@@ -153,9 +160,12 @@ class Index extends Component
             $query->where('status', $this->statusFilter);
         }
 
-        // Limit visible users for admins to their assigned city
+        // Limit visible users for admins to their assigned cities
         if (auth()->user() && auth()->user()->role === 'admin') {
-            $query->where('users.city_id', auth()->user()->city_id);
+            $adminCityIds = auth()->user()->getAdminCityIds();
+            if (!empty($adminCityIds)) {
+                $query->whereIn('users.city_id', $adminCityIds);
+            }
         }
 
         // Because we joined registrations, ordering by latest users.created_at

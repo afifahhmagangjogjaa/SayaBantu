@@ -87,8 +87,8 @@ new #[Layout('layouts.guest')] class extends Component {
             'address' => ['required', 'string', 'max:500'],
             'rt' => ['nullable', 'string', 'max:3', 'regex:/^[0-9]+$/'],
             'rw' => ['nullable', 'string', 'max:3', 'regex:/^[0-9]+$/'],
-            'kelurahan' => ['required', 'string', 'max:100'],
-            'kecamatan' => ['required', 'string', 'max:100'],
+            'kelurahan' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
+            'kecamatan' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
             'city_id' => ['nullable', 'exists:cities,id'],
             'city' => ['nullable', 'string', 'max:100'],
             'province' => ['required', 'string', 'max:100'],
@@ -97,6 +97,8 @@ new #[Layout('layouts.guest')] class extends Component {
             'nik.regex' => 'NIK hanya boleh berupa angka.',
             'full_name.regex' => 'Nama lengkap hanya boleh berisi huruf dan spasi.',
             'place_of_birth.regex' => 'Tempat lahir hanya boleh berupa huruf dan spasi.',
+            'kelurahan.regex' => 'Kelurahan / Desa hanya boleh berisi huruf.',
+            'kecamatan.regex' => 'Kecamatan hanya boleh berisi huruf.',
             'rt.max' => 'RT maksimal 3 karakter.',
             'rw.max' => 'RW maksimal 3 karakter.',
         ]);
@@ -358,6 +360,7 @@ new #[Layout('layouts.guest')] class extends Component {
         <div>
             <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kelurahan / Desa <span class="text-red-500">*</span></label>
             <input wire:model="kelurahan" id="kelurahan" type="text" placeholder="Nama Kelurahan / Desa"
+                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
             <x-input-error :messages="$errors->get('kelurahan')" class="mt-1" />
         </div>
@@ -366,6 +369,7 @@ new #[Layout('layouts.guest')] class extends Component {
         <div>
             <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kecamatan <span class="text-red-500">*</span></label>
             <input wire:model="kecamatan" id="kecamatan" type="text" placeholder="Nama Kecamatan"
+                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
             <x-input-error :messages="$errors->get('kecamatan')" class="mt-1" />
         </div>

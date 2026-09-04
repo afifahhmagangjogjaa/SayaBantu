@@ -5,25 +5,26 @@
     <div class="space-y-6">
         <!-- Filter Bar -->
         <div class="mb-6">
-            <form method="GET" action="{{ route('admin.users.index') }}"
+            <form method="GET" action="{{ url()->current() }}"
                 class="bg-white rounded-2xl shadow-md border border-gray-200 p-5 sm:p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <p class="text-xs font-semibold text-gray-700">Filter Pengguna</p>
+                    <p class="text-xs font-semibold text-gray-700">Filter {{ request()->routeIs('admin.customers*') ? 'Customer' : (request()->routeIs('admin.mitra*') ? 'Mitra' : 'Pengguna') }}</p>
                     @if (request()->hasAny(['search', 'role', 'account_status', 'ktp_status']))
-                        <a href="{{ route('admin.users.index') }}"
+                        <a href="{{ url()->current() }}"
                             class="text-[11px] text-gray-400 hover:text-gray-600 underline">Reset filter</a>
                     @endif
                 </div>
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Cari Pengguna</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Cari {{ request()->routeIs('admin.customers*') ? 'Customer' : (request()->routeIs('admin.mitra*') ? 'Mitra' : 'Pengguna') }}</label>
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Nama atau email pengguna"
+                            placeholder="Nama atau email..."
                             class="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ !request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*') ? '4' : '3' }} gap-4 items-end">
+                        @if(!request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*'))
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1.5">Role</label>
                             <select name="role" onchange="this.form.submit()"
@@ -34,6 +35,7 @@
                                 <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                             </select>
                         </div>
+                        @endif
 
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1.5">Status Akun</label>
@@ -192,8 +194,12 @@
                                     <td class="px-4 py-3.5 text-center whitespace-nowrap">
                                         <div class="inline-flex items-center justify-center gap-2 leading-none">
                                             <a href="#" data-url="{{ route('admin.users.show', $user) }}" 
-                                               class="open-user-detail inline-flex items-center justify-center px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-100 transition shadow-2xs leading-none">
-                                                Detail
+                                               class="open-user-detail p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg transition shadow-2xs leading-none cursor-pointer"
+                                               title="Lihat Detail">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
                                             </a>
 
                                             <button type="button"

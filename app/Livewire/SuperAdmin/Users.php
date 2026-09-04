@@ -18,6 +18,7 @@ class Users extends Component
     public $roleFilter = '';
     public $perPage = 10;
     public $selectedUser = null;
+    public $userId = null;
 
     // form fields
     public $name;
@@ -48,13 +49,18 @@ class Users extends Component
     public $showEditModal = false;
     public $showCreateModal = false;
     public $showConfirmDelete = false;
+    public $confirmingDeleteId = null;
     protected $queryString = [
         'roleFilter' => ['except' => '', 'as' => 'role']
     ];
 
     public function mount()
     {
-        if (request()->has('role')) {
+        if (request()->routeIs('superadmin.customers*')) {
+            $this->roleFilter = 'customer';
+        } elseif (request()->routeIs('superadmin.mitra*')) {
+            $this->roleFilter = 'mitra';
+        } elseif (request()->has('role')) {
             $role = request()->get('role');
             if (in_array($role, ['mitra', 'kustomer', 'customer'])) {
                 $this->roleFilter = $role;
@@ -130,6 +136,11 @@ class Users extends Component
     public function openCreateModal()
     {
         $this->resetForm();
+        if ($this->roleFilter === 'mitra') {
+            $this->role = 'mitra';
+        } else {
+            $this->role = 'kustomer';
+        }
         $this->showCreateModal = true;
     }
 
@@ -198,24 +209,40 @@ class Users extends Component
         if ($this->rt) $this->rt = preg_replace('/[^0-9]/', '', (string) $this->rt);
         if ($this->rw) $this->rw = preg_replace('/[^0-9]/', '', (string) $this->rw);
 
-        $isEdit = !empty($this->selectedUser);
+        // Auto-assign role based on current management section
+        if ($this->roleFilter === 'mitra') {
+            $this->role = 'mitra';
+        } elseif ($this->roleFilter === 'customer' || $this->roleFilter === 'kustomer') {
+            $this->role = 'kustomer';
+        } elseif (empty($this->role)) {
+            $this->role = 'kustomer';
+        }
 
         $rules = [
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'email' => $emailRules,
             'phone' => ['required', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
             'role' => 'required|string',
+            'status' => 'nullable|string|in:active,inactive',
             'verified' => 'required|boolean',
             'city_id' => 'required|exists:cities,id',
             'managed_city_ids' => 'nullable|array',
             'managed_city_ids.*' => 'exists:cities,id',
-            'nik' => [$isEdit ? 'nullable' : 'required', 'string', 'size:16', 'regex:/^[0-9]+$/'],
+            'nik' => [
+                $isEdit ? 'nullable' : 'required',
+                'string',
+                'size:16',
+                'regex:/^[0-9]+$/',
+                ($this->selectedUser ? $this->selectedUser->id : $this->userId) 
+                    ? \Illuminate\Validation\Rule::unique('users', 'nik')->ignore($this->selectedUser ? $this->selectedUser->id : $this->userId) 
+                    : \Illuminate\Validation\Rule::unique('users', 'nik'),
+            ],
             'place_of_birth' => [$isEdit ? 'nullable' : 'required', 'string', 'max:100', 'regex:/^[a-zA-Z\s]+$/'],
             'date_of_birth' => $isEdit ? 'nullable|date|before_or_equal:today' : 'required|date|before_or_equal:today',
             'gender' => $isEdit ? 'nullable|in:Laki-laki,Perempuan' : 'required|in:Laki-laki,Perempuan',
             'address' => $isEdit ? 'nullable|string|max:1000' : 'required|string|max:1000',
-            'kelurahan' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
-            'kecamatan' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
+            'kelurahan' => $isEdit ? 'nullable|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/' : 'required|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/',
+            'kecamatan' => $isEdit ? 'nullable|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/' : 'required|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/',
             'province' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
             'rt' => 'nullable|string|max:3|regex:/^[0-9]+$/',
             'rw' => 'nullable|string|max:3|regex:/^[0-9]+$/',
@@ -242,6 +269,7 @@ class Users extends Component
             'nik.required' => 'NIK wajib diisi.',
             'nik.size' => 'NIK harus 16 digit angka.',
             'nik.regex' => 'NIK hanya boleh berisi angka.',
+            'nik.unique' => 'NIK sudah digunakan oleh pengguna lain.',
             'place_of_birth.required' => 'Tempat lahir wajib diisi.',
             'place_of_birth.regex' => 'Tempat lahir hanya boleh berisi huruf dan spasi.',
             'date_of_birth.required' => 'Tanggal lahir wajib diisi.',
@@ -249,7 +277,9 @@ class Users extends Component
             'city_id.required' => 'Kota domisili wajib dipilih.',
             'address.required' => 'Alamat lengkap wajib diisi.',
             'kelurahan.required' => 'Kelurahan / Desa wajib diisi.',
+            'kelurahan.regex' => 'Kelurahan / Desa hanya boleh berisi huruf.',
             'kecamatan.required' => 'Kecamatan wajib diisi.',
+            'kecamatan.regex' => 'Kecamatan hanya boleh berisi huruf.',
             'province.required' => 'Provinsi wajib diisi.',
             'verified.required' => 'Status verifikasi wajib dipilih.',
             'verified.boolean' => 'Format status verifikasi tidak valid.',
@@ -325,11 +355,30 @@ class Users extends Component
         } else {
             // create new user with provided password
             $data['password'] = bcrypt($this->password);
+            $data['email_verified_at'] = now();
+            $data['is_completed'] = true;
             $user = User::create($data);
             
             // Sync managed cities for admin role
             if ($this->role === 'admin') {
                 $user->managedCities()->sync($this->managed_city_ids ?? []);
+            }
+
+            if ($this->verified) {
+                try {
+                    \App\Models\Registration::updateOrCreate(
+                        ['email' => $user->email],
+                        [
+                            'user_id' => $user->id,
+                            'name' => $user->name,
+                            'phone' => $user->phone,
+                            'role' => $user->role,
+                            'status' => 'approved',
+                        ]
+                    );
+                } catch (\Exception $e) {
+                    // ignore
+                }
             }
             
             session()->flash('message', 'User created successfully');
@@ -352,8 +401,14 @@ class Users extends Component
             $this->showConfirmDelete = false;
             return;
         }
+        $userEmail = $user->email;
         $user->delete();
-        session()->flash('message', 'User deleted');
+        try {
+            \App\Models\Registration::where('email', $userEmail)->delete();
+        } catch (\Exception $e) {
+            // ignore
+        }
+        session()->flash('message', 'User and associated verification data deleted');
         $this->showConfirmDelete = false;
         $this->confirmingDeleteId = null;
         $this->resetPage();

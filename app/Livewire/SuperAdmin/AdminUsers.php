@@ -21,6 +21,7 @@ class AdminUsers extends Component
     public $roleFilter = 'admin';
     public $perPage = 10;
     public $selectedUser = null;
+    public $userId = null;
 
     // form fields
     public $name;
@@ -197,13 +198,21 @@ class AdminUsers extends Component
             'city_id' => 'required|exists:cities,id',
             'managed_city_ids' => 'nullable|array',
             'managed_city_ids.*' => 'exists:cities,id',
-            'nik' => [$isEdit ? 'nullable' : 'required', 'string', 'size:16', 'regex:/^[0-9]+$/'],
+            'nik' => [
+                $isEdit ? 'nullable' : 'required',
+                'string',
+                'size:16',
+                'regex:/^[0-9]+$/',
+                ($this->selectedUser ? $this->selectedUser->id : $this->userId) 
+                    ? \Illuminate\Validation\Rule::unique('users', 'nik')->ignore($this->selectedUser ? $this->selectedUser->id : $this->userId) 
+                    : \Illuminate\Validation\Rule::unique('users', 'nik'),
+            ],
             'place_of_birth' => [$isEdit ? 'nullable' : 'required', 'string', 'max:100', 'regex:/^[a-zA-Z\s]+$/'],
             'date_of_birth' => $isEdit ? 'nullable|date|before_or_equal:today' : 'required|date|before_or_equal:today',
             'gender' => $isEdit ? 'nullable|in:Laki-laki,Perempuan' : 'required|in:Laki-laki,Perempuan',
             'address' => $isEdit ? 'nullable|string|max:1000' : 'required|string|max:1000',
-            'kelurahan' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
-            'kecamatan' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
+            'kelurahan' => $isEdit ? 'nullable|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/' : 'required|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/',
+            'kecamatan' => $isEdit ? 'nullable|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/' : 'required|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/',
             'province' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
             'rt' => 'nullable|string|max:3|regex:/^[0-9]+$/',
             'rw' => 'nullable|string|max:3|regex:/^[0-9]+$/',
@@ -229,6 +238,7 @@ class AdminUsers extends Component
             'nik.required' => 'NIK wajib diisi.',
             'nik.size' => 'NIK harus 16 digit angka.',
             'nik.regex' => 'NIK hanya boleh berisi angka.',
+            'nik.unique' => 'NIK sudah digunakan oleh pengguna lain.',
             'place_of_birth.required' => 'Tempat lahir wajib diisi.',
             'place_of_birth.regex' => 'Tempat lahir hanya boleh berisi huruf dan spasi.',
             'date_of_birth.required' => 'Tanggal lahir wajib diisi.',
@@ -236,7 +246,9 @@ class AdminUsers extends Component
             'city_id.required' => 'Kota domisili wajib dipilih.',
             'address.required' => 'Alamat lengkap wajib diisi.',
             'kelurahan.required' => 'Kelurahan / Desa wajib diisi.',
+            'kelurahan.regex' => 'Kelurahan / Desa hanya boleh berisi huruf.',
             'kecamatan.required' => 'Kecamatan wajib diisi.',
+            'kecamatan.regex' => 'Kecamatan hanya boleh berisi huruf.',
             'province.required' => 'Provinsi wajib diisi.',
             'verified.required' => 'Status verifikasi wajib dipilih.',
             'verified.boolean' => 'Format status verifikasi tidak valid.',
@@ -296,6 +308,9 @@ class AdminUsers extends Component
             session()->flash('message', 'User updated successfully');
         } else {
             $data['password'] = bcrypt($this->password);
+            $data['email_verified_at'] = now();
+            $data['is_completed'] = true;
+            $data['verified'] = true;
             $user = User::create($data);
 
             if ($this->role === 'admin') {

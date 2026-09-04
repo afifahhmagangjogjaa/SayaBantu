@@ -1,10 +1,10 @@
 <div class="min-h-screen bg-white">
     @php
         // Mitra stats
-        $totalHelped = \App\Models\Help::where('mitra_id', $user->id)->count();
-        $completedHelps = \App\Models\Help::where('mitra_id', $user->id)->where('status', 'selesai')->count();
-        $averageRating = number_format($user->mitra_average_rating ?? ($user->average_rating ?? 0), 1);
-        $totalRatings = $user->mitra_rating_count ?? ($user->rating_count ?? 0);
+        $totalHelped = $totalHelped ?? \App\Models\Help::where('mitra_id', $user->id)->count();
+        $completedHelps = $completedHelps ?? \App\Models\Help::where('mitra_id', $user->id)->where('status', 'selesai')->count();
+        $averageRating = number_format($averageRating ?? ($user->mitra_average_rating ?? 0), 1);
+        $totalRatings = $totalRatings ?? ($user->mitra_rating_count ?? 0);
     @endphp
 
     <div class="max-w-md mx-auto">
@@ -103,15 +103,33 @@
 
         <!-- Menu Items -->
         <div class="px-5 pt-6 pb-24">
-            @if(session()->has('message'))
-                <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl flex items-center gap-3 shadow-sm">
-                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold">{{ session('message') }}</p>
+            {{-- Pop up Pesan Sukses --}}
+            @if(session()->has('message') || session()->has('status'))
+                @php
+                    $successMsg = session('message') ?? session('status');
+                @endphp
+                <div x-data="{ show: true }" x-show="show" x-cloak
+                     class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm">
+                    <div x-show="show"
+                         x-transition:enter="transition ease-out duration-300 transform"
+                         x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         class="bg-white rounded-3xl shadow-2xl max-w-xs w-full p-6 text-center border border-gray-100">
+                        
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center shadow-inner">
+                            <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold text-gray-900 mb-1">Berhasil!</h2>
+                        <p class="text-sm text-gray-600 mb-6">{{ $successMsg }}</p>
+                        
+                        <button @click="show = false" 
+                                class="w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer"
+                                style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
+                            Oke
+                        </button>
                     </div>
                 </div>
             @endif
@@ -119,24 +137,68 @@
             @livewire('mitra.update-profile-photo')
 
             @php
-                $missingFields = $user ? $user->getMissingProfileFields() : [];
+                $missingFields = $user ? $user->getMissingBiodataFields() : [];
+                $hasKtp = !empty($user->ktp_photo) || !empty($user->ktp_path);
+                $hasSelfie = !empty($user->selfie_photo);
+                $hasDocs = $hasKtp && $hasSelfie;
+                $isVerified = (bool) optional($user)->verified;
             @endphp
 
-            @if(!empty($missingFields))
-                <!-- Banner Lengkapi Profil -->
-                <div class="mb-4 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-sm flex items-start gap-3.5">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            {{-- 1. INFO VERIFIKASI KTP / DOKUMEN (DI ATAS LENGKAPI PROFIL) --}}
+            @if(!$hasDocs)
+                {{-- Belum Upload Foto KTP & Selfie --}}
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div class="rounded-xl shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #ffffff; width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                         </svg>
                     </div>
-                    <div class="flex-1">
-                        <h4 class="text-xs font-bold text-amber-900">Lengkapi Profil Anda</h4>
-                        <p class="text-[11px] text-amber-700 mt-0.5 leading-relaxed">
-                            Mohon lengkapi data <span class="font-bold text-amber-900">{{ implode(', ', $missingFields) }}</span> Anda agar dapat mengambil dan menjalankan bantuan.
-                        </p>
-                        <a href="{{ route('mitra.profile.edit') }}" class="inline-flex items-center gap-1 text-xs font-bold text-amber-900 hover:text-amber-950 mt-2 bg-amber-200/80 hover:bg-amber-300 px-3 py-1.5 rounded-lg transition shadow-xs">
-                            Lengkapi Sekarang &rarr;
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="flex items-center gap-2">
+                            <div class="font-bold text-amber-950 text-sm">Belum Upload KTP & Selfie</div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200 text-amber-900">Wajib</span>
+                        </div>
+                        <div class="mt-1 text-amber-800 leading-relaxed">
+                            Upload foto KTP dan foto selfie Anda untuk verifikasi identitas agar dapat menjalankan pekerjaan bantuan.
+                        </div>
+                        <a href="{{ route('profile.settings.verification') }}" class="inline-flex items-center gap-1.5 font-bold text-white bg-amber-600 hover:bg-amber-700 px-3.5 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-xs">
+                            <span>Upload KTP & Selfie Sekarang</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                    </div>
+                </div>
+            @elseif(!$isVerified)
+                {{-- Sudah Upload KTP & Selfie, Menunggu Verifikasi Admin --}}
+                <div class="bg-blue-50/95 border border-blue-200 rounded-2xl p-4 text-xs text-blue-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div class="rounded-xl bg-blue-100 text-blue-600 text-lg shadow-2xs" style="width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                        ⏳
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-bold text-blue-950 text-sm">Menunggu Verifikasi KTP</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">Dalam Proses</span>
+                        </div>
+                        <p class="text-xs text-blue-800 leading-relaxed">Foto KTP dan data pendaftaran Anda telah berhasil dikirim. Akun Mitra Anda sedang dalam proses peninjauan & verifikasi oleh Admin Kota.</p>
+                    </div>
+                </div>
+            @endif
+
+            {{-- 2. INFO LENGKAPI PROFIL / BIODATA --}}
+            @if(!empty($missingFields))
+                <!-- Banner Lengkapi Biodata -->
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div class="rounded-xl shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="font-bold text-amber-950 text-sm">Lengkapi Biodata Diri Anda</div>
+                        <div class="mt-1 text-amber-800 leading-relaxed">
+                            Mohon lengkapi data profil wajib (<strong>{{ implode(', ', $missingFields) }}</strong>) agar akun Anda lengkap dan dapat mengambil serta menjalankan bantuan.
+                        </div>
+                        <a href="{{ route('mitra.profile.edit') }}" class="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3.5 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-2xs">
+                            <span>Lengkapi Biodata Sekarang &rarr;</span>
                         </a>
                     </div>
                 </div>
@@ -144,6 +206,30 @@
 
             <!-- Full Width Menu Items -->
             <div class="space-y-3">
+                <!-- Verifikasi KTP & Identitas -->
+                <a href="{{ route('profile.settings.verification') }}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:border-orange-200 transition" style="display: flex; align-items: center; gap: 16px;">
+                    <div class="rounded-xl shadow-md" style="width: 48px; height: 48px; min-width: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);">
+                        <svg style="width: 24px; height: 24px; color: #ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                        </svg>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                            <span class="font-semibold text-gray-900 text-sm truncate">Verifikasi KTP & Identitas</span>
+                            @if(auth()->user()->verified ?? false)
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 whitespace-nowrap flex-shrink-0">Terverifikasi</span>
+                            @elseif(!empty(auth()->user()->ktp_photo) && !empty(auth()->user()->selfie_photo))
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 whitespace-nowrap flex-shrink-0">Dalam Proses</span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 whitespace-nowrap flex-shrink-0">Belum Upload</span>
+                            @endif
+                        </div>
+                        <p class="text-xs text-gray-500 truncate mt-0.5">Upload & kelola foto KTP serta foto selfie</p>
+                    </div>
+                    <svg class="text-gray-400 flex-shrink-0" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
                 <!-- Rating & Ulasan -->
                 <a href="{{ route('mitra.ratings') }}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-primary-200 transition">
                     <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 flex-shrink-0">

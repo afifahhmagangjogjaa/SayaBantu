@@ -24,13 +24,26 @@ class AllHelps extends Component
 
     public $search = '';
     public $filterStatus = 'all'; // all, menunggu_mitra
-    public $sortBy = 'latest'; // latest, oldest, price_high, price_low
+    public $sortBy = 'latest'; // latest, oldest, nearby, price_high, price_low
+    public $userLat = null;
+    public $userLng = null;
 
     public function updatingSearch()
     {
         $this->resetPage();
     }
 
+    public function updatedSortBy()
+    {
+        $this->resetPage();
+    }
+
+    public function setCoordinates($lat, $lng)
+    {
+        $this->userLat = $lat;
+        $this->userLng = $lng;
+        $this->resetPage();
+    }
 
     public function render()
     {
@@ -80,23 +93,29 @@ class AllHelps extends Component
 
         // Sort
         if ($this->sortBy === 'nearby') {
-            // Try to prioritize helps from the same city as the authenticated user.
-            $userCityId = optional($user)->city_id;
-            if ($userCityId) {
-                // Order by a boolean match first, then by latest
-                $query->orderByRaw("(city_id = ?) DESC", [$userCityId])->latest();
+            if ($this->userLat && $this->userLng) {
+                $lat = (float) $this->userLat;
+                $lng = (float) $this->userLng;
+                $haversine = "(6371 * acos(least(1.0, greatest(-1.0, cos(radians($lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians($lng)) + sin(radians($lat)) * sin(radians(latitude))))))";
+                $query->orderByRaw("CASE WHEN latitude IS NOT NULL AND longitude IS NOT NULL THEN 0 ELSE 1 END")
+                      ->orderByRaw("$haversine ASC")
+                      ->latest();
             } else {
-                // fallback to latest if we don't have user's city
-                $query->latest();
+                $userCityId = optional($user)->city_id;
+                if ($userCityId) {
+                    $query->orderByRaw("(city_id = ?) DESC", [$userCityId])->latest();
+                } else {
+                    $query->latest();
+                }
             }
         } elseif ($this->sortBy === 'latest') {
             $query->latest();
         } elseif ($this->sortBy === 'oldest') {
             $query->oldest();
         } elseif ($this->sortBy === 'price_high') {
-            $query->orderByDesc('estimated_price');
+            $query->orderByRaw('COALESCE(total_amount, amount, 0) DESC')->latest();
         } elseif ($this->sortBy === 'price_low') {
-            $query->orderBy('estimated_price');
+            $query->orderByRaw('COALESCE(total_amount, amount, 0) ASC')->latest();
         }
 
         if ($needsCity) {

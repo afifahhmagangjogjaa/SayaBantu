@@ -11,12 +11,7 @@ new #[Layout('layouts.guest')] class extends Component {
         $allowed = ['customer', 'mitra'];
         $role = in_array($role, $allowed) ? $role : 'customer';
 
-        Session::put('registration_role', $role);
-
-        // Clear any previous registration UUID to start fresh
-        Session::forget('registration_uuid');
-
-        $this->redirect(route('register.step1'), navigate: true);
+        $this->redirect(route('register', ['role' => $role]));
     }
 }; ?>
 
