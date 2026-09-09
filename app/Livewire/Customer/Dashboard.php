@@ -76,11 +76,16 @@ class Dashboard extends Component
 
         // Filter berdasarkan tab yang aktif
         if ($this->activeTab === 'latest') {
-            // Ambil bantuan user sendiri (5 bantuan terakhir)
+            // Hanya tampilkan bantuan yang MASIH MENUNGGU MITRA (belum diambil/diproses)
             $availableHelps = Help::where('user_id', $user->id)
+                ->whereIn('status', [
+                    'menunggu_pembayaran',
+                    'mencari_mitra',
+                    'menunggu_mitra',
+                ])
                 ->with(['user', 'city', 'mitra', 'category'])
                 ->latest()
-                ->take(5)
+                ->take(10)
                 ->get();
         } elseif ($this->activeTab === 'all') {
             // Ambil semua bantuan milik user sendiri (pakai pagination)

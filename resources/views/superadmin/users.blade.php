@@ -163,10 +163,14 @@
                                         }
                                     @endphp
                                     @if($avgRating > 0 && $ratingCount > 0)
-                                        <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-                                            ★ {{ number_format($avgRating, 1) }}
-                                        </span>
-                                        <span class="text-[10px] text-gray-400 ml-0.5">({{ $ratingCount }})</span>
+                                        <a href="{{ route('superadmin.ratings.index', ['search' => $user->email ?? $user->name]) }}"
+                                           class="inline-flex items-center group cursor-pointer hover:opacity-85 transition"
+                                           title="Lihat ulasan di menu Rating & Ulasan">
+                                            <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-200 group-hover:bg-amber-100 transition shadow-2xs">
+                                                ★ {{ number_format($avgRating, 1) }}
+                                            </span>
+                                            <span class="text-[10px] text-gray-500 ml-0.5 group-hover:text-primary-600 group-hover:underline">({{ $ratingCount }})</span>
+                                        </a>
                                     @else
                                         <span class="text-xs text-gray-400">-</span>
                                     @endif
@@ -405,145 +409,56 @@
                         </div>
                     </div>
 
-                    {{-- Penilaian Internal dari Mitra (Hanya Super Admin) --}}
-                    @if(in_array($selectedUser->role, ['kustomer', 'customer']))
-                        <div class="mt-6 border-t border-gray-100 pt-5">
-                            <div class="flex items-center justify-between mb-3">
-                                <div>
-                                    <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2">
-                                        <span>⭐ Penilaian & Ulasan Mitra</span>
-                                        <span class="px-2 py-0.5 text-[10px] font-semibold bg-purple-100 text-purple-800 rounded-full">Internal</span>
-                                    </h4>
-                                    <p class="text-xs text-gray-500 mt-0.5">Rating rahasia yang diberikan mitra untuk customer ini (customer tidak dapat melihat ini).</p>
+                    {{-- Rating Summary & Link ke Menu Rating --}}
+                    @php
+                        if ($selectedUser->isMitra()) {
+                            $avgScore = $selectedUser->mitra_average_rating;
+                            $ratingTotal = $selectedUser->mitra_rating_count;
+                            $ratingTitle = 'Rating Mitra dari Customer';
+                            $isInternal = false;
+                        } else {
+                            $avgScore = $selectedUser->customer_average_rating;
+                            $ratingTotal = $selectedUser->customer_rating_count;
+                            $ratingTitle = 'Penilaian Mitra untuk Customer';
+                            $isInternal = true;
+                        }
+                    @endphp
+                    <div class="mt-6 border-t border-gray-100 pt-5">
+                        <div class="bg-gradient-to-r from-amber-50 via-orange-50/50 to-amber-50 rounded-xl p-4 border border-amber-200/80 flex items-center justify-between gap-3">
+                            <div>
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <span class="text-xs font-bold text-amber-900">⭐ {{ $ratingTitle }}</span>
+                                    @if($isInternal)
+                                        <span class="px-1.5 py-0.5 text-[9px] font-semibold bg-purple-100 text-purple-800 rounded">Internal</span>
+                                    @endif
                                 </div>
-                                <div class="text-right">
-                                    <div class="flex items-center gap-1">
-                                        <span class="text-lg font-bold text-yellow-600">{{ $selectedUser->customer_average_rating }}</span>
-                                        <span class="text-xs text-gray-400">/ 5.0</span>
-                                        <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                        </svg>
+                                @if($ratingTotal > 0 && $avgScore > 0)
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex items-center text-amber-500">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <svg class="w-3.5 h-3.5 {{ $avgScore >= $i ? 'fill-current' : 'text-gray-300 fill-current' }}" viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                </svg>
+                                            @endfor
+                                        </div>
+                                        <span class="text-base font-bold text-gray-900">{{ number_format($avgScore, 1) }}</span>
+                                        <span class="text-xs text-gray-500">({{ $ratingTotal }} ulasan)</span>
                                     </div>
-                                    <div class="text-[11px] text-gray-500">{{ $selectedUser->customer_rating_count }} ulasan</div>
-                                </div>
+                                @else
+                                    <span class="text-xs text-gray-400 italic">Belum ada rating atau ulasan</span>
+                                @endif
                             </div>
 
-                            @php
-                                $customerRatings = $selectedUser->customerRatings()->with(['rater', 'help', 'user'])->latest()->get();
-                            @endphp
-
-                            @if($customerRatings->count() > 0)
-                                <div class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
-                                    @foreach($customerRatings as $cr)
-                                        @php
-                                            $raterUser = $cr->rater ?? $cr->user;
-                                        @endphp
-                                        <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <div class="flex items-center gap-1.5 flex-wrap">
-                                                    <span class="font-semibold text-gray-900">{{ optional($raterUser)->name ?? 'Mitra' }}</span>
-                                                    @if(optional($raterUser)->email)
-                                                        <span class="text-gray-400 text-[10px]">({{ $raterUser->email }})</span>
-                                                    @endif
-                                                    @if($cr->is_anonymous)
-                                                        <span class="px-1.5 py-0.5 text-[9px] font-medium bg-amber-50 text-amber-800 rounded border border-amber-200">Anonim bagi publik</span>
-                                                    @endif
-                                                </div>
-                                                <div class="flex items-center gap-1">
-                                                    <div class="flex text-yellow-400">
-                                                        @for($i = 1; $i <= 5; $i++)
-                                                            <svg class="w-3.5 h-3.5 {{ $i <= $cr->rating ? 'text-yellow-400' : 'text-gray-300' }}" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                                            </svg>
-                                                        @endfor
-                                                    </div>
-                                                    <span class="text-gray-400 text-[10px] ml-1">{{ $cr->created_at->format('d/m/Y H:i') }}</span>
-                                                </div>
-                                            </div>
-                                            @if($cr->help)
-                                                <div class="text-[11px] text-primary-600 mb-1 font-medium">Bantuan: {{ $cr->help->title }}</div>
-                                            @endif
-                                            @if($cr->review)
-                                                <div class="text-gray-700 bg-white p-2 rounded-lg border border-gray-100 italic">"{{ $cr->review }}"</div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <div class="p-3 bg-gray-50 rounded-xl text-center text-xs text-gray-500">
-                                    Belum ada penilaian atau ulasan dari mitra untuk customer ini.
-                                </div>
-                            @endif
+                            <a href="{{ route('superadmin.ratings.index', ['search' => $selectedUser->email ?? $selectedUser->name]) }}"
+                                class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-black text-xs font-semibold rounded-lg shadow-2xs transition flex-shrink-0 cursor-pointer"
+                                title="Buka menu Rating & Ulasan untuk pengguna ini">
+                                <span>Lihat Semua Ulasan</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
                         </div>
-                    @elseif($selectedUser->role === 'mitra')
-                        <div class="mt-6 border-t border-gray-100 pt-5">
-                            <div class="flex items-center justify-between mb-3">
-                                <div>
-                                    <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2">
-                                        <span>⭐ Rating & Ulasan dari Customer</span>
-                                    </h4>
-                                    <p class="text-xs text-gray-500 mt-0.5">Rating dan ulasan yang diterima mitra dari customer.</p>
-                                </div>
-                                <div class="text-right">
-                                    <div class="flex items-center gap-1">
-                                        <span class="text-lg font-bold text-yellow-600">{{ $selectedUser->mitra_average_rating }}</span>
-                                        <span class="text-xs text-gray-400">/ 5.0</span>
-                                        <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="text-[11px] text-gray-500">{{ $selectedUser->mitra_rating_count }} ulasan</div>
-                                </div>
-                            </div>
-
-                            @php
-                                $mitraRatings = $selectedUser->mitraRatings()->with(['rater', 'help', 'user'])->latest()->get();
-                            @endphp
-
-                            @if($mitraRatings->count() > 0)
-                                <div class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
-                                    @foreach($mitraRatings as $mr)
-                                        @php
-                                            $raterUser = $mr->rater ?? $mr->user;
-                                        @endphp
-                                        <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <div class="flex items-center gap-1.5 flex-wrap">
-                                                    <span class="font-semibold text-gray-900">{{ optional($raterUser)->name ?? 'Customer' }}</span>
-                                                    @if(optional($raterUser)->email)
-                                                        <span class="text-gray-400 text-[10px]">({{ $raterUser->email }})</span>
-                                                    @endif
-                                                    @if($mr->is_anonymous)
-                                                        <span class="px-1.5 py-0.5 text-[9px] font-medium bg-amber-50 text-amber-800 rounded border border-amber-200">Anonim bagi publik</span>
-                                                    @endif
-                                                </div>
-                                                <div class="flex items-center gap-1">
-                                                    <div class="flex text-yellow-400">
-                                                        @for($i = 1; $i <= 5; $i++)
-                                                            <svg class="w-3.5 h-3.5 {{ $i <= $mr->rating ? 'text-yellow-400' : 'text-gray-300' }}" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                                            </svg>
-                                                        @endfor
-                                                    </div>
-                                                    <span class="text-gray-400 text-[10px] ml-1">{{ $mr->created_at->format('d/m/Y H:i') }}</span>
-                                                </div>
-                                            </div>
-                                            @if($mr->help)
-                                                <div class="text-[11px] text-primary-600 mb-1 font-medium">Bantuan: {{ $mr->help->title }}</div>
-                                            @endif
-                                            @if($mr->review)
-                                                <div class="text-gray-700 bg-white p-2 rounded-lg border border-gray-100 italic">"{{ $mr->review }}"</div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <div class="p-3 bg-gray-50 rounded-xl text-center text-xs text-gray-500">
-                                    Belum ada ulasan dari customer untuk mitra ini.
-                                </div>
-                            @endif
-                        </div>
-                    @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -685,19 +600,6 @@
                                         </div>
 
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Kota Domisili <span class="text-red-500">*</span></label>
-                                            <select wire:model="city_id"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                                <option value="">-- Pilih Kota --</option>
-                                                @foreach($cities as $c)
-                                                    <option value="{{ $c->id }}">{{ $c->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('city_id') <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div>
                                             <label class="text-xs font-medium text-gray-700">Agama</label>
                                             <select wire:model="religion"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
@@ -712,12 +614,6 @@
                                         </div>
 
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Pekerjaan</label>
-                                            <input type="text" wire:model="occupation" placeholder="Contoh: Wiraswasta"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
-                                        </div>
-
-                                        <div>
                                             <label class="text-xs font-medium text-gray-700">Status Perkawinan</label>
                                             <select wire:model="marital_status"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
@@ -727,6 +623,12 @@
                                                 <option value="Cerai Hidup">Cerai Hidup</option>
                                                 <option value="Cerai Mati">Cerai Mati</option>
                                             </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="text-xs font-medium text-gray-700">Pekerjaan</label>
+                                            <input type="text" wire:model="occupation" placeholder="Contoh: Wiraswasta"
+                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                         </div>
 
                                         <div class="grid grid-cols-2 gap-3">
@@ -744,27 +646,50 @@
                                             </div>
                                         </div>
 
+                                        <!-- Wilayah Domisili (Kota Terdaftar di DB -> Auto-fetch Kecamatan & Kelurahan API) -->
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Kelurahan / Desa <span class="text-red-500">*</span></label>
-                                            <input type="text" wire:model="kelurahan" placeholder="Nama Kelurahan"
-                                                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
-                                            @error('kelurahan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
+                                            <label class="text-xs font-medium text-gray-700">Kota / Kabupaten Domisili <span class="text-red-500">*</span></label>
+                                            <select wire:model.live="city_id"
+                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                                <option value="">-- Pilih Kota / Kabupaten --</option>
+                                                @foreach($cities as $c)
+                                                    <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->province ?? 'Indonesia' }})</option>
+                                                @endforeach
+                                            </select>
+                                            @error('city_id') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label class="text-xs font-medium text-gray-700">Provinsi Domisili</label>
+                                            <input type="text" wire:model="province" readonly placeholder="Otomatis terisi dari kota"
+                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-600 cursor-not-allowed focus:outline-none" />
+                                            @error('province') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
 
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Kecamatan <span class="text-red-500">*</span></label>
-                                            <input type="text" wire:model="kecamatan" placeholder="Nama Kecamatan"
-                                                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                                            <select wire:model.live="selectedDistrictCode"
+                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                {{ empty($apiDistricts) ? 'disabled' : '' }}>
+                                                <option value="">{{ empty($city_id) ? '-- Pilih Kota Terlebih Dahulu --' : (empty($apiDistricts) ? '-- Memuat Kecamatan... --' : '-- Pilih Kecamatan --') }}</option>
+                                                @foreach($apiDistricts as $d)
+                                                    <option value="{{ $d['code'] }}">{{ $d['name'] }}</option>
+                                                @endforeach
+                                            </select>
                                             @error('kecamatan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
 
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Provinsi <span class="text-red-500">*</span></label>
-                                            <input type="text" wire:model="province" placeholder="Nama Provinsi"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
-                                            @error('province') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
+                                            <label class="text-xs font-medium text-gray-700">Kelurahan / Desa <span class="text-red-500">*</span></label>
+                                            <select wire:model.live="selectedVillageCode"
+                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                {{ empty($apiVillages) ? 'disabled' : '' }}>
+                                                <option value="">{{ empty($selectedDistrictCode) ? '-- Pilih Kecamatan Terlebih Dahulu --' : (empty($apiVillages) ? '-- Memuat Kelurahan... --' : '-- Pilih Kelurahan / Desa --') }}</option>
+                                                @foreach($apiVillages as $v)
+                                                    <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('kelurahan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
 
                                         <div class="md:col-span-2">

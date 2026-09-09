@@ -54,6 +54,144 @@ class AdminUsers extends Component
     public $showConfirmDelete = false;
     public $confirmingDeleteId = null;
 
+    // Wilayah.id API dropdowns for Kecamatan & Kelurahan
+    public $apiProvinces = [];
+    public $apiCities = [];
+    public $apiDistricts = [];
+    public $apiVillages = [];
+    public $selectedCityCode = '';
+    public $selectedDistrictCode = '';
+    public $selectedVillageCode = '';
+
+    public function fetchProvinces()
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get('https://wilayah.id/api/provinces.json');
+            if ($response->successful()) {
+                $this->apiProvinces = $response->json('data') ?? [];
+            }
+        } catch (\Exception $e) {
+            $this->apiProvinces = [];
+        }
+    }
+
+    public function fetchCities($provinceCode)
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/regencies/{$provinceCode}.json");
+            if ($response->successful()) {
+                $this->apiCities = $response->json('data') ?? [];
+            }
+        } catch (\Exception $e) {
+            $this->apiCities = [];
+        }
+    }
+
+    public function fetchDistricts($cityCode)
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/districts/{$cityCode}.json");
+            if ($response->successful()) {
+                $this->apiDistricts = $response->json('data') ?? [];
+            }
+        } catch (\Exception $e) {
+            $this->apiDistricts = [];
+        }
+    }
+
+    public function fetchVillages($districtCode)
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/villages/{$districtCode}.json");
+            if ($response->successful()) {
+                $this->apiVillages = $response->json('data') ?? [];
+            }
+        } catch (\Exception $e) {
+            $this->apiVillages = [];
+        }
+    }
+
+    public function updatedCityId($id)
+    {
+        $this->kecamatan = '';
+        $this->selectedDistrictCode = '';
+        $this->apiDistricts = [];
+        $this->kelurahan = '';
+        $this->selectedVillageCode = '';
+        $this->apiVillages = [];
+
+        if (!$id) {
+            $this->province = '';
+            $this->selectedCityCode = '';
+            return;
+        }
+
+        $city = City::find($id);
+        if ($city) {
+            $this->province = $city->province;
+            $this->resolveCityCodeAndFetchDistricts($city);
+        }
+    }
+
+    public function resolveCityCodeAndFetchDistricts($city)
+    {
+        if (!empty($city->code)) {
+            $this->selectedCityCode = $city->code;
+            $this->fetchDistricts($this->selectedCityCode);
+            return;
+        }
+
+        $this->fetchProvinces();
+        $cleanProvInput = trim(preg_replace('/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|PROVINSI|DI|DKI)\b/i', '', $city->province ?? ''));
+        $prov = collect($this->apiProvinces)->first(function ($p) use ($city, $cleanProvInput) {
+            $pName = $p['name'];
+            $cleanP = trim(preg_replace('/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|PROVINSI|DI|DKI)\b/i', '', $pName));
+            return strtoupper(trim($city->province)) === strtoupper(trim($pName)) ||
+                (!empty($cleanProvInput) && stripos($cleanP, $cleanProvInput) !== false) ||
+                (!empty($cleanProvInput) && stripos($pName, $cleanProvInput) !== false) ||
+                stripos($pName, trim($city->province)) !== false ||
+                stripos(trim($city->province), $pName) !== false;
+        });
+
+        if ($prov) {
+            $this->fetchCities($prov['code']);
+            $cityNameClean = trim(preg_replace('/\b(KOTA\s+ADM|KOTA|KABUPATEN|KAB)\b/i', '', $city->name ?? ''));
+            $cityApi = collect($this->apiCities)->first(function ($c) use ($city, $cityNameClean) {
+                $apiName = $c['name'];
+                $cleanApi = trim(preg_replace('/\b(KOTA\s+ADM|KOTA|KABUPATEN|KAB)\b/i', '', $apiName));
+                return strtoupper(trim($city->name)) === strtoupper(trim($apiName)) ||
+                    (!empty($cityNameClean) && stripos($cleanApi, $cityNameClean) !== false) ||
+                    (!empty($cityNameClean) && stripos($apiName, $cityNameClean) !== false);
+            });
+
+            if ($cityApi) {
+                $this->selectedCityCode = $cityApi['code'];
+                $city->update(['code' => $this->selectedCityCode]);
+                $this->fetchDistricts($this->selectedCityCode);
+            }
+        }
+    }
+
+    public function updatedSelectedDistrictCode($code)
+    {
+        $dist = collect($this->apiDistricts)->firstWhere('code', $code);
+        $this->kecamatan = $dist ? $dist['name'] : '';
+
+        $this->kelurahan = '';
+        $this->selectedVillageCode = '';
+        $this->apiVillages = [];
+
+        if ($code) {
+            $this->fetchVillages($code);
+        }
+    }
+
+    public function updatedSelectedVillageCode($code)
+    {
+        $vill = collect($this->apiVillages)->firstWhere('code', $code);
+        $this->kelurahan = $vill ? $vill['name'] : '';
+    }
+
     public function updatedSearch()
     {
         $this->resetPage();
@@ -109,7 +247,52 @@ class AdminUsers extends Component
         $this->religion = $user->religion;
         $this->marital_status = $user->marital_status;
         $this->occupation = $user->occupation;
+
+        $this->syncCascadeData();
+
         $this->showEditModal = true;
+    }
+
+    protected function syncCascadeData()
+    {
+        $this->selectedCityCode = '';
+        $this->selectedDistrictCode = '';
+        $this->selectedVillageCode = '';
+        $this->apiDistricts = [];
+        $this->apiVillages = [];
+
+        if ($this->city_id) {
+            $city = City::find($this->city_id);
+            if ($city) {
+                $this->province = $city->province;
+                $this->resolveCityCodeAndFetchDistricts($city);
+
+                if (!empty($this->kecamatan) && !empty($this->apiDistricts)) {
+                    $distApi = collect($this->apiDistricts)->firstWhere('name', strtoupper(trim($this->kecamatan)));
+                    if (!$distApi) {
+                        $distApi = collect($this->apiDistricts)->first(function ($d) {
+                            return str_contains(strtoupper($d['name']), strtoupper(trim($this->kecamatan))) || str_contains(strtoupper(trim($this->kecamatan)), strtoupper($d['name']));
+                        });
+                    }
+                    if ($distApi) {
+                        $this->selectedDistrictCode = $distApi['code'];
+                        $this->fetchVillages($this->selectedDistrictCode);
+
+                        if (!empty($this->kelurahan) && !empty($this->apiVillages)) {
+                            $villApi = collect($this->apiVillages)->firstWhere('name', strtoupper(trim($this->kelurahan)));
+                            if (!$villApi) {
+                                $villApi = collect($this->apiVillages)->first(function ($v) {
+                                    return str_contains(strtoupper($v['name']), strtoupper(trim($this->kelurahan))) || str_contains(strtoupper(trim($this->kelurahan)), strtoupper($v['name']));
+                                });
+                            }
+                            if ($villApi) {
+                                $this->selectedVillageCode = $villApi['code'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public function confirmDelete($id)
@@ -149,6 +332,13 @@ class AdminUsers extends Component
         $this->marital_status = null;
         $this->occupation = null;
         $this->password = null;
+
+        $this->selectedCityCode = '';
+        $this->selectedDistrictCode = '';
+        $this->selectedVillageCode = '';
+        $this->apiCities = [];
+        $this->apiDistricts = [];
+        $this->apiVillages = [];
     }
 
     /**
@@ -210,9 +400,9 @@ class AdminUsers extends Component
             'place_of_birth' => [$isEdit ? 'nullable' : 'required', 'string', 'max:100', 'regex:/^[a-zA-Z\s]+$/'],
             'date_of_birth' => $isEdit ? 'nullable|date|before_or_equal:today' : 'required|date|before_or_equal:today',
             'gender' => $isEdit ? 'nullable|in:Laki-laki,Perempuan' : 'required|in:Laki-laki,Perempuan',
-            'address' => $isEdit ? 'nullable|string|max:1000' : 'required|string|max:1000',
-            'kelurahan' => $isEdit ? 'nullable|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/' : 'required|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/',
-            'kecamatan' => $isEdit ? 'nullable|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/' : 'required|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/',
+            'address' => 'nullable|string|max:1000',
+            'kelurahan' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
+            'kecamatan' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
             'province' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
             'rt' => 'nullable|string|max:3|regex:/^[0-9]+$/',
             'rw' => 'nullable|string|max:3|regex:/^[0-9]+$/',

@@ -132,12 +132,24 @@ class Dashboard extends Component
         }
         $availableHelpsCount = $availableHelpsQuery->count();
 
+        $inProgressStatuses = [
+            'memperoleh_mitra',
+            'taken',
+            'partner_on_the_way',
+            'partner_arrived',
+            'in_progress',
+            'sedang_diproses',
+            'partner_cancel_requested',
+            'diproses_mitra',
+            'waiting_customer_confirmation'
+        ];
+
         $inProgressCount = Help::where('mitra_id', $user->id)
-            ->where('status', 'memperoleh_mitra')
+            ->whereIn('status', $inProgressStatuses)
             ->count();
 
         $completedCount = Help::where('mitra_id', $user->id)
-            ->where('status', 'selesai')
+            ->whereIn('status', ['selesai', 'completed'])
             ->count();
 
         // Data berdasarkan tab
@@ -175,13 +187,13 @@ class Dashboard extends Component
             $helps = $helpsQuery->latest()->paginate(10);
         } elseif ($this->activeTab === 'diproses') {
             $helps = Help::where('mitra_id', $user->id)
-                ->where('status', 'memperoleh_mitra')
+                ->whereIn('status', $inProgressStatuses)
                 ->with(['user', 'city', 'category'])
                 ->latest()
                 ->paginate(10);
         } else { // selesai
             $helps = Help::where('mitra_id', $user->id)
-                ->where('status', 'selesai')
+                ->whereIn('status', ['selesai', 'completed'])
                 ->with(['user', 'city', 'category'])
                 ->latest()
                 ->paginate(10);

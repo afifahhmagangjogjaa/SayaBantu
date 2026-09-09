@@ -323,4 +323,93 @@ class OnboardingController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Selamat! Pendaftaran akun Anda telah berhasil diselesaikan.');
     }
+
+    // =========================================================================
+    // 5. HELPER API WILAYAH (DISTRICTS & VILLAGES PROXY)
+    // =========================================================================
+    public function getDistricts(Request $request)
+    {
+        $cityId = $request->query('city_id');
+        $cityName = $request->query('city_name');
+        $province = $request->query('province');
+
+        $city = null;
+        if ($cityId) {
+            $city = City::find($cityId);
+        }
+
+        if ($city && !empty($city->code)) {
+            $code = $city->code;
+        } else {
+            $code = null;
+            try {
+                $provRes = \Illuminate\Support\Facades\Http::withoutVerifying()->get('https://wilayah.id/api/provinces.json');
+                if ($provRes->successful()) {
+                    $provs = $provRes->json('data') ?? [];
+                    $targetProv = $province ?: ($city->province ?? '');
+                    $cleanTargetProv = trim(preg_replace('/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|PROVINSI|DI|DKI)\b/i', '', $targetProv));
+
+                    $matchedProv = collect($provs)->first(function ($p) use ($targetProv, $cleanTargetProv) {
+                        $pName = $p['name'];
+                        $cleanP = trim(preg_replace('/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|PROVINSI|DI|DKI)\b/i', '', $pName));
+                        return strtoupper(trim($targetProv)) === strtoupper(trim($pName)) ||
+                            (!empty($cleanTargetProv) && stripos($cleanP, $cleanTargetProv) !== false) ||
+                            (!empty($cleanTargetProv) && stripos($pName, $cleanTargetProv) !== false);
+                    });
+
+                    if ($matchedProv) {
+                        $regRes = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/regencies/{$matchedProv['code']}.json");
+                        if ($regRes->successful()) {
+                            $regs = $regRes->json('data') ?? [];
+                            $targetCity = $cityName ?: ($city->name ?? '');
+                            $cleanTargetCity = trim(preg_replace('/\b(KOTA\s+ADM|KOTA|KABUPATEN|KAB)\b/i', '', $targetCity));
+
+                            $matchedReg = collect($regs)->first(function ($r) use ($targetCity, $cleanTargetCity) {
+                                $rName = $r['name'];
+                                $cleanR = trim(preg_replace('/\b(KOTA\s+ADM|KOTA|KABUPATEN|KAB)\b/i', '', $rName));
+                                return strtoupper(trim($targetCity)) === strtoupper(trim($rName)) ||
+                                    (!empty($cleanTargetCity) && stripos($cleanR, $cleanTargetCity) !== false) ||
+                                    (!empty($cleanTargetCity) && stripos($rName, $cleanTargetCity) !== false);
+                            });
+
+                            if ($matchedReg) {
+                                $code = $matchedReg['code'];
+                                if ($city) {
+                                    $city->update(['code' => $code]);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (\Exception $e) {}
+        }
+
+        if ($code) {
+            try {
+                $distRes = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/districts/{$code}.json");
+                if ($distRes->successful()) {
+                    return response()->json(['success' => true, 'data' => $distRes->json('data') ?? []]);
+                }
+            } catch (\Exception $e) {}
+        }
+
+        return response()->json(['success' => false, 'data' => []]);
+    }
+
+    public function getVillages(Request $request)
+    {
+        $districtCode = $request->query('district_code');
+        if (!$districtCode) {
+            return response()->json(['success' => false, 'data' => []]);
+        }
+
+        try {
+            $villRes = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/villages/{$districtCode}.json");
+            if ($villRes->successful()) {
+                return response()->json(['success' => true, 'data' => $villRes->json('data') ?? []]);
+            }
+        } catch (\Exception $e) {}
+
+        return response()->json(['success' => false, 'data' => []]);
+    }
 }

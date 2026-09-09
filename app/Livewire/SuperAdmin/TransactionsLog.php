@@ -6,6 +6,7 @@ use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use App\Models\BalanceTransaction;
 use App\Models\WithdrawRequest;
+use App\Models\City;
 
 #[Layout('layouts.superadmin')]
 class TransactionsLog extends Component
@@ -18,6 +19,7 @@ class TransactionsLog extends Component
     public $period = 'this_month'; // options: this_month, all_time, today, last_month, custom
     public $from = null;
     public $to = null;
+    public $city_id = ''; // Filter wilayah / kota
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -25,12 +27,17 @@ class TransactionsLog extends Component
         'period' => ['except' => 'this_month'],
         'from' => ['except' => ''],
         'to' => ['except' => ''],
+        'city_id' => ['except' => ''],
     ];
 
     public function mount()
     {
         if (request()->has('period')) {
             $this->period = request('period');
+        }
+
+        if (request()->has('city_id')) {
+            $this->city_id = request('city_id');
         }
 
         if ($this->period === 'this_month') {
@@ -54,6 +61,11 @@ class TransactionsLog extends Component
                 $this->period = 'this_month';
             }
         }
+    }
+
+    public function updatedCityId()
+    {
+        $this->resetPage();
     }
 
     public function updatedPeriod($val)
@@ -104,6 +116,7 @@ class TransactionsLog extends Component
         $this->search = '';
         $this->type = 'all';
         $this->period = 'this_month';
+        $this->city_id = '';
         $this->from = now()->startOfMonth()->format('Y-m-d');
         $this->to = now()->format('Y-m-d');
         $this->resetPage();
@@ -111,10 +124,18 @@ class TransactionsLog extends Component
 
     public function exportExcel()
     {
-        $transactions = $this->getBaseQuery()->with('user')->orderBy('created_at', 'desc')->get();
-        $filename = 'Laporan-Transaksi-' . now()->format('Ymd-His') . '.xls';
+        $cityName = 'Semua-Wilayah';
+        if ($this->city_id) {
+            $selectedCity = City::find($this->city_id);
+            if ($selectedCity) {
+                $cityName = \Illuminate\Support\Str::slug($selectedCity->name);
+            }
+        }
 
-        return response()->streamDownload(function () use ($transactions) {
+        $transactions = $this->getBaseQuery()->with(['user.city'])->orderBy('created_at', 'desc')->get();
+        $filename = 'Laporan-Transaksi-' . $cityName . '-' . now()->format('Ymd-His') . '.xls';
+
+        return response()->streamDownload(function () use ($transactions, $cityName) {
             echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
             echo '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
             echo '<style>
@@ -133,8 +154,8 @@ class TransactionsLog extends Component
             
             // Header Judul di Tengah (Center) dengan Colspan
             echo '<table>';
-            echo '<tr><td colspan="8" class="title-main" style="border:none; padding-top:10px; padding-bottom:4px;">LAPORAN DAFTAR TRANSAKSI</td></tr>';
-            echo '<tr><td colspan="8" class="title-sub" style="border:none; padding-bottom:15px;">Tanggal Cetak: ' . now()->translatedFormat('d F Y, H:i') . ' WIB | Oleh: ' . htmlspecialchars(auth()->user()->name ?? 'Super Admin') . '</td></tr>';
+            echo '<tr><td colspan="9" class="title-main" style="border:none; padding-top:10px; padding-bottom:4px;">LAPORAN DAFTAR TRANSAKSI (' . strtoupper(str_replace('-', ' ', $cityName)) . ')</td></tr>';
+            echo '<tr><td colspan="9" class="title-sub" style="border:none; padding-bottom:15px;">Tanggal Cetak: ' . now()->translatedFormat('d F Y, H:i') . ' WIB | Oleh: ' . htmlspecialchars(auth()->user()->name ?? 'Super Admin') . '</td></tr>';
             echo '</table>';
 
             echo '<table>';
@@ -143,6 +164,7 @@ class TransactionsLog extends Component
             echo '<th style="width: 140px;">Waktu</th>';
             echo '<th style="width: 180px;">Nama User</th>';
             echo '<th style="width: 200px;">Email</th>';
+            echo '<th style="width: 130px;">Wilayah / Kota</th>';
             echo '<th style="width: 130px;">Tipe</th>';
             echo '<th style="width: 130px;">Jumlah (Rp)</th>';
             echo '<th style="width: 120px;">Ref</th>';
@@ -166,19 +188,18 @@ class TransactionsLog extends Component
                     $label = ucfirst($t->type);
                 }
 
-                // Status label sesuai yang tampil di web
                 $statusLabel = $t->status ?? 'completed';
-
                 $total += (float) $t->amount;
                 $rowBg = ($no % 2 === 0) ? 'style="background-color: #f8fafc;"' : '';
-
                 $refCode = $t->request_code ?? $t->order_id ?? $t->reference_id ?? $t->reference ?? '-';
+                $userCity = $t->user->city_name ?? '-';
 
                 echo "<tr {$rowBg}>";
                 echo '<td class="text-center">' . $no++ . '</td>';
                 echo '<td class="text-center">' . ($t->created_at ? $t->created_at->format('d/m/Y H:i') : '-') . '</td>';
                 echo '<td class="text-left">' . htmlspecialchars(optional($t->user)->name ?? '-') . '</td>';
                 echo '<td class="text-left">' . htmlspecialchars(optional($t->user)->email ?? '-') . '</td>';
+                echo '<td class="text-center">' . htmlspecialchars($userCity) . '</td>';
                 echo '<td class="text-center">' . $label . '</td>';
                 echo '<td class="text-right font-bold">' . number_format($t->amount, 0, ',', '.') . '</td>';
                 echo '<td class="text-center">' . htmlspecialchars($refCode) . '</td>';
@@ -187,7 +208,7 @@ class TransactionsLog extends Component
             }
 
             echo '<tr>';
-            echo '<td colspan="5" class="text-right font-bold bg-total">TOTAL KESELURUHAN</td>';
+            echo '<td colspan="6" class="text-right font-bold bg-total">TOTAL KESELURUHAN</td>';
             echo '<td class="text-right font-bold bg-total">Rp ' . number_format($total, 0, ',', '.') . '</td>';
             echo '<td colspan="2" class="bg-total"></td>';
             echo '</tr>';
@@ -243,6 +264,13 @@ class TransactionsLog extends Component
         }
         if ($this->to) {
             $query->whereDate('created_at', '<=', $this->to);
+        }
+
+        // Filter Wilayah Berdasarkan Kota User
+        if ($this->city_id) {
+            $query->whereHas('user', function ($q) {
+                $q->where('city_id', $this->city_id);
+            });
         }
 
         return $query;
@@ -309,10 +337,10 @@ class TransactionsLog extends Component
 
     public function render()
     {
-        $query = $this->getBaseQuery()->with('user');
+        $query = $this->getBaseQuery()->with(['user.city']);
         $transactions = $query->orderBy('created_at', 'desc')->paginate($this->perPage);
 
-        // Calculate summary statistics
+        // Summary statistics (ikut terfilter sesuai wilayah yang dipilih)
         $summaryQuery = $this->getBaseQuery();
         
         $totalRevenue = $summaryQuery->clone()
@@ -331,10 +359,18 @@ class TransactionsLog extends Component
         $withdrawReqQuery = WithdrawRequest::whereIn('status', ['success', 'completed', 'approved', 'pending', 'processing']);
         if ($this->from) $withdrawReqQuery->whereDate('created_at', '>=', $this->from);
         if ($this->to) $withdrawReqQuery->whereDate('created_at', '<=', $this->to);
+        if ($this->city_id) {
+            $withdrawReqQuery->whereHas('user', function ($q) {
+                $q->where('city_id', $this->city_id);
+            });
+        }
         $totalWithdraw = max($totalWithdrawTx, (float) $withdrawReqQuery->sum('amount'));
 
         $totalTransactions = $summaryQuery->clone()->count();
         $netCashflow = (float) $totalRevenue - (float) $totalWithdraw;
+
+        // Ambil daftar kota untuk dropdown filter
+        $cities = City::orderBy('name', 'asc')->get();
 
         return view('superadmin.transactions-log', [
             'transactions' => $transactions,
@@ -342,6 +378,7 @@ class TransactionsLog extends Component
             'totalWithdraw' => $totalWithdraw,
             'totalTransactions' => $totalTransactions,
             'netCashflow' => $netCashflow,
+            'cities' => $cities,
         ]);
     }
 }

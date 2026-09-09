@@ -82,7 +82,7 @@ class AdminRatingController extends Controller
             return view('admin.ratings.partials.modal-user-ratings', compact('user', 'ratings'));
         }
 
-        return view('admin.ratings.user', compact('user', 'ratings'));
+        return redirect()->route('admin.ratings.index', ['search' => $user->email ?? $user->name]);
     }
 
     public function toggleShadowBan(Request $request, User $user)

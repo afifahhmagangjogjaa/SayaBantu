@@ -153,11 +153,24 @@ class Detail extends Component
     public function cancelHelp()
     {
         try {
-            // Only allow cancel if status is pending or waiting for partner
-            if (!in_array($this->help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra'])) {
+            // Allow cancel if status is before completion/in-progress
+            $cancellableStatuses = [
+                'menunggu_pembayaran', 
+                'menunggu_mitra', 
+                'mencari_mitra', 
+                'memperoleh_mitra', 
+                'taken', 
+                'partner_on_the_way', 
+                'partner_arrived'
+            ];
+
+            if (!in_array($this->help->status, $cancellableStatuses)) {
                 session()->flash('error', 'Bantuan tidak dapat dibatalkan pada status ini.');
                 return;
             }
+
+            $prevStatus = $this->help->status;
+            $assignedMitra = $this->help->mitra;
 
             $this->help->update([
                 'status' => 'dibatalkan',
@@ -167,9 +180,11 @@ class Detail extends Component
             Log::info('Help cancelled by customer', [
                 'help_id' => $this->help->id,
                 'user_id' => auth()->id(),
+                'mitra_id' => $assignedMitra?->id,
+                'previous_status' => $prevStatus,
             ]);
 
-            session()->flash('success', 'Permintaan bantuan berhasil dibatalkan.');
+            session()->flash('success', 'Permintaan bantuan berhasil dibatalkan. Saldo pembayaran telah dikembalikan ke dompet Anda.');
             $this->showCancelConfirm = false;
             
             // Redirect to helps index

@@ -71,6 +71,10 @@ Route::middleware('auth')->group(function () {
     })->name('verification.check-status');
 });
 
+// Helper Public API Wilayah Proxy
+Route::get('/api/wilayah/districts', [OnboardingController::class, 'getDistricts'])->name('api.wilayah.districts');
+Route::get('/api/wilayah/villages', [OnboardingController::class, 'getVillages'])->name('api.wilayah.villages');
+
 // =========================================================================
 // 3. ONBOARDING (BUAT PASSWORD & 4 STEP DATA DIRI / DOKUMEN)
 // =========================================================================
@@ -348,6 +352,7 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
         $search = $request->get('search');
         $from = $request->get('from');
         $to = $request->get('to');
+        $cityId = $request->get('city_id');
 
         $query = \App\Models\BalanceTransaction::query();
 
@@ -388,10 +393,26 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
             $query->whereDate('created_at', '<=', $to);
         }
 
-        $transactions = $query->with('user')->orderBy('created_at', 'desc')->get();
-        $filename = 'Laporan-Transaksi-' . now()->format('Ymd-His') . '.xls';
+        // 1. FILTER BERDASARKAN WILAYAH / KOTA USER
+        if ($cityId) {
+            $query->whereHas('user', function ($q) use ($cityId) {
+                $q->where('city_id', $cityId);
+            });
+        }
 
-        return response()->streamDownload(function () use ($transactions) {
+        // 2. TENTUKAN NAMA WILAYAH UNTUK JUDUL & FILENAME
+        $cityName = 'Semua-Wilayah';
+        if ($cityId) {
+            $selectedCity = \App\Models\City::find($cityId);
+            if ($selectedCity) {
+                $cityName = \Illuminate\Support\Str::slug($selectedCity->name);
+            }
+        }
+
+        $transactions = $query->with(['user.city'])->orderBy('created_at', 'desc')->get();
+        $filename = 'Laporan-Transaksi-' . $cityName . '-' . now()->format('Ymd-His') . '.xls';
+
+        return response()->streamDownload(function () use ($transactions, $cityName) {
             echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
             echo '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
             echo '<style>
@@ -408,9 +429,10 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
                 .title-sub { font-size: 10pt; color: #64748b; text-align: center; }
             </style></head><body>';
             
+            // Header Judul Dinamis sesuai Wilayah
             echo '<table>';
-            echo '<tr><td colspan="8" class="title-main" style="border:none; padding-top:10px; padding-bottom:4px;">LAPORAN DAFTAR TRANSAKSI</td></tr>';
-            echo '<tr><td colspan="8" class="title-sub" style="border:none; padding-bottom:15px;">Tanggal Cetak: ' . now()->translatedFormat('d F Y, H:i') . ' WIB | Oleh: ' . htmlspecialchars(auth()->user()->name ?? 'Super Admin') . '</td></tr>';
+            echo '<tr><td colspan="9" class="title-main" style="border:none; padding-top:10px; padding-bottom:4px;">LAPORAN DAFTAR TRANSAKSI (' . strtoupper(str_replace('-', ' ', $cityName)) . ')</td></tr>';
+            echo '<tr><td colspan="9" class="title-sub" style="border:none; padding-bottom:15px;">Tanggal Cetak: ' . now()->translatedFormat('d F Y, H:i') . ' WIB | Oleh: ' . htmlspecialchars(auth()->user()->name ?? 'Super Admin') . '</td></tr>';
             echo '</table>';
 
             echo '<table>';
@@ -419,6 +441,7 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
             echo '<th style="width: 140px;">Waktu</th>';
             echo '<th style="width: 180px;">Nama User</th>';
             echo '<th style="width: 200px;">Email</th>';
+            echo '<th style="width: 140px;">Wilayah / Kota</th>'; // Kolom Wilayah Baru
             echo '<th style="width: 130px;">Tipe</th>';
             echo '<th style="width: 130px;">Jumlah (Rp)</th>';
             echo '<th style="width: 120px;">Ref</th>';
@@ -446,12 +469,14 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
                 $total += (float) $t->amount;
                 $rowBg = ($no % 2 === 0) ? 'style="background-color: #f8fafc;"' : '';
                 $refCode = $t->request_code ?? $t->order_id ?? $t->reference_id ?? $t->reference ?? '-';
+                $userCity = $t->user->city_name ?? '-';
 
                 echo "<tr {$rowBg}>";
                 echo '<td class="text-center">' . $no++ . '</td>';
                 echo '<td class="text-center">' . ($t->created_at ? $t->created_at->format('d/m/Y H:i') : '-') . '</td>';
                 echo '<td class="text-left">' . htmlspecialchars(optional($t->user)->name ?? '-') . '</td>';
                 echo '<td class="text-left">' . htmlspecialchars(optional($t->user)->email ?? '-') . '</td>';
+                echo '<td class="text-center">' . htmlspecialchars($userCity) . '</td>'; // Isi Wilayah
                 echo '<td class="text-center">' . $label . '</td>';
                 echo '<td class="text-right font-bold">' . number_format($t->amount, 0, ',', '.') . '</td>';
                 echo '<td class="text-center">' . htmlspecialchars($refCode) . '</td>';
@@ -460,7 +485,7 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
             }
 
             echo '<tr>';
-            echo '<td colspan="5" class="text-right font-bold bg-total">TOTAL KESELURUHAN</td>';
+            echo '<td colspan="6" class="text-right font-bold bg-total">TOTAL KESELURUHAN</td>';
             echo '<td class="text-right font-bold bg-total">Rp ' . number_format($total, 0, ',', '.') . '</td>';
             echo '<td colspan="2" class="bg-total"></td>';
             echo '</tr>';
@@ -498,7 +523,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/withdraws/{withdraw}', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'show'])->name('withdraws.show');
 
     Route::get('/customers', [\App\Http\Controllers\Admin\AdminUserController::class, 'customers'])->name('customers');
+    Route::get('/customers/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('customers.show');
     Route::get('/mitra', [\App\Http\Controllers\Admin\AdminUserController::class, 'mitra'])->name('mitra');
+    Route::get('/mitra/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('mitra.show');
     Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('users.show');
 
@@ -550,21 +577,10 @@ if (config('app.debug')) {
         $userId = auth()->id();
         if (!$userId) return "Silakan login dulu.";
 
-        $sum = \Illuminate\Support\Facades\DB::table('balance_transactions')
-            ->where('user_id', $userId)
-            ->where('type', 'topup')
-            ->where('status', 'completed')
-            ->sum('amount');
+        $newBalance = \App\Models\UserBalance::recalculateForUser($userId);
 
-        \App\Models\UserBalance::updateOrCreate(
-            ['user_id' => $userId],
-            ['balance' => (float) $sum]
-        );
-
-        return "✅ Saldo disinkronkan dari " . \Illuminate\Support\Facades\DB::table('balance_transactions')
-            ->where('user_id', $userId)->where('type', 'topup')->where('status', 'completed')->count()
-            . " transaksi completed.<br>"
-            . "Saldo sekarang: <b>Rp " . number_format($sum, 0, ',', '.') . "</b><br><br>"
+        return "✅ Saldo disinkronkan secara akurat.<br>"
+            . "Saldo sekarang: <b>Rp " . number_format($newBalance, 0, ',', '.') . "</b><br><br>"
             . "<a href='/customer/dashboard'>Kembali ke Dashboard</a>";
     });
 }

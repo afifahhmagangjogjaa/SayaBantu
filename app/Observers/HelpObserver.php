@@ -105,6 +105,27 @@ class HelpObserver
                         \Log::info("Refunded Rp {$refundAmount} to customer id={$customerId} for help_id={$help->id}");
                     }
                 }
+
+                // Notify mitra if help had an assigned partner
+                $mitra = $help->mitra ?? ($help->mitra_id ? \App\Models\User::find($help->mitra_id) : null);
+                if ($mitra) {
+                    try {
+                        $mitra->notify(new \App\Notifications\HelpStatusNotification($help, $prevStatus, $newStatus, $mitra));
+                        \Log::info("Sent cancellation notification to mitra id={$mitra->id} for help_id={$help->id}");
+                    } catch (\Throwable $e) {
+                        \Log::warning('Failed to notify mitra of cancellation via HelpObserver: ' . $e->getMessage());
+                    }
+                }
+
+                // Notify customer on cancellation (if not already handled)
+                $customer = $help->customer ?? ($help->user ?? \App\Models\User::find($help->user_id));
+                if ($customer && $newStatus !== 'rejected') {
+                    try {
+                        $customer->notify(new \App\Notifications\HelpStatusNotification($help, $prevStatus, $newStatus, $mitra));
+                    } catch (\Throwable $e) {
+                        \Log::warning('Failed to notify customer of cancellation via HelpObserver: ' . $e->getMessage());
+                    }
+                }
             }
 
             $completedStates = ['completed', 'selesai'];

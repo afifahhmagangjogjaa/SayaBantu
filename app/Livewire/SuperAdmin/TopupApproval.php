@@ -91,21 +91,13 @@ class TopupApproval extends Component
         try {
             \DB::beginTransaction();
 
-            // Update transaction status to 'completed' (not just 'approved')
+            // Update transaction status to 'completed' (BalanceTransactionObserver will automatically recalculate user balance)
             $transaction->update([
                 'status' => 'completed',
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
                 'processed_at' => now(),
             ]);
-
-            // Update user balance
-            $userBalance = UserBalance::firstOrCreate(
-                ['user_id' => $transaction->user_id],
-                ['balance' => 0]
-            );
-
-            $userBalance->increment('balance', $transaction->amount);
 
             \DB::commit();
 

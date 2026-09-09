@@ -881,9 +881,9 @@
         </div>
 
         {{-- Cancel Button --}}
-        @if(in_array($help->status, ['menunggu_pembayaran', 'mencari_mitra', 'menunggu_mitra']))
+        @if(in_array($help->status, ['menunggu_pembayaran', 'mencari_mitra', 'menunggu_mitra', 'memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived']))
             <div class="bg-white mt-2 px-4 py-4">
-                <button wire:click="confirmCancel" class="w-full py-3 border-2 border-red-500 text-red-500 rounded-lg font-semibold text-sm hover:bg-red-50 transition">
+                <button wire:click="confirmCancel" class="w-full py-3 border-2 border-red-500 text-red-500 rounded-lg font-semibold text-sm hover:bg-red-50 transition cursor-pointer">
                     Batalkan Pesanan
                 </button>
             </div>
@@ -985,13 +985,13 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Batalkan Pesanan?</h3>
-                    <p class="text-sm text-gray-600 mb-6">Apakah Anda yakin ingin membatalkan pesanan ini? Tindakan ini tidak dapat dibatalkan.</p>
+                    <p class="text-sm text-gray-600 mb-6">Apakah Anda yakin ingin membatalkan pesanan ini? Saldo Anda sebesar <strong class="text-gray-900">Rp{{ number_format($help->total_amount ?? ($help->amount + ($help->admin_fee ?? 0)), 0, ',', '.') }}</strong> akan otomatis dikembalikan penuh ke akun Anda.</p>
                     
                     <div class="flex gap-3">
-                        <button wire:click="closeModal" class="flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">
+                        <button wire:click="closeModal" class="flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition cursor-pointer">
                             Tidak
                         </button>
-                        <button wire:click="cancelHelp" class="flex-1 py-2.5 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition">
+                        <button wire:click="cancelHelp" class="flex-1 py-2.5 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition cursor-pointer">
                             Ya, Batalkan
                         </button>
                     </div>

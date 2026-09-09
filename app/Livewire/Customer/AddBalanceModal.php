@@ -48,7 +48,7 @@ class AddBalanceModal extends Component
                 ['balance' => 0]
             );
 
-            // Create transaction
+            // Create transaction (BalanceTransactionObserver will automatically recalculate user balance)
             BalanceTransaction::create([
                 'user_id' => $user->id,
                 'amount' => $this->amount,
@@ -56,9 +56,6 @@ class AddBalanceModal extends Component
                 'description' => $this->description ?: 'Topup Saldo',
                 'status' => 'completed',
             ]);
-
-            // Update balance
-            $userBalance->increment('balance', $this->amount);
 
             session()->flash('success', 'Saldo berhasil ditambahkan!');
 

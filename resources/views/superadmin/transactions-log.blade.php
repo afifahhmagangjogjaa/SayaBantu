@@ -118,16 +118,17 @@
 
             /* Proporsi Lebar Kolom Print (Total 100% Pas A4) */
             th:nth-child(1), td:nth-child(1) { width: 4% !important; text-align: center !important; }
-            th:nth-child(2), td:nth-child(2) { width: 15% !important; }
-            th:nth-child(3), td:nth-child(3) { width: 20% !important; }
-            th:nth-child(4), td:nth-child(4) { width: 14% !important; text-align: center !important; }
-            th:nth-child(5), td:nth-child(5) { width: 13% !important; text-align: right !important; }
-            th:nth-child(6), td:nth-child(6) { width: 16% !important; text-align: center !important; font-size: 9px !important; word-break: break-all !important; }
-            th:nth-child(7), td:nth-child(7) { width: 18% !important; text-align: center !important; }
+            th:nth-child(2), td:nth-child(2) { width: 14% !important; }
+            th:nth-child(3), td:nth-child(3) { width: 18% !important; }
+            th:nth-child(4), td:nth-child(4) { width: 12% !important; text-align: center !important; } /* Kolom Kota */
+            th:nth-child(5), td:nth-child(5) { width: 12% !important; text-align: center !important; } /* Tipe */
+            th:nth-child(6), td:nth-child(6) { width: 13% !important; text-align: right !important; }  /* Jumlah */
+            th:nth-child(7), td:nth-child(7) { width: 14% !important; text-align: center !important; font-size: 9px !important; word-break: break-all !important; }
+            th:nth-child(8), td:nth-child(8) { width: 13% !important; text-align: center !important; } /* Status */
 
             td:nth-child(3) .user-name-print,
             td:nth-child(3) div.text-xs {
-                font-size: 11.5px !important;
+                font-size: 11px !important;
                 font-weight: 700 !important;
                 color: #0f172a !important;
                 line-height: 1.25 !important;
@@ -135,13 +136,13 @@
 
             td:nth-child(3) .user-email-print,
             td:nth-child(3) div.text-\[10px\] {
-                font-size: 9px !important;
+                font-size: 8.5px !important;
                 color: #64748b !important;
                 line-height: 1.2 !important;
             }
 
-            td:nth-child(7) span {
-                font-size: 10px !important;
+            td:nth-child(8) span {
+                font-size: 9.5px !important;
                 padding: 2px 6px !important;
                 white-space: normal !important;
                 word-break: break-word !important;
@@ -157,7 +158,16 @@
 
     <!-- Print Header (Hanya muncul saat PDF/Print: Langsung Judul Center) -->
     <div class="print-header">
-        <h1 class="text-2xl font-black tracking-wider text-black uppercase">LAPORAN DAFTAR TRANSAKSI</h1>
+        @php
+            $currentCityName = 'SEMUA WILAYAH';
+            if (!empty($city_id)) {
+                $foundCity = $cities->firstWhere('id', $city_id);
+                if ($foundCity) {
+                    $currentCityName = strtoupper($foundCity->name);
+                }
+            }
+        @endphp
+        <h1 class="text-2xl font-black tracking-wider text-black uppercase">LAPORAN DAFTAR TRANSAKSI ({{ $currentCityName }})</h1>
         <p class="text-xs text-gray-600 mt-1">
             Tanggal Cetak: {{ now()->translatedFormat('d F Y, H:i') }} WIB | Oleh: {{ auth()->user()->name ?? 'Super Admin' }}
             | Periode: {{ $from && $to ? \Carbon\Carbon::parse($from)->translatedFormat('d M Y') . ' s/d ' . \Carbon\Carbon::parse($to)->translatedFormat('d M Y') : 'Keseluruhan Transaksi (Semua Waktu)' }}
@@ -236,7 +246,7 @@
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Daftar Transaksi</h2>
                 <div class="export-btn-group flex items-center gap-2">
-                    <a href="{{ route('superadmin.transactions.export.excel', ['type' => $type, 'search' => $search, 'from' => $from, 'to' => $to]) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-sm">
+                    <a href="{{ route('superadmin.transactions.export.excel', ['type' => $type, 'search' => $search, 'from' => $from, 'to' => $to, 'city_id' => $city_id]) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
@@ -256,6 +266,14 @@
                     <input wire:model.live.debounce.400ms="search" type="text" placeholder="Cari user, email atau ref..."
                         class="border border-gray-300 rounded-lg px-4 py-2.5 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm" />
                 </div>
+
+                <!-- Dropdown Filter Wilayah / Kota -->
+                <select wire:model.live="city_id" class="border border-gray-300 rounded-lg pl-3.5 pr-9 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm cursor-pointer font-medium text-gray-700">
+                    <option value="">Semua Wilayah</option>
+                    @foreach($cities as $city)
+                        <option value="{{ $city->id }}">{{ $city->name }}</option>
+                    @endforeach
+                </select>
 
                 <select wire:model.live="type" class="border border-gray-300 rounded-lg pl-3.5 pr-9 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm cursor-pointer">
                     <option value="all">Semua Tipe</option>
@@ -310,6 +328,7 @@
                         <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 45px;">No</th>
                         <th class="px-3.5 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 140px;">Waktu</th>
                         <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">User</th>
+                        <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 120px;">Kota / Wilayah</th>
                         <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 130px;">Tipe</th>
                         <th class="px-3.5 py-3.5 text-right text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 130px;">Jumlah</th>
                         <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 110px;">Ref</th>
@@ -340,6 +359,12 @@
                                 @else
                                     <div class="text-xs text-gray-400">-</div>
                                 @endif
+                            </td>
+                            <!-- Kolom Kota/Wilayah -->
+                            <td class="px-3.5 py-3.5 text-center whitespace-nowrap">
+                                <span class="text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md">
+                                    {{ $t->user->city_name ?? '-' }}
+                                </span>
                             </td>
                             <td class="px-3.5 py-3.5 text-center whitespace-nowrap">
                                 @php
@@ -393,7 +418,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-12 text-center">
+                            <td colspan="9" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center justify-center">
                                     <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>

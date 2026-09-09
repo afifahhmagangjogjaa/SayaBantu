@@ -291,32 +291,21 @@ class TopupController extends Controller
                 && $transaction->status !== 'completed';
 
             if ($isFromClientSuccess) {
-                // Langsung update via DB agar tidak bergantung pada observer
+                // Langsung update via DB agar status completed dan processed_at terisi
                 \DB::table('balance_transactions')
                     ->where('id', $transaction->id)
-                    ->update(['status' => 'completed', 'processed_at' => now()]);
+                    ->update(['status' => 'completed', 'processed_at' => now(), 'updated_at' => now()]);
 
-                // Hitung ulang total saldo dari semua topup completed
-                $sum = \DB::table('balance_transactions')
-                    ->where('user_id', $transaction->user_id)
-                    ->where('type', 'topup')
-                    ->where('status', 'completed')
-                    ->sum('amount');
+                // Hitung ulang saldo bersih yang tepat (inflows - outflows)
+                $newBalance = UserBalance::recalculateForUser($transaction->user_id);
 
-                // Update atau buat record saldo
-                \DB::table('user_balances')
-                    ->updateOrInsert(
-                        ['user_id' => $transaction->user_id],
-                        ['balance' => (float) $sum, 'updated_at' => now()]
-                    );
-
-                Log::info('Client callback: balance updated', [
+                Log::info('Client callback: balance recalculated', [
                     'user_id'        => $transaction->user_id,
                     'payment_status' => $paymentStatusFromClient,
-                    'balance'        => $sum,
+                    'balance'        => $newBalance,
                 ]);
 
-                return response()->json(['status' => 'completed', 'balance' => $sum]);
+                return response()->json(['status' => 'completed', 'balance' => $newBalance]);
             }
 
 
@@ -356,28 +345,13 @@ class TopupController extends Controller
 
                 $transaction->save();
 
-                // If completed, make sure balance is recalculated (observer should handle it)
+                // If completed, recalculate user balance accurately
                 if ($transaction->status === 'completed') {
                     Log::info('Client callback: transaction marked completed', ['order_id' => $orderId, 'transaction_id' => $transaction->id]);
 
-                    // Safety fallback: recompute user's balance from completed topups
                     try {
-                        $sum = BalanceTransaction::where('user_id', $transaction->user_id)
-                            ->where('type', 'topup')
-                            ->whereRaw("LOWER(TRIM(status)) = 'completed'")
-                            ->sum('amount');
-
-                        UserBalance::updateOrCreate(
-                            ['user_id' => $transaction->user_id],
-                            ['balance' => (float) $sum]
-                        );
-                        Log::info('Client callback: recomputed user balance (safety fallback)', ['user_id' => $transaction->user_id, 'balance' => $sum]);
-                        try {
-                            $ubAfter = UserBalance::where('user_id', $transaction->user_id)->first();
-                            Log::info('Client callback: user balance after recompute', ['user_id' => $transaction->user_id, 'balance_after' => $ubAfter ? $ubAfter->balance : null]);
-                        } catch (\Throwable $__e) {
-                            Log::warning('Client callback: failed to read user balance after recompute', ['error' => $__e->getMessage()]);
-                        }
+                        $newBalance = UserBalance::recalculateForUser($transaction->user_id);
+                        Log::info('Client callback: recomputed user balance', ['user_id' => $transaction->user_id, 'balance' => $newBalance]);
                     } catch (\Throwable $e) {
                         Log::warning('Client callback: failed to recompute user balance', ['user_id' => $transaction->user_id, 'error' => $e->getMessage()]);
                     }

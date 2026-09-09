@@ -356,6 +356,13 @@ class User extends Authenticatable implements MustVerifyEmail
             return $rel->name;
         }
 
+        if (!empty($this->city_id)) {
+            $city = \App\Models\City::find($this->city_id);
+            if ($city) {
+                return $city->name;
+            }
+        }
+
         return isset($this->attributes['city']) && $this->attributes['city'] !== null
             ? $this->attributes['city']
             : null;

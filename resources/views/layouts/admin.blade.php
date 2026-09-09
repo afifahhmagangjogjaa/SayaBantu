@@ -407,6 +407,8 @@
         </div>
     </div>
 
+    @stack('modals')
+
     @livewireScripts
     @stack('scripts')
     <script>

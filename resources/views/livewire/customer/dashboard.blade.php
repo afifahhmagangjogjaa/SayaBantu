@@ -296,13 +296,7 @@
                 </div>
 
                 @if($activeTab !== 'history')
-                    @php
-                        // Only show helps that are waiting for a mitra (include legacy status names)
-                        $waitingHelps = collect($availableHelps)->filter(function($h) {
-                            return in_array($h->status, ['mencari_mitra', 'menunggu_mitra', 'memperoleh_mitra', 'taken']);
-                        });
-                    @endphp
-                    @forelse($waitingHelps as $help)
+                    @forelse($availableHelps as $help)
                         <a href="{{ route('customer.helps.detail', $help->id) }}"
                             class="block w-full text-left bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all">
                             <div class="flex items-start gap-3">
@@ -320,6 +314,21 @@
                                     <div class="flex items-start justify-between gap-2 mb-1">
                                         <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                         <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="mb-1.5 flex items-center gap-1.5 flex-wrap">
+                                        @if(in_array($help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra']))
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">Menunggu Mitra</span>
+                                        @elseif(in_array($help->status, ['taken', 'memperoleh_mitra']))
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">Mitra Ditemukan</span>
+                                        @elseif($help->status === 'partner_on_the_way')
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-cyan-50 text-cyan-700 border border-cyan-200">Mitra Menuju Lokasi</span>
+                                        @elseif(in_array($help->status, ['partner_arrived', 'in_progress', 'sedang_diproses']))
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">Sedang Dikerjakan</span>
+                                        @elseif($help->status === 'waiting_customer_confirmation')
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-50 text-orange-700 border border-orange-200">Menunggu Konfirmasi</span>
+                                        @else
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-50 text-gray-700 border border-gray-200">{{ ucfirst(str_replace('_', ' ', $help->status)) }}</span>
+                                        @endif
                                     </div>
                                     <p class="text-xs text-gray-600 line-clamp-1 mb-1.5">{{ $help->description }}</p>
                                     @if($help->scheduled_at)

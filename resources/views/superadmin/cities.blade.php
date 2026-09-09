@@ -88,7 +88,13 @@
                                         </div>
                                         <div class="min-w-0" style="margin-left: 4px;">
                                             <div class="text-sm font-semibold text-gray-900 leading-tight truncate max-w-[180px]" title="{{ $city->name }}">{{ $city->name }}</div>
-                                            <div class="text-xs text-gray-500 mt-0.5">@if(!empty($loadDistricts) && $city->relationLoaded('districts')) {{ $city->districts->count() }} kecamatan @else - kecamatan @endif</div>
+                                            <div class="text-xs text-gray-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                                                <span>@if(!empty($loadDistricts) && $city->relationLoaded('districts')) {{ $city->districts->count() }} kecamatan @else - kecamatan @endif</span>
+                                                @if($city->latitude && $city->longitude)
+                                                    <span class="text-gray-300">•</span>
+                                                    <span class="text-emerald-600 font-mono text-[10px]" title="Koordinat: {{ $city->latitude }}, {{ $city->longitude }}">📍 {{ round((float)$city->latitude, 4) }}, {{ round((float)$city->longitude, 4) }}</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -256,6 +262,42 @@
                                     @endforeach
                                 </select>
                                 @error('admin_id') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <!-- Koordinat Latitude & Longitude (Auto-fill) -->
+                            <div class="bg-gray-50/80 p-3.5 rounded-xl border border-gray-200/80 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        Koordinat Wilayah (Peta)
+                                    </label>
+                                    <span class="text-[11px] text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                        Otomatis Terisi
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[11px] font-medium text-gray-500">Latitude</label>
+                                        <input type="text" wire:model="latitude" placeholder="-7.5755000"
+                                            class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+                                        @error('latitude') <div class="text-xs text-red-600 mt-1">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="text-[11px] font-medium text-gray-500">Longitude</label>
+                                        <input type="text" wire:model="longitude" placeholder="110.8243000"
+                                            class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+                                        @error('longitude') <div class="text-xs text-red-600 mt-1">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
+                                <p class="text-[11px] text-gray-500 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                    </svg>
+                                    Terisi otomatis saat memilih kota, atau dapat Anda sesuaikan titiknya secara manual.
+                                </p>
                             </div>
 
                             <div>

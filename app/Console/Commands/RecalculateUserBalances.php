@@ -26,20 +26,7 @@ class RecalculateUserBalances extends Command
 
         $query->chunkById(200, function ($users) use ($bar) {
             foreach ($users as $user) {
-                $topups = BalanceTransaction::where('user_id', $user->id)
-                    ->where('type', 'topup')
-                    ->whereRaw("LOWER(TRIM(COALESCE(status, ''))) = 'completed'")
-                    ->sum('amount');
-
-                $deductions = BalanceTransaction::where('user_id', $user->id)
-                    ->where('type', 'deduction')
-                    ->whereRaw("LOWER(TRIM(COALESCE(status, ''))) = 'completed'")
-                    ->sum('amount');
-
-                $balance = $topups - $deductions;
-
-                UserBalance::updateOrCreate(['user_id' => $user->id], ['balance' => $balance]);
-
+                UserBalance::recalculateForUser($user->id);
                 $bar->advance();
             }
         });

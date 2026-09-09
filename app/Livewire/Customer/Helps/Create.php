@@ -6,12 +6,15 @@ use App\Models\City;
 use App\Models\Help;
 use App\Models\PartnerActivity;
 use App\Models\UserBalance;
+use App\Models\BalanceTransaction;
 use App\Models\AppSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Carbon\Carbon;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class Create extends Component
 {
@@ -44,6 +47,10 @@ class Create extends Component
     public $photo;
     public $showInsufficientModal = false;
     public $insufficientMessage = '';
+    public $topupAmount = 10000;
+    public $topupDeficit = 0;
+    public $topupMethod = 'all';
+    public $topupSnapToken = null;
     public $showConfirmModal = false;
     public $showSuccessModal = false;
     public $confirmAmount = 0;
@@ -58,6 +65,7 @@ class Create extends Component
 
     protected $listeners = [
         'citySelected' => 'setCityId',
+        'topupCompleted' => 'onTopupCompleted',
     ];
 
     public function mount()
@@ -462,6 +470,60 @@ class Create extends Component
         $this->searchResults = $results;
     }
 
+    public function updatedScheduledDate($value)
+    {
+        $this->validateScheduleDateTime();
+    }
+
+    public function updatedScheduledTime($value)
+    {
+        $this->validateScheduleDateTime();
+    }
+
+    public function validateScheduleDateTime(): bool
+    {
+        $this->resetErrorBag(['scheduled_date', 'scheduled_time']);
+
+        if (empty($this->scheduled_date)) {
+            $this->addError('scheduled_date', 'Tanggal pelaksanaan bantuan wajib diisi');
+            return false;
+        }
+
+        if (empty($this->scheduled_time)) {
+            $this->addError('scheduled_time', 'Jam pelaksanaan bantuan wajib diisi');
+            return false;
+        }
+
+        if (!preg_match('/^(?:[0-1]?\d|2[0-3]):[0-5]\d$/', $this->scheduled_time)) {
+            $this->addError('scheduled_time', 'Format waktu tidak valid. Gunakan format HH:MM (contoh: 09:30 atau 14:00)');
+            return false;
+        }
+
+        $tz = $this->timezoneIana ?: 'Asia/Jakarta';
+        $now = Carbon::now($tz);
+        $todayStr = $now->format('Y-m-d');
+
+        if ($this->scheduled_date < $todayStr) {
+            $this->addError('scheduled_date', 'Tanggal pelaksanaan tidak boleh sebelum hari ini');
+            return false;
+        }
+
+        if ($this->scheduled_date === $todayStr) {
+            try {
+                $scheduledAt = Carbon::createFromFormat('Y-m-d H:i', $this->scheduled_date . ' ' . $this->scheduled_time, $tz);
+                if ($scheduledAt->lt($now)) {
+                    $this->addError('scheduled_time', 'Jam pelaksanaan tidak boleh sebelum jam sekarang (' . $now->format('H:i') . ')');
+                    return false;
+                }
+            } catch (\Exception $e) {
+                $this->addError('scheduled_time', 'Format jam tidak valid');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected $rules = [
         'title' => 'required|string|max:255',
         'description' => 'required|string',
@@ -474,8 +536,8 @@ class Create extends Component
         'latitude' => 'required|numeric|between:-90,90',
         'longitude' => 'required|numeric|between:-180,180',
         'photo' => 'nullable|image|max:2048',
-        'scheduled_date' => 'nullable|date',
-        'scheduled_time' => ['nullable','regex:/^(?:[0-1]?\d|2[0-3]):[0-5]\d$/'],
+        'scheduled_date' => 'required|date',
+        'scheduled_time' => ['required', 'regex:/^(?:[0-1]?\d|2[0-3]):[0-5]\d$/'],
     ];
 
     protected $messages = [
@@ -491,8 +553,10 @@ class Create extends Component
         'full_address.required' => 'Alamat lengkap wajib diisi',
         'latitude.required' => 'Silakan tentukan titik lokasi pada peta',
         'longitude.required' => 'Silakan tentukan titik lokasi pada peta',
+        'scheduled_date.required' => 'Tanggal pelaksanaan bantuan wajib diisi',
         'scheduled_date.date' => 'Format tanggal tidak valid',
-        'scheduled_time.regex' => 'Format waktu tidak valid. Gunakan format 24-jam HH:MM, contoh: 9:30 atau 09:30',
+        'scheduled_time.required' => 'Jam pelaksanaan bantuan wajib diisi',
+        'scheduled_time.regex' => 'Format waktu tidak valid. Gunakan format 24-jam HH:MM, contoh: 09:30 atau 14:00',
     ];
 
     public function save()
@@ -515,6 +579,10 @@ class Create extends Component
         $this->messages['amount.max'] = 'Nominal maksimal Rp ' . number_format($maxNominal, 0, ',', '.');
         $this->validate();
 
+        if (!$this->validateScheduleDateTime()) {
+            return;
+        }
+
         $userId = auth()->id();
         $userBalance = UserBalance::firstOrCreate(['user_id' => $userId], ['balance' => 0]);
 
@@ -527,16 +595,6 @@ class Create extends Component
             return;
         }
 
-        // Final server-side check: scheduled_at not in the past
-        if ($this->scheduled_date) {
-            $time = $this->scheduled_time ?: '00:00';
-            $scheduledAtCheck = Carbon::parse($this->scheduled_date . ' ' . $time);
-            if ($scheduledAtCheck->lt(Carbon::now())) {
-                $this->addError('scheduled_date', 'Jadwal tidak boleh berada di masa lalu');
-                return;
-            }
-        }
-
         // Proceed to create help and deduct balance atomically
         DB::transaction(function () use ($userId, $amount, $adminFee, $total) {
             $photoPath = null;
@@ -547,12 +605,8 @@ class Create extends Component
             // Generate unique order id for this help
             $orderId = $this->generateOrderId();
 
-            // Combine scheduled_date and scheduled_time into scheduled_at if provided
-            $scheduledAt = null;
-            if ($this->scheduled_date) {
-                $time = $this->scheduled_time ?: '00:00';
-                $scheduledAt = date('Y-m-d H:i:s', strtotime($this->scheduled_date . ' ' . $time));
-            }
+            // Combine scheduled_date and scheduled_time into scheduled_at
+            $scheduledAt = date('Y-m-d H:i:s', strtotime($this->scheduled_date . ' ' . $this->scheduled_time));
 
             $lat = $this->latitude;
             $lng = $this->longitude;
@@ -637,6 +691,10 @@ class Create extends Component
         $this->messages['amount.min'] = 'Nominal minimal Rp ' . number_format($minNominal, 0, ',', '.');
         $this->messages['amount.max'] = 'Nominal maksimal Rp ' . number_format($maxNominal, 0, ',', '.');
         $this->validate();
+
+        if (!$this->validateScheduleDateTime()) {
+            return;
+        }
         
         // Log koordinat untuk debugging
         \Log::info('Create Help - Koordinat diterima', [
@@ -648,21 +706,18 @@ class Create extends Component
         $amount = (float) $this->amount;
         $total = $amount + $adminFee;
 
-        // Validate scheduled datetime is not in the past
-        if ($this->scheduled_date) {
-            $time = $this->scheduled_time ?: '00:00';
-            $scheduledAt = Carbon::parse($this->scheduled_date . ' ' . $time);
-            if ($scheduledAt->lt(Carbon::now())) {
-                $this->addError('scheduled_date', 'Jadwal tidak boleh berada di masa lalu');
-                return;
-            }
-        }
-
         $userId = auth()->id();
         $userBalance = UserBalance::firstOrCreate(['user_id' => $userId], ['balance' => 0]);
 
         if ($userBalance->balance < $total) {
-            $this->insufficientMessage = 'Saldo Anda tidak cukup. Total yang harus dibayar: Rp ' . number_format($total, 0, ',', '.');
+            $deficit = max(0, $total - (float) $userBalance->balance);
+            $this->topupDeficit = $deficit;
+            $this->topupAmount = $deficit > 10000 ? (int) (ceil($deficit / 1000) * 1000) : 10000;
+            $this->currentBalance = (float) $userBalance->balance;
+            $this->confirmAmount = $amount;
+            $this->confirmAdminFee = $adminFee;
+            $this->confirmTotal = $total;
+            $this->insufficientMessage = 'Saldo Anda saat ini Rp ' . number_format($userBalance->balance, 0, ',', '.') . ', sedangkan total yang harus dibayar adalah Rp ' . number_format($total, 0, ',', '.') . ' (Kurang Rp ' . number_format($deficit, 0, ',', '.') . ').';
             $this->showInsufficientModal = true;
             return;
         }
@@ -670,13 +725,9 @@ class Create extends Component
         $this->confirmAmount = $amount;
         $this->confirmAdminFee = $adminFee;
         $this->confirmTotal = $total;
+        
         // Prepare scheduled display
-        if ($this->scheduled_date) {
-            $time = $this->scheduled_time ?: '00:00';
-            $this->confirmScheduled = date('d M Y H:i', strtotime($this->scheduled_date . ' ' . $time));
-        } else {
-            $this->confirmScheduled = null;
-        }
+        $this->confirmScheduled = Carbon::parse($this->scheduled_date . ' ' . $this->scheduled_time)->translatedFormat('d F Y, H:i');
         $this->currentBalance = $userBalance->balance ?? 0;
         $this->showConfirmModal = true;
     }
@@ -690,6 +741,122 @@ class Create extends Component
     {
         $this->showInsufficientModal = false;
         $this->insufficientMessage = '';
+    }
+
+    /**
+     * Process direct topup via Midtrans without leaving the create help page
+     */
+    public function processDirectTopup()
+    {
+        $topupVal = (float) $this->topupAmount;
+        if ($topupVal < 10000) {
+            $this->addError('topupAmount', 'Minimal top up adalah Rp 10.000');
+            return;
+        }
+
+        try {
+            Config::$serverKey = config('services.midtrans.server_key');
+            Config::$isProduction = config('services.midtrans.is_production');
+            Config::$isSanitized = config('services.midtrans.is_sanitized');
+            Config::$is3ds = config('services.midtrans.is_3ds');
+
+            if (!config('services.midtrans.is_production')) {
+                Config::$curlOptions = [
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
+                    CURLOPT_HTTPHEADER     => [],
+                ];
+            }
+
+            $user = auth()->user();
+            $orderId = 'TOPUP-' . $user->id . '-' . time();
+
+            $transaction = BalanceTransaction::create([
+                'user_id' => $user->id,
+                'amount' => $topupVal,
+                'type' => 'topup',
+                'description' => 'Top up saldo via Midtrans saat buat bantuan',
+                'order_id' => $orderId,
+                'status' => 'pending',
+            ]);
+
+            if ($this->topupMethod === 'bank') {
+                $payments = ['bank_transfer', 'echannel'];
+            } elseif ($this->topupMethod === 'ewallet') {
+                $payments = ['gopay', 'shopeepay', 'qris'];
+            } else {
+                // All payment methods: Bank Transfer (BCA, BRI, Mandiri, BNI, Permata), QRIS, E-Wallet (GoPay, ShopeePay), dll
+                $payments = ['bank_transfer', 'echannel', 'gopay', 'shopeepay', 'qris', 'cstore'];
+            }
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $orderId,
+                    'gross_amount' => (int) $topupVal,
+                ],
+                'customer_details' => [
+                    'first_name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone ?? '08123456789',
+                ],
+                'enabled_payments' => $payments,
+            ];
+
+            $snapToken = Snap::getSnapToken($params);
+            $transaction->snap_token = $snapToken;
+            $transaction->save();
+
+            $this->topupSnapToken = $snapToken;
+
+            // Dispatch event to frontend to launch Snap
+            $this->dispatch('openDirectMidtransSnap', snapToken: $snapToken);
+
+        } catch (\Throwable $e) {
+            \Log::error('Direct Topup Midtrans error: ' . $e->getMessage());
+
+            // Sandbox local fallback if DNS/network issue
+            if (!config('services.midtrans.is_production')) {
+                $user = auth()->user();
+                $orderId = 'TOPUP-' . $user->id . '-' . time();
+
+                BalanceTransaction::create([
+                    'user_id' => $user->id,
+                    'amount' => $topupVal,
+                    'type' => 'topup',
+                    'description' => 'Top up saldo (Simulasi Sandbox)',
+                    'order_id' => $orderId,
+                    'status' => 'completed',
+                    'processed_at' => now(),
+                ]);
+
+                $this->onTopupCompleted();
+                return;
+            }
+
+            $this->addError('topupAmount', 'Gagal memproses pembayaran: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Called when topup succeeds to refresh balance and preserve all form inputs
+     */
+    public function onTopupCompleted()
+    {
+        $userId = auth()->id();
+        $newBalance = UserBalance::recalculateForUser($userId);
+        $this->currentBalance = $newBalance;
+        $this->showInsufficientModal = false;
+
+        $amount = (float) $this->amount;
+        $adminFee = (float) AppSetting::get('admin_fee', 0);
+        $total = $amount + $adminFee;
+
+        if ($newBalance >= $total) {
+            session()->flash('topup_success', '🎉 Top up berhasil! Saldo Anda sekarang: Rp ' . number_format($newBalance, 0, ',', '.') . '. Silakan konfirmasi permintaan bantuan.');
+            $this->prepareConfirm();
+        } else {
+            session()->flash('topup_success', 'Top up berhasil! Saldo saat ini: Rp ' . number_format($newBalance, 0, ',', '.'));
+        }
     }
 
     public function setCityId($id)

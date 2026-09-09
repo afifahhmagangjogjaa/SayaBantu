@@ -101,9 +101,11 @@ class Index extends Component
         }
 
         try {
-            // Soft-delete or delete depending on model setup. Use delete() by default.
-            $help->delete();
-            session()->flash('message', 'Permintaan bantuan berhasil dibatalkan.');
+            // Update status to dibatalkan so HelpObserver triggers automatic refund and notifications
+            $help->update([
+                'status' => 'dibatalkan',
+            ]);
+            session()->flash('message', 'Permintaan bantuan berhasil dibatalkan dan saldo telah dikembalikan.');
         } catch (\Throwable $e) {
             session()->flash('error', 'Gagal membatalkan permintaan bantuan.');
         }

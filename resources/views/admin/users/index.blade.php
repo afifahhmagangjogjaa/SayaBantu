@@ -168,10 +168,14 @@
                                         @endphp
 
                                         @if (!is_null($avgRating) && $avgRating > 0 && $ratingsCount > 0)
-                                            <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-                                                ★ {{ number_format($avgRating, 1) }}
-                                            </span>
-                                            <span class="text-[11px] text-gray-500 ml-1">({{ $ratingsCount }})</span>
+                                            <a href="{{ route('admin.ratings.index', ['search' => $user->email ?? $user->name], false) }}" 
+                                               title="Klik untuk melihat ulasan pengguna di menu Rating & Ulasan"
+                                               class="inline-flex items-center group cursor-pointer hover:opacity-85 transition">
+                                                <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-200 group-hover:bg-amber-100 transition shadow-2xs">
+                                                    ★ {{ number_format($avgRating, 1) }}
+                                                </span>
+                                                <span class="text-[11px] text-gray-500 ml-1 group-hover:text-primary-600 group-hover:underline">({{ $ratingsCount }})</span>
+                                            </a>
                                         @else
                                             <span class="text-xs text-gray-400">-</span>
                                         @endif
@@ -193,14 +197,15 @@
                                     </td>
                                     <td class="px-4 py-3.5 text-center whitespace-nowrap">
                                         <div class="inline-flex items-center justify-center gap-2 leading-none">
-                                            <a href="#" data-url="{{ route('admin.users.show', $user) }}" 
-                                               class="open-user-detail p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg transition shadow-2xs leading-none cursor-pointer"
+                                            <button type="button" 
+                                               onclick="openAdminUserDetail('/admin/users/{{ $user->id }}')"
+                                               class="p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg transition shadow-2xs leading-none cursor-pointer inline-flex items-center justify-center"
                                                title="Lihat Detail">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
-                                            </a>
+                                            </button>
 
                                             <button type="button"
                                                 data-form-id="block-form-{{ $user->id }}"
@@ -211,7 +216,7 @@
                                             </button>
                                         </div>
 
-                                        <form action="{{ route('admin.partners.toggle', $user->id) }}" method="POST" id="block-form-{{ $user->id }}" class="hidden block-toggle-form">
+                                        <form action="{{ route('admin.partners.toggle', $user->id, false) }}" method="POST" id="block-form-{{ $user->id }}" class="hidden block-toggle-form">
                                             @csrf
                                         </form>
                                     </td>
@@ -229,6 +234,9 @@
             @endif
         </div>
     </div>
+
+    <!-- Modal Container for User Detail -->
+    <div id="user-detail-modal-container"></div>
 @endsection
 
 <!-- Confirm Block Modal -->
@@ -251,57 +259,87 @@
 
 @push('scripts')
 <script>
-    (function(){
-        function setupModalListeners(wrapper){
-            if (!wrapper) return;
-            var closeBtn = wrapper.querySelector('#modal-close-btn');
-            var closeBtn2 = wrapper.querySelector('#modal-close-btn-2');
-            var backdrop = wrapper.querySelector('#modal-backdrop');
+    window.openAdminUserDetail = function(arg1, arg2) {
+        var url = typeof arg1 === 'string' ? arg1 : (typeof arg2 === 'string' ? arg2 : '');
+        if (arg1 && typeof arg1.preventDefault === 'function') {
+            arg1.preventDefault();
+            arg1.stopPropagation();
+        }
+        if (!url) return;
 
-            function removeWrapper(){
-                if (wrapper && wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+        var container = document.getElementById('user-detail-modal-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'user-detail-modal-container';
+            document.body.appendChild(container);
+        }
+
+        // Instant spinner feedback
+        container.innerHTML = `
+            <div id="user-detail-modal-root" class="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+                <div class="bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center gap-3 border border-gray-100">
+                    <svg class="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span class="text-sm font-semibold text-gray-700">Memuat detail pengguna...</span>
+                </div>
+            </div>
+        `;
+        document.body.style.overflow = 'hidden';
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'text/html, */*'
+            }
+        })
+        .then(function(res) {
+            if (!res.ok) throw new Error('HTTP error ' + res.status);
+            return res.text();
+        })
+        .then(function(html) {
+            container.innerHTML = html;
+
+            var closeBtn1 = container.querySelector('#modal-close-btn');
+            var closeBtn2 = container.querySelector('#modal-close-btn-2');
+            var backdrop = container.querySelector('#modal-backdrop');
+
+            function closeModal() {
+                container.innerHTML = '';
+                document.body.style.overflow = '';
                 document.removeEventListener('keydown', onKeyDown);
             }
 
-            function onKeyDown(e){
-                if (e.key === 'Escape') removeWrapper();
+            function onKeyDown(e) {
+                if (e.key === 'Escape') closeModal();
             }
 
-            if (closeBtn) closeBtn.addEventListener('click', removeWrapper);
-            if (closeBtn2) closeBtn2.addEventListener('click', removeWrapper);
-            if (backdrop) backdrop.addEventListener('click', removeWrapper);
+            if (closeBtn1) closeBtn1.addEventListener('click', closeModal);
+            if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
+            if (backdrop) backdrop.addEventListener('click', closeModal);
             document.addEventListener('keydown', onKeyDown);
-        }
-
-        function openUserDetail(url){
-            fetch(url, {headers: { 'X-Requested-With': 'XMLHttpRequest' }})
-                .then(function(res){
-                    if (!res.ok) throw new Error('Network response was not ok');
-                    return res.text();
-                })
-                .then(function(html){
-                    // create wrapper and insert modal HTML
-                    var wrapper = document.createElement('div');
-                    wrapper.id = 'user-detail-modal-wrapper';
-                    wrapper.innerHTML = html;
-                    document.body.appendChild(wrapper);
-                    // attach listeners to modal elements inside the wrapper
-                    setupModalListeners(wrapper);
-                })
-                .catch(function(err){
-                    console.error('Failed to load user detail:', err);
-                    alert('Gagal memuat detail pengguna. Coba lagi.');
-                });
-        }
-
-        document.addEventListener('click', function(e){
-            var el = e.target.closest && e.target.closest('.open-user-detail');
-            if (!el) return;
-            e.preventDefault();
-            var url = el.getAttribute('data-url');
-            if (url) openUserDetail(url);
+        })
+        .catch(function(err) {
+            console.warn('Gagal memuat popup modal:', err);
+            container.innerHTML = `
+                <div id="user-detail-modal-root" class="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+                    <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full text-center space-y-4">
+                        <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto text-xl font-bold">!</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-base">Gagal Memuat Detail</h3>
+                            <p class="text-xs text-gray-500 mt-1">Terjadi kesalahan saat mengambil data pengguna.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="document.getElementById('user-detail-modal-container').innerHTML='';document.body.style.overflow='';" class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            `;
         });
+    };
 
+    (function(){
         // Block/unblock confirmation modal handling
         var blockModal = null;
         var blockBackdrop = null;

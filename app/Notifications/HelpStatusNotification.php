@@ -71,7 +71,9 @@ class HelpStatusNotification extends Notification
                     : "Komplain Anda pada '{$helpTitle}' telah diterima dan sedang ditinjau oleh Admin."),
             strtolower($this->newStatus) === 'rejected' => 'Permintaan bantuan "' . $helpTitle . '" ditolak oleh admin.' .
                 ($this->help->admin_notes ? ' Alasan: ' . $this->help->admin_notes : ''),
-            strtolower($this->newStatus) === 'dibatalkan' || strtolower($this->newStatus) === 'cancelled' => "Bantuan '{$helpTitle}' telah dibatalkan.",
+            strtolower($this->newStatus) === 'dibatalkan' || strtolower($this->newStatus) === 'cancelled' => ($notifiable->role === 'mitra')
+                ? "Customer telah membatalkan pesanan '{$helpTitle}'."
+                : "Bantuan '{$helpTitle}' telah dibatalkan. Saldo sebesar {$formattedAmount} telah dikembalikan ke dompet Anda.",
             strtolower($this->newStatus) === 'partner_on_the_way' => "$mitraName sedang menuju lokasi Anda",
             strtolower($this->newStatus) === 'partner_arrived' => "$mitraName telah tiba di lokasi Anda",
             strtolower($this->newStatus) === 'in_progress' => "$mitraName telah memulai pekerjaan",

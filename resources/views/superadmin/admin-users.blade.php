@@ -463,19 +463,6 @@
                                         </div>
 
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Kota Domisili <span class="text-red-500">*</span></label>
-                                            <select wire:model="city_id"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                                <option value="">-- Pilih Kota --</option>
-                                                @foreach($cities as $c)
-                                                    <option value="{{ $c->id }}">{{ $c->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('city_id') <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div>
                                             <label class="text-xs font-medium text-gray-700">Agama</label>
                                             <select wire:model="religion"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
@@ -490,12 +477,6 @@
                                         </div>
 
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Pekerjaan</label>
-                                            <input type="text" wire:model="occupation" placeholder="Contoh: Admin Operasional"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
-                                        </div>
-
-                                        <div>
                                             <label class="text-xs font-medium text-gray-700">Status Perkawinan</label>
                                             <select wire:model="marital_status"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
@@ -505,6 +486,12 @@
                                                 <option value="Cerai Hidup">Cerai Hidup</option>
                                                 <option value="Cerai Mati">Cerai Mati</option>
                                             </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="text-xs font-medium text-gray-700">Pekerjaan</label>
+                                            <input type="text" wire:model="occupation" placeholder="Contoh: Admin Operasional"
+                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                         </div>
 
                                         <div class="grid grid-cols-2 gap-3">
@@ -522,27 +509,50 @@
                                             </div>
                                         </div>
 
+                                        <!-- Wilayah Domisili (Kota Terdaftar di DB -> Auto-fetch Kecamatan & Kelurahan API) -->
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Kelurahan / Desa <span class="text-red-500">*</span></label>
-                                            <input type="text" wire:model="kelurahan" placeholder="Nama Kelurahan"
-                                                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
-                                            @error('kelurahan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
+                                            <label class="text-xs font-medium text-gray-700">Kota / Kabupaten Domisili <span class="text-red-500">*</span></label>
+                                            <select wire:model.live="city_id"
+                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                                <option value="">-- Pilih Kota / Kabupaten --</option>
+                                                @foreach($cities as $c)
+                                                    <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->province ?? 'Indonesia' }})</option>
+                                                @endforeach
+                                            </select>
+                                            @error('city_id') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label class="text-xs font-medium text-gray-700">Provinsi Domisili</label>
+                                            <input type="text" wire:model="province" readonly placeholder="Otomatis terisi dari kota"
+                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-600 cursor-not-allowed focus:outline-none" />
+                                            @error('province') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
 
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Kecamatan <span class="text-red-500">*</span></label>
-                                            <input type="text" wire:model="kecamatan" placeholder="Nama Kecamatan"
-                                                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                                            <select wire:model.live="selectedDistrictCode"
+                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                {{ empty($apiDistricts) ? 'disabled' : '' }}>
+                                                <option value="">{{ empty($city_id) ? '-- Pilih Kota Terlebih Dahulu --' : (empty($apiDistricts) ? '-- Memuat Kecamatan... --' : '-- Pilih Kecamatan --') }}</option>
+                                                @foreach($apiDistricts as $d)
+                                                    <option value="{{ $d['code'] }}">{{ $d['name'] }}</option>
+                                                @endforeach
+                                            </select>
                                             @error('kecamatan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
 
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Provinsi <span class="text-red-500">*</span></label>
-                                            <input type="text" wire:model="province" placeholder="Nama Provinsi"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
-                                            @error('province') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
+                                            <label class="text-xs font-medium text-gray-700">Kelurahan / Desa <span class="text-red-500">*</span></label>
+                                            <select wire:model.live="selectedVillageCode"
+                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                {{ empty($apiVillages) ? 'disabled' : '' }}>
+                                                <option value="">{{ empty($selectedDistrictCode) ? '-- Pilih Kecamatan Terlebih Dahulu --' : (empty($apiVillages) ? '-- Memuat Kelurahan... --' : '-- Pilih Kelurahan / Desa --') }}</option>
+                                                @foreach($apiVillages as $v)
+                                                    <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('kelurahan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
 
                                         <!-- Multiple Cities for Admin -->

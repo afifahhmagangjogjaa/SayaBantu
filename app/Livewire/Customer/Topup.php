@@ -141,35 +141,6 @@ class Topup extends Component
             // Store last order id in session so finish callback can use it if Midtrans doesn't include order_id
             session()->put('midtrans_last_order_id', $this->orderId);
 
-            // ====================================================
-            // DEVELOPMENT ONLY: Langsung update saldo setelah token
-            // dibuat. Di production, webhook Midtrans yang update.
-            // ====================================================
-            if (!config('services.midtrans.is_production')) {
-                \Illuminate\Support\Facades\DB::table('balance_transactions')
-                    ->where('id', $transaction->id)
-                    ->update(['status' => 'completed', 'processed_at' => now()]);
-
-                $sum = \Illuminate\Support\Facades\DB::table('balance_transactions')
-                    ->where('user_id', $user->id)
-                    ->where('type', 'topup')
-                    ->where('status', 'completed')
-                    ->sum('amount');
-
-                // Gunakan Eloquent agar created_at/updated_at otomatis terisi
-                \App\Models\UserBalance::updateOrCreate(
-                    ['user_id' => $user->id],
-                    ['balance' => (float) $sum]
-                );
-
-                \Log::info('DEV: saldo langsung diupdate setelah token', [
-                    'user_id' => $user->id,
-                    'amount'  => $this->amount,
-                    'balance' => $sum,
-                ]);
-            }
-
-
             // Dispatch event to open Midtrans Snap
             $this->dispatch('openMidtransSnap', snapToken: $this->snapToken);
 

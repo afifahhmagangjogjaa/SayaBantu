@@ -136,57 +136,69 @@
                     </div>
                 </div>
 
-                <!-- Kelurahan & Kecamatan -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                            Kelurahan / Desa <span class="text-red-500">*</span>
-                        </label>
-                        <input name="kelurahan" id="kelurahan" type="text" placeholder="Kelurahan / Desa"
-                            value="{{ old('kelurahan', $user->kelurahan ?? '') }}" required
-                            oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
-                            class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm font-medium focus:bg-white focus:border-blue-500 @error('kelurahan') border-red-500 @enderror">
-                        @error('kelurahan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                            Kecamatan <span class="text-red-500">*</span>
-                        </label>
-                        <input name="kecamatan" id="kecamatan" type="text" placeholder="Kecamatan"
-                            value="{{ old('kecamatan', $user->kecamatan ?? '') }}" required
-                            oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
-                            class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm font-medium focus:bg-white focus:border-blue-500 @error('kecamatan') border-red-500 @enderror">
-                        @error('kecamatan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
+                @php
+                    $provinces = $cities->pluck('province')->filter()->unique()->values();
+                    $savedProvince = old('province', $user->province ?? '');
+                    $savedCityId = old('city_id', $user->city_id ?? '');
+                    if (!$savedProvince && $savedCityId) {
+                        $selectedCityModel = $cities->firstWhere('id', $savedCityId);
+                        if ($selectedCityModel) {
+                            $savedProvince = $selectedCityModel->province;
+                        }
+                    }
+                @endphp
+
+                <!-- 1. PROVINSI -->
+                <div>
+                    <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                        Provinsi <span class="text-red-500">*</span>
+                    </label>
+                    <select name="province" id="province" required onchange="handleProvinceChange()"
+                        class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium @error('province') border-red-500 @enderror">
+                        <option value="">-- Pilih Provinsi --</option>
+                        @foreach($provinces as $prov)
+                            <option value="{{ $prov }}" {{ $savedProvince === $prov ? 'selected' : '' }}>
+                                {{ $prov }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('province') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Kota / Kabupaten & Provinsi -->
-                <div class="space-y-3">
-                    <div>
-                        <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                            Kota / Kabupaten <span class="text-red-500">*</span>
-                        </label>
-                        <select name="city_id" id="city_id" required onchange="updateProvince(this)"
-                            class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium @error('city_id') border-red-500 @enderror">
-                            <option value="">Pilih Kota / Kabupaten...</option>
-                            @foreach($cities as $city)
-                                <option value="{{ $city->id }}" data-province="{{ $city->province ?? '' }}" {{ old('city_id', $user->city_id ?? '') == $city->id ? 'selected' : '' }}>
-                                    {{ $city->name }} {{ !empty($city->province) ? '— ' . $city->province : '' }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('city_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
+                <!-- 2. KOTA / KABUPATEN -->
+                <div>
+                    <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                        Kota / Kabupaten <span class="text-red-500">*</span>
+                    </label>
+                    <select name="city_id" id="city_id" required onchange="handleCityChange()" disabled
+                        class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('city_id') border-red-500 @enderror">
+                        <option value="">-- Pilih Provinsi Terlebih Dahulu --</option>
+                    </select>
+                    @error('city_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
 
-                    <div>
-                        <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                            Provinsi <span class="text-red-500">*</span>
-                        </label>
-                        <input name="province" id="province" type="text" placeholder="Provinsi domisili"
-                            value="{{ old('province', $user->province ?? '') }}" required
-                            class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm font-medium focus:bg-white focus:border-blue-500 @error('province') border-red-500 @enderror">
-                        @error('province') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
+                <!-- 3. KECAMATAN -->
+                <div>
+                    <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                        Kecamatan <span class="text-red-500">*</span>
+                    </label>
+                    <select name="kecamatan" id="kecamatan" required onchange="handleDistrictChange()" disabled
+                        class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('kecamatan') border-red-500 @enderror">
+                        <option value="">-- Pilih Kota Terlebih Dahulu --</option>
+                    </select>
+                    @error('kecamatan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <!-- 4. KELURAHAN / DESA -->
+                <div>
+                    <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                        Kelurahan / Desa <span class="text-red-500">*</span>
+                    </label>
+                    <select name="kelurahan" id="kelurahan" required disabled
+                        class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('kelurahan') border-red-500 @enderror">
+                        <option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>
+                    </select>
+                    @error('kelurahan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <!-- Submit Button -->
@@ -212,14 +224,19 @@
         </div>
     </div>
 
+    <!-- Data Master Cities dari Server -->
     <script>
+        const allCities = @json($cities);
+
         function updateNikCount(val) {
             const counter = document.getElementById('nik_counter');
-            counter.innerText = val.length + '/16 digit';
-            if (val.length === 16) {
-                counter.className = 'text-[11px] font-semibold text-green-600';
-            } else {
-                counter.className = 'text-[11px] font-semibold text-gray-500';
+            if (counter) {
+                counter.innerText = val.length + '/16 digit';
+                if (val.length === 16) {
+                    counter.className = 'text-[11px] font-semibold text-green-600';
+                } else {
+                    counter.className = 'text-[11px] font-semibold text-gray-500';
+                }
             }
 
             // Auto-detect gender
@@ -235,12 +252,294 @@
             }
         }
 
-        function updateProvince(select) {
-            const selectedOpt = select.options[select.selectedIndex];
-            const prov = selectedOpt.getAttribute('data-province');
-            if (prov) {
-                document.getElementById('province').value = prov;
+        const extractList = (json) => Array.isArray(json) ? json : (json && json.data ? json.data : []);
+
+        function cleanGeoName(str) {
+            return (str || '')
+                .toUpperCase()
+                .replace(/\b(KOTA\s+ADM|KOTA\s+ADMINISTRASI|KABUPATEN|KOTA|KAB|DAERAH\s+ISTIMEWA|DAERAH\s+KHUSUS\s+IBUKOTA|PROVINSI|KEPULAUAN|KEP|DI|DKI)\b/g, '')
+                .replace(/[^A-Z0-9]/g, '')
+                .trim();
+        }
+
+        function getSignificantWords(str) {
+            const s = (str || '')
+                .toUpperCase()
+                .replace(/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|KOTA|ADM|ADMINISTRASI|KABUPATEN|KAB|PROVINSI|KEPULAUAN|KEP|DI|DKI)\b/g, ' ')
+                .replace(/[^A-Z0-9\s]/g, ' ');
+            return s.split(/\s+/).filter(w => w.length > 2);
+        }
+
+        function matchesGeo(str1, str2) {
+            if (!str1 || !str2) return false;
+            const s1 = cleanGeoName(str1);
+            const s2 = cleanGeoName(str2);
+            if (s1 && s2 && (s1 === s2 || s1.includes(s2) || s2.includes(s1))) return true;
+
+            const w1 = getSignificantWords(str1);
+            const w2 = getSignificantWords(str2);
+            if (w1.length === 0 || w2.length === 0) return false;
+
+            return w1.every(word => w2.some(w => w.includes(word) || word.includes(w))) ||
+                   w2.every(word => w1.some(w => w.includes(word) || word.includes(w)));
+        }
+
+        let provincesCache = null;
+
+        async function handleProvinceChange(initialCityId = null, initialKecamatan = null, initialKelurahan = null) {
+            const provSelect = document.getElementById('province');
+            const citySelect = document.getElementById('city_id');
+            const kecSelect = document.getElementById('kecamatan');
+            const kelSelect = document.getElementById('kelurahan');
+
+            const selectedProv = provSelect.value;
+
+            citySelect.innerHTML = '<option value="">-- Pilih Kota / Kabupaten --</option>';
+            citySelect.disabled = true;
+            kecSelect.innerHTML = '<option value="">-- Pilih Kota Terlebih Dahulu --</option>';
+            kecSelect.disabled = true;
+            kelSelect.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+            kelSelect.disabled = true;
+
+            if (!selectedProv) {
+                citySelect.innerHTML = '<option value="">-- Pilih Provinsi Terlebih Dahulu --</option>';
+                return;
+            }
+
+            // Filter kota berdasarkan provinsi yang dipilih
+            const filteredCities = allCities.filter(c => c.province && (
+                c.province.toUpperCase().trim() === selectedProv.toUpperCase().trim() ||
+                matchesGeo(c.province, selectedProv)
+            ));
+
+            if (filteredCities.length === 0) {
+                citySelect.innerHTML = '<option value="">-- Tidak ada kota terdaftar --</option>';
+                return;
+            }
+
+            filteredCities.forEach(city => {
+                const opt = document.createElement('option');
+                opt.value = city.id;
+                opt.textContent = city.name;
+                opt.setAttribute('data-code', city.code || '');
+                opt.setAttribute('data-name', city.name);
+                opt.setAttribute('data-province', city.province || '');
+                citySelect.appendChild(opt);
+            });
+
+            citySelect.disabled = false;
+
+            if (initialCityId) {
+                citySelect.value = initialCityId;
+                if (citySelect.selectedIndex > 0) {
+                    await handleCityChange(initialKecamatan, initialKelurahan);
+                }
+            } else if (filteredCities.length === 1) {
+                citySelect.selectedIndex = 1;
+                await handleCityChange(initialKecamatan, initialKelurahan);
             }
         }
+
+        async function handleCityChange(initialKecamatan = null, initialKelurahan = null) {
+            const citySelect = document.getElementById('city_id');
+            const selectedOpt = citySelect.options[citySelect.selectedIndex];
+            const kecSelect = document.getElementById('kecamatan');
+            const kelSelect = document.getElementById('kelurahan');
+
+            if (!selectedOpt || !selectedOpt.value) {
+                kecSelect.innerHTML = '<option value="">-- Pilih Kota Terlebih Dahulu --</option>';
+                kecSelect.disabled = true;
+                kelSelect.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+                kelSelect.disabled = true;
+                return;
+            }
+
+            const cityId = selectedOpt.value;
+            const provName = selectedOpt.getAttribute('data-province') || document.getElementById('province').value || '';
+            let cityCode = selectedOpt.getAttribute('data-code') || '';
+            const cityName = selectedOpt.getAttribute('data-name') || selectedOpt.textContent || '';
+
+            kecSelect.innerHTML = '<option value="">-- Memuat Kecamatan... --</option>';
+            kecSelect.disabled = true;
+            kelSelect.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+            kelSelect.disabled = true;
+
+            try {
+                let districts = [];
+
+                // 1. Prioritaskan panggil backend proxy internal (kebal CORS & otomatis resolve kode)
+                try {
+                    const resProxy = await fetch(`{{ route('api.wilayah.districts') }}?city_id=${cityId}&city_name=${encodeURIComponent(cityName)}&province=${encodeURIComponent(provName)}`);
+                    if (resProxy.ok) {
+                        const proxyData = await resProxy.json();
+                        districts = extractList(proxyData);
+                    }
+                } catch (err) {}
+
+                // 2. Fallback jika backend proxy gagal
+                if (districts.length === 0 && cityCode) {
+                    try {
+                        const resDist = await fetch(`https://wilayah.id/api/districts/${cityCode}.json`);
+                        if (resDist.ok) {
+                            const distData = await resDist.json();
+                            districts = extractList(distData);
+                        }
+                    } catch (err) {}
+                }
+
+                // 3. Fallback kedua jika masih belum ketemu
+                if (districts.length === 0) {
+                    if (!provincesCache || provincesCache.length === 0) {
+                        try {
+                            const resProv = await fetch('https://wilayah.id/api/provinces.json');
+                            if (resProv.ok) {
+                                const provData = await resProv.json();
+                                provincesCache = extractList(provData);
+                            }
+                        } catch (e) {
+                            provincesCache = [];
+                        }
+                    }
+
+                    let matchedProv = (provincesCache || []).find(p => matchesGeo(p.name, provName));
+
+                    if (matchedProv) {
+                        try {
+                            const resReg = await fetch(`https://wilayah.id/api/regencies/${matchedProv.code}.json`);
+                            if (resReg.ok) {
+                                const regData = await resReg.json();
+                                const regList = extractList(regData);
+
+                                let matchedReg = regList.find(r => matchesGeo(r.name, cityName));
+
+                                if (matchedReg) {
+                                    cityCode = matchedReg.code;
+                                    const resDist = await fetch(`https://wilayah.id/api/districts/${cityCode}.json`);
+                                    if (resDist.ok) {
+                                        const distData = await resDist.json();
+                                        districts = extractList(distData);
+                                    }
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                }
+
+                if (districts.length > 0) {
+                    kecSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+                    districts.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.name;
+                        opt.setAttribute('data-code', d.code);
+                        opt.textContent = d.name;
+                        kecSelect.appendChild(opt);
+                    });
+                    kecSelect.disabled = false;
+
+                    if (initialKecamatan) {
+                        for (let i = 0; i < kecSelect.options.length; i++) {
+                            const opt = kecSelect.options[i];
+                            if (matchesGeo(opt.value, initialKecamatan)) {
+                                kecSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                        if (kecSelect.selectedIndex > 0) {
+                            await handleDistrictChange(initialKelurahan);
+                        }
+                    }
+                } else {
+                    kecSelect.innerHTML = '<option value="">-- Gagal memuat kecamatan --</option>';
+                }
+            } catch (e) {
+                console.error('Error fetching districts:', e);
+                kecSelect.innerHTML = '<option value="">-- Gagal memuat kecamatan --</option>';
+            }
+        }
+
+        async function handleDistrictChange(initialKelurahan = null) {
+            const kecSelect = document.getElementById('kecamatan');
+            const kelSelect = document.getElementById('kelurahan');
+            const selectedOpt = kecSelect.options[kecSelect.selectedIndex];
+
+            if (!selectedOpt || !selectedOpt.value) {
+                kelSelect.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+                kelSelect.disabled = true;
+                return;
+            }
+
+            const districtCode = selectedOpt.getAttribute('data-code');
+            if (!districtCode) {
+                kelSelect.innerHTML = '<option value="">-- Pilih Kelurahan / Desa --</option>';
+                return;
+            }
+
+            kelSelect.innerHTML = '<option value="">-- Memuat Kelurahan... --</option>';
+            kelSelect.disabled = true;
+
+            try {
+                let villages = [];
+
+                // 1. Prioritaskan panggil backend proxy internal
+                try {
+                    const resProxy = await fetch(`{{ route('api.wilayah.villages') }}?district_code=${encodeURIComponent(districtCode)}`);
+                    if (resProxy.ok) {
+                        const proxyData = await resProxy.json();
+                        villages = extractList(proxyData);
+                    }
+                } catch (err) {}
+
+                // 2. Fallback direct API
+                if (villages.length === 0) {
+                    try {
+                        const resVill = await fetch(`https://wilayah.id/api/villages/${districtCode}.json`);
+                        if (resVill.ok) {
+                            const villData = await resVill.json();
+                            villages = extractList(villData);
+                        }
+                    } catch (e) {}
+                }
+
+                if (villages.length > 0) {
+                    kelSelect.innerHTML = '<option value="">-- Pilih Kelurahan / Desa --</option>';
+                    villages.forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = v.name;
+                        opt.setAttribute('data-code', v.code);
+                        opt.textContent = v.name;
+                        kelSelect.appendChild(opt);
+                    });
+                    kelSelect.disabled = false;
+
+                    if (initialKelurahan) {
+                        const cleanTargetKel = cleanGeoName(initialKelurahan);
+                        for (let i = 0; i < kelSelect.options.length; i++) {
+                            const opt = kelSelect.options[i];
+                            const cleanOpt = cleanGeoName(opt.value);
+                            if (cleanOpt === cleanTargetKel || cleanOpt.includes(cleanTargetKel) || cleanTargetKel.includes(cleanOpt)) {
+                                kelSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    kelSelect.innerHTML = '<option value="">-- Tidak ada data kelurahan --</option>';
+                }
+            } catch (e) {
+                console.error('Error fetching villages:', e);
+                kelSelect.innerHTML = '<option value="">-- Gagal memuat kelurahan --</option>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const provSelect = document.getElementById('province');
+            const initialCityId = @json(old('city_id', $user->city_id ?? ''));
+            const initialKecamatan = @json(old('kecamatan', $user->kecamatan ?? ''));
+            const initialKelurahan = @json(old('kelurahan', $user->kelurahan ?? ''));
+
+            if (provSelect && provSelect.value) {
+                handleProvinceChange(initialCityId, initialKecamatan, initialKelurahan);
+            }
+        });
     </script>
 </x-guest-layout>

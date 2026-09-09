@@ -9,7 +9,7 @@
 
             <div class="relative max-w-md mx-auto px-6 pt-4 pb-6">
                 <div class="flex items-center justify-between mb-6">
-                    <a href="{{ route('mitra.settings') }}" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition">
+                    <a href="{{ route('mitra.profile') }}" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition" title="Kembali ke Profil">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>

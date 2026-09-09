@@ -30,6 +30,8 @@ class Cities extends Component
     public $province = '';
     public $province_id = null;
     public $admin_id = null;
+    public $latitude = null;
+    public $longitude = null;
     public $is_active = true;
     public $deleteId = null;
     // detail modal + chart data
@@ -94,6 +96,8 @@ class Cities extends Component
         $this->province = $prov ? $prov['name'] : '';
         $this->name = ''; // reset city name
         $this->selectedCityCode = '';
+        $this->latitude = null;
+        $this->longitude = null;
         
         if ($code) {
             $this->fetchCities($code);
@@ -105,12 +109,103 @@ class Cities extends Component
     public function updatedSelectedCityCode($code)
     {
         $city = collect($this->apiCities)->firstWhere('code', $code);
-        $this->name = $city ? $city['name'] : '';
+        if ($city) {
+            $this->name = $city['name'];
+            $this->fetchCoordinatesForCity($this->name, $this->province);
+        } else {
+            $this->name = '';
+            $this->latitude = null;
+            $this->longitude = null;
+        }
+    }
+
+    public function fetchCoordinatesForCity($cityName, $provinceName = '')
+    {
+        $fallbackCoords = [
+            'JAKARTA' => [-6.2088, 106.8456],
+            'DKI JAKARTA' => [-6.2088, 106.8456],
+            'KOTA ADM. JAKARTA PUSAT' => [-6.1805, 106.8284],
+            'KOTA ADM. JAKARTA SELATAN' => [-6.2615, 106.8106],
+            'KOTA ADM. JAKARTA BARAT' => [-6.1683, 106.7588],
+            'KOTA ADM. JAKARTA TIMUR' => [-6.2250, 106.9004],
+            'KOTA ADM. JAKARTA UTARA' => [-6.1214, 106.7741],
+            'KOTA SURABAYA' => [-7.2575, 112.7521],
+            'SURABAYA' => [-7.2575, 112.7521],
+            'KOTA BANDUNG' => [-6.9175, 107.6191],
+            'BANDUNG' => [-6.9175, 107.6191],
+            'KOTA MEDAN' => [3.5952, 98.6722],
+            'MEDAN' => [3.5952, 98.6722],
+            'KOTA SEMARANG' => [-6.9667, 110.4167],
+            'SEMARANG' => [-6.9667, 110.4167],
+            'KOTA SURAKARTA' => [-7.5755, 110.8243],
+            'SURAKARTA' => [-7.5755, 110.8243],
+            'SOLO' => [-7.5755, 110.8243],
+            'KOTA YOGYAKARTA' => [-7.7956, 110.3695],
+            'YOGYAKARTA' => [-7.7956, 110.3695],
+            'DI YOGYAKARTA' => [-7.7956, 110.3695],
+            'KOTA MAKASSAR' => [-5.1477, 119.4327],
+            'MAKASSAR' => [-5.1477, 119.4327],
+            'KOTA PALEMBANG' => [-2.9761, 104.7754],
+            'PALEMBANG' => [-2.9761, 104.7754],
+            'KOTA DENPASAR' => [-8.6705, 115.2126],
+            'DENPASAR' => [-8.6705, 115.2126],
+            'BALI' => [-8.6705, 115.2126],
+            'KOTA MALANG' => [-7.9666, 112.6326],
+            'MALANG' => [-7.9666, 112.6326],
+            'KABUPATEN PONOROGO' => [-7.8664, 111.4620],
+            'PONOROGO' => [-7.8664, 111.4620],
+            'KOTA BOGOR' => [-6.5971, 106.8060],
+            'BOGOR' => [-6.5971, 106.8060],
+            'KOTA BEKASI' => [-6.2383, 106.9756],
+            'BEKASI' => [-6.2383, 106.9756],
+            'KOTA TANGERANG' => [-6.1783, 106.6319],
+            'TANGERANG' => [-6.1783, 106.6319],
+            'KOTA TANGERANG SELATAN' => [-6.2889, 106.7179],
+            'KOTA DEPOK' => [-6.4025, 106.7942],
+            'DEPOK' => [-6.4025, 106.7942],
+        ];
+
+        $upperName = strtoupper(trim($cityName));
+        $cleanName = trim(str_replace(['KOTA ADM. ', 'KOTA ', 'KABUPATEN ', 'KAB. '], '', $upperName));
+
+        if (isset($fallbackCoords[$upperName])) {
+            $this->latitude = $fallbackCoords[$upperName][0];
+            $this->longitude = $fallbackCoords[$upperName][1];
+            return;
+        }
+
+        if (isset($fallbackCoords[$cleanName])) {
+            $this->latitude = $fallbackCoords[$cleanName][0];
+            $this->longitude = $fallbackCoords[$cleanName][1];
+            return;
+        }
+
+        // Fetch coordinates from Nominatim OpenStreetMap
+        try {
+            $cleanSearch = str_replace(['KOTA ADM. ', 'KOTA ', 'KABUPATEN ', 'KAB. '], '', $cityName);
+            $query = urlencode($cleanSearch . ', ' . $provinceName . ', Indonesia');
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+                ->withHeaders(['User-Agent' => 'SayaBantu-App/1.0'])
+                ->timeout(4)
+                ->get("https://nominatim.openstreetmap.org/search?q={$query}&format=json&limit=1");
+
+            if ($response->successful() && !empty($response->json())) {
+                $data = $response->json()[0];
+                $this->latitude = round((float)$data['lat'], 7);
+                $this->longitude = round((float)$data['lon'], 7);
+                return;
+            }
+        } catch (\Exception $e) {
+            // Fallback gracefully
+        }
+
+        $this->latitude = -6.2088;
+        $this->longitude = 106.8456;
     }
 
     public function openCreateModal()
     {
-        $this->reset(['name', 'province', 'province_id', 'admin_id', 'is_active', 'cityId', 'editMode', 'selectedProvinceCode', 'selectedCityCode', 'apiCities']);
+        $this->reset(['name', 'province', 'province_id', 'admin_id', 'latitude', 'longitude', 'is_active', 'cityId', 'editMode', 'selectedProvinceCode', 'selectedCityCode', 'apiCities']);
         $this->is_active = true;
         $this->fetchProvinces();
         $this->showModal = true;
@@ -124,6 +219,8 @@ class Cities extends Component
         $this->province = $city->province;
         $this->province_id = $city->province_id;
         $this->admin_id = $city->admin_id;
+        $this->latitude = $city->latitude;
+        $this->longitude = $city->longitude;
         $this->is_active = $city->is_active;
         $this->editMode = true;
         
@@ -141,6 +238,11 @@ class Cities extends Component
             if ($cityApi) {
                 $this->selectedCityCode = $cityApi['code'];
             }
+        }
+
+        // If coordinates were not set in database, attempt auto-lookup
+        if (empty($this->latitude) || empty($this->longitude)) {
+            $this->fetchCoordinatesForCity($this->name, $this->province);
         }
 
         $this->showModal = true;
@@ -166,6 +268,8 @@ class Cities extends Component
         $rules = [
             'name' => 'required|string|max:255',
             'admin_id' => 'required|exists:users,id',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'is_active' => 'boolean',
         ];
 
@@ -228,7 +332,7 @@ class Cities extends Component
         }
 
         $this->showModal = false;
-        $this->reset(['name', 'province', 'province_id', 'admin_id', 'is_active', 'cityId', 'editMode']);
+        $this->reset(['name', 'province', 'province_id', 'admin_id', 'latitude', 'longitude', 'is_active', 'cityId', 'editMode']);
     }
 
     /** Provinces management */
@@ -392,7 +496,9 @@ class Cities extends Component
             ->when($this->filterProvinceId, function ($q) {
                 $q->where('province_id', $this->filterProvinceId);
             })
-            ->withCount('users')
+            ->withCount(['users' => function ($q) {
+                $q->whereIn('role', ['customer', 'kustomer', 'mitra']);
+            }])
             ->latest();
 
         if ($loadDistricts) {

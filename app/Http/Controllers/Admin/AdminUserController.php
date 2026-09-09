@@ -129,6 +129,19 @@ class AdminUserController extends Controller
         // Load relations and counts
         $user->load('city');
         $user->loadCount(['helps', 'partnerReports']);
+        $user->city_name = optional($user->city)->name ?? optional(City::find($user->city_id))->name;
+
+        if ($user->isMitra()) {
+            $user->ratings_count = $user->mitra_rating_count;
+            $user->average_rating = $user->mitra_average_rating > 0 ? round($user->mitra_average_rating, 1) : null;
+        } else {
+            $user->ratings_count = $user->customer_rating_count;
+            $user->average_rating = $user->customer_average_rating > 0 ? round($user->customer_average_rating, 1) : null;
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return view('admin.users.partials.show', compact('user'));
+        }
 
         return view('admin.users.show', compact('user'));
     }

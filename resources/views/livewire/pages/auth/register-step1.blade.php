@@ -23,9 +23,13 @@ new #[Layout('layouts.guest')] class extends Component {
     public string $province = '';
     
     public $cities = [];
-    // realtime city search (for nicer UX)
-    public string $cityQuery = '';
-    public array $searchResults = [];
+    public $apiProvinces = [];
+    public $apiCities = [];
+    public $apiDistricts = [];
+    public $apiVillages = [];
+    public string $selectedCityCode = '';
+    public string $selectedDistrictCode = '';
+    public string $selectedVillageCode = '';
 
     // Auto-detect gender from NIK
     public function updatedNik($value)
@@ -37,11 +41,141 @@ new #[Layout('layouts.guest')] class extends Component {
         }
     }
 
+    public function fetchProvinces()
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get('https://wilayah.id/api/provinces.json');
+            if ($response->successful()) {
+                $this->apiProvinces = $response->json('data') ?? [];
+            }
+        } catch (\Exception $e) {
+            $this->apiProvinces = [];
+        }
+    }
+
+    public function fetchCities($provinceCode)
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/regencies/{$provinceCode}.json");
+            if ($response->successful()) {
+                $this->apiCities = $response->json('data') ?? [];
+            }
+        } catch (\Exception $e) {
+            $this->apiCities = [];
+        }
+    }
+
+    public function fetchDistricts($cityCode)
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/districts/{$cityCode}.json");
+            if ($response->successful()) {
+                $this->apiDistricts = $response->json('data') ?? [];
+            }
+        } catch (\Exception $e) {
+            $this->apiDistricts = [];
+        }
+    }
+
+    public function fetchVillages($districtCode)
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/villages/{$districtCode}.json");
+            if ($response->successful()) {
+                $this->apiVillages = $response->json('data') ?? [];
+            }
+        } catch (\Exception $e) {
+            $this->apiVillages = [];
+        }
+    }
+
+    public function updatedCityId($id)
+    {
+        $this->kecamatan = '';
+        $this->selectedDistrictCode = '';
+        $this->apiDistricts = [];
+        $this->kelurahan = '';
+        $this->selectedVillageCode = '';
+        $this->apiVillages = [];
+
+        if (!$id) {
+            $this->city = '';
+            $this->province = '';
+            $this->selectedCityCode = '';
+            return;
+        }
+
+        $city = City::find($id);
+        if ($city) {
+            $this->city = $city->name;
+            $this->province = $city->province ?? '';
+            $this->resolveCityCodeAndFetchDistricts($city);
+        }
+    }
+
+    public function resolveCityCodeAndFetchDistricts($city)
+    {
+        if (!empty($city->code)) {
+            $this->selectedCityCode = $city->code;
+            $this->fetchDistricts($this->selectedCityCode);
+            return;
+        }
+
+        $this->fetchProvinces();
+        $cleanProvInput = trim(preg_replace('/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|PROVINSI|DI|DKI)\b/i', '', $city->province ?? ''));
+        $prov = collect($this->apiProvinces)->first(function ($p) use ($city, $cleanProvInput) {
+            $pName = $p['name'];
+            $cleanP = trim(preg_replace('/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|PROVINSI|DI|DKI)\b/i', '', $pName));
+            return strtoupper(trim($city->province)) === strtoupper(trim($pName)) ||
+                (!empty($cleanProvInput) && stripos($cleanP, $cleanProvInput) !== false) ||
+                (!empty($cleanProvInput) && stripos($pName, $cleanProvInput) !== false) ||
+                stripos($pName, trim($city->province)) !== false ||
+                stripos(trim($city->province), $pName) !== false;
+        });
+
+        if ($prov) {
+            $this->fetchCities($prov['code']);
+            $cityNameClean = trim(preg_replace('/\b(KOTA\s+ADM|KOTA|KABUPATEN|KAB)\b/i', '', $city->name ?? ''));
+            $cityApi = collect($this->apiCities)->first(function ($c) use ($city, $cityNameClean) {
+                $apiName = $c['name'];
+                $cleanApi = trim(preg_replace('/\b(KOTA\s+ADM|KOTA|KABUPATEN|KAB)\b/i', '', $apiName));
+                return strtoupper(trim($city->name)) === strtoupper(trim($apiName)) ||
+                    (!empty($cityNameClean) && stripos($cleanApi, $cityNameClean) !== false) ||
+                    (!empty($cityNameClean) && stripos($apiName, $cityNameClean) !== false);
+            });
+
+            if ($cityApi) {
+                $this->selectedCityCode = $cityApi['code'];
+                $city->update(['code' => $this->selectedCityCode]);
+                $this->fetchDistricts($this->selectedCityCode);
+            }
+        }
+    }
+
+    public function updatedSelectedDistrictCode($code)
+    {
+        $dist = collect($this->apiDistricts)->firstWhere('code', $code);
+        $this->kecamatan = $dist ? $dist['name'] : '';
+
+        $this->kelurahan = '';
+        $this->selectedVillageCode = '';
+        $this->apiVillages = [];
+
+        if ($code) {
+            $this->fetchVillages($code);
+        }
+    }
+
+    public function updatedSelectedVillageCode($code)
+    {
+        $vill = collect($this->apiVillages)->firstWhere('code', $code);
+        $this->kelurahan = $vill ? $vill['name'] : '';
+    }
+
     // Preload saved registration values if a registration UUID exists in session
     public function mount(): void
     {
-        // Always load available cities so the dropdown can be rendered from DB
-        $this->cities = City::orderBy('name')->get();
+        $this->cities = City::where('is_active', true)->orderBy('name')->get();
 
         $uuid = Session::get('registration_uuid');
         if (!$uuid) {
@@ -64,10 +198,39 @@ new #[Layout('layouts.guest')] class extends Component {
         $this->kelurahan = $registration->kelurahan ?? $this->kelurahan;
         $this->kecamatan = $registration->kecamatan ?? $this->kecamatan;
         $this->city = $registration->city ?? $this->city;
-        $this->city_id = $registration->city_id ?? null;
+        $this->city_id = $registration->city_id ? (int) $registration->city_id : null;
         $this->province = $registration->province ?? $this->province;
-        // load available cities so registrants pick canonical city names
-        $this->cities = City::orderBy('name')->get();
+
+        if ($this->city_id) {
+            $city = City::find($this->city_id);
+            if ($city) {
+                $this->resolveCityCodeAndFetchDistricts($city);
+                if (!empty($this->kecamatan) && !empty($this->apiDistricts)) {
+                    $distApi = collect($this->apiDistricts)->firstWhere('name', strtoupper(trim($this->kecamatan)));
+                    if (!$distApi) {
+                        $distApi = collect($this->apiDistricts)->first(function ($d) {
+                            return str_contains(strtoupper($d['name']), strtoupper(trim($this->kecamatan))) || str_contains(strtoupper(trim($this->kecamatan)), strtoupper($d['name']));
+                        });
+                    }
+                    if ($distApi) {
+                        $this->selectedDistrictCode = $distApi['code'];
+                        $this->fetchVillages($this->selectedDistrictCode);
+
+                        if (!empty($this->kelurahan) && !empty($this->apiVillages)) {
+                            $villApi = collect($this->apiVillages)->firstWhere('name', strtoupper(trim($this->kelurahan)));
+                            if (!$villApi) {
+                                $villApi = collect($this->apiVillages)->first(function ($v) {
+                                    return str_contains(strtoupper($v['name']), strtoupper(trim($this->kelurahan))) || str_contains(strtoupper(trim($this->kelurahan)), strtoupper($v['name']));
+                                });
+                            }
+                            if ($villApi) {
+                                $this->selectedVillageCode = $villApi['code'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public function nextStep(): void
@@ -87,18 +250,19 @@ new #[Layout('layouts.guest')] class extends Component {
             'address' => ['required', 'string', 'max:500'],
             'rt' => ['nullable', 'string', 'max:3', 'regex:/^[0-9]+$/'],
             'rw' => ['nullable', 'string', 'max:3', 'regex:/^[0-9]+$/'],
-            'kelurahan' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
-            'kecamatan' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
-            'city_id' => ['nullable', 'exists:cities,id'],
+            'city_id' => ['required', 'exists:cities,id'],
             'city' => ['nullable', 'string', 'max:100'],
             'province' => ['required', 'string', 'max:100'],
+            'kecamatan' => ['required', 'string', 'max:100'],
+            'kelurahan' => ['required', 'string', 'max:100'],
         ], [
             'nik.size' => 'NIK harus tepat 16 digit angka.',
             'nik.regex' => 'NIK hanya boleh berupa angka.',
             'full_name.regex' => 'Nama lengkap hanya boleh berisi huruf dan spasi.',
             'place_of_birth.regex' => 'Tempat lahir hanya boleh berupa huruf dan spasi.',
-            'kelurahan.regex' => 'Kelurahan / Desa hanya boleh berisi huruf.',
-            'kecamatan.regex' => 'Kecamatan hanya boleh berisi huruf.',
+            'city_id.required' => 'Kota / Kabupaten domisili wajib dipilih.',
+            'kecamatan.required' => 'Kecamatan wajib dipilih.',
+            'kelurahan.required' => 'Kelurahan / Desa wajib dipilih.',
             'rt.max' => 'RT maksimal 3 karakter.',
             'rw.max' => 'RW maksimal 3 karakter.',
         ]);
@@ -114,7 +278,6 @@ new #[Layout('layouts.guest')] class extends Component {
 
         $role = Session::get('registration_role', 'customer');
 
-        // Use selected city_id if provided; also store city name for readability
         $cityId = $validated['city_id'] ?? null;
         $cityName = null;
         if ($cityId) {
@@ -139,117 +302,6 @@ new #[Layout('layouts.guest')] class extends Component {
         $this->dispatch('clear-registration-step1');
 
         $this->redirect(route('register.step2'), navigate: true);
-    }
-
-    public function updatedCityQuery($value)
-    {
-        $q = trim($value);
-        if ($q === '') {
-            $this->searchResults = [];
-            return;
-        }
-
-        $limit = 10;
-
-        $results = City::where('is_active', true)
-            ->where(function ($b) use ($q) {
-                $b->where('name', 'like', "%{$q}%")
-                  ->orWhere('province', 'like', "%{$q}%")
-                  ->orWhere('code', 'like', "%{$q}%");
-            })
-            ->whereRaw("COALESCE(code,'') NOT LIKE 'reqd-%' AND COALESCE(code,'') NOT LIKE 'regd-%'")
-            ->select('id','name','province','code')
-            ->orderBy('name')
-            ->limit($limit)
-            ->get()
-            ->toArray();
-
-            if (count($results) < $limit) {
-            $remaining = $limit - count($results);
-            $regRows = collect();
-
-            if (\Illuminate\Support\Facades\Schema::hasTable('req_regencies') && \Illuminate\Support\Facades\Schema::hasTable('req_provinces')) {
-                $regRows = \Illuminate\Support\Facades\DB::table('req_regencies')
-                    ->join('req_provinces', 'req_regencies.province_id', '=', 'req_provinces.id')
-                    ->where('req_regencies.regency', 'like', "%{$q}%")
-                    ->select('req_regencies.id as regency_id', 'req_regencies.regency', 'req_provinces.province')
-                    ->orderBy('req_regencies.regency')
-                    ->limit($remaining)
-                    ->get();
-            }
-
-            if (count($regRows) < $remaining && \Illuminate\Support\Facades\Schema::hasTable('reg_regencies') && \Illuminate\Support\Facades\Schema::hasTable('reg_provinces')) {
-                $rem2 = $remaining - count($regRows);
-                $rows = \Illuminate\Support\Facades\DB::table('reg_regencies')
-                    ->join('reg_provinces','reg_regencies.province_id','=','reg_provinces.id')
-                    ->where('reg_regencies.name','like',"%{$q}%")
-                    ->select('reg_regencies.id as regency_id', 'reg_regencies.name as regency', 'reg_provinces.name as province')
-                    ->orderBy('reg_regencies.name')
-                    ->limit($rem2)
-                    ->get();
-                foreach ($rows as $r) $regRows->push($r);
-            }
-
-            // Also try kecamatan-level tables and map results to parent regency
-            if (count($regRows) < $remaining && \Illuminate\Support\Facades\Schema::hasTable('req_districts') && \Illuminate\Support\Facades\Schema::hasTable('req_regencies') && \Illuminate\Support\Facades\Schema::hasTable('req_provinces')) {
-                $remD = $remaining - count($regRows);
-                $dist = \Illuminate\Support\Facades\DB::table('req_districts')
-                    ->join('req_regencies', 'req_districts.regency_id', '=', 'req_regencies.id')
-                    ->join('req_provinces', 'req_regencies.province_id', '=', 'req_provinces.id')
-                    ->where(function($b) use ($q) {
-                        $b->where('req_districts.district', 'like', "%{$q}%")
-                          ->orWhere('req_regencies.regency', 'like', "%{$q}%")
-                          ->orWhere('req_provinces.province', 'like', "%{$q}%");
-                    })
-                    ->select(\Illuminate\Support\Facades\DB::raw("CONCAT('reqr-', req_regencies.id) as regency_id"), 'req_regencies.regency', \Illuminate\Support\Facades\DB::raw("req_districts.district as matched_district"), 'req_provinces.province')
-                    ->orderBy('req_districts.district')
-                    ->limit($remD)
-                    ->get();
-                foreach ($dist as $d) $regRows->push($d);
-            }
-
-            // legacy tables
-            if (count($regRows) < $remaining && \Illuminate\Support\Facades\Schema::hasTable('regencies') && \Illuminate\Support\Facades\Schema::hasTable('provinces')) {
-                $rem3 = $remaining - count($regRows);
-                $rows = \Illuminate\Support\Facades\DB::table('regencies')
-                    ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
-                    ->where('regencies.regency','like',"%{$q}%")
-                    ->select('regencies.id as regency_id','regencies.regency','provinces.province')
-                    ->orderBy('regencies.regency')
-                    ->limit($rem3)
-                    ->get();
-                foreach ($rows as $r) $regRows->push($r);
-            }
-
-            foreach ($regRows as $r) {
-                $city = City::firstOrCreate(
-                    ['code' => (string)($r->regency_id)],
-                    ['name' => $r->regency, 'province' => $r->province, 'is_active' => true]
-                );
-                $exists = false;
-                foreach ($results as $res) {
-                    if ($res['id'] == $city->id) { $exists = true; break; }
-                }
-                if (! $exists) {
-                    $results[] = ['id' => $city->id, 'name' => $city->name, 'province' => $city->province, 'code' => $city->code];
-                }
-            }
-        }
-
-        $this->searchResults = $results;
-    }
-
-    public function setCityId($id)
-    {
-        $this->city_id = $id;
-        $city = City::find($id);
-        if ($city) {
-            $this->city = $city->name;
-            $this->province = $city->province;
-            // show chosen city in the search input so user sees selection
-            $this->cityQuery = $city->name . ' — ' . $city->province;
-        }
-        $this->searchResults = [];
     }
 }; ?>
 <div class="w-full">
@@ -356,67 +408,53 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         </div>
 
-        <!-- Kelurahan/Desa -->
+        <!-- Provinsi (Otomatis) -->
         <div>
-            <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kelurahan / Desa <span class="text-red-500">*</span></label>
-            <input wire:model="kelurahan" id="kelurahan" type="text" placeholder="Nama Kelurahan / Desa"
-                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
-                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-            <x-input-error :messages="$errors->get('kelurahan')" class="mt-1" />
+            <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Provinsi</label>
+            <input wire:model="province" id="province" type="text" readonly placeholder="Otomatis terisi dari kota yang dipilih"
+                class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-600 text-sm cursor-not-allowed focus:outline-none font-medium">
+            <x-input-error :messages="$errors->get('province')" class="mt-1" />
         </div>
 
-        <!-- Kecamatan -->
+        <!-- Kota/Kabupaten (Dropdown Kota Aktif di DB) -->
+        <div>
+            <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kota / Kabupaten Domisili <span class="text-red-500">*</span></label>
+            <select wire:model.live="city_id" id="city_id"
+                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
+                <option value="">-- Pilih Kota / Kabupaten --</option>
+                @foreach ($cities as $c)
+                    <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->province ?? 'Indonesia' }})</option>
+                @endforeach
+            </select>
+            <x-input-error :messages="$errors->get('city_id')" class="mt-1" />
+        </div>
+
+        <!-- Kecamatan (Dropdown API) -->
         <div>
             <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kecamatan <span class="text-red-500">*</span></label>
-            <input wire:model="kecamatan" id="kecamatan" type="text" placeholder="Nama Kecamatan"
-                oninput="this.value = this.value.replace(/[^a-zA-Z\s\.\,\'\-]/g, '')"
-                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
+            <select wire:model.live="selectedDistrictCode" id="kecamatan"
+                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"
+                {{ empty($apiDistricts) ? 'disabled' : '' }}>
+                <option value="">{{ empty($city_id) ? '-- Pilih Kota Terlebih Dahulu --' : (empty($apiDistricts) ? '-- Memuat Kecamatan... --' : '-- Pilih Kecamatan --') }}</option>
+                @foreach ($apiDistricts as $d)
+                    <option value="{{ $d['code'] }}">{{ $d['name'] }}</option>
+                @endforeach
+            </select>
             <x-input-error :messages="$errors->get('kecamatan')" class="mt-1" />
         </div>
 
-        <!-- Kota/Kabupaten (realtime search) -->
+        <!-- Kelurahan/Desa (Dropdown API) -->
         <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kota / Kabupaten <span class="text-red-500">*</span></label>
-            @if(isset($cities) && count($cities) > 0)
-                <div class="relative">
-                    <input type="text" wire:model.live.debounce.300ms="cityQuery" id="city-search-input"
-                        placeholder="Ketik & pilih nama Kota/Kabupaten..."
-                        class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium" autocomplete="off">
-
-                    <input type="hidden" wire:model="city_id" id="city_id">
-
-                    @if (!empty($searchResults))
-                        <ul class="absolute left-0 right-0 mt-1.5 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto z-50 divide-y divide-gray-100">
-                            @foreach ($searchResults as $c)
-                                <li wire:click="setCityId({{ $c['id'] }})"
-                                    class="px-4 py-3 text-sm hover:bg-blue-50/70 cursor-pointer transition flex items-start gap-2">
-                                    <div class="flex-1">
-                                        <div class="font-semibold text-gray-900">{{ $c['name'] }}</div>
-                                        <div class="text-xs text-gray-500">{{ $c['province'] }}</div>
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @elseif (!empty($cityQuery) && strlen($cityQuery) >= 2 && empty($city_id))
-                        <div class="absolute left-0 right-0 mt-1.5 bg-white border border-gray-200 rounded-xl shadow-lg p-3.5 z-50 text-center">
-                            <p class="text-xs text-gray-500">Kota tidak ditemukan</p>
-                        </div>
-                    @endif
-                </div>
-                <x-input-error :messages="$errors->get('city_id')" class="mt-1" />
-            @else
-                <input wire:model="city" id="city" type="text" placeholder="Ketik nama Kota/Kabupaten"
-                    class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-                <x-input-error :messages="$errors->get('city')" class="mt-1" />
-            @endif
-        </div>
-
-        <!-- Provinsi -->
-        <div>
-            <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Provinsi <span class="text-red-500">*</span></label>
-            <input wire:model="province" id="province" type="text" placeholder="Nama Provinsi"
-                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-            <x-input-error :messages="$errors->get('province')" class="mt-1" />
+            <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kelurahan / Desa <span class="text-red-500">*</span></label>
+            <select wire:model.live="selectedVillageCode" id="kelurahan"
+                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"
+                {{ empty($apiVillages) ? 'disabled' : '' }}>
+                <option value="">{{ empty($selectedDistrictCode) ? '-- Pilih Kecamatan Terlebih Dahulu --' : (empty($apiVillages) ? '-- Memuat Kelurahan... --' : '-- Pilih Kelurahan / Desa --') }}</option>
+                @foreach ($apiVillages as $v)
+                    <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
+                @endforeach
+            </select>
+            <x-input-error :messages="$errors->get('kelurahan')" class="mt-1" />
         </div>
 
         <!-- Next Button -->
