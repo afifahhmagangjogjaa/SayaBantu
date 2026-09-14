@@ -59,6 +59,8 @@ class UserBalance extends Model
             ['balance' => $netBalance]
         );
 
+        User::where('id', $userId)->update(['balance' => $netBalance]);
+
         return $netBalance;
     }
 

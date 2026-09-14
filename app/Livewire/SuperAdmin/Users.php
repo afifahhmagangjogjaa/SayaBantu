@@ -197,7 +197,7 @@ class Users extends Component
     {
         if (request()->routeIs('superadmin.customers*')) {
             $this->roleFilter = 'customer';
-        } elseif (request()->routeIs('superadmin.mitras*')) {
+        } elseif (request()->routeIs('superadmin.mitra*')) {
             $this->roleFilter = 'mitra';
         } elseif (request()->routeIs('superadmin.admin-users*')) {
             $this->roleFilter = 'admin';
@@ -407,6 +407,12 @@ class Users extends Component
             $this->role = 'kustomer';
         }
 
+        if (!$isEdit) {
+            $this->status = 'active';
+        }
+
+        $minAgeDate = now()->subYears(17)->format('Y-m-d');
+
         $rules = [
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'email' => $emailRules,
@@ -414,7 +420,12 @@ class Users extends Component
             'role' => 'required|string',
             'status' => 'nullable|string|in:active,inactive',
             'verified' => 'required|boolean',
-            'city_id' => 'required|exists:cities,id',
+            'city_id' => [
+                'required',
+                $isEdit 
+                    ? 'exists:cities,id' 
+                    : \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true),
+            ],
             'managed_city_ids' => 'nullable|array',
             'managed_city_ids.*' => 'exists:cities,id',
             'nik' => [
@@ -427,7 +438,7 @@ class Users extends Component
                     : \Illuminate\Validation\Rule::unique('users', 'nik'),
             ],
             'place_of_birth' => [$isEdit ? 'nullable' : 'required', 'string', 'max:100', 'regex:/^[a-zA-Z\s]+$/'],
-            'date_of_birth' => $isEdit ? 'nullable|date|before_or_equal:today' : 'required|date|before_or_equal:today',
+            'date_of_birth' => $isEdit ? "nullable|date|before_or_equal:{$minAgeDate}" : "required|date|before_or_equal:{$minAgeDate}",
             'gender' => $isEdit ? 'nullable|in:Laki-laki,Perempuan' : 'required|in:Laki-laki,Perempuan',
             'address' => $isEdit ? 'nullable|string|max:1000' : 'required|string|max:1000',
             'kelurahan' => $isEdit ? 'nullable|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/' : 'required|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/',
@@ -462,6 +473,7 @@ class Users extends Component
             'place_of_birth.required' => 'Tempat lahir wajib diisi.',
             'place_of_birth.regex' => 'Tempat lahir hanya boleh berisi huruf dan spasi.',
             'date_of_birth.required' => 'Tanggal lahir wajib diisi.',
+            'date_of_birth.before_or_equal' => 'Usia minimal adalah 17 tahun.',
             'gender.required' => 'Jenis kelamin wajib dipilih.',
             'city_id.required' => 'Kota domisili wajib dipilih.',
             'address.required' => 'Alamat lengkap wajib diisi.',
@@ -483,7 +495,7 @@ class Users extends Component
             'email' => $this->email,
             'phone' => $this->phone,
             'role' => $this->role,
-            'status' => $this->status ?? 'active',
+            'status' => $isEdit ? ($this->status ?: 'active') : 'active',
             'verified' => filter_var($this->verified, FILTER_VALIDATE_BOOLEAN),
             'city_id' => $this->city_id,
             'address' => $this->address,
@@ -505,6 +517,11 @@ class Users extends Component
         $data = array_map(function ($val) {
             return $val === '' ? null : $val;
         }, $data);
+
+        // Ensure status is never empty, default to active
+        if (empty($data['status'])) {
+            $data['status'] = 'active';
+        }
 
         if ($this->selectedUser) {
             $user = User::find($this->selectedUser->id);
@@ -639,7 +656,12 @@ class Users extends Component
             ->latest()
             ->paginate($this->perPage);
 
-        $cities = City::orderBy('name')->get();
+        $cities = City::where('is_active', true)
+            ->when($this->city_id, function ($q) {
+                $q->orWhere('id', $this->city_id);
+            })
+            ->orderBy('name')
+            ->get();
 
         return view('superadmin.users', compact('users', 'cities'));
     }

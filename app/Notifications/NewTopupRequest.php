@@ -56,6 +56,9 @@ class NewTopupRequest extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $isSuperAdmin = ($notifiable->role ?? null) === 'super_admin';
+        $url = $isSuperAdmin ? route('superadmin.topup.approvals') : route('admin.topup.approvals');
+
         return [
             'type' => 'new_topup_request',
             'title' => 'Request Top-Up Saldo Baru',
@@ -66,7 +69,7 @@ class NewTopupRequest extends Notification
             'amount' => $this->transaction->amount,
             'total_payment' => $this->transaction->total_payment,
             'message' => 'Request top-up baru dari ' . $this->transaction->user->name . ' sebesar Rp ' . number_format($this->transaction->amount, 0, ',', '.'),
-            'url' => route('superadmin.topup.approvals'),
+            'url' => $url,
         ];
     }
 }

@@ -69,7 +69,7 @@ class History extends Component
         \Log::info('History Component Loaded for user: ' . auth()->id());
         
         $completedHelps = Help::where('user_id', auth()->id())
-            ->whereIn('status', ['selesai', 'rejected'])
+            ->whereIn('status', ['selesai', 'rejected', 'dibatalkan'])
             ->with(['user', 'city', 'mitra', 'category'])
             ->latest()
             ->paginate(10);

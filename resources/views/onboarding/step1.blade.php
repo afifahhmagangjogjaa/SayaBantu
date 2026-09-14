@@ -10,12 +10,13 @@
                     <div class="flex-1 h-1.5 bg-blue-600 rounded-full"></div>
                     <div class="flex-1 h-1.5 bg-gray-200 rounded-full"></div>
                     <div class="flex-1 h-1.5 bg-gray-200 rounded-full"></div>
+                    <div class="flex-1 h-1.5 bg-gray-200 rounded-full"></div>
                 </div>
 
                 <!-- Sub Row: Left hint & Right Step indicator -->
                 <div class="flex items-center justify-between text-xs text-gray-500">
                     <span>Isi data sesuai KTP asli Anda</span>
-                    <span class="font-bold text-blue-600">Langkah 1 dari 3</span>
+                    <span class="font-bold text-blue-600">Langkah 1 dari 4</span>
                 </div>
             </div>
 
@@ -44,7 +45,8 @@
                         Nama Lengkap <span class="text-red-500">*</span>
                     </label>
                     <input name="name" id="name" type="text" placeholder="Nama lengkap sesuai KTP"
-                        value="{{ old('name', $user->name !== explode('@', $user->email)[0] ? $user->name : '') }}" required
+                        value="{{ old('name', $user->name ?? '') }}" required
+                        oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium @error('name') border-red-500 @enderror">
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -224,9 +226,11 @@
         </div>
     </div>
 
-    <!-- Data Master Cities dari Server -->
+    <!-- Data Master Cities, Districts & Villages dari Server -->
     <script>
         const allCities = @json($cities);
+        const masterDistricts = @json($allDistricts ?? []);
+        const masterVillages = @json($allVillages ?? []);
 
         function updateNikCount(val) {
             const counter = document.getElementById('nik_counter');
@@ -367,14 +371,27 @@
             try {
                 let districts = [];
 
-                // 1. Prioritaskan panggil backend proxy internal (kebal CORS & otomatis resolve kode)
-                try {
-                    const resProxy = await fetch(`{{ route('api.wilayah.districts') }}?city_id=${cityId}&city_name=${encodeURIComponent(cityName)}&province=${encodeURIComponent(provName)}`);
-                    if (resProxy.ok) {
-                        const proxyData = await resProxy.json();
-                        districts = extractList(proxyData);
+                // 1. Ambil langsung dari masterDistricts lokal (Instan 0ms & 100% Kebal Gangguan Jaringan)
+                if (typeof masterDistricts === 'object' && masterDistricts !== null) {
+                    if (cityId && masterDistricts[cityId] && masterDistricts[cityId].length > 0) {
+                        districts = masterDistricts[cityId];
+                    } else if (cityCode && masterDistricts[cityCode] && masterDistricts[cityCode].length > 0) {
+                        districts = masterDistricts[cityCode];
+                    } else if (cityName && masterDistricts[cityName.toUpperCase().trim()] && masterDistricts[cityName.toUpperCase().trim()].length > 0) {
+                        districts = masterDistricts[cityName.toUpperCase().trim()];
                     }
-                } catch (err) {}
+                }
+
+                // 2. Fallback: panggil backend proxy internal jika belum ada di master lokal
+                if (districts.length === 0) {
+                    try {
+                        const resProxy = await fetch(`{{ route('api.wilayah.districts', [], false) }}?city_id=${cityId}&city_name=${encodeURIComponent(cityName)}&province=${encodeURIComponent(provName)}`);
+                        if (resProxy.ok) {
+                            const proxyData = await resProxy.json();
+                            districts = extractList(proxyData);
+                        }
+                    } catch (err) {}
+                }
 
                 // 2. Fallback jika backend proxy gagal
                 if (districts.length === 0 && cityCode) {
@@ -468,11 +485,8 @@
                 return;
             }
 
-            const districtCode = selectedOpt.getAttribute('data-code');
-            if (!districtCode) {
-                kelSelect.innerHTML = '<option value="">-- Pilih Kelurahan / Desa --</option>';
-                return;
-            }
+            const districtCode = selectedOpt.getAttribute('data-code') || '';
+            const districtName = selectedOpt.value || selectedOpt.textContent || '';
 
             kelSelect.innerHTML = '<option value="">-- Memuat Kelurahan... --</option>';
             kelSelect.disabled = true;
@@ -480,24 +494,24 @@
             try {
                 let villages = [];
 
-                // 1. Prioritaskan panggil backend proxy internal
-                try {
-                    const resProxy = await fetch(`{{ route('api.wilayah.villages') }}?district_code=${encodeURIComponent(districtCode)}`);
-                    if (resProxy.ok) {
-                        const proxyData = await resProxy.json();
-                        villages = extractList(proxyData);
+                // 1. Ambil langsung dari masterVillages lokal di browser (Instan 0ms & 100% Kebal Gangguan Jaringan)
+                if (typeof masterVillages === 'object' && masterVillages !== null) {
+                    if (districtCode && masterVillages[districtCode] && masterVillages[districtCode].length > 0) {
+                        villages = masterVillages[districtCode];
+                    } else if (districtName && masterVillages[districtName.toUpperCase().trim()] && masterVillages[districtName.toUpperCase().trim()].length > 0) {
+                        villages = masterVillages[districtName.toUpperCase().trim()];
                     }
-                } catch (err) {}
+                }
 
-                // 2. Fallback direct API
-                if (villages.length === 0) {
+                // 2. Fallback: panggil backend proxy internal jika belum ada di master lokal
+                if (villages.length === 0 && districtCode) {
                     try {
-                        const resVill = await fetch(`https://wilayah.id/api/villages/${districtCode}.json`);
-                        if (resVill.ok) {
-                            const villData = await resVill.json();
-                            villages = extractList(villData);
+                        const resProxy = await fetch(`{{ route('api.wilayah.villages', [], false) }}?district_code=${encodeURIComponent(districtCode)}`);
+                        if (resProxy.ok) {
+                            const proxyData = await resProxy.json();
+                            villages = extractList(proxyData);
                         }
-                    } catch (e) {}
+                    } catch (err) {}
                 }
 
                 if (villages.length > 0) {

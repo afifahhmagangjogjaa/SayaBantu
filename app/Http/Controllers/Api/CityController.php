@@ -50,19 +50,28 @@ class CityController extends Controller
                 ->get();
 
             foreach ($regRows as $r) {
-                // Ensure a City record exists for this regency code
-                $city = City::firstOrCreate(
-                    ['code' => $r->regency_id],
-                    [
+                // Look up city by code or name
+                $city = City::where('code', $r->regency_id)
+                    ->orWhere('name', $r->regency)
+                    ->first();
+
+                // If city exists and is inactive, skip it
+                if ($city && ! $city->is_active) {
+                    continue;
+                }
+
+                if (! $city) {
+                    $city = City::create([
+                        'code' => $r->regency_id,
                         'name' => $r->regency,
                         'province' => $r->province,
                         'type' => $r->type ?? null,
                         'is_active' => true,
-                    ]
-                );
+                    ]);
+                }
 
-                // Only add if not already present in results
-                if (! $results->contains('id', $city->id)) {
+                // Only add if active and not already present in results
+                if ($city->is_active && ! $results->contains('id', $city->id)) {
                     $results->push($city->only(['id', 'name', 'province', 'code']));
                 }
             }

@@ -132,6 +132,69 @@
             </button>
         </div>
 
+        {{-- Status Pengajuan Komplain / Refund (Jika customer telah mengajukan komplain atau dalam proses refund) --}}
+        @if(in_array($help->status, ['komplain', 'disputed']) || !empty($help->complaint_reason) || !empty($help->complaint_resolution))
+            <div class="mt-2 bg-white rounded-xl shadow-sm border border-red-200 overflow-hidden">
+                <div class="px-4 py-3 bg-red-50/90 border-b border-red-100 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full {{ $help->complaint_resolution === 'refunded' ? 'bg-green-500' : 'bg-red-500 animate-pulse' }}"></span>
+                        <h3 class="font-bold text-xs text-red-900">
+                            {{ $help->complaint_resolution === 'refunded' ? 'Pengembalian Dana (Refund) Disetujui' : 'Status Pengajuan Komplain / Refund' }}
+                        </h3>
+                    </div>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold {{ $help->complaint_resolution === 'refunded' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                        {{ $help->complaint_resolution === 'refunded' ? '✓ Refund Berhasil' : '⚠️ Mediasi Admin' }}
+                    </span>
+                </div>
+                
+                <div class="p-4 space-y-3">
+                    @if($help->complaint_resolution === 'refunded')
+                        <div class="p-3 bg-green-50 border border-green-200 rounded-xl text-xs text-green-800">
+                            <p class="font-bold mb-0.5">Dana Telah Dikembalikan ke Saldo Anda</p>
+                            <p class="text-[11px] text-green-700 leading-relaxed">
+                                Pengajuan refund Bantuan #{{ $help->id }} telah disetujui Admin pada {{ $help->complaint_resolved_at?->translatedFormat('d M Y, H:i') }}. Dana sebesar <strong>Rp {{ number_format($help->amount + ($help->admin_fee ?? 0), 0, ',', '.') }}</strong> telah masuk kembali 100% ke saldo akun Anda.
+                            </p>
+                            @if(!empty($help->complaint_admin_notes))
+                                <div class="mt-2 pt-2 border-t border-green-200/60 text-[11px]">
+                                    <span class="font-semibold">Catatan Admin:</span> {{ $help->complaint_admin_notes }}
+                                </div>
+                            @endif
+                        </div>
+                    @else
+                        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                            <p class="font-bold mb-0.5">Sedang Ditinjau Admin & Super Admin</p>
+                            <p class="text-[11px] text-amber-700 leading-relaxed">
+                                Anda telah mengajukan komplain pada {{ $help->complaint_submitted_at?->translatedFormat('d M Y, H:i') }}. Admin sedang memverifikasi bukti ketidaksesuaian. Jika disetujui, dana akan dikembalikan penuh ke saldo Anda.
+                            </p>
+                        </div>
+                    @endif
+
+                    {{-- Bukti & Alasan Komplain Yang Diajukan Customer --}}
+                    <div class="pt-2 border-t border-gray-100">
+                        <h4 class="text-xs font-bold text-gray-700 mb-1.5">Rincian Komplain yang Anda Ajukan:</h4>
+                        
+                        @if($help->complaint_reason)
+                            <div class="bg-gray-50 p-3 rounded-lg text-xs text-gray-700 mb-2.5 border border-gray-100">
+                                <span class="font-semibold text-gray-900 block mb-0.5">Alasan:</span>
+                                {{ $help->complaint_reason }}
+                            </div>
+                        @endif
+
+                        @if($help->complaint_photo)
+                            <div>
+                                <span class="text-xs font-semibold text-gray-600 block mb-1">Foto Bukti Ketidaksesuaian:</span>
+                                <div class="relative inline-block">
+                                    <a href="{{ asset('storage/' . $help->complaint_photo) }}" target="_blank">
+                                        <img src="{{ asset('storage/' . $help->complaint_photo) }}" alt="Foto Bukti Komplain" class="w-36 h-28 object-cover rounded-lg border border-gray-200 shadow-xs cursor-pointer hover:opacity-90 transition">
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
+
         {{-- Service Info --}}
         <div class="bg-white mt-2 px-4 py-4 rounded-xl shadow-sm border border-gray-100">
             <div class="flex items-start gap-3">

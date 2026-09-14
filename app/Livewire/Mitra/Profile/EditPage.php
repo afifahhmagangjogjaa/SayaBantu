@@ -15,14 +15,17 @@ class EditPage extends Component
     public ?string $address = null;
     public ?string $bio = null;
 
-    protected array $rules = [
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
-        'phone' => 'nullable|string|max:40',
-        'city_id' => 'nullable|exists:cities,id',
-        'address' => 'nullable|string|max:500',
-        'bio' => 'nullable|string|max:1000',
-    ];
+    protected function rules(): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:40',
+            'city_id' => ['nullable', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
+            'address' => 'nullable|string|max:500',
+            'bio' => 'nullable|string|max:1000',
+        ];
+    }
 
     public function mount()
     {
@@ -64,7 +67,7 @@ class EditPage extends Component
 
     public function render()
     {
-        $cities = City::orderBy('name')->get();
+        $cities = City::where('is_active', true)->orderBy('name')->get();
         return view('livewire.mitra.profile.edit-page', compact('cities'));
     }
 }

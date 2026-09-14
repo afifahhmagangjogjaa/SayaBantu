@@ -154,12 +154,26 @@ class AdminWithdrawController extends Controller
             'failed' => (clone $countsQuery)->where('status', WithdrawRequest::STATUS_FAILED)->count(),
         ];
 
-        $routeName = request()->route() ? request()->route()->getName() : null;
-        if ($routeName && strpos($routeName, 'superadmin.') === 0) {
-            return view('superadmin.withdraws.index', ['items' => $items, 'banks' => $banks, 'counts' => $counts]);
+        $yearsQuery = WithdrawRequest::selectRaw('YEAR(created_at) as year')->distinct();
+        if (auth()->user() && auth()->user()->role === 'admin') {
+            $managedCityIds = auth()->user()->getAdminCityIds();
+            if (!empty($managedCityIds)) {
+                $yearsQuery->whereHas('user', function ($q) use ($managedCityIds) {
+                    $q->whereIn('city_id', $managedCityIds);
+                });
+            }
+        }
+        $availableYears = $yearsQuery->pluck('year')->filter()->sortDesc()->values()->toArray();
+        if (empty($availableYears)) {
+            $availableYears = [(int) date('Y')];
         }
 
-        return view('admin.withdraws.index', ['items' => $items, 'banks' => $banks, 'counts' => $counts]);
+        $routeName = request()->route() ? request()->route()->getName() : null;
+        if ($routeName && strpos($routeName, 'superadmin.') === 0) {
+            return view('superadmin.withdraws.index', ['items' => $items, 'banks' => $banks, 'counts' => $counts, 'availableYears' => $availableYears]);
+        }
+
+        return view('admin.withdraws.index', ['items' => $items, 'banks' => $banks, 'counts' => $counts, 'availableYears' => $availableYears]);
     }
 
     public function show(WithdrawRequest $withdraw)
@@ -252,5 +266,107 @@ class AdminWithdrawController extends Controller
         }
 
         return redirect()->route('superadmin.withdraws.index')->with('status', 'Withdraw dibatalkan.');
+    }
+
+    /**
+     * Hapus satu data riwayat withdraw (hanya yang berstatus non-pending).
+     */
+    public function destroy(WithdrawRequest $withdraw)
+    {
+        if ($withdraw->status === WithdrawRequest::STATUS_PENDING) {
+            return back()->withErrors(['general' => 'Permintaan withdraw yang masih berstatus pending tidak dapat dihapus.']);
+        }
+
+        if (auth()->user() && auth()->user()->role === 'admin') {
+            $managedCityIds = auth()->user()->getAdminCityIds();
+            if (!empty($managedCityIds) && !in_array($withdraw->user?->city_id, $managedCityIds)) {
+                abort(403, 'Anda tidak memiliki akses untuk menghapus data di luar wilayah Anda.');
+            }
+        }
+
+        $withdraw->delete();
+
+        return back()->with('status', 'Data riwayat withdraw berhasil dihapus.');
+    }
+
+    /**
+     * Hapus riwayat withdraw berdasarkan periode (Bulan & Tahun atau Seluruh Tahun).
+     */
+    public function destroyPeriod(Request $request)
+    {
+        $request->validate([
+            'year' => 'required|integer',
+            'month' => 'nullable|string',
+        ]);
+
+        $query = WithdrawRequest::whereIn('status', [
+            WithdrawRequest::STATUS_SUCCESS,
+            WithdrawRequest::STATUS_FAILED,
+            'completed',
+            'rejected'
+        ]);
+
+        if (auth()->user() && auth()->user()->role === 'admin') {
+            $managedCityIds = auth()->user()->getAdminCityIds();
+            if (!empty($managedCityIds)) {
+                $query->whereHas('user', function ($q) use ($managedCityIds) {
+                    $q->whereIn('city_id', $managedCityIds);
+                });
+            }
+        }
+
+        $query->whereYear('created_at', $request->year);
+
+        if ($request->filled('month') && $request->month !== 'all') {
+            $query->whereMonth('created_at', (int) $request->month);
+            $monthNames = [
+                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            ];
+            $periodLabel = ($monthNames[(int) $request->month] ?? $request->month) . ' ' . $request->year;
+        } else {
+            $periodLabel = 'Tahun ' . $request->year;
+        }
+
+        $count = $query->count();
+        if ($count === 0) {
+            return back()->withErrors(['general' => "Tidak ditemukan riwayat withdraw selesai/gagal pada periode {$periodLabel}."]);
+        }
+
+        $query->delete();
+
+        return back()->with('status', "Berhasil menghapus {$count} data riwayat withdraw pada periode {$periodLabel}.");
+    }
+
+    /**
+     * Hapus seluruh riwayat withdraw selesai/gagal.
+     */
+    public function destroyAll()
+    {
+        $query = WithdrawRequest::whereIn('status', [
+            WithdrawRequest::STATUS_SUCCESS,
+            WithdrawRequest::STATUS_FAILED,
+            'completed',
+            'rejected'
+        ]);
+
+        if (auth()->user() && auth()->user()->role === 'admin') {
+            $managedCityIds = auth()->user()->getAdminCityIds();
+            if (!empty($managedCityIds)) {
+                $query->whereHas('user', function ($q) use ($managedCityIds) {
+                    $q->whereIn('city_id', $managedCityIds);
+                });
+            }
+        }
+
+        $count = $query->count();
+        if ($count === 0) {
+            return back()->withErrors(['general' => 'Tidak ada data riwayat withdraw yang dapat dihapus.']);
+        }
+
+        $query->delete();
+
+        return back()->with('status', "Seluruh riwayat withdraw ({$count} data) berhasil dihapus.");
     }
 }

@@ -384,14 +384,26 @@ class Index extends Component
                     } catch (\Throwable $e) {}
                 }
 
+                if ($targetCity && !$targetCity->is_active) {
+                    continue;
+                }
+
                 if (! $targetCity) {
-                    $targetCity = City::firstOrCreate(
-                        ['code' => $r->regency_id],
-                        ['name' => $r->regency, 'province' => $r->province, 'type' => $r->type ?? null, 'is_active' => true]
+                    $existing = City::where('code', $r->regency_id)->orWhere('name', $r->regency)->first();
+                    if ($existing && !$existing->is_active) {
+                        continue;
+                    }
+
+                    $targetCity = $existing ?: City::create(
+                        ['code' => $r->regency_id, 'name' => $r->regency, 'province' => $r->province, 'type' => $r->type ?? null, 'is_active' => true]
                     );
                     if (! $display && ! empty($r->parent_regency)) {
                         $display = $r->regency . ', ' . $r->parent_regency . ', ' . $r->province;
                     }
+                }
+
+                if ($targetCity && !$targetCity->is_active) {
+                    continue;
                 }
 
                 if (! $display) {
@@ -400,7 +412,7 @@ class Index extends Component
 
                 $exists = false;
                 foreach ($results as $res) { if ($res['id'] == $targetCity->id) { $exists = true; break; } }
-                if (! $exists) {
+                if (! $exists && $targetCity->is_active) {
                     $item = ['id' => $targetCity->id, 'name' => $targetCity->name, 'province' => $targetCity->province, 'code' => $targetCity->code];
                     if ($display) $item['display'] = $display;
                     $results[] = $item;
@@ -502,9 +514,10 @@ class Index extends Component
             'editLocation' => 'nullable|string|max:255',
             'editFullAddress' => 'nullable|string|max:500',
             'editEquipmentProvided' => 'nullable|string|max:1000',
-            'editCityId' => 'required|exists:cities,id',
+            'editCityId' => ['required', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
             'editPhoto' => 'nullable|image|max:2048', // 2MB max
         ], [
+            'editCityId.exists' => 'Kota yang dipilih saat ini sedang tidak aktif.',
             'editAmount.min' => 'Nominal minimal Rp 10.000',
             'editAmount.max' => 'Nominal maksimal Rp 10.000.000',
         ]);
@@ -578,7 +591,12 @@ class Index extends Component
                     if ($this->statusFilter === 'diproses') {
                         $query->whereIn('status', $this->diprosesStatuses);
                     } elseif ($this->statusFilter === 'ditolak') {
-                        $query->where('status', 'rejected');
+                        $query->whereIn('status', ['rejected', 'ditolak']);
+                    } elseif ($this->statusFilter === 'komplain') {
+                        $query->where(function ($q) {
+                            $q->whereIn('status', ['komplain', 'disputed'])
+                              ->orWhere('complaint_resolution', 'refunded');
+                        });
                     } else {
                         $query->where('status', $this->statusFilter);
                     }

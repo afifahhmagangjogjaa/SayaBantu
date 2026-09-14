@@ -44,6 +44,9 @@ class NewRegistrationNotification extends Notification
             default => ucfirst($this->user->role),
         };
 
+        $isSuperAdmin = ($notifiable->role ?? null) === 'super_admin';
+        $url = $isSuperAdmin ? route('superadmin.users') : route('admin.customers');
+
         return [
             'type' => 'new_registration',
             'title' => 'Pendaftaran Pengguna Baru',
@@ -51,7 +54,7 @@ class NewRegistrationNotification extends Notification
             'user_name' => $this->user->name,
             'user_role' => $this->user->role,
             'message' => "Pengguna baru telah mendaftar: {$this->user->name} ({$roleLabel})",
-            'url' => route('superadmin.users'),
+            'url' => $url,
         ];
     }
 }

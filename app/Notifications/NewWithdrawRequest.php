@@ -40,6 +40,9 @@ class NewWithdrawRequest extends Notification
         $userName = $this->withdraw->user->name ?? 'Mitra';
         $amount = (float) $this->withdraw->amount;
 
+        $isSuperAdmin = ($notifiable->role ?? null) === 'super_admin';
+        $url = $isSuperAdmin ? route('superadmin.withdraws.index') : route('admin.withdraws.index');
+
         return [
             'type' => 'new_withdraw_request',
             'title' => 'Permintaan Tarik Saldo Baru',
@@ -50,7 +53,7 @@ class NewWithdrawRequest extends Notification
             'bank_code' => $this->withdraw->bank_code,
             'account_number' => $this->withdraw->account_number,
             'message' => "Permintaan tarik saldo baru dari {$userName} sebesar Rp " . number_format($amount, 0, ',', '.'),
-            'url' => route('superadmin.withdraws.index'),
+            'url' => $url,
         ];
     }
 }

@@ -66,6 +66,16 @@ class Notifications extends Component
         $this->dispatch('notification-updated');
     }
 
+    public function deleteAllNotifications()
+    {
+        $user = Auth::user();
+        if (!$user) return;
+
+        $user->notifications()->delete();
+        $this->dispatch('notification-updated');
+        session()->flash('message', 'Semua notifikasi berhasil dihapus.');
+    }
+
     public function openNotification($notificationId)
     {
         $user = Auth::user();

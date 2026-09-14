@@ -27,11 +27,100 @@ class TopupApproval extends Component
     public $historyStatusFilter = '';
     public $perPagePending = 10;
     public $perPageHistory = 10;
+
+    public $deleteYear;
+    public $deleteMonth = 'all';
+    public $deleteMode = 'monthly'; // 'monthly', 'yearly', 'all'
+    public $showDeleteModal = false;
     
     protected $listeners = [
         'topupRequestCreated' => '$refresh',
         'confirmApprove' => 'approve',
     ];
+
+    public function openDeleteModal()
+    {
+        $this->deleteYear = (int) date('Y');
+        $this->deleteMonth = (string) (int) date('n');
+        $this->deleteMode = 'monthly';
+        $this->showDeleteModal = true;
+    }
+
+    public function closeDeleteModal()
+    {
+        $this->showDeleteModal = false;
+    }
+
+    public function executeDelete()
+    {
+        if ($this->deleteMode === 'all') {
+            $this->deleteAllHistory();
+            return;
+        }
+
+        if ($this->deleteMode === 'yearly') {
+            $this->deleteMonth = 'all';
+        }
+
+        $this->deleteHistoryByPeriod();
+    }
+
+    public function deleteHistoryItem($id)
+    {
+        $tx = BalanceTransaction::find($id);
+        if ($tx) {
+            if ($tx->status === 'waiting_approval') {
+                session()->flash('error', 'Permintaan top-up yang masih menunggu persetujuan tidak boleh dihapus.');
+                return;
+            }
+            $tx->delete();
+            session()->flash('success', 'Data riwayat top-up berhasil dihapus.');
+        }
+    }
+
+    public function deleteHistoryByPeriod()
+    {
+        $query = BalanceTransaction::where('type', 'topup')
+            ->whereIn('status', ['completed', 'rejected', 'failed'])
+            ->whereYear('created_at', (int) $this->deleteYear);
+
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        if ($this->deleteMonth && $this->deleteMonth !== 'all') {
+            $monthNum = (int) $this->deleteMonth;
+            $query->whereMonth('created_at', $monthNum);
+            $periodLabel = ($monthNames[$monthNum] ?? "Bulan $monthNum") . " {$this->deleteYear}";
+        } else {
+            $periodLabel = "Tahun {$this->deleteYear}";
+        }
+
+        $count = $query->count();
+        if ($count === 0) {
+            session()->flash('error', "Tidak ada riwayat top-up pada periode {$periodLabel}.");
+            $this->showDeleteModal = false;
+            return;
+        }
+
+        $query->delete();
+        $this->resetPage('historyPage');
+        $this->showDeleteModal = false;
+        session()->flash('success', "Berhasil menghapus {$count} data riwayat top-up pada periode {$periodLabel}.");
+    }
+
+    public function deleteAllHistory()
+    {
+        $count = BalanceTransaction::where('type', 'topup')
+            ->whereIn('status', ['completed', 'rejected', 'failed'])
+            ->delete();
+
+        $this->resetPage('historyPage');
+        $this->showDeleteModal = false;
+        session()->flash('success', "Seluruh riwayat top-up ({$count} data) berhasil dihapus.");
+    }
 
     public function updatedSearchPending()
     {
@@ -233,6 +322,21 @@ class TopupApproval extends Component
             ->whereDate('approved_at', now()->toDateString())
             ->sum('amount');
 
+        $availableYears = BalanceTransaction::where('type', 'topup')
+            ->whereIn('status', ['completed', 'rejected', 'failed'])
+            ->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->toArray();
+
+        $curYear = (int) date('Y');
+        if (empty($availableYears)) {
+            $availableYears = [$curYear];
+        } elseif (!in_array($curYear, $availableYears)) {
+            array_unshift($availableYears, $curYear);
+        }
+
         return view('superadmin.topup-approval', [
             'pendingRequests' => $pendingRequests,
             'historyRequests' => $historyRequests,
@@ -243,6 +347,7 @@ class TopupApproval extends Component
             'totalCompletedCount' => $totalCompletedCount,
             'totalRejectedCount' => $totalRejectedCount,
             'totalHistoryCount' => $totalHistoryCount,
+            'availableYears' => $availableYears,
         ]);
     }
 }

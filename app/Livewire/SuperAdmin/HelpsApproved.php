@@ -14,6 +14,7 @@ class HelpsApproved extends Component
     use WithPagination;
 
     public $search = '';
+    public $filterStatus = '';
     public $perPage = 10;
 
     // Modal reject
@@ -41,6 +42,11 @@ class HelpsApproved extends Component
     }
 
     public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterStatus()
     {
         $this->resetPage();
     }
@@ -191,12 +197,33 @@ class HelpsApproved extends Component
     public function render()
     {
         $helps = Help::query()
-            ->with(['customer', 'city', 'category'])
+            ->with(['customer', 'user', 'city', 'category'])
             ->when($this->search, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%');
+                $term = '%' . trim($this->search) . '%';
+                $cleanSearch = ltrim(trim($this->search), '#');
+                $query->where(function ($q) use ($term, $cleanSearch) {
+                    $q->where('title', 'like', $term)
+                        ->orWhere('description', 'like', $term)
+                        ->orWhere('order_id', 'like', $term)
+                        ->orWhere('id', 'like', '%' . $cleanSearch . '%')
+                        ->orWhereHas('customer', fn($userQ) => $userQ->where('name', 'like', $term))
+                        ->orWhereHas('user', fn($userQ) => $userQ->where('name', 'like', $term))
+                        ->orWhereHas('city', fn($cityQ) => $cityQ->where('name', 'like', $term))
+                        ->orWhereHas('category', fn($catQ) => $catQ->where('name', 'like', $term));
                 });
+            })
+            ->when($this->filterStatus, function ($query) {
+                if ($this->filterStatus === 'komplain') {
+                    $query->whereIn('status', ['komplain', 'disputed']);
+                } elseif ($this->filterStatus === 'selesai') {
+                    $query->whereIn('status', ['selesai', 'completed']);
+                } elseif ($this->filterStatus === 'dibatalkan') {
+                    $query->whereIn('status', ['dibatalkan', 'cancelled', 'rejected']);
+                } elseif ($this->filterStatus === 'dalam_proses') {
+                    $query->whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'taken', 'in_progress']);
+                } else {
+                    $query->where('status', $this->filterStatus);
+                }
             })
             ->latest()
             ->paginate($this->perPage);

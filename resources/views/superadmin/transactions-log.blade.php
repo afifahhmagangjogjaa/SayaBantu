@@ -174,6 +174,24 @@
         </p>
     </div>
 
+    @if (session()->has('success'))
+        <div class="mb-5 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl flex items-center gap-2.5 text-xs font-semibold shadow-xs no-print">
+            <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="mb-5 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl flex items-center gap-2.5 text-xs font-semibold shadow-xs no-print">
+            <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+            <span>{{ session('error') }}</span>
+        </div>
+    @endif
+
     <!-- Summary Cards -->
     <div class="summary-cards-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <!-- Total Top Up Card -->
@@ -258,6 +276,12 @@
                         </svg>
                         PDF
                     </button>
+                    <button type="button" wire:click="openDeleteModal" class="inline-flex items-center px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer shadow-sm">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Hapus Riwayat
+                    </button>
                 </div>
             </div>
 
@@ -333,7 +357,7 @@
                         <th class="px-3.5 py-3.5 text-right text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 130px;">Jumlah</th>
                         <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 110px;">Ref</th>
                         <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 100px;">Status</th>
-                        <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap no-print" style="width: 55px;">Aksi</th>
+                        <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap no-print" style="width: 75px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-100">
@@ -402,18 +426,27 @@
                                 </span>
                             </td>
                             <td class="px-3.5 py-3.5 text-center whitespace-nowrap no-print">
-                                @if($t->user)
-                                    <button type="button" wire:click="viewUserBalance({{ $t->user->id }})" wire:loading.attr="disabled"
-                                        class="p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer inline-flex items-center justify-center"
-                                        title="Lihat Detail Saldo & Info User ({{ $t->user->name }})">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                <div class="flex items-center justify-center gap-1">
+                                    @if($t->user)
+                                        <button type="button" wire:click="viewUserBalance({{ $t->user->id }})" wire:loading.attr="disabled"
+                                            class="p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer inline-flex items-center justify-center"
+                                            title="Lihat Detail Saldo & Info User ({{ $t->user->name }})">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                    @endif
+                                    <button type="button" 
+                                        wire:click="deleteTransaction({{ $t->id }})" 
+                                        wire:confirm="Apakah Anda yakin ingin menghapus data transaksi ini?"
+                                        class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center" 
+                                        title="Hapus Data Transaksi">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
                                     </button>
-                                @else
-                                    <span class="text-xs text-gray-300">-</span>
-                                @endif
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -528,6 +561,174 @@
                         @endif
                     </div>
                 </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- MODAL HAPUS RIWAYAT BERDASARKAN PERIODE -->
+    @if ($showDeleteModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-xs transition-opacity no-print">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+                
+                <!-- Header Modal -->
+                <div class="flex items-start justify-between border-b border-gray-100 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-gray-900">Hapus Riwayat Transaksi</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Pilih periode bulanan atau tahunan</p>
+                        </div>
+                    </div>
+                    <button type="button" wire:click="closeDeleteModal" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Pilihan Tipe Hapus (Tabs) -->
+                <div class="flex rounded-xl bg-gray-100 p-1 gap-1">
+                    <button type="button" wire:click="$set('deleteMode', 'monthly')"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer {{ $deleteMode === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800' }}">
+                        Bulanan
+                    </button>
+                    <button type="button" wire:click="$set('deleteMode', 'yearly')"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer {{ $deleteMode === 'yearly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800' }}">
+                        Tahunan
+                    </button>
+                    <button type="button" wire:click="$set('deleteMode', 'all')"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer {{ $deleteMode === 'all' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-500 hover:text-rose-600' }}">
+                        Hapus Semua
+                    </button>
+                </div>
+
+                @if(!empty($city_id))
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-2.5 flex gap-2 items-center text-xs text-blue-800 font-medium">
+                        <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        </svg>
+                        <span>Filter aktif wilayah: <strong>{{ optional($cities->firstWhere('id', $city_id))->name }}</strong></span>
+                    </div>
+                @endif
+
+                <!-- Konten Sesuai Mode -->
+                @if($deleteMode === 'monthly')
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
+                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                @foreach($availableYears ?? [date('Y')] as $yr)
+                                    <option value="{{ $yr }}">{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Bulan</label>
+                            <select wire:model.live="deleteMonth" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                <option value="1">01 - Januari</option>
+                                <option value="2">02 - Februari</option>
+                                <option value="3">03 - Maret</option>
+                                <option value="4">04 - April</option>
+                                <option value="5">05 - Mei</option>
+                                <option value="6">06 - Juni</option>
+                                <option value="7">07 - Juli</option>
+                                <option value="8">08 - Agustus</option>
+                                <option value="9">09 - September</option>
+                                <option value="10">10 - Oktober</option>
+                                <option value="11">11 - November</option>
+                                <option value="12">12 - Desember</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2.5 items-start">
+                            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                Hanya data pada bulan dan tahun terpilih yang akan dihapus.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                            wire:click="executeDelete"
+                            wire:confirm="Apakah Anda yakin ingin menghapus data transaksi riwayat bulan terpilih? Tindakan ini tidak dapat dibatalkan."
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Riwayat Bulan Terpilih</span>
+                        </button>
+                    </div>
+
+                @elseif($deleteMode === 'yearly')
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
+                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                @foreach($availableYears ?? [date('Y')] as $yr)
+                                    <option value="{{ $yr }}">{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2.5 items-start">
+                            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                Seluruh riwayat transaksi sepanjang tahun <strong>{{ $deleteYear }}</strong> (Januari - Desember) akan dihapus.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                            wire:click="executeDelete"
+                            wire:confirm="Apakah Anda yakin ingin menghapus SELURUH data transaksi pada tahun {{ $deleteYear }}? Tindakan ini tidak dapat dibatalkan."
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Seluruh Tahun {{ $deleteYear }}</span>
+                        </button>
+                    </div>
+
+                @else
+                    <div class="space-y-4">
+                        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div>
+                                <h4 class="text-xs font-bold text-rose-900 uppercase tracking-wider mb-1">Peringatan Ekstrem</h4>
+                                <p class="text-xs text-rose-800 leading-relaxed">
+                                    Tindakan ini akan menghapus <strong>SEMUA</strong> riwayat transaksi yang ada dalam sistem tanpa batasan waktu. Data yang dihapus tidak dapat dipulihkan kembali.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button type="button"
+                            wire:click="executeDelete"
+                            wire:confirm="PERINGATAN EKSTREM: Apakah Anda BENAR-BENAR yakin ingin menghapus SEMUA data riwayat transaksi tanpa terkecuali?"
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Semua Riwayat Sekarang</span>
+                        </button>
+                    </div>
+                @endif
+
+                <!-- Footer Cancel -->
+                <div class="border-t border-gray-100 pt-3 flex items-center justify-end">
+                    <button type="button" wire:click="closeDeleteModal" class="px-4 py-2 text-xs text-gray-600 hover:text-gray-800 font-medium hover:bg-gray-100 rounded-lg transition cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
+
             </div>
         </div>
     @endif

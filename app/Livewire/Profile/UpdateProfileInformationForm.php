@@ -29,7 +29,7 @@ class UpdateProfileInformationForm extends Component
             'email' => ['required', 'email', 'max:255'],
             'nik' => ['required', 'string', 'size:16', 'regex:/^[0-9]+$/'],
             'phone' => ['required', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
-            'city_id' => ['required', 'exists:cities,id'],
+            'city_id' => ['required', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
             'address' => ['required', 'string', 'max:500'],
             'religion' => ['required', 'string', 'max:50'],
             'marital_status' => ['required', 'string', 'max:50'],

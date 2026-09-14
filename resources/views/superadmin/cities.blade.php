@@ -135,14 +135,13 @@
                                         </button>
                                         {{-- Toggle Status ON/OFF --}}
                                         <button type="button"
-                                            x-data="{ on: {{ $city->is_active ? 'true' : 'false' }} }"
-                                            @click="on = !on; $wire.toggleStatus({{ $city->id }})"
+                                            wire:key="city-toggle-{{ $city->id }}-{{ $city->is_active ? '1' : '0' }}"
+                                            wire:click="toggleStatus({{ $city->id }})"
                                             wire:loading.attr="disabled"
                                             wire:target="toggleStatus({{ $city->id }})"
                                             class="inline-flex items-center gap-1.5 cursor-pointer focus:outline-none"
                                             title="{{ $city->is_active ? 'Aktif — Klik untuk nonaktifkan' : 'Nonaktif — Klik untuk aktifkan' }}">
-                                            <span class="inline-flex items-center h-5 w-9 p-0.5 rounded-full transition-colors duration-200 ease-in-out"
-                                                :class="on ? 'bg-emerald-500 justify-end' : 'bg-gray-300 justify-start'">
+                                            <span class="inline-flex items-center h-5 w-9 p-0.5 rounded-full transition-colors duration-200 ease-in-out {{ $city->is_active ? 'bg-emerald-500 justify-end' : 'bg-gray-300 justify-start' }}">
                                                 <span class="h-4 w-4 rounded-full bg-white shadow ring-0"></span>
                                             </span>
                                         </button>
@@ -300,20 +299,7 @@
                                 </p>
                             </div>
 
-                            <div>
-                                <label class="text-xs font-medium text-gray-700 block mb-2">Status Layanan <span class="text-red-500">*</span></label>
-                                <div class="flex items-center gap-3">
-                                    <button type="button" 
-                                        wire:click="$set('is_active', {{ $is_active ? 'false' : 'true' }})"
-                                        class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $is_active ? 'bg-emerald-500' : 'bg-gray-300' }}">
-                                        <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $is_active ? 'translate-x-5' : 'translate-x-0' }}"></span>
-                                    </button>
-                                    <span class="text-sm font-semibold {{ $is_active ? 'text-emerald-700' : 'text-gray-500' }}">
-                                        {{ $is_active ? 'ON (Aktif)' : 'OFF (Nonaktif)' }}
-                                    </span>
-                                </div>
-                                @error('is_active') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
-                            </div>
+
                         </div>
 
                         <!-- Footer Actions inside form so submit works with enter -->

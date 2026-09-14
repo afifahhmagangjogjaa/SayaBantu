@@ -47,9 +47,6 @@ class Verifications extends Component
         // Update user status
         $user->verified = true;
         $user->status = 'active';
-        if (array_key_exists('email_verified_at', $user->getAttributes())) {
-            $user->email_verified_at = now();
-        }
         $user->save();
 
         // If there's an associated registration, approve it too

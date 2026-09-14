@@ -90,6 +90,10 @@
                         class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0098e7] shadow-md' : 'bg-white/20 text-white' }}">
                         Menunggu Konfirmasi
                     </button>
+                    <button type="button" wire:click="$set('statusFilter', 'komplain')" role="tab"
+                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md' : 'bg-white/20 text-white' }}">
+                        Komplain & Refund
+                    </button>
                     <button type="button" wire:click="$set('statusFilter', 'selesai')" role="tab"
                         class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ $statusFilter === 'selesai' ? 'bg-white text-[#0098e7] shadow-md' : 'bg-white/20 text-white' }}">
                         Selesai
@@ -489,6 +493,55 @@
                                 </div>
                             </div>
                         </div>
+                    @elseif($statusFilter === 'komplain')
+                        {{-- Komplain / Refund Card --}}
+                        <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-red-100">
+                            <div class="flex items-start gap-3">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden bg-red-50 flex-shrink-0 flex items-center justify-center">
+                                    @if($help->complaint_photo)
+                                        <img src="{{ asset('storage/' . $help->complaint_photo) }}" alt="Bukti Komplain" class="w-full h-full object-cover">
+                                    @elseif($help->photo)
+                                        <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
+                                    @else
+                                        <span class="text-xl">⚠️</span>
+                                    @endif
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between gap-2 mb-1">
+                                        <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                        <span class="text-xs font-bold whitespace-nowrap text-red-600">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                        @if($help->complaint_resolution === 'refunded')
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+                                                ✓ Refund Disetujui
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 animate-pulse">
+                                                ⚠️ Dalam Mediasi Admin
+                                            </span>
+                                        @endif
+                                        <span class="text-xs text-gray-400">{{ optional($help->complaint_submitted_at ?? $help->updated_at)->diffForHumans() }}</span>
+                                    </div>
+
+                                    @if($help->complaint_reason)
+                                        <div class="bg-gray-50 p-2.5 rounded-lg text-xs text-gray-700 line-clamp-2 mb-2 border border-gray-100">
+                                            <span class="font-bold text-gray-800">Alasan Komplain:</span> {{ $help->complaint_reason }}
+                                        </div>
+                                    @endif
+
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
+                                        <div class="flex-1"></div>
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition shadow-xs">
+                                            Detail Mediasi
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     @else
                         {{-- Tab "Semua": Render card based on actual help status --}}
                         @if($help->status === 'menunggu_mitra')
@@ -692,6 +745,55 @@
                                             <div class="flex-1"></div>
                                             <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
                                                 Detail
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($help->status === 'komplain' || $help->status === 'disputed' || $help->complaint_resolution === 'refunded')
+                            {{-- Komplain / Refund Card --}}
+                            <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-red-100">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-red-50 flex-shrink-0 flex items-center justify-center">
+                                        @if($help->complaint_photo)
+                                            <img src="{{ asset('storage/' . $help->complaint_photo) }}" alt="Bukti Komplain" class="w-full h-full object-cover">
+                                        @elseif($help->photo)
+                                            <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
+                                        @else
+                                            <span class="text-xl">⚠️</span>
+                                        @endif
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-start justify-between gap-2 mb-1">
+                                            <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                            <span class="text-xs font-bold whitespace-nowrap text-red-600">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                        </div>
+
+                                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                            @if($help->complaint_resolution === 'refunded')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+                                                    ✓ Refund Disetujui
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 animate-pulse">
+                                                    ⚠️ Dalam Mediasi Admin
+                                                </span>
+                                            @endif
+                                            <span class="text-xs text-gray-400">{{ optional($help->complaint_submitted_at ?? $help->updated_at)->diffForHumans() }}</span>
+                                        </div>
+
+                                        @if($help->complaint_reason)
+                                            <div class="bg-gray-50 p-2.5 rounded-lg text-xs text-gray-700 line-clamp-2 mb-2 border border-gray-100">
+                                                <span class="font-bold text-gray-800">Alasan Komplain:</span> {{ $help->complaint_reason }}
+                                            </div>
+                                        @endif
+
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
+                                            <div class="flex-1"></div>
+                                            <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition shadow-xs">
+                                                Detail Mediasi
                                             </a>
                                         </div>
                                     </div>

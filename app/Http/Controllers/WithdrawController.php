@@ -85,12 +85,26 @@ class WithdrawController extends Controller
             return redirect()->route('mitra.dashboard')->with('error', "Harap lengkapi profil Anda ($missing) terlebih dahulu sebelum melakukan penarikan saldo.");
         }
 
+        if (!$user->hasVerifiedEmail()) {
+            return back()->withErrors(['general' => 'Saldo belum dapat ditarik. Harap verifikasi email Anda terlebih dahulu sebelum mengajukan penarikan dana.'])->withInput();
+        }
+
         $userBalance = (int) $user->balance;
+
+        if ($request->has('amount')) {
+            $rawAmount = preg_replace('/\D/', '', (string) $request->input('amount'));
+            $request->merge(['amount' => $rawAmount !== '' ? (int) $rawAmount : null]);
+        }
+
+        if ($request->has('account_number')) {
+            $rawAccount = preg_replace('/\D/', '', (string) $request->input('account_number'));
+            $request->merge(['account_number' => $rawAccount]);
+        }
 
         $request->validate([
             'amount' => ['required', 'integer', 'min:10000', 'max:' . max(10000, $userBalance)],
             'bank_code' => ['required', 'string'],
-            'account_number' => ['required', 'string'],
+            'account_number' => ['required', 'string', 'regex:/^[0-9]+$/'],
         ], [
             'amount.required' => 'Jumlah penarikan wajib diisi.',
             'amount.integer' => 'Jumlah penarikan harus berupa angka.',
@@ -98,6 +112,7 @@ class WithdrawController extends Controller
             'amount.max' => 'Saldo Anda tidak mencukupi untuk penarikan sebesar Rp ' . number_format((int) $request->input('amount', 0), 0, ',', '.') . '. Saldo tersedia: Rp ' . number_format($userBalance, 0, ',', '.') . '.',
             'bank_code.required' => 'Silakan pilih Bank atau E-Wallet tujuan.',
             'account_number.required' => 'Nomor rekening wajib diisi.',
+            'account_number.regex' => 'Nomor rekening hanya boleh berisi angka.',
         ]);
 
         $amount = (int) $request->input('amount');
@@ -128,14 +143,19 @@ class WithdrawController extends Controller
                 'status' => WithdrawRequest::STATUS_PENDING,
             ]);
 
-            // Notify super admins and admins
+            // Notify super admins and admin of the mitra's city
             try {
-                $admins = User::whereIn('role', ['super_admin', 'admin'])
+                $superAdmins = User::where('role', 'super_admin')->where('status', 'active')->get();
+                $mitraCityId = $user->city_id ?? $withdraw->user?->city_id;
+                $cityAdmins = User::where('role', 'admin')
                     ->where('status', 'active')
+                    ->when($mitraCityId, fn($q) => $q->where('city_id', $mitraCityId))
                     ->get();
 
-                foreach ($admins as $admin) {
-                    $admin->notify(new NewWithdrawRequest($withdraw));
+                $recipients = $superAdmins->merge($cityAdmins)->unique('id');
+
+                foreach ($recipients as $recipient) {
+                    $recipient->notify(new NewWithdrawRequest($withdraw));
                 }
             } catch (\Throwable $ne) {
                 Log::warning('WithdrawController: failed to send withdraw notification', ['error' => $ne->getMessage()]);

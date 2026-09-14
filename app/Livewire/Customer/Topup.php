@@ -31,9 +31,8 @@ class Topup extends Component
     {
         $user = auth()->user();
 
-        if ($user && !$user->isProfileComplete()) {
-            $missing = implode(', ', $user->getMissingProfileFields());
-            session()->flash('error', "Harap lengkapi profil Anda ($missing) terlebih dahulu sebelum melakukan Top Up.");
+        if ($user && !$user->canTopup()) {
+            session()->flash('error', $user->getCannotTopupReason());
             return redirect()->route('customer.dashboard');
         }
 
@@ -42,6 +41,12 @@ class Topup extends Component
 
     public function submit()
     {
+        $user = auth()->user();
+        if ($user && !$user->canTopup()) {
+            session()->flash('error', $user->getCannotTopupReason());
+            return redirect()->route('customer.dashboard');
+        }
+
         $this->validate();
 
         try {

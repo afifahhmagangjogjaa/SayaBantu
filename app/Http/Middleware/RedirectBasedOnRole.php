@@ -37,8 +37,8 @@ class RedirectBasedOnRole
                 return $next($request);
             }
 
-            // Jika belum verifikasi email atau belum selesai onboarding (password / biodata / dokumen), jangan redirect otomatis ke dashboard
-            if (!$user->hasVerifiedEmail() || empty($user->password) || !$user->is_completed) {
+            // Jika belum punya password, jangan redirect otomatis ke dashboard
+            if (empty($user->password)) {
                 return $next($request);
             }
 

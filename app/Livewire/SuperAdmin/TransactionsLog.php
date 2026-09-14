@@ -20,6 +20,10 @@ class TransactionsLog extends Component
     public $from = null;
     public $to = null;
     public $city_id = ''; // Filter wilayah / kota
+    public $deleteYear;
+    public $deleteMonth = 'all';
+    public $deleteMode = 'monthly'; // 'monthly', 'yearly', 'all'
+    public $showDeleteModal = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -29,6 +33,95 @@ class TransactionsLog extends Component
         'to' => ['except' => ''],
         'city_id' => ['except' => ''],
     ];
+
+    public function openDeleteModal()
+    {
+        $this->deleteYear = (int) date('Y');
+        $this->deleteMonth = (string) (int) date('n');
+        $this->deleteMode = 'monthly';
+        $this->showDeleteModal = true;
+    }
+
+    public function closeDeleteModal()
+    {
+        $this->showDeleteModal = false;
+    }
+
+    public function executeDelete()
+    {
+        if ($this->deleteMode === 'all') {
+            $this->deleteAllTransactions();
+            return;
+        }
+
+        if ($this->deleteMode === 'yearly') {
+            $this->deleteMonth = 'all';
+        }
+
+        $this->deleteByPeriod();
+    }
+
+    public function deleteTransaction($id)
+    {
+        $tx = BalanceTransaction::find($id);
+        if ($tx) {
+            $tx->delete();
+            session()->flash('success', 'Data transaksi berhasil dihapus.');
+        }
+    }
+
+    public function deleteByPeriod()
+    {
+        $query = BalanceTransaction::query()->whereYear('created_at', (int) $this->deleteYear);
+
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        if ($this->deleteMonth && $this->deleteMonth !== 'all') {
+            $monthNum = (int) $this->deleteMonth;
+            $query->whereMonth('created_at', $monthNum);
+            $periodLabel = ($monthNames[$monthNum] ?? "Bulan $monthNum") . " {$this->deleteYear}";
+        } else {
+            $periodLabel = "Tahun {$this->deleteYear}";
+        }
+
+        if ($this->city_id) {
+            $query->whereHas('user', function ($q) {
+                $q->where('city_id', $this->city_id);
+            });
+        }
+
+        $count = $query->count();
+        if ($count === 0) {
+            session()->flash('error', "Tidak ada riwayat transaksi pada periode {$periodLabel}.");
+            $this->showDeleteModal = false;
+            return;
+        }
+
+        $query->delete();
+        $this->resetPage();
+        $this->showDeleteModal = false;
+        session()->flash('success', "Berhasil menghapus {$count} riwayat transaksi pada periode {$periodLabel}.");
+    }
+
+    public function deleteAllTransactions()
+    {
+        $query = BalanceTransaction::query();
+        if ($this->city_id) {
+            $query->whereHas('user', function ($q) {
+                $q->where('city_id', $this->city_id);
+            });
+        }
+
+        $count = $query->count();
+        $query->delete();
+        $this->resetPage();
+        $this->showDeleteModal = false;
+        session()->flash('success', "Seluruh riwayat transaksi ({$count} data) berhasil dihapus.");
+    }
 
     public function mount()
     {
@@ -372,6 +465,19 @@ class TransactionsLog extends Component
         // Ambil daftar kota untuk dropdown filter
         $cities = City::orderBy('name', 'asc')->get();
 
+        $availableYears = BalanceTransaction::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->toArray();
+
+        $curYear = (int) date('Y');
+        if (empty($availableYears)) {
+            $availableYears = [$curYear];
+        } elseif (!in_array($curYear, $availableYears)) {
+            array_unshift($availableYears, $curYear);
+        }
+
         return view('superadmin.transactions-log', [
             'transactions' => $transactions,
             'totalRevenue' => $totalRevenue,
@@ -379,6 +485,7 @@ class TransactionsLog extends Component
             'totalTransactions' => $totalTransactions,
             'netCashflow' => $netCashflow,
             'cities' => $cities,
+            'availableYears' => $availableYears,
         ]);
     }
 }

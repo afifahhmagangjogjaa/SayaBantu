@@ -62,8 +62,22 @@ class Index extends Component
 
         if (!auth()->user()->isProfileComplete()) {
             $missing = implode(', ', auth()->user()->getMissingProfileFields());
-            session()->flash('error', "Harap lengkapi data profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.");
+            session()->flash('error', "Harap lengkapi biodata profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.");
             return redirect()->route('mitra.profile.edit');
+        }
+
+        if (!auth()->user()->verified) {
+            session()->flash('error', 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi disetujui sebelum dapat mengambil bantuan.');
+            return;
+        }
+
+        if (!auth()->user()->canTakeMoreOrders()) {
+            if (!auth()->user()->hasVerifiedEmail()) {
+                session()->flash('error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.');
+            } else {
+                session()->flash('error', 'Anda telah mencapai batas maksimal order bantuan.');
+            }
+            return;
         }
 
         $help = Help::findOrFail($helpId);

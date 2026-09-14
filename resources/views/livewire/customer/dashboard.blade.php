@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100" wire:poll.5s>
     <style>
         :root{
             --brand-500: #0ea5a4;
@@ -124,7 +124,7 @@
     </div>
 
     <!-- Balance Card - BRImo Style (overlapping header) -->
-    <div class="px-5 -mt-20 relative z-20">
+    <div class="px-5 -mt-20 relative z-20 mb-6">
         <div class="bg-white rounded-2xl p-4 shadow-xl">
             <div class="flex items-start justify-between mb-2">
                 <div class="flex-1">
@@ -162,10 +162,104 @@
                     </svg>
                 </a>
             </div>
+        </div>
     </div>
 
     <!-- Main Content -->
-    <div class="px-5 pt-5 pb-6">
+    <div class="px-5 pt-3 pb-6">
+        <!-- Card Notifikasi Bertahap (If-Else): Biodata -> KTP -> Email (Hilang 1 per 1 jika sudah terpenuhi) -->
+        @php
+            $dashUser = auth()->user();
+            $needsBiodata = $dashUser && !$dashUser->isProfileComplete();
+            $needsKtp = $dashUser && !(bool)$dashUser->verified;
+            $hasKtpUploaded = $dashUser && (!empty($dashUser->ktp_photo) && !empty($dashUser->selfie_photo));
+            $needsEmail = $dashUser && !$dashUser->hasVerifiedEmail();
+        @endphp
+
+        @if($needsBiodata)
+            {{-- 1. LENGKAPI BIODATA DULU --}}
+            <div class="rounded-2xl p-3.5 text-xs mb-5 flex items-center justify-between gap-3 bg-white"
+                 style="border: 1.5px solid #0098e7; box-shadow: 0 4px 14px rgba(0, 152, 231, 0.15);">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div style="background: linear-gradient(135deg, #0098e7 0%, #0077cc 100%); width: 38px; height: 38px; min-width: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
+                        <svg style="width: 18px; height: 18px; color: #ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="font-bold text-gray-900 text-xs flex items-center gap-1.5 flex-wrap">
+                            <span>Lengkapi Biodata</span>
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">Wajib</span>
+                        </div>
+                        <p class="text-[11px] text-gray-600 truncate mt-0.5">Lengkapi profil Anda untuk membuat bantuan</p>
+                    </div>
+                </div>
+                <a href="{{ route('profile.edit') }}" 
+                   class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 cursor-pointer shadow-xs"
+                   style="background: linear-gradient(to right, #0098e7, #0077cc); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
+                    Lengkapi
+                </a>
+            </div>
+
+        @elseif($needsKtp)
+            {{-- 2. JIKA BIODATA SUDAH LENGKAP, BARU NUNGGU / VERIF KTP --}}
+            <div class="rounded-2xl p-3.5 text-xs mb-5 flex items-center justify-between gap-3 bg-white"
+                 style="border: 1.5px solid {{ $hasKtpUploaded ? '#3b82f6' : '#f59e0b' }}; box-shadow: 0 4px 14px {{ $hasKtpUploaded ? 'rgba(59, 130, 246, 0.15)' : 'rgba(245, 158, 11, 0.15)' }};">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div style="background: linear-gradient(135deg, {{ $hasKtpUploaded ? '#3b82f6 0%, #1d4ed8 100%' : '#0ea5e9 0%, #0284c7 100%' }}); width: 38px; height: 38px; min-width: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.35);">
+                        <svg style="width: 18px; height: 18px; color: #ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="font-bold text-gray-900 text-xs flex items-center gap-1.5 flex-wrap">
+                            <span>{{ $hasKtpUploaded ? 'Verifikasi KTP' : 'Upload Dokumen KTP' }}</span>
+                            @if($hasKtpUploaded)
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">Menunggu Konfirmasi</span>
+                            @else
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">Wajib</span>
+                            @endif
+                        </div>
+                        <p class="text-[11px] text-gray-600 truncate mt-0.5">
+                            {{ $hasKtpUploaded ? 'Dokumen KTP Anda sedang ditinjau oleh Admin' : 'Upload KTP & Selfie untuk verifikasi akun' }}
+                        </p>
+                    </div>
+                </div>
+                <a href="{{ route('profile.settings.verification') }}" 
+                   class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] hover:opacity-95 active:scale-95 cursor-pointer shadow-xs {{ $hasKtpUploaded ? 'text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100' : 'text-white' }}"
+                   @if(!$hasKtpUploaded) style="background: linear-gradient(135deg, #0098e7 0%, #0077cc 100%); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);" @endif>
+                    {{ $hasKtpUploaded ? 'Cek Status' : 'Upload' }}
+                </a>
+            </div>
+
+        @elseif($needsEmail)
+            {{-- 3. JIKA KTP SUDAH DIVERIFIKASI, BARU EMAIL --}}
+            <div class="rounded-2xl p-3.5 text-xs mb-5 flex items-center justify-between gap-3 bg-white"
+                 style="border: 1.5px solid #f59e0b; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); width: 38px; height: 38px; min-width: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);">
+                        <svg style="width: 18px; height: 18px; color: #ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="font-bold text-gray-900 text-xs flex items-center gap-1.5 flex-wrap">
+                            <span>Verifikasi Email</span>
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">Maks. 2 Bantuan</span>
+                        </div>
+                        <p class="text-[11px] text-gray-600 truncate mt-0.5">Verifikasi untuk nikmati bantuan tanpa batas</p>
+                    </div>
+                </div>
+                <form method="POST" action="{{ route('verification.send') }}" class="flex-shrink-0" onsubmit="event.preventDefault(); window.sendEmailVerification(this.querySelector('button'), '{{ route('verification.send') }}');">
+                    @csrf
+                    <button type="submit" class="font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 cursor-pointer"
+                            style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); box-shadow: 0 2px 6px rgba(234, 88, 12, 0.35);">
+                        Verifikasi
+                    </button>
+                </form>
+            </div>
+        @endif
+
         <!-- Banner Section -->
         @php
             $customerBanners = json_decode((string) \App\Models\AppSetting::get('banner_customer', '[]'), true) ?: [];
@@ -198,79 +292,6 @@
                     <button data-dot="2" class="w-2 h-2 rounded-full bg-gray-300 transition-all"></button>
                 </div>
             </div>
-        @endif
-
-        <!-- Banner Profile & Verification Status -->
-        @if(auth()->check())
-            @php
-                $user = auth()->user();
-                $hasKtp = !empty($user->ktp_photo) || !empty($user->ktp_path);
-                $hasSelfie = !empty($user->selfie_photo);
-                $hasDocs = $hasKtp && $hasSelfie;
-                $isVerified = (bool) $user->verified;
-                $missingFields = $user->getMissingBiodataFields();
-            @endphp
-
-            {{-- 1. INFO VERIFIKASI KTP / DOKUMEN (DI ATAS LENGKAPI PROFIL) --}}
-            @if(!$hasDocs)
-                {{-- Belum Upload Foto KTP & Selfie --}}
-                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
-                    <div class="rounded-xl shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #ffffff; width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                        </svg>
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div class="flex items-center gap-2">
-                            <div class="font-bold text-amber-950 text-sm">Belum Upload KTP & Selfie</div>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200 text-amber-900">Wajib</span>
-                        </div>
-                        <div class="mt-1 text-amber-800 leading-relaxed">
-                            Upload foto KTP dan foto selfie Anda untuk verifikasi identitas agar dapat menggunakan layanan bantuan.
-                        </div>
-                        <a href="{{ route('profile.settings.verification') }}" class="inline-flex items-center gap-1.5 font-bold text-white bg-amber-600 hover:bg-amber-700 px-3.5 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-xs">
-                            <span>Upload KTP & Selfie Sekarang</span>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                        </a>
-                    </div>
-                </div>
-            @elseif(!$isVerified)
-                {{-- Sudah Upload KTP & Selfie, Menunggu Verifikasi Admin --}}
-                <div class="bg-blue-50/95 border border-blue-200 rounded-2xl p-4 text-xs text-blue-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
-                    <div class="rounded-xl bg-blue-100 text-blue-600 text-lg shadow-2xs" style="width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                        ⏳
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div class="font-bold text-blue-950 text-sm flex items-center gap-2">
-                            <span>Menunggu Verifikasi KTP</span>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">Dalam Proses</span>
-                        </div>
-                        <div class="mt-1 text-blue-800 leading-relaxed">
-                            Foto KTP dan data pendaftaran Anda telah berhasil dikirim. Akun Anda sedang dalam proses peninjauan & verifikasi oleh Admin Kota.
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            {{-- 2. INFO LENGKAPI BIODATA / PROFIL --}}
-            @if(!empty($missingFields))
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-5" style="display: flex; align-items: flex-start; gap: 14px;">
-                    <div class="rounded-xl shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div class="font-bold text-amber-950 text-sm">Lengkapi Biodata Diri Anda</div>
-                        <div class="mt-1 text-amber-800 leading-relaxed">
-                            Mohon lengkapi data profil wajib (<strong>{{ implode(', ', $missingFields) }}</strong>) agar akun Anda lengkap dan dapat mengajukan bantuan.
-                        </div>
-                        <a href="{{ route('profile.edit') }}" class="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-2xs">
-                            <span>Lengkapi Biodata Sekarang &rarr;</span>
-                        </a>
-                    </div>
-                </div>
-            @endif
         @endif
 
         <!-- Bantuan Saya Section -->

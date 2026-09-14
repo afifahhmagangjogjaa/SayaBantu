@@ -211,19 +211,37 @@
                         <h2 class="text-xl font-bold text-white mt-4">{{ $user->name }}</h2>
                         <p class="text-sm text-white/80 mt-0.5">{{ $user->email }}</p>
 
-                        @if($user->verified ?? false)
-                            <div class="inline-flex items-center gap-1.5 bg-green-500/20 backdrop-blur-sm px-3 py-1.5 rounded-full mt-3">
-                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        @php
+                            $isKtpVerified = (bool) ($user->verified ?? false);
+                            $isEmailVerified = $user->hasVerifiedEmail();
+                            $isFullyVerified = $isKtpVerified && $isEmailVerified;
+                        @endphp
+
+                        @if($isFullyVerified)
+                            <div class="inline-flex items-center gap-1.5 bg-white text-emerald-700 px-3.5 py-1.5 rounded-full mt-3 shadow-md border border-emerald-100 font-bold text-xs">
+                                <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
-                                <span class="text-xs font-semibold text-white">Terverifikasi</span>
+                                <span>Akun Terverifikasi</span>
                             </div>
+                        @elseif($isKtpVerified && !$isEmailVerified)
+                            <form method="POST" action="{{ route('verification.send') }}" class="inline-block mt-3" onsubmit="event.preventDefault(); window.sendEmailVerification(this.querySelector('button'), '{{ route('verification.send') }}');">
+                                @csrf
+                                <button type="submit" title="Klik untuk kirim ulang link verifikasi email"
+                                    class="inline-flex items-center gap-1.5 bg-amber-400 text-amber-950 hover:bg-amber-300 px-3.5 py-1.5 rounded-full transition shadow-md border border-amber-300 font-bold text-xs group cursor-pointer">
+                                    <svg class="w-3.5 h-3.5 text-amber-900 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    <span>Menunggu Verifikasi Email</span>
+                                    <span class="text-[10px] text-white bg-amber-800/80 px-1.5 py-0.5 rounded-full font-semibold">Verifikasi &rarr;</span>
+                                </button>
+                            </form>
                         @else
-                            <div class="inline-flex items-center gap-1.5 bg-yellow-500/20 backdrop-blur-sm px-3 py-1.5 rounded-full mt-3">
-                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md border border-white/40 text-white px-3.5 py-1.5 rounded-full mt-3 font-semibold text-xs shadow-xs">
+                                <svg class="w-4 h-4 text-amber-200" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                                 </svg>
-                                <span class="text-xs font-semibold text-white">Belum Verifikasi</span>
+                                <span>Menunggu Verifikasi KTP</span>
                             </div>
                         @endif
                     </div>

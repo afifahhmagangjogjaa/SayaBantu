@@ -132,28 +132,6 @@
                 </div>
             </div> 
             <div class="space-y-4">
-                @if(auth()->check() && !empty(auth()->user()->getMissingBiodataFields()))
-                    @php
-                        $missing = auth()->user()->getMissingBiodataFields();
-                    @endphp
-                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
-                        <div class="rounded-xl shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                            <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                            </svg>
-                        </div>
-                        <div style="flex: 1; min-width: 0;">
-                            <div class="font-bold text-amber-950 text-sm">Lengkapi Biodata Diri Anda</div>
-                            <div class="mt-1 text-amber-800 leading-relaxed">
-                                Mohon lengkapi data profil wajib (<strong>{{ implode(', ', $missing) }}</strong>) agar akun Anda lengkap dan dapat mengambil serta menjalankan bantuan.
-                            </div>
-                            <a href="{{ route('mitra.profile.edit') }}" class="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3.5 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-2xs">
-                                <span>Lengkapi Biodata Sekarang &rarr;</span>
-                            </a>
-                        </div>
-                    </div>
-                @endif
-
                 @if(!empty($needsCity))
                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
                         <div class="font-semibold">Atur kota Anda terlebih dahulu</div>
@@ -310,13 +288,58 @@
 
             <!-- Sticky footer -->
             <div class="sticky bottom-0 bg-white border-t pt-4 px-5 pb-5">
+                @if(auth()->check() && !auth()->user()->isProfileComplete())
+                    <div class="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs">
+                        <p class="font-bold flex items-center gap-1.5 mb-1">
+                            <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            <span>Biodata Belum Lengkap</span>
+                        </p>
+                        <p class="text-[11px] text-red-700 leading-relaxed">
+                            Harap lengkapi data profil dan dokumen KTP Anda terlebih dahulu sebelum dapat mengambil bantuan.
+                        </p>
+                    </div>
+                @elseif(auth()->check() && !auth()->user()->verified)
+                    <div class="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                        <p class="font-bold flex items-center gap-1.5 mb-1">
+                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>KTP Belum Terverifikasi</span>
+                        </p>
+                        <p class="text-[11px] text-amber-700 leading-relaxed">
+                            Akun dan KTP Anda sedang dalam proses verifikasi oleh Admin. Anda belum dapat mengambil bantuan hingga akun terverifikasi.
+                        </p>
+                    </div>
+                @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
+                    <div class="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                        <p class="font-bold flex items-center gap-1.5 mb-1">
+                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            <span>Batas 2 Bantuan Tercapai</span>
+                        </p>
+                        <p class="text-[11px] text-amber-700 leading-relaxed">
+                            Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk dapat mengambil bantuan kembali tanpa batas.
+                        </p>
+                    </div>
+                @endif
                 <div class="flex gap-3">
                     <button type="button" onclick="closePreviewModal()" class="flex-1 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl font-bold hover:bg-gray-200 transition">
                         Batal
                     </button>
-                    <button type="button" id="previewTakeBtn" onclick="takeHelpFromModal()" class="flex-1 bg-primary-500 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-primary-600 transition">
-                        Ambil Bantuan
-                    </button>
+                    @if(auth()->check() && !auth()->user()->isProfileComplete())
+                        <a href="{{ route('mitra.profile.edit') }}" class="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
+                            Lengkapi Biodata
+                        </a>
+                    @elseif(auth()->check() && !auth()->user()->verified)
+                        <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 px-4 py-2.5 rounded-xl font-bold cursor-not-allowed text-xs">
+                            Menunggu Verifikasi KTP
+                        </button>
+                    @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
+                        <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 px-4 py-2.5 rounded-xl font-bold cursor-not-allowed text-xs">
+                            Batas Order Tercapai
+                        </button>
+                    @else
+                        <button type="button" id="previewTakeBtn" onclick="takeHelpFromModal()" class="flex-1 bg-primary-500 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-primary-600 transition">
+                            Ambil Bantuan
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>

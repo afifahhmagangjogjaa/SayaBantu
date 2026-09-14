@@ -38,7 +38,7 @@
 <body class="font-sans antialiased bg-gray-100 min-h-screen">
     <!-- Header styled like customer 'Bantuan' page -->
     <div class="max-w-md mx-auto min-h-screen flex flex-col bg-white shadow-md">
-        <div class="px-5 pt-8 pb-9 relative overflow-hidden flex-shrink-0 header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        <div class="px-5 relative overflow-hidden flex-shrink-0 header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0); padding-top: 32px; padding-bottom: 32px;">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
 
@@ -57,7 +57,7 @@
                 };
             @endphp
             <div class="relative z-10">
-                <div class="flex items-center justify-between text-white mb-3">
+                <div class="flex items-center justify-between text-white mb-0">
                     <div class="flex items-center">
                         <a href="{{ $backUrl }}" wire:navigate aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +81,7 @@
             </svg>
         </div>
 
-        <div class="bg-white rounded-t-3xl -mt-6 px-6 pt-5 pb-6 flex-1 flex flex-col">
+        <div class="bg-white rounded-t-3xl -mt-2 px-6 pt-5 pb-6 flex-1 flex flex-col">
             {{ $slot }}
         </div>
     </div>

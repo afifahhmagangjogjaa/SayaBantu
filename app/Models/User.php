@@ -78,6 +78,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * The model's default values for attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'status' => 'active',
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -216,6 +225,152 @@ class User extends Authenticatable implements MustVerifyEmail
     public function takenHelps()
     {
         return $this->hasMany(Help::class, 'mitra_id');
+    }
+
+    /**
+     * Hitung total bantuan yang pernah diambil mitra (tidak termasuk yang dibatalkan)
+     */
+    public function getMitraHelpsCount(): int
+    {
+        return $this->takenHelps()
+            ->whereNotIn('status', ['cancelled', 'dibatalkan'])
+            ->count();
+    }
+
+    /**
+     * Hitung berapa order yang sedang/pernah diambil mitra (alias untuk kompatibilitas)
+     */
+    public function getActiveOrdersCount(): int
+    {
+        return $this->getMitraHelpsCount();
+    }
+
+    /**
+     * Kuota maksimal order:
+     * - Email terverifikasi = Banyak order tanpa batas (unlimited / 999)
+     * - Belum verifikasi email = Maksimal 2 order
+     */
+    public function getMaxActiveOrdersLimit(): int
+    {
+        return $this->hasVerifiedEmail() ? 999 : 2;
+    }
+
+    /**
+     * Cek apakah mitra masih boleh mengambil order baru:
+     * Jika email belum terverifikasi dan sudah mengambil 2 order, tidak boleh mengambil order lagi.
+     */
+    public function canTakeMoreOrders(): bool
+    {
+        return $this->getMitraHelpsCount() < $this->getMaxActiveOrdersLimit();
+    }
+
+    /**
+     * Memeriksa apakah mitra diizinkan mengambil bantuan:
+     * 1. Biodata profil wajib lengkap
+     * 2. KTP sudah diverifikasi oleh admin (verified = true)
+     * 3. Kuota order (belum verifikasi email = maks 2 order)
+     */
+    public function canTakeHelp(): bool
+    {
+        return $this->isProfileComplete() && (bool) $this->verified && $this->canTakeMoreOrders();
+    }
+
+    /**
+     * Mengembalikan alasan spesifik jika mitra belum bisa mengambil bantuan.
+     */
+    public function getCannotTakeHelpReason(): ?string
+    {
+        if (!$this->isProfileComplete()) {
+            $missing = implode(', ', $this->getMissingProfileFields());
+            return "Harap lengkapi biodata profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.";
+        }
+
+        if (!$this->verified) {
+            return "Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi selesai sebelum dapat mengambil bantuan.";
+        }
+
+        if (!$this->canTakeMoreOrders()) {
+            if (!$this->hasVerifiedEmail()) {
+                return "Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.";
+            }
+            return "Anda telah mencapai batas maksimal order bantuan.";
+        }
+
+        return null;
+    }
+
+    /**
+     * Memeriksa apakah pengguna diizinkan melakukan Top Up saldo:
+     * 1. Biodata profil wajib lengkap
+     * 2. KTP sudah diverifikasi oleh admin (verified = true)
+     */
+    public function canTopup(): bool
+    {
+        return $this->isProfileComplete() && (bool) $this->verified;
+    }
+
+    /**
+     * Mengembalikan alasan spesifik jika pengguna belum bisa melakukan Top Up.
+     */
+    public function getCannotTopupReason(): ?string
+    {
+        if (!$this->isProfileComplete()) {
+            $missing = implode(', ', $this->getMissingProfileFields());
+            return "Harap lengkapi profil Anda ({$missing}) terlebih dahulu sebelum melakukan Top Up.";
+        }
+
+        if (!$this->verified) {
+            return "Akun Anda sedang menunggu verifikasi KTP oleh Admin. Anda belum dapat melakukan Top Up sebelum KTP diverifikasi.";
+        }
+
+        return null;
+    }
+
+    /**
+     * Hitung berapa bantuan yang telah dibuat customer (tidak termasuk bantuan yang dibatalkan)
+     */
+    public function getCustomerHelpsCount(): int
+    {
+        return $this->helps()
+            ->whereNotIn('status', ['cancelled', 'dibatalkan'])
+            ->count();
+    }
+
+    /**
+     * Alias untuk konsistensi view/komponen
+     */
+    public function getActiveCustomerHelpsCount(): int
+    {
+        return $this->getCustomerHelpsCount();
+    }
+
+    /**
+     * Batas maksimal bantuan yang dapat dibuat customer:
+     * - Email terverifikasi = Banyak bantuan tanpa batas (999)
+     * - Belum verifikasi email = Maksimal 2 bantuan
+     */
+    public function getMaxActiveCustomerHelpsLimit(): int
+    {
+        return $this->hasVerifiedEmail() ? 999 : 2;
+    }
+
+    /**
+     * Cek apakah customer masih boleh membuat permintaan bantuan baru:
+     * Jika email belum terverifikasi, dibatasi maksimal 2 bantuan.
+     * Jika email sudah terverifikasi, bebas membuat bantuan baru.
+     */
+    public function canCreateMoreHelps(): bool
+    {
+        return $this->getCustomerHelpsCount() < $this->getMaxActiveCustomerHelpsLimit();
+    }
+
+    /**
+     * Cek apakah mitra dapat melakukan penarikan saldo
+     * Syarat: Email harus terverifikasi dan profil lengkap
+     */
+    public function canWithdrawBalance(): bool
+    {
+        return $this->hasVerifiedEmail() && $this->isProfileComplete();
     }
 
     public function subscriptions()

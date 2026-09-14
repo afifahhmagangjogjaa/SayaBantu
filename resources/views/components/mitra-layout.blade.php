@@ -17,6 +17,15 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    <style>
+        /* Sembunyikan tombol mata bawaan Windows / Edge agar tidak dobel */
+        input::-ms-reveal,
+        input::-ms-clear,
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body class="font-sans antialiased bg-gray-50">

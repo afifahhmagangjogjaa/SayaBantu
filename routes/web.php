@@ -26,12 +26,12 @@ Route::middleware('guest')->group(function () {
 // =========================================================================
 // 2. PROSES VERIFIKASI EMAIL
 // =========================================================================
-// Link verifikasi yang diklik user dari inbox email (Signed URL - auto login & redirect ke password)
+// Link verifikasi yang diklik user dari inbox email (Signed URL - auto login & redirect ke dashboard)
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
     $user = \App\Models\User::findOrFail($id);
 
     if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-        abort(403, 'Tautan verifikasi tidak valid.');
+        abort(403, 'Tautan verifikasi tidak valid atau telah kedaluwarsa.');
     }
 
     if (!$user->hasVerifiedEmail()) {
@@ -42,8 +42,11 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
     // Login-kan user secara otomatis
     \Illuminate\Support\Facades\Auth::login($user);
 
-    // Setelah email valid, langsung diarahkan ke form Buat Password
-    return redirect()->route('onboarding.password');
+    if ($user->role === 'mitra') {
+        return redirect()->route('mitra.dashboard')->with('success', 'Email berhasil diverifikasi! Kuota order Anda kini tanpa batas.');
+    }
+
+    return redirect()->route('customer.dashboard')->with('success', 'Email berhasil diverifikasi!');
 })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
 Route::middleware('auth')->group(function () {
@@ -55,16 +58,29 @@ Route::middleware('auth')->group(function () {
     // Kirim ulang link verifikasi
     Route::post('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
-        return back()->with('message', 'Tautan verifikasi baru berhasil dikirim!');
+        $email = $request->user()->email;
+        $msg = "Tautan verifikasi berhasil dikirim ke $email! Silakan periksa kotak masuk atau folder spam Anda.";
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+            ]);
+        }
+
+        return back()
+            ->with('success', $msg)
+            ->with('message', $msg);
     })->middleware('throttle:6,1')->name('verification.send');
 
     // Cek status verifikasi secara realtime (polling background)
     Route::get('/email/check-verification-status', function () {
         $user = auth()->user();
         if ($user && $user->hasVerifiedEmail()) {
+            $redirectUrl = ($user->role === 'mitra') ? route('mitra.dashboard') : route('customer.dashboard');
             return response()->json([
                 'verified' => true,
-                'redirect' => route('onboarding.password')
+                'redirect' => $redirectUrl
             ]);
         }
         return response()->json(['verified' => false]);
@@ -76,15 +92,18 @@ Route::get('/api/wilayah/districts', [OnboardingController::class, 'getDistricts
 Route::get('/api/wilayah/villages', [OnboardingController::class, 'getVillages'])->name('api.wilayah.villages');
 
 // =========================================================================
-// 3. ONBOARDING (BUAT PASSWORD & 4 STEP DATA DIRI / DOKUMEN)
+// 3. ONBOARDING (4 STEP DATA DIRI & DOKUMEN KTP)
 // =========================================================================
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::group([], function () {
     // Batalkan Onboarding & Kembali ke Register Awal
     Route::post('/onboarding/cancel', function (\Illuminate\Http\Request $request) {
-        \Illuminate\Support\Facades\Auth::logout();
+        if (\Illuminate\Support\Facades\Auth::check()) {
+            \Illuminate\Support\Facades\Auth::logout();
+        }
+        $request->session()->forget(['reg_account', 'reg_step1', 'reg_step2', 'reg_step3']);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('register')->with('status', 'Pendaftaran dibatalkan. Anda dapat mendaftar kembali dengan email baru kapan saja.');
+        return redirect()->route('register.choose-role')->with('status', 'Pendaftaran dibatalkan. Anda dapat mendaftar kembali kapan saja.');
     })->name('onboarding.cancel');
 
     // Buat Password
@@ -112,7 +131,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // =========================================================================
 // 4. AUTHENTICATED ROUTES (DIKUNCI DENGAN MIDDLEWARE ONBOARDED)
 // =========================================================================
-Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
+Route::middleware(['auth', 'onboarded'])->group(function () {
     // Main Dashboard route - redirects based on role
     Route::get('/dashboard', function () {
         $user = auth()->user();
@@ -508,6 +527,9 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
     Route::get('/withdraws/{withdraw}', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'show'])->name('withdraws.show');
     Route::post('/withdraws/{withdraw}/approve', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'approve'])->name('withdraws.approve');
     Route::post('/withdraws/{withdraw}/reject', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'reject'])->name('withdraws.reject');
+    Route::delete('/withdraws/clear-all', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroyAll'])->name('withdraws.destroy_all');
+    Route::delete('/withdraws/delete-period', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroyPeriod'])->name('withdraws.destroy_period');
+    Route::delete('/withdraws/{withdraw}', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroy'])->name('withdraws.destroy');
 });
 
 // Admin routes
@@ -521,6 +543,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/withdraws', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'index'])->name('withdraws.index');
     Route::get('/withdraws/{withdraw}/modal', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'modal'])->name('withdraws.modal');
     Route::get('/withdraws/{withdraw}', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'show'])->name('withdraws.show');
+    Route::delete('/withdraws/clear-all', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroyAll'])->name('withdraws.destroy_all');
+    Route::delete('/withdraws/delete-period', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroyPeriod'])->name('withdraws.destroy_period');
+    Route::delete('/withdraws/{withdraw}', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroy'])->name('withdraws.destroy');
 
     Route::get('/customers', [\App\Http\Controllers\Admin\AdminUserController::class, 'customers'])->name('customers');
     Route::get('/customers/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('customers.show');
@@ -540,6 +565,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/partners/activity/export/print', [\App\Http\Controllers\Admin\PartnerActivityController::class, 'exportPrint'])->name('partners.activity.export.print');
     Route::post('/partners/activity/{user}/reset-sessions', [\App\Http\Controllers\Admin\PartnerActivityController::class, 'resetSessions'])->name('partners.activity.reset_sessions');
     Route::post('/partners/activity/{user}/reset-password', [\App\Http\Controllers\Admin\PartnerActivityController::class, 'resetPassword'])->name('partners.activity.reset_password');
+    Route::delete('/partners/activity/clear-all', [\App\Http\Controllers\Admin\PartnerActivityController::class, 'destroyAll'])->name('partners.activity.destroy_all');
+    Route::delete('/partners/activity/{activity}', [\App\Http\Controllers\Admin\PartnerActivityController::class, 'destroy'])->name('partners.activity.destroy');
 
     Route::get('/partners/report', [\App\Http\Controllers\Admin\PartnerReportController::class, 'index'])->name('partners.report');
     Route::get('/partners/reports', [\App\Http\Controllers\Admin\PartnerReportController::class, 'reportsIndex'])->name('partners.reports');

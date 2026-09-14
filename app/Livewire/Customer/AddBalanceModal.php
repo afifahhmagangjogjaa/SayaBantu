@@ -39,8 +39,14 @@ class AddBalanceModal extends Component
     {
         $this->validate();
 
+        $user = auth()->user();
+        if ($user && !$user->canTopup()) {
+            session()->flash('error', $user->getCannotTopupReason());
+            $this->closeModal();
+            return;
+        }
+
         try {
-            $user = auth()->user();
 
             // Get or create user balance
             $userBalance = UserBalance::firstOrCreate(

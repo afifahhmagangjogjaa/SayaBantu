@@ -65,9 +65,8 @@ class TopupRequest extends Component
     {
         $user = auth()->user();
 
-        if ($user && !$user->isProfileComplete()) {
-            $missing = implode(', ', $user->getMissingProfileFields());
-            session()->flash('error', "Harap lengkapi profil Anda ($missing) terlebih dahulu sebelum melakukan Top Up.");
+        if ($user && !$user->canTopup()) {
+            session()->flash('error', $user->getCannotTopupReason());
             return redirect()->route('customer.dashboard');
         }
         
@@ -126,6 +125,7 @@ class TopupRequest extends Component
     {
         $this->amount = $amount;
         $this->calculateFees();
+        $this->dispatch('topup-request-amount-updated', $this->amount);
     }
 
     public function calculateFees()
@@ -140,7 +140,7 @@ class TopupRequest extends Component
 
         // Load settings from database
         $tier1_limit = (int) AppSetting::get('topup_tier1_limit', 50000);
-        $tier1_fee = (int) AppSetting::get('topup_tier1_fee', 5000);
+        $tier1_fee = (int) AppSetting::get('topup_tier1_fee', 9000);
         $tier2_limit = (int) AppSetting::get('topup_tier2_limit', 100000);
         $tier2_fee = (int) AppSetting::get('topup_tier2_fee', 7500);
         $tier3_percentage = (float) AppSetting::get('topup_tier3_percentage', 3);
@@ -202,6 +202,12 @@ class TopupRequest extends Component
 
     public function nextStep()
     {
+        $user = auth()->user();
+        if ($user && !$user->canTopup()) {
+            session()->flash('error', $user->getCannotTopupReason());
+            return redirect()->route('customer.dashboard');
+        }
+
         if ($this->currentStep == 1) {
             $this->validate();
             $this->calculateFees();
@@ -228,6 +234,11 @@ class TopupRequest extends Component
 
     public function submitRequest()
     {
+        $user = auth()->user();
+        if ($user && !$user->canTopup()) {
+            session()->flash('error', $user->getCannotTopupReason());
+            return redirect()->route('customer.dashboard');
+        }
         // Validate step 3
         $this->validate([
             'paymentMethod' => 'required',

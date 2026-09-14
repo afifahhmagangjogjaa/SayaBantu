@@ -56,12 +56,13 @@
                 </div>
 
         <!-- Status Messages -->
-        @if(session('status'))
-            <div class="mb-5 p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 text-blue-800 rounded-lg shadow-sm flex items-start">
-                <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+        @if(session('status') || session('success') || session('message'))
+            @php $msg = session('success') ?? session('message') ?? session('status'); @endphp
+            <div class="mb-5 p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 rounded-lg shadow-sm flex items-start">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                 </svg>
-                <span class="font-medium text-xs">{{ session('status') }}</span>
+                <span class="font-medium text-xs">{{ $msg }}</span>
             </div>
         @endif
 
@@ -86,6 +87,34 @@
                 </a>
             </div>
         @else
+            @if(!$user->hasVerifiedEmail())
+                <!-- Belum Verifikasi Email Notice -->
+                <div class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 shadow-2xs">
+                    <div class="flex items-start gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-xs text-amber-950">Verifikasi Email Diperlukan</h4>
+                            <p class="text-xs text-amber-800 mt-1 leading-relaxed">
+                                Saldo belum dapat ditarik karena email Anda (<strong>{{ $user->email }}</strong>) belum diverifikasi. Silakan verifikasi email terlebih dahulu untuk melakukan penarikan saldo.
+                            </p>
+                            <form method="POST" action="{{ route('verification.send') }}" class="mt-3" onsubmit="event.preventDefault(); window.sendEmailVerification(this.querySelector('button'), '{{ route('verification.send') }}');">
+                                @csrf
+                                <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs transition active:scale-95 cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    Kirim Link Verifikasi Email
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             @if(($user->balance ?? 0) < 10000)
                 <!-- Saldo Kurang Notice -->
                 <div class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 shadow-2xs">
@@ -130,7 +159,7 @@
                     <div class="mb-4">
                         <div class="flex items-center justify-between mb-1.5">
                             <label class="block text-xs font-bold text-gray-700">Jumlah Penarikan</label>
-                            @if(($user->balance ?? 0) >= 10000)
+                            @if(($user->balance ?? 0) >= 10000 && $user->hasVerifiedEmail())
                                 <button type="button" id="btn-tarik-semua" class="text-[11px] font-bold text-blue-600 hover:text-blue-700 underline">
                                     Tarik Semua (Rp {{ number_format($user->balance, 0, ',', '.') }})
                                 </button>
@@ -138,13 +167,19 @@
                         </div>
                         <div class="relative">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-xs">Rp</span>
-                            <input type="number" name="amount" id="amount-input" min="10000" max="{{ (int) ($user->balance ?? 0) }}" value="{{ old('amount') }}" required
-                                @if(($user->balance ?? 0) < 10000) disabled @endif
+                            <input type="text" inputmode="numeric" name="amount" id="amount-input" 
+                                oninput="let raw = this.value.replace(/\D/g, ''); this.value = raw ? parseInt(raw, 10).toLocaleString('id-ID') : '';"
+                                value="{{ old('amount') ? number_format((int) preg_replace('/\D/', '', old('amount')), 0, ',', '.') : '' }}" required
+                                @if(($user->balance ?? 0) < 10000 || !$user->hasVerifiedEmail()) disabled @endif
                                 class="pl-10 w-full px-3 py-2.5 border border-gray-300 rounded-xl text-xs font-semibold text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed" 
-                                placeholder="{{ ($user->balance ?? 0) < 10000 ? 'Saldo kurang dari Rp 10.000' : 'Contoh: 50000' }}" />
+                                placeholder="{{ !$user->hasVerifiedEmail() ? 'Verifikasi email untuk menarik saldo' : (($user->balance ?? 0) < 10000 ? 'Saldo kurang dari Rp 10.000' : 'Contoh: 50.000') }}" />
                         </div>
                         <div id="amount-feedback" class="mt-1.5 text-xs text-gray-500">
-                            Minimum penarikan adalah <span class="font-semibold">Rp 10.000</span>
+                            @if(!$user->hasVerifiedEmail())
+                                <span class="text-amber-600 font-medium">⚠️ Verifikasi email diperlukan untuk menarik saldo</span>
+                            @else
+                                Minimum penarikan adalah <span class="font-semibold">Rp 10.000</span>
+                            @endif
                         </div>
                     </div>
 
@@ -152,7 +187,7 @@
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">Nama Bank / E-Wallet</label>
                         <select name="bank_code" required
-                            @if(($user->balance ?? 0) < 10000) disabled @endif
+                            @if(($user->balance ?? 0) < 10000 || !$user->hasVerifiedEmail()) disabled @endif
                             class="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-xs text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
                             <option value="">-- Pilih Bank / E-Wallet --</option>
                             <optgroup label="Bank Populer">
@@ -188,10 +223,13 @@
                     <!-- Account Number Input -->
                     <div class="mb-6">
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">Nomor Rekening / Akun E-Wallet</label>
-                        <input type="text" name="account_number" value="{{ old('account_number') }}" required
-                            @if(($user->balance ?? 0) < 10000) disabled @endif
+                        <input type="text" name="account_number" id="account_number" value="{{ old('account_number') }}" required
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            @if(($user->balance ?? 0) < 10000 || !$user->hasVerifiedEmail()) disabled @endif
                             class="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-xs text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-                            placeholder="Masukkan nomor rekening atau no HP e-wallet" />
+                            placeholder="Masukkan nomor rekening atau no HP e-wallet (hanya angka)" />
                     </div>
 
                     <!-- Action Buttons -->
@@ -200,9 +238,15 @@
                             Riwayat
                         </a>
                         <button type="submit" id="btn-submit-withdraw"
-                            @if(($user->balance ?? 0) < 10000) disabled @endif
-                            class="flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white {{ ($user->balance ?? 0) < 10000 ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-blue-600 hover:bg-blue-700' }}">
-                            {{ ($user->balance ?? 0) < 10000 ? 'Saldo Tidak Mencukupi' : 'Ajukan Penarikan' }}
+                            @if(($user->balance ?? 0) < 10000 || !$user->hasVerifiedEmail()) disabled @endif
+                            class="flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white {{ (($user->balance ?? 0) < 10000 || !$user->hasVerifiedEmail()) ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-blue-600 hover:bg-blue-700' }}">
+                            @if(!$user->hasVerifiedEmail())
+                                Verifikasi Email Terlebih Dahulu
+                            @elseif(($user->balance ?? 0) < 10000)
+                                Saldo Tidak Mencukupi
+                            @else
+                                Ajukan Penarikan
+                            @endif
                         </button>
                     </div>
                 </form>
@@ -212,76 +256,132 @@
         </div>
     </div>
 
-    @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const userBalance = {{ (int) ($user->balance ?? 0) }};
-            const amountInput = document.getElementById('amount-input');
-            const feedback = document.getElementById('amount-feedback');
-            const submitBtn = document.getElementById('btn-submit-withdraw');
-            const btnTarikSemua = document.getElementById('btn-tarik-semua');
+        (function() {
+            function initWithdrawForm() {
+                const isEmailVerified = {{ $user->hasVerifiedEmail() ? 'true' : 'false' }};
+                const userBalance = {{ (int) ($user->balance ?? 0) }};
+                const amountInput = document.getElementById('amount-input');
+                const feedback = document.getElementById('amount-feedback');
+                const submitBtn = document.getElementById('btn-submit-withdraw');
+                const btnTarikSemua = document.getElementById('btn-tarik-semua');
 
-            if (btnTarikSemua && amountInput) {
-                btnTarikSemua.addEventListener('click', function() {
-                    amountInput.value = userBalance;
-                    validateAmount();
-                });
-            }
-
-            function validateAmount() {
-                if (!amountInput || !feedback) return;
-                const val = parseInt(amountInput.value) || 0;
-
-                if (userBalance < 10000) {
-                    feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ Saldo tidak mencukupi (minimal Rp 10.000)</span>';
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
-                        submitBtn.textContent = 'Saldo Tidak Mencukupi';
-                    }
-                    return false;
+                if (btnTarikSemua && amountInput && isEmailVerified) {
+                    btnTarikSemua.addEventListener('click', function() {
+                        amountInput.value = userBalance ? userBalance.toLocaleString('id-ID') : '0';
+                        validateAmount();
+                    });
                 }
 
-                if (val > userBalance) {
-                    feedback.innerHTML = `<span class="text-red-600 font-semibold">❌ Melebihi saldo tersedia (Maksimal Rp ${userBalance.toLocaleString('id-ID')})</span>`;
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-red-300 cursor-not-allowed';
-                        submitBtn.textContent = 'Nominal Melebihi Saldo';
+                function validateAmount() {
+                    if (!amountInput || !feedback) return;
+
+                    if (!isEmailVerified) {
+                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ Anda harus memverifikasi email terlebih dahulu</span>';
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
+                            submitBtn.textContent = 'Verifikasi Email Terlebih Dahulu';
+                        }
+                        return false;
                     }
-                    return false;
-                } else if (val > 0 && val < 10000) {
-                    feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ Minimal penarikan adalah Rp 10.000</span>';
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
-                        submitBtn.textContent = 'Minimal Rp 10.000';
+
+                    const val = parseInt(amountInput.value.replace(/\D/g, '')) || 0;
+
+                    if (userBalance < 10000) {
+                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ Saldo tidak mencukupi (minimal Rp 10.000)</span>';
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
+                            submitBtn.textContent = 'Saldo Tidak Mencukupi';
+                        }
+                        return false;
                     }
-                    return false;
-                } else if (val >= 10000) {
-                    feedback.innerHTML = `<span class="text-green-600 font-semibold">✓ Nominal valid: Rp ${val.toLocaleString('id-ID')}</span>`;
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-blue-600 hover:bg-blue-700 cursor-pointer';
-                        submitBtn.textContent = 'Ajukan Penarikan';
+
+                    if (val > userBalance) {
+                        feedback.innerHTML = `<span class="text-red-600 font-semibold">❌ Melebihi saldo tersedia (Maksimal Rp ${userBalance.toLocaleString('id-ID')})</span>`;
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-red-300 cursor-not-allowed';
+                            submitBtn.textContent = 'Nominal Melebihi Saldo';
+                        }
+                        return false;
+                    } else if (val > 0 && val < 10000) {
+                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ Minimal penarikan adalah Rp 10.000</span>';
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
+                            submitBtn.textContent = 'Minimal Rp 10.000';
+                        }
+                        return false;
+                    } else if (val >= 10000) {
+                        feedback.innerHTML = `<span class="text-green-600 font-semibold">✓ Nominal valid: Rp ${val.toLocaleString('id-ID')}</span>`;
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-blue-600 hover:bg-blue-700 cursor-pointer';
+                            submitBtn.textContent = 'Ajukan Penarikan';
+                        }
+                        return true;
+                    } else {
+                        feedback.innerHTML = 'Minimum penarikan adalah <span class="font-semibold">Rp 10.000</span>';
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-blue-600 hover:bg-blue-700 cursor-pointer';
+                            submitBtn.textContent = 'Ajukan Penarikan';
+                        }
+                        return true;
                     }
-                    return true;
-                } else {
-                    feedback.innerHTML = 'Minimum penarikan adalah <span class="font-semibold">Rp 10.000</span>';
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-blue-600 hover:bg-blue-700 cursor-pointer';
-                        submitBtn.textContent = 'Ajukan Penarikan';
+                }
+
+                if (amountInput) {
+                    amountInput.addEventListener('input', function() {
+                        let raw = this.value.replace(/\D/g, '');
+                        this.value = raw ? parseInt(raw, 10).toLocaleString('id-ID') : '';
+                        validateAmount();
+                    });
+                    amountInput.addEventListener('change', validateAmount);
+
+                    if (amountInput.value) {
+                        let raw = amountInput.value.replace(/\D/g, '');
+                        if (raw) {
+                            amountInput.value = parseInt(raw, 10).toLocaleString('id-ID');
+                        }
+                        validateAmount();
                     }
-                    return true;
+                }
+
+                const withdrawForm = document.getElementById('withdraw-form');
+                const accountInput = document.getElementById('account_number') || document.querySelector('input[name="account_number"]');
+
+                if (accountInput) {
+                    accountInput.addEventListener('input', function() {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                    });
+                    accountInput.addEventListener('paste', function(e) {
+                        e.preventDefault();
+                        const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                        const cleanDigits = pasteData.replace(/[^0-9]/g, '');
+                        document.execCommand('insertText', false, cleanDigits);
+                    });
+                }
+
+                if (withdrawForm) {
+                    withdrawForm.addEventListener('submit', function() {
+                        if (amountInput) {
+                            amountInput.value = amountInput.value.replace(/\D/g, '');
+                        }
+                        if (accountInput) {
+                            accountInput.value = accountInput.value.replace(/[^0-9]/g, '');
+                        }
+                    });
                 }
             }
 
-            if (amountInput) {
-                amountInput.addEventListener('input', validateAmount);
-                amountInput.addEventListener('change', validateAmount);
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initWithdrawForm);
+            } else {
+                initWithdrawForm();
             }
-        });
+        })();
     </script>
-    @endpush
 @endsection

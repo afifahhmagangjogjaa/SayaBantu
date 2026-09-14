@@ -49,10 +49,34 @@ class Dashboard extends Component
     public function takeHelp($helpId, $latitude = null, $longitude = null)
     {
         $user = auth()->user();
-        if (!$user || !$user->isProfileComplete()) {
+
+        // Cek apakah mitra sedang terkena shadow ban
+        if ($user && $user->isShadowBanned()) {
+            session()->flash('error', 'Tidak dapat mengambil bantuan saat ini.');
+            return;
+        }
+
+        // Cek kuota order mitra (belum verifikasi email = maks 2 order, sudah verifikasi = unlimited)
+        if (!$user || !$user->canTakeMoreOrders()) {
+            if ($user && !$user->hasVerifiedEmail()) {
+                session()->flash('error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.');
+            } else {
+                session()->flash('error', 'Anda telah mencapai batas maksimal order yang dapat diambil.');
+            }
+            return;
+        }
+
+        // Cek kelengkapan biodata
+        if (!$user->isProfileComplete()) {
             $missing = implode(', ', optional($user)->getMissingProfileFields() ?? []);
-            session()->flash('error', "Harap lengkapi data profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.");
+            session()->flash('error', "Harap lengkapi biodata profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.");
             return $this->redirectRoute('mitra.profile.edit', navigate: true);
+        }
+
+        // Cek verifikasi KTP oleh admin
+        if (!$user->verified) {
+            session()->flash('error', 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi disetujui sebelum dapat mengambil bantuan.');
+            return;
         }
 
         $help = Help::findOrFail($helpId);

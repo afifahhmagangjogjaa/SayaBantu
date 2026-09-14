@@ -270,7 +270,6 @@ class Cities extends Component
             'admin_id' => 'required|exists:users,id',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
-            'is_active' => 'boolean',
         ];
 
         // if province_id chosen, validate it; otherwise require free-text province
@@ -321,6 +320,8 @@ class Cities extends Component
                 if ($prov) $validated['province'] = $prov->name;
                 $validated['province_id'] = $this->province_id;
             }
+
+            $validated['is_active'] = true;
 
             $city = City::create($validated);
 

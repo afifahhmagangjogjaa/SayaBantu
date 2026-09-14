@@ -30,7 +30,6 @@ class Categories extends Component
         'name' => 'required|string|max:255',
         'description' => 'nullable|string|max:1000',
         'icon' => 'nullable|string|max:50',
-        'is_active' => 'required|boolean',
     ];
 
     public function updatedSearch()
@@ -89,7 +88,6 @@ class Categories extends Component
                 'name' => $this->name,
                 'description' => $this->description,
                 'icon' => $this->icon,
-                'is_active' => $this->is_active,
             ]);
             session()->flash('message', 'Kategori berhasil diperbarui');
         } else {
@@ -97,7 +95,7 @@ class Categories extends Component
                 'name' => $this->name,
                 'description' => $this->description,
                 'icon' => $this->icon,
-                'is_active' => $this->is_active,
+                'is_active' => true,
             ]);
             session()->flash('message', 'Kategori berhasil ditambahkan');
         }

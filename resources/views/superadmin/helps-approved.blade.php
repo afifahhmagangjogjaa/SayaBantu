@@ -1,8 +1,59 @@
 
 <div>
     <div class="space-y-6">
-        <div class="flex justify-end mb-4">
-            <input wire:model.debounce.500ms="search" type="text" placeholder="Cari bantuan..." class="px-3.5 py-2 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-full sm:w-64 shadow-sm" />
+        <!-- Filter Toolbar -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-5">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
+                <!-- Search Input with inline Icon -->
+                <div class="relative w-full md:flex-1">
+                    <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none" style="padding-left: 14px;">
+                        <svg class="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" wire:model.live.debounce.500ms="search" placeholder="Cari judul bantuan, ID, nama customer, kota, kategori..."
+                        style="padding-left: 44px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; font-size: 14px;"
+                        class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                </div>
+
+                <div class="flex items-center gap-3 w-full md:w-auto flex-wrap sm:flex-nowrap">
+                    <!-- Status Filter -->
+                    <div class="relative min-w-[170px] flex-1 sm:flex-initial">
+                        <select wire:model.live="filterStatus"
+                            style="padding-left: 14px; padding-right: 36px; padding-top: 10px; padding-bottom: 10px; font-size: 14px;"
+                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition appearance-none">
+                            <option value="">Semua Status</option>
+                            <option value="menunggu_mitra">Menunggu Mitra</option>
+                            <option value="dalam_proses">Sedang Diproses</option>
+                            <option value="selesai">Selesai</option>
+                            <option value="komplain">⚠️ Mediasi Komplain</option>
+                            <option value="dibatalkan">Dibatalkan / Ditolak</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pointer-events-none" style="padding-right: 14px;">
+                            <svg class="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Per Page Filter -->
+                    <div class="relative min-w-[120px] flex-1 sm:flex-initial">
+                        <select wire:model.live="perPage"
+                            style="padding-left: 14px; padding-right: 36px; padding-top: 10px; padding-bottom: 10px; font-size: 14px;"
+                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition appearance-none">
+                            <option value="10">10 Data</option>
+                            <option value="25">25 Data</option>
+                            <option value="50">50 Data</option>
+                            <option value="100">100 Data</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pointer-events-none" style="padding-right: 14px;">
+                            <svg class="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">

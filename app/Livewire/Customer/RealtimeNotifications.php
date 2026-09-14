@@ -134,7 +134,15 @@ class RealtimeNotifications extends Component
                     ));
                 }
 
-                Log::info('[Customer\\RealtimeNotifications] dispatched help_status events', ['help_id' => $helpId, 'new_status' => $newStatus]);
+                Log::info('[Customer\RealtimeNotifications] dispatched help_status events', ['help_id' => $helpId, 'new_status' => $newStatus]);
+            }
+
+            // Handle topup_approved notification
+            if ((isset($data['type']) && $data['type'] === 'topup_approved') || $notification->type === 'App\Notifications\TopupApproved') {
+                Log::info('[Customer\RealtimeNotifications] MATCHED topup_approved notification, dispatching balance-updated');
+
+                $this->dispatch('balance-updated');
+                $this->js("window.dispatchEvent(new CustomEvent('balance-updated'))");
             }
         }
     }

@@ -63,6 +63,22 @@ class ActivityLogs extends Component
         $this->resetPage();
     }
 
+    public function deleteLog($id)
+    {
+        $log = PartnerActivity::find($id);
+        if ($log) {
+            $log->delete();
+            session()->flash('message', 'Log aktivitas berhasil dihapus.');
+        }
+    }
+
+    public function deleteAllLogs()
+    {
+        PartnerActivity::query()->delete();
+        $this->resetPage();
+        session()->flash('message', 'Semua log aktivitas berhasil dihapus.');
+    }
+
     public function render()
     {
         $query = PartnerActivity::with('user')

@@ -12,7 +12,7 @@ class EnsureOnboardingCompleted
     {
         $user = $request->user();
 
-        if ($user && $user->hasVerifiedEmail()) {
+        if ($user) {
             // Admin dan Super Admin selalu diizinkan langsung
             if ($user->isSuperAdmin() || $user->isAdmin()) {
                 return $next($request);
@@ -32,6 +32,7 @@ class EnsureOnboardingCompleted
                 if (empty($user->selfie_photo)) {
                     return redirect()->route('onboarding.step3');
                 }
+                return redirect()->route('onboarding.step4');
             }
         }
 

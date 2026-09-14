@@ -4,6 +4,17 @@
 
     <div class="space-y-6">
 
+        @if(session('success'))
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl flex items-center justify-between shadow-xs">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-xs font-semibold">{{ session('success') }}</span>
+                </div>
+            </div>
+        @endif
+
         @php
             $collection = ($activities instanceof \Illuminate\Pagination\AbstractPaginator) ? collect($activities->items()) : collect($activities);
             $roleCounts = [
@@ -158,6 +169,19 @@
                         <p class="text-xs text-gray-500 mr-1 hidden md:block">Total {{ $activities->total() }} aktivitas pada halaman ini.</p>
                     @endif
                     <div class="flex items-center space-x-2">
+                        @if (!$activities->isEmpty())
+                            <form action="{{ route('admin.partners.activity.destroy_all') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus SELURUH riwayat aktivitas? Tindakan ini tidak dapat dibatalkan.');" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="inline-flex items-center px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer">
+                                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Hapus Semua
+                                </button>
+                            </form>
+                        @endif
                         <a href="{{ route('admin.partners.activity.export.excel', request()->query()) }}"
                             class="inline-flex items-center px-3.5 py-1.5 border border-gray-300 rounded-xl text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-xs">
                             <svg class="w-3.5 h-3.5 mr-1.5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
@@ -229,7 +253,7 @@
                                 <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider font-mono">IP</th>
                                 <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Device</th>
                                 <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Waktu</th>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-20">Detail</th>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-28">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
@@ -289,13 +313,24 @@
                                         <div class="text-gray-400 text-[10px]">({{ $a->created_at->format('Y-m-d H:i') }})</div>
                                     </td>
                                     <td class="px-2.5 py-2.5 whitespace-nowrap text-center text-xs">
-                                        <a href="{{ route('admin.partners.activity', array_merge(request()->query(), ['activity_id' => $a->id])) }}"
-                                            class="inline-flex items-center gap-1 px-2.5 py-1 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors shadow-2xs">
-                                            <span>Detail</span>
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                            </svg>
-                                        </a>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <a href="{{ route('admin.partners.activity', array_merge(request()->query(), ['activity_id' => $a->id])) }}"
+                                                class="inline-flex items-center gap-1 px-2.5 py-1 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors shadow-2xs">
+                                                <span>Detail</span>
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </a>
+                                            <form action="{{ route('admin.partners.activity.destroy', $a->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus log aktivitas ini?');" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer" title="Hapus Log">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

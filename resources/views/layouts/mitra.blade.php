@@ -20,6 +20,14 @@
     <style>
         [x-cloak] { display: none !important; }
         
+        /* Sembunyikan tombol mata bawaan Windows / Edge agar tidak dobel */
+        input::-ms-reveal,
+        input::-ms-clear,
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none !important;
+        }
+        
         /* Bottom Navigation Animations */
         @keyframes slideUp {
             from {
@@ -194,6 +202,53 @@
     <div class="min-h-screen flex items-start justify-center bg-gray-100">
         <!-- Mobile Width Container -->
         <div class="w-full max-w-md bg-gray-50 relative shadow-2xl">
+            <!-- Floating Top Flash Notification Pop-Up (Instant Render) -->
+            @if (session()->has('message') || session()->has('success') || session()->has('error') || session()->has('status'))
+                <div id="flash-toast"
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-init="setTimeout(() => { show = false; }, 3000)"
+                    class="fixed top-4 left-1/2 -translate-x-1/2 z-[999999] max-w-sm w-[92%] pointer-events-auto transition-all duration-300 transform">
+                    @if (session()->has('error'))
+                        <div class="bg-white border border-red-200 text-gray-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 shadow-xs">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs font-bold text-red-900">Perhatian</div>
+                                <div class="text-[11px] text-gray-600 leading-snug">{{ session('error') }}</div>
+                            </div>
+                            <button @click="show = false; document.getElementById('flash-toast')?.remove();" class="text-gray-400 hover:text-gray-600 p-1 text-xs">✕</button>
+                        </div>
+                    @else
+                        <div class="bg-white border border-emerald-200 text-gray-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 shadow-xs">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs font-bold text-emerald-900">Berhasil</div>
+                                <div class="text-[11px] text-gray-600 leading-snug">{{ session('message') ?? session('success') ?? session('status') }}</div>
+                            </div>
+                            <button @click="show = false; document.getElementById('flash-toast')?.remove();" class="text-gray-400 hover:text-gray-600 p-1 text-xs">✕</button>
+                        </div>
+                    @endif
+                </div>
+                <script>
+                    setTimeout(function() {
+                        var toast = document.getElementById('flash-toast');
+                        if (toast) {
+                            toast.style.opacity = '0';
+                            toast.style.transition = 'opacity 0.4s ease';
+                            setTimeout(function() { toast.remove(); }, 400);
+                        }
+                    }, 3000);
+                </script>
+            @endif
+
             <!-- Global notification (toast) for mitra actions -->
             <div id="mitra-global-notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 pointer-events-none" style="max-width:448px; width:100vw; z-index:99999;">
                 <div id="mitra-global-notification-inner" class="mx-auto max-w-md"></div>
@@ -244,12 +299,30 @@
                             </svg>
                             <span class="text-xs font-bold mt-0.5">Riwayat</span>
                         </a>
+                        @php
+                            $u = auth()->user();
+                            $hasDocs = $u && (!empty($u->ktp_photo) || !empty($u->ktp_path)) && !empty($u->selfie_photo);
+                            $needsMitraAttention = $u && (
+                                !$hasDocs || 
+                                !$u->verified || 
+                                !empty($u->getMissingBiodataFields()) || 
+                                !$u->hasVerifiedEmail()
+                            );
+                        @endphp
                         <a href="{{ route('mitra.profile') }}"
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
+                            <div class="relative inline-flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                @if($needsMitraAttention)
+                                    <span class="absolute bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center pointer-events-none">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 ring-1.5 ring-white"></span>
+                                    </span>
+                                @endif
+                            </div>
                             <span class="text-xs font-bold mt-0.5">Profil</span>
                         </a>
                     </div>
@@ -502,7 +575,144 @@
                 field.type = 'password';
             }
         }
+
+        // Global interactive toast popup
+        window.showGlobalFlashToast = function(message, type = 'success') {
+            let existing = document.getElementById('flash-toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'flash-toast';
+            toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-[999999] max-w-sm w-[92%] pointer-events-auto transition-all duration-300 transform';
+            
+            const isError = type === 'error';
+            const borderColor = isError ? 'border-red-200' : 'border-emerald-200';
+            const iconBg = isError ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600';
+            const titleColor = isError ? 'text-red-900' : 'text-emerald-900';
+            const title = isError ? 'Perhatian' : 'Berhasil';
+            const iconSvg = isError 
+                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />'
+                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />';
+
+            toast.innerHTML = `
+                <div class="bg-white border ${borderColor} text-gray-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-fade-in">
+                    <div class="w-8 h-8 rounded-full ${iconBg} flex items-center justify-center flex-shrink-0 shadow-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${iconSvg}
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xs font-bold ${titleColor}">${title}</div>
+                        <div class="text-[11px] text-gray-600 leading-snug">${message}</div>
+                    </div>
+                    <button onclick="this.closest('#flash-toast').remove()" class="text-gray-400 hover:text-gray-600 p-1 text-xs">✕</button>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                if (toast && toast.parentNode) {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.4s ease';
+                    setTimeout(() => toast.remove(), 400);
+                }
+            }, 5000);
+        };
+
+        // Asynchronous Email Verification Trigger with "Mengirim..." -> "Terkirim ✓" flow
+        window.sendEmailVerification = function(btn, url) {
+            if (!btn || btn.disabled) return;
+
+            const originalHtml = btn.innerHTML;
+            const originalBg = btn.style.background;
+            const originalShadow = btn.style.boxShadow;
+
+            btn.disabled = true;
+            btn.innerHTML = `
+                <span class="inline-flex items-center gap-1">
+                    <svg class="animate-spin w-3 h-3 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Mengirim...
+                </span>
+            `;
+
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') 
+                || document.querySelector('input[name="_token"]')?.value;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(async response => {
+                const data = await response.json().catch(() => ({}));
+                if (response.ok && data.success) {
+                    btn.innerHTML = `
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Terkirim ✓
+                        </span>
+                    `;
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    btn.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.35)';
+
+                    if (typeof window.showGlobalFlashToast === 'function') {
+                        window.showGlobalFlashToast(data.message || 'Tautan verifikasi berhasil dikirim!', 'success');
+                    }
+
+                    // Countdown timer 60s
+                    let remaining = 60;
+                    const timer = setInterval(() => {
+                        remaining--;
+                        if (remaining > 0) {
+                            btn.innerHTML = `
+                                <span class="inline-flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    Terkirim (${remaining}s)
+                                </span>
+                            `;
+                        } else {
+                            clearInterval(timer);
+                            btn.disabled = false;
+                            btn.innerHTML = 'Kirim Ulang';
+                            btn.style.background = originalBg;
+                            btn.style.boxShadow = originalShadow;
+                        }
+                    }, 1000);
+                } else {
+                    let errorMsg = data.message || 'Gagal mengirim email verifikasi. Silakan coba lagi.';
+                    if (response.status === 429) {
+                        errorMsg = 'Terlalu banyak permintaan. Mohon tunggu sebentar.';
+                    }
+                    if (typeof window.showGlobalFlashToast === 'function') {
+                        window.showGlobalFlashToast(errorMsg, 'error');
+                    }
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            })
+            .catch(err => {
+                console.error('Error sending verification email:', err);
+                if (typeof window.showGlobalFlashToast === 'function') {
+                    window.showGlobalFlashToast('Terjadi kesalahan jaringan. Silakan periksa koneksi Anda.', 'error');
+                }
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            });
+        };
     </script>
+    @stack('scripts')
 </body>
 
 </html>

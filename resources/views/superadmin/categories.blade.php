@@ -130,14 +130,13 @@
                                         </button>
                                         {{-- Toggle Status ON/OFF --}}
                                         <button type="button"
-                                            x-data="{ on: {{ $category->is_active ? 'true' : 'false' }} }"
-                                            @click="on = !on; $wire.toggleStatus({{ $category->id }})"
+                                            wire:key="category-toggle-{{ $category->id }}-{{ $category->is_active ? '1' : '0' }}"
+                                            wire:click="toggleStatus({{ $category->id }})"
                                             wire:loading.attr="disabled"
                                             wire:target="toggleStatus({{ $category->id }})"
                                             class="inline-flex items-center gap-1.5 cursor-pointer focus:outline-none"
                                             title="{{ $category->is_active ? 'Aktif — Klik untuk nonaktifkan' : 'Nonaktif — Klik untuk aktifkan' }}">
-                                            <span class="inline-flex items-center h-5 w-9 p-0.5 rounded-full transition-colors duration-200 ease-in-out"
-                                                :class="on ? 'bg-emerald-500 justify-end' : 'bg-gray-300 justify-start'">
+                                            <span class="inline-flex items-center h-5 w-9 p-0.5 rounded-full transition-colors duration-200 ease-in-out {{ $category->is_active ? 'bg-emerald-500 justify-end' : 'bg-gray-300 justify-start' }}">
                                                 <span class="h-4 w-4 rounded-full bg-white shadow ring-0"></span>
                                             </span>
                                         </button>
@@ -209,20 +208,7 @@
                                 @error('icon') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
-                            <div>
-                                <label class="text-xs font-medium text-gray-700 block mb-2">Status Kategori <span class="text-red-500">*</span></label>
-                                <div class="flex items-center gap-3">
-                                    <button type="button" 
-                                        wire:click="$set('is_active', {{ $is_active ? 'false' : 'true' }})"
-                                        class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $is_active ? 'bg-emerald-500' : 'bg-gray-300' }}">
-                                        <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $is_active ? 'translate-x-5' : 'translate-x-0' }}"></span>
-                                    </button>
-                                    <span class="text-sm font-semibold {{ $is_active ? 'text-emerald-700' : 'text-gray-500' }}">
-                                        {{ $is_active ? 'ON (Aktif)' : 'OFF (Nonaktif)' }}
-                                    </span>
-                                </div>
-                                @error('is_active') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
-                            </div>
+
 
                             <div>
                                 <label class="text-xs font-medium text-gray-700">Deskripsi Singkat <span class="text-gray-400 font-normal">(Opsional)</span></label>

@@ -13,12 +13,15 @@ class Edit extends Component
     public ?int $city_id = null;
     public ?string $bio = null;
 
-    protected array $rules = [
-        'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
-        'phone' => ['nullable', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
-        'city_id' => 'nullable|exists:cities,id',
-        'bio' => 'nullable|string|max:1000',
-    ];
+    protected function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'phone' => ['nullable', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
+            'city_id' => ['nullable', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
+            'bio' => 'nullable|string|max:1000',
+        ];
+    }
 
     #[On('openEditProfile')]
     public function openModal(): void
@@ -61,7 +64,7 @@ class Edit extends Component
 
     public function render()
     {
-        $cities = City::orderBy('name')->get();
+        $cities = City::where('is_active', true)->orderBy('name')->get();
 
         return view('livewire.mitra.profile.edit', compact('cities'));
     }

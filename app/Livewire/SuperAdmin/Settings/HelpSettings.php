@@ -70,6 +70,13 @@ class HelpSettings extends Component
 
     public function save()
     {
+        $nominalFields = ['min_help_nominal', 'admin_fee', 'tier1_limit', 'tier1_fee', 'tier2_limit', 'tier2_fee', 'tier3_max'];
+        foreach ($nominalFields as $f) {
+            if (isset($this->$f)) {
+                $this->$f = (int) preg_replace('/\D/', '', (string) $this->$f);
+            }
+        }
+
         $this->validate();
 
         AppSetting::set('min_help_nominal', (string) $this->min_help_nominal);

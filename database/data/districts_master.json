@@ -1,0 +1,2630 @@
+{
+    "1": [
+        {
+            "code": "31.71.01",
+            "name": "Gambir"
+        },
+        {
+            "code": "31.71.02",
+            "name": "Sawah Besar"
+        },
+        {
+            "code": "31.71.03",
+            "name": "Kemayoran"
+        },
+        {
+            "code": "31.71.04",
+            "name": "Senen"
+        },
+        {
+            "code": "31.71.05",
+            "name": "Cempaka Putih"
+        },
+        {
+            "code": "31.71.06",
+            "name": "Menteng"
+        },
+        {
+            "code": "31.71.07",
+            "name": "Tanah Abang"
+        },
+        {
+            "code": "31.71.08",
+            "name": "Johar Baru"
+        }
+    ],
+    "31.71": [
+        {
+            "code": "31.71.01",
+            "name": "Gambir"
+        },
+        {
+            "code": "31.71.02",
+            "name": "Sawah Besar"
+        },
+        {
+            "code": "31.71.03",
+            "name": "Kemayoran"
+        },
+        {
+            "code": "31.71.04",
+            "name": "Senen"
+        },
+        {
+            "code": "31.71.05",
+            "name": "Cempaka Putih"
+        },
+        {
+            "code": "31.71.06",
+            "name": "Menteng"
+        },
+        {
+            "code": "31.71.07",
+            "name": "Tanah Abang"
+        },
+        {
+            "code": "31.71.08",
+            "name": "Johar Baru"
+        }
+    ],
+    "JAKARTA": [
+        {
+            "code": "31.71.01",
+            "name": "Gambir"
+        },
+        {
+            "code": "31.71.02",
+            "name": "Sawah Besar"
+        },
+        {
+            "code": "31.71.03",
+            "name": "Kemayoran"
+        },
+        {
+            "code": "31.71.04",
+            "name": "Senen"
+        },
+        {
+            "code": "31.71.05",
+            "name": "Cempaka Putih"
+        },
+        {
+            "code": "31.71.06",
+            "name": "Menteng"
+        },
+        {
+            "code": "31.71.07",
+            "name": "Tanah Abang"
+        },
+        {
+            "code": "31.71.08",
+            "name": "Johar Baru"
+        }
+    ],
+    "2": [
+        {
+            "code": "35.07.01",
+            "name": "Donomulyo"
+        },
+        {
+            "code": "35.07.02",
+            "name": "Pagak"
+        },
+        {
+            "code": "35.07.03",
+            "name": "Bantur"
+        },
+        {
+            "code": "35.07.04",
+            "name": "Sumbermanjing Wetan"
+        },
+        {
+            "code": "35.07.05",
+            "name": "Dampit"
+        },
+        {
+            "code": "35.07.06",
+            "name": "Ampelgading"
+        },
+        {
+            "code": "35.07.07",
+            "name": "Poncokusumo"
+        },
+        {
+            "code": "35.07.08",
+            "name": "Wajak"
+        },
+        {
+            "code": "35.07.09",
+            "name": "Turen"
+        },
+        {
+            "code": "35.07.10",
+            "name": "Gondanglegi"
+        },
+        {
+            "code": "35.07.11",
+            "name": "Kalipare"
+        },
+        {
+            "code": "35.07.12",
+            "name": "Sumberpucung"
+        },
+        {
+            "code": "35.07.13",
+            "name": "Kepanjen"
+        },
+        {
+            "code": "35.07.14",
+            "name": "Bululawang"
+        },
+        {
+            "code": "35.07.15",
+            "name": "Tajinan"
+        },
+        {
+            "code": "35.07.16",
+            "name": "Tumpang"
+        },
+        {
+            "code": "35.07.17",
+            "name": "Jabung"
+        },
+        {
+            "code": "35.07.18",
+            "name": "Pakis"
+        },
+        {
+            "code": "35.07.19",
+            "name": "Pakisaji"
+        },
+        {
+            "code": "35.07.20",
+            "name": "Ngajum"
+        },
+        {
+            "code": "35.07.21",
+            "name": "Wagir"
+        },
+        {
+            "code": "35.07.22",
+            "name": "Dau"
+        },
+        {
+            "code": "35.07.23",
+            "name": "Karangploso"
+        },
+        {
+            "code": "35.07.24",
+            "name": "Singosari"
+        },
+        {
+            "code": "35.07.25",
+            "name": "Lawang"
+        },
+        {
+            "code": "35.07.26",
+            "name": "Pujon"
+        },
+        {
+            "code": "35.07.27",
+            "name": "Ngantang"
+        },
+        {
+            "code": "35.07.28",
+            "name": "Kasembon"
+        },
+        {
+            "code": "35.07.29",
+            "name": "Gedangan"
+        },
+        {
+            "code": "35.07.30",
+            "name": "Tirtoyudo"
+        },
+        {
+            "code": "35.07.31",
+            "name": "Kromengan"
+        },
+        {
+            "code": "35.07.32",
+            "name": "Wonosari"
+        },
+        {
+            "code": "35.07.33",
+            "name": "Pagelaran"
+        }
+    ],
+    "35.07": [
+        {
+            "code": "35.07.01",
+            "name": "Donomulyo"
+        },
+        {
+            "code": "35.07.02",
+            "name": "Pagak"
+        },
+        {
+            "code": "35.07.03",
+            "name": "Bantur"
+        },
+        {
+            "code": "35.07.04",
+            "name": "Sumbermanjing Wetan"
+        },
+        {
+            "code": "35.07.05",
+            "name": "Dampit"
+        },
+        {
+            "code": "35.07.06",
+            "name": "Ampelgading"
+        },
+        {
+            "code": "35.07.07",
+            "name": "Poncokusumo"
+        },
+        {
+            "code": "35.07.08",
+            "name": "Wajak"
+        },
+        {
+            "code": "35.07.09",
+            "name": "Turen"
+        },
+        {
+            "code": "35.07.10",
+            "name": "Gondanglegi"
+        },
+        {
+            "code": "35.07.11",
+            "name": "Kalipare"
+        },
+        {
+            "code": "35.07.12",
+            "name": "Sumberpucung"
+        },
+        {
+            "code": "35.07.13",
+            "name": "Kepanjen"
+        },
+        {
+            "code": "35.07.14",
+            "name": "Bululawang"
+        },
+        {
+            "code": "35.07.15",
+            "name": "Tajinan"
+        },
+        {
+            "code": "35.07.16",
+            "name": "Tumpang"
+        },
+        {
+            "code": "35.07.17",
+            "name": "Jabung"
+        },
+        {
+            "code": "35.07.18",
+            "name": "Pakis"
+        },
+        {
+            "code": "35.07.19",
+            "name": "Pakisaji"
+        },
+        {
+            "code": "35.07.20",
+            "name": "Ngajum"
+        },
+        {
+            "code": "35.07.21",
+            "name": "Wagir"
+        },
+        {
+            "code": "35.07.22",
+            "name": "Dau"
+        },
+        {
+            "code": "35.07.23",
+            "name": "Karangploso"
+        },
+        {
+            "code": "35.07.24",
+            "name": "Singosari"
+        },
+        {
+            "code": "35.07.25",
+            "name": "Lawang"
+        },
+        {
+            "code": "35.07.26",
+            "name": "Pujon"
+        },
+        {
+            "code": "35.07.27",
+            "name": "Ngantang"
+        },
+        {
+            "code": "35.07.28",
+            "name": "Kasembon"
+        },
+        {
+            "code": "35.07.29",
+            "name": "Gedangan"
+        },
+        {
+            "code": "35.07.30",
+            "name": "Tirtoyudo"
+        },
+        {
+            "code": "35.07.31",
+            "name": "Kromengan"
+        },
+        {
+            "code": "35.07.32",
+            "name": "Wonosari"
+        },
+        {
+            "code": "35.07.33",
+            "name": "Pagelaran"
+        }
+    ],
+    "KABUPATEN MALANG": [
+        {
+            "code": "35.07.01",
+            "name": "Donomulyo"
+        },
+        {
+            "code": "35.07.02",
+            "name": "Pagak"
+        },
+        {
+            "code": "35.07.03",
+            "name": "Bantur"
+        },
+        {
+            "code": "35.07.04",
+            "name": "Sumbermanjing Wetan"
+        },
+        {
+            "code": "35.07.05",
+            "name": "Dampit"
+        },
+        {
+            "code": "35.07.06",
+            "name": "Ampelgading"
+        },
+        {
+            "code": "35.07.07",
+            "name": "Poncokusumo"
+        },
+        {
+            "code": "35.07.08",
+            "name": "Wajak"
+        },
+        {
+            "code": "35.07.09",
+            "name": "Turen"
+        },
+        {
+            "code": "35.07.10",
+            "name": "Gondanglegi"
+        },
+        {
+            "code": "35.07.11",
+            "name": "Kalipare"
+        },
+        {
+            "code": "35.07.12",
+            "name": "Sumberpucung"
+        },
+        {
+            "code": "35.07.13",
+            "name": "Kepanjen"
+        },
+        {
+            "code": "35.07.14",
+            "name": "Bululawang"
+        },
+        {
+            "code": "35.07.15",
+            "name": "Tajinan"
+        },
+        {
+            "code": "35.07.16",
+            "name": "Tumpang"
+        },
+        {
+            "code": "35.07.17",
+            "name": "Jabung"
+        },
+        {
+            "code": "35.07.18",
+            "name": "Pakis"
+        },
+        {
+            "code": "35.07.19",
+            "name": "Pakisaji"
+        },
+        {
+            "code": "35.07.20",
+            "name": "Ngajum"
+        },
+        {
+            "code": "35.07.21",
+            "name": "Wagir"
+        },
+        {
+            "code": "35.07.22",
+            "name": "Dau"
+        },
+        {
+            "code": "35.07.23",
+            "name": "Karangploso"
+        },
+        {
+            "code": "35.07.24",
+            "name": "Singosari"
+        },
+        {
+            "code": "35.07.25",
+            "name": "Lawang"
+        },
+        {
+            "code": "35.07.26",
+            "name": "Pujon"
+        },
+        {
+            "code": "35.07.27",
+            "name": "Ngantang"
+        },
+        {
+            "code": "35.07.28",
+            "name": "Kasembon"
+        },
+        {
+            "code": "35.07.29",
+            "name": "Gedangan"
+        },
+        {
+            "code": "35.07.30",
+            "name": "Tirtoyudo"
+        },
+        {
+            "code": "35.07.31",
+            "name": "Kromengan"
+        },
+        {
+            "code": "35.07.32",
+            "name": "Wonosari"
+        },
+        {
+            "code": "35.07.33",
+            "name": "Pagelaran"
+        }
+    ],
+    "3": [
+        {
+            "code": "32.73.01",
+            "name": "Sukasari"
+        },
+        {
+            "code": "32.73.02",
+            "name": "Coblong"
+        },
+        {
+            "code": "32.73.03",
+            "name": "Babakan Ciparay"
+        },
+        {
+            "code": "32.73.04",
+            "name": "Bojongloa Kaler"
+        },
+        {
+            "code": "32.73.05",
+            "name": "Andir"
+        },
+        {
+            "code": "32.73.06",
+            "name": "Cicendo"
+        },
+        {
+            "code": "32.73.07",
+            "name": "Sukajadi"
+        },
+        {
+            "code": "32.73.08",
+            "name": "Cidadap"
+        },
+        {
+            "code": "32.73.09",
+            "name": "Bandung Wetan"
+        },
+        {
+            "code": "32.73.10",
+            "name": "Astanaanyar"
+        },
+        {
+            "code": "32.73.11",
+            "name": "Regol"
+        },
+        {
+            "code": "32.73.12",
+            "name": "Batununggal"
+        },
+        {
+            "code": "32.73.13",
+            "name": "Lengkong"
+        },
+        {
+            "code": "32.73.14",
+            "name": "Cibeunying Kidul"
+        },
+        {
+            "code": "32.73.15",
+            "name": "Bandung Kulon"
+        },
+        {
+            "code": "32.73.16",
+            "name": "Kiaracondong"
+        },
+        {
+            "code": "32.73.17",
+            "name": "Bojongloa Kidul"
+        },
+        {
+            "code": "32.73.18",
+            "name": "Cibeunying Kaler"
+        },
+        {
+            "code": "32.73.19",
+            "name": "Sumur Bandung"
+        },
+        {
+            "code": "32.73.20",
+            "name": "Antapani"
+        },
+        {
+            "code": "32.73.21",
+            "name": "Bandung Kidul"
+        },
+        {
+            "code": "32.73.22",
+            "name": "Buahbatu"
+        },
+        {
+            "code": "32.73.23",
+            "name": "Rancasari"
+        },
+        {
+            "code": "32.73.24",
+            "name": "Arcamanik"
+        },
+        {
+            "code": "32.73.25",
+            "name": "Cibiru"
+        },
+        {
+            "code": "32.73.26",
+            "name": "Ujungberung"
+        },
+        {
+            "code": "32.73.27",
+            "name": "Gedebage"
+        },
+        {
+            "code": "32.73.28",
+            "name": "Panyileukan"
+        },
+        {
+            "code": "32.73.29",
+            "name": "Cinambo"
+        },
+        {
+            "code": "32.73.30",
+            "name": "Mandalajati"
+        }
+    ],
+    "32.73": [
+        {
+            "code": "32.73.01",
+            "name": "Sukasari"
+        },
+        {
+            "code": "32.73.02",
+            "name": "Coblong"
+        },
+        {
+            "code": "32.73.03",
+            "name": "Babakan Ciparay"
+        },
+        {
+            "code": "32.73.04",
+            "name": "Bojongloa Kaler"
+        },
+        {
+            "code": "32.73.05",
+            "name": "Andir"
+        },
+        {
+            "code": "32.73.06",
+            "name": "Cicendo"
+        },
+        {
+            "code": "32.73.07",
+            "name": "Sukajadi"
+        },
+        {
+            "code": "32.73.08",
+            "name": "Cidadap"
+        },
+        {
+            "code": "32.73.09",
+            "name": "Bandung Wetan"
+        },
+        {
+            "code": "32.73.10",
+            "name": "Astanaanyar"
+        },
+        {
+            "code": "32.73.11",
+            "name": "Regol"
+        },
+        {
+            "code": "32.73.12",
+            "name": "Batununggal"
+        },
+        {
+            "code": "32.73.13",
+            "name": "Lengkong"
+        },
+        {
+            "code": "32.73.14",
+            "name": "Cibeunying Kidul"
+        },
+        {
+            "code": "32.73.15",
+            "name": "Bandung Kulon"
+        },
+        {
+            "code": "32.73.16",
+            "name": "Kiaracondong"
+        },
+        {
+            "code": "32.73.17",
+            "name": "Bojongloa Kidul"
+        },
+        {
+            "code": "32.73.18",
+            "name": "Cibeunying Kaler"
+        },
+        {
+            "code": "32.73.19",
+            "name": "Sumur Bandung"
+        },
+        {
+            "code": "32.73.20",
+            "name": "Antapani"
+        },
+        {
+            "code": "32.73.21",
+            "name": "Bandung Kidul"
+        },
+        {
+            "code": "32.73.22",
+            "name": "Buahbatu"
+        },
+        {
+            "code": "32.73.23",
+            "name": "Rancasari"
+        },
+        {
+            "code": "32.73.24",
+            "name": "Arcamanik"
+        },
+        {
+            "code": "32.73.25",
+            "name": "Cibiru"
+        },
+        {
+            "code": "32.73.26",
+            "name": "Ujungberung"
+        },
+        {
+            "code": "32.73.27",
+            "name": "Gedebage"
+        },
+        {
+            "code": "32.73.28",
+            "name": "Panyileukan"
+        },
+        {
+            "code": "32.73.29",
+            "name": "Cinambo"
+        },
+        {
+            "code": "32.73.30",
+            "name": "Mandalajati"
+        }
+    ],
+    "BANDUNG": [
+        {
+            "code": "32.73.01",
+            "name": "Sukasari"
+        },
+        {
+            "code": "32.73.02",
+            "name": "Coblong"
+        },
+        {
+            "code": "32.73.03",
+            "name": "Babakan Ciparay"
+        },
+        {
+            "code": "32.73.04",
+            "name": "Bojongloa Kaler"
+        },
+        {
+            "code": "32.73.05",
+            "name": "Andir"
+        },
+        {
+            "code": "32.73.06",
+            "name": "Cicendo"
+        },
+        {
+            "code": "32.73.07",
+            "name": "Sukajadi"
+        },
+        {
+            "code": "32.73.08",
+            "name": "Cidadap"
+        },
+        {
+            "code": "32.73.09",
+            "name": "Bandung Wetan"
+        },
+        {
+            "code": "32.73.10",
+            "name": "Astanaanyar"
+        },
+        {
+            "code": "32.73.11",
+            "name": "Regol"
+        },
+        {
+            "code": "32.73.12",
+            "name": "Batununggal"
+        },
+        {
+            "code": "32.73.13",
+            "name": "Lengkong"
+        },
+        {
+            "code": "32.73.14",
+            "name": "Cibeunying Kidul"
+        },
+        {
+            "code": "32.73.15",
+            "name": "Bandung Kulon"
+        },
+        {
+            "code": "32.73.16",
+            "name": "Kiaracondong"
+        },
+        {
+            "code": "32.73.17",
+            "name": "Bojongloa Kidul"
+        },
+        {
+            "code": "32.73.18",
+            "name": "Cibeunying Kaler"
+        },
+        {
+            "code": "32.73.19",
+            "name": "Sumur Bandung"
+        },
+        {
+            "code": "32.73.20",
+            "name": "Antapani"
+        },
+        {
+            "code": "32.73.21",
+            "name": "Bandung Kidul"
+        },
+        {
+            "code": "32.73.22",
+            "name": "Buahbatu"
+        },
+        {
+            "code": "32.73.23",
+            "name": "Rancasari"
+        },
+        {
+            "code": "32.73.24",
+            "name": "Arcamanik"
+        },
+        {
+            "code": "32.73.25",
+            "name": "Cibiru"
+        },
+        {
+            "code": "32.73.26",
+            "name": "Ujungberung"
+        },
+        {
+            "code": "32.73.27",
+            "name": "Gedebage"
+        },
+        {
+            "code": "32.73.28",
+            "name": "Panyileukan"
+        },
+        {
+            "code": "32.73.29",
+            "name": "Cinambo"
+        },
+        {
+            "code": "32.73.30",
+            "name": "Mandalajati"
+        }
+    ],
+    "4": [
+        {
+            "code": "12.71.01",
+            "name": "Medan Kota"
+        },
+        {
+            "code": "12.71.02",
+            "name": "Medan Sunggal"
+        },
+        {
+            "code": "12.71.03",
+            "name": "Medan Helvetia"
+        },
+        {
+            "code": "12.71.04",
+            "name": "Medan Denai"
+        },
+        {
+            "code": "12.71.05",
+            "name": "Medan Barat"
+        },
+        {
+            "code": "12.71.06",
+            "name": "Medan Deli"
+        },
+        {
+            "code": "12.71.07",
+            "name": "Medan Tuntungan"
+        },
+        {
+            "code": "12.71.08",
+            "name": "Medan Belawan"
+        },
+        {
+            "code": "12.71.09",
+            "name": "Medan Amplas"
+        },
+        {
+            "code": "12.71.10",
+            "name": "Medan Area"
+        },
+        {
+            "code": "12.71.11",
+            "name": "Medan Johor"
+        },
+        {
+            "code": "12.71.12",
+            "name": "Medan Marelan"
+        },
+        {
+            "code": "12.71.13",
+            "name": "Medan Labuhan"
+        },
+        {
+            "code": "12.71.14",
+            "name": "Medan Tembung"
+        },
+        {
+            "code": "12.71.15",
+            "name": "Medan Maimun"
+        },
+        {
+            "code": "12.71.16",
+            "name": "Medan Polonia"
+        },
+        {
+            "code": "12.71.17",
+            "name": "Medan Baru"
+        },
+        {
+            "code": "12.71.18",
+            "name": "Medan Perjuangan"
+        },
+        {
+            "code": "12.71.19",
+            "name": "Medan Petisah"
+        },
+        {
+            "code": "12.71.20",
+            "name": "Medan Timur"
+        },
+        {
+            "code": "12.71.21",
+            "name": "Medan Selayang"
+        }
+    ],
+    "12.71": [
+        {
+            "code": "12.71.01",
+            "name": "Medan Kota"
+        },
+        {
+            "code": "12.71.02",
+            "name": "Medan Sunggal"
+        },
+        {
+            "code": "12.71.03",
+            "name": "Medan Helvetia"
+        },
+        {
+            "code": "12.71.04",
+            "name": "Medan Denai"
+        },
+        {
+            "code": "12.71.05",
+            "name": "Medan Barat"
+        },
+        {
+            "code": "12.71.06",
+            "name": "Medan Deli"
+        },
+        {
+            "code": "12.71.07",
+            "name": "Medan Tuntungan"
+        },
+        {
+            "code": "12.71.08",
+            "name": "Medan Belawan"
+        },
+        {
+            "code": "12.71.09",
+            "name": "Medan Amplas"
+        },
+        {
+            "code": "12.71.10",
+            "name": "Medan Area"
+        },
+        {
+            "code": "12.71.11",
+            "name": "Medan Johor"
+        },
+        {
+            "code": "12.71.12",
+            "name": "Medan Marelan"
+        },
+        {
+            "code": "12.71.13",
+            "name": "Medan Labuhan"
+        },
+        {
+            "code": "12.71.14",
+            "name": "Medan Tembung"
+        },
+        {
+            "code": "12.71.15",
+            "name": "Medan Maimun"
+        },
+        {
+            "code": "12.71.16",
+            "name": "Medan Polonia"
+        },
+        {
+            "code": "12.71.17",
+            "name": "Medan Baru"
+        },
+        {
+            "code": "12.71.18",
+            "name": "Medan Perjuangan"
+        },
+        {
+            "code": "12.71.19",
+            "name": "Medan Petisah"
+        },
+        {
+            "code": "12.71.20",
+            "name": "Medan Timur"
+        },
+        {
+            "code": "12.71.21",
+            "name": "Medan Selayang"
+        }
+    ],
+    "MEDAN": [
+        {
+            "code": "12.71.01",
+            "name": "Medan Kota"
+        },
+        {
+            "code": "12.71.02",
+            "name": "Medan Sunggal"
+        },
+        {
+            "code": "12.71.03",
+            "name": "Medan Helvetia"
+        },
+        {
+            "code": "12.71.04",
+            "name": "Medan Denai"
+        },
+        {
+            "code": "12.71.05",
+            "name": "Medan Barat"
+        },
+        {
+            "code": "12.71.06",
+            "name": "Medan Deli"
+        },
+        {
+            "code": "12.71.07",
+            "name": "Medan Tuntungan"
+        },
+        {
+            "code": "12.71.08",
+            "name": "Medan Belawan"
+        },
+        {
+            "code": "12.71.09",
+            "name": "Medan Amplas"
+        },
+        {
+            "code": "12.71.10",
+            "name": "Medan Area"
+        },
+        {
+            "code": "12.71.11",
+            "name": "Medan Johor"
+        },
+        {
+            "code": "12.71.12",
+            "name": "Medan Marelan"
+        },
+        {
+            "code": "12.71.13",
+            "name": "Medan Labuhan"
+        },
+        {
+            "code": "12.71.14",
+            "name": "Medan Tembung"
+        },
+        {
+            "code": "12.71.15",
+            "name": "Medan Maimun"
+        },
+        {
+            "code": "12.71.16",
+            "name": "Medan Polonia"
+        },
+        {
+            "code": "12.71.17",
+            "name": "Medan Baru"
+        },
+        {
+            "code": "12.71.18",
+            "name": "Medan Perjuangan"
+        },
+        {
+            "code": "12.71.19",
+            "name": "Medan Petisah"
+        },
+        {
+            "code": "12.71.20",
+            "name": "Medan Timur"
+        },
+        {
+            "code": "12.71.21",
+            "name": "Medan Selayang"
+        }
+    ],
+    "5": [
+        {
+            "code": "33.74.01",
+            "name": "Semarang Tengah"
+        },
+        {
+            "code": "33.74.02",
+            "name": "Semarang Utara"
+        },
+        {
+            "code": "33.74.03",
+            "name": "Semarang Timur"
+        },
+        {
+            "code": "33.74.04",
+            "name": "Gayamsari"
+        },
+        {
+            "code": "33.74.05",
+            "name": "Genuk"
+        },
+        {
+            "code": "33.74.06",
+            "name": "Pedurungan"
+        },
+        {
+            "code": "33.74.07",
+            "name": "Semarang Selatan"
+        },
+        {
+            "code": "33.74.08",
+            "name": "Candisari"
+        },
+        {
+            "code": "33.74.09",
+            "name": "Gajahmungkur"
+        },
+        {
+            "code": "33.74.10",
+            "name": "Tembalang"
+        },
+        {
+            "code": "33.74.11",
+            "name": "Banyumanik"
+        },
+        {
+            "code": "33.74.12",
+            "name": "Gunungpati"
+        },
+        {
+            "code": "33.74.13",
+            "name": "Semarang Barat"
+        },
+        {
+            "code": "33.74.14",
+            "name": "Mijen"
+        },
+        {
+            "code": "33.74.15",
+            "name": "Ngaliyan"
+        },
+        {
+            "code": "33.74.16",
+            "name": "Tugu"
+        }
+    ],
+    "33.74": [
+        {
+            "code": "33.74.01",
+            "name": "Semarang Tengah"
+        },
+        {
+            "code": "33.74.02",
+            "name": "Semarang Utara"
+        },
+        {
+            "code": "33.74.03",
+            "name": "Semarang Timur"
+        },
+        {
+            "code": "33.74.04",
+            "name": "Gayamsari"
+        },
+        {
+            "code": "33.74.05",
+            "name": "Genuk"
+        },
+        {
+            "code": "33.74.06",
+            "name": "Pedurungan"
+        },
+        {
+            "code": "33.74.07",
+            "name": "Semarang Selatan"
+        },
+        {
+            "code": "33.74.08",
+            "name": "Candisari"
+        },
+        {
+            "code": "33.74.09",
+            "name": "Gajahmungkur"
+        },
+        {
+            "code": "33.74.10",
+            "name": "Tembalang"
+        },
+        {
+            "code": "33.74.11",
+            "name": "Banyumanik"
+        },
+        {
+            "code": "33.74.12",
+            "name": "Gunungpati"
+        },
+        {
+            "code": "33.74.13",
+            "name": "Semarang Barat"
+        },
+        {
+            "code": "33.74.14",
+            "name": "Mijen"
+        },
+        {
+            "code": "33.74.15",
+            "name": "Ngaliyan"
+        },
+        {
+            "code": "33.74.16",
+            "name": "Tugu"
+        }
+    ],
+    "SEMARANG": [
+        {
+            "code": "33.74.01",
+            "name": "Semarang Tengah"
+        },
+        {
+            "code": "33.74.02",
+            "name": "Semarang Utara"
+        },
+        {
+            "code": "33.74.03",
+            "name": "Semarang Timur"
+        },
+        {
+            "code": "33.74.04",
+            "name": "Gayamsari"
+        },
+        {
+            "code": "33.74.05",
+            "name": "Genuk"
+        },
+        {
+            "code": "33.74.06",
+            "name": "Pedurungan"
+        },
+        {
+            "code": "33.74.07",
+            "name": "Semarang Selatan"
+        },
+        {
+            "code": "33.74.08",
+            "name": "Candisari"
+        },
+        {
+            "code": "33.74.09",
+            "name": "Gajahmungkur"
+        },
+        {
+            "code": "33.74.10",
+            "name": "Tembalang"
+        },
+        {
+            "code": "33.74.11",
+            "name": "Banyumanik"
+        },
+        {
+            "code": "33.74.12",
+            "name": "Gunungpati"
+        },
+        {
+            "code": "33.74.13",
+            "name": "Semarang Barat"
+        },
+        {
+            "code": "33.74.14",
+            "name": "Mijen"
+        },
+        {
+            "code": "33.74.15",
+            "name": "Ngaliyan"
+        },
+        {
+            "code": "33.74.16",
+            "name": "Tugu"
+        }
+    ],
+    "6": [
+        {
+            "code": "34.71.01",
+            "name": "Tegalrejo"
+        },
+        {
+            "code": "34.71.02",
+            "name": "Jetis"
+        },
+        {
+            "code": "34.71.03",
+            "name": "Gondokusuman"
+        },
+        {
+            "code": "34.71.04",
+            "name": "Danurejan"
+        },
+        {
+            "code": "34.71.05",
+            "name": "Gedongtengen"
+        },
+        {
+            "code": "34.71.06",
+            "name": "Ngampilan"
+        },
+        {
+            "code": "34.71.07",
+            "name": "Wirobrajan"
+        },
+        {
+            "code": "34.71.08",
+            "name": "Mantrijeron"
+        },
+        {
+            "code": "34.71.09",
+            "name": "Kraton"
+        },
+        {
+            "code": "34.71.10",
+            "name": "Gondomanan"
+        },
+        {
+            "code": "34.71.11",
+            "name": "Pakualaman"
+        },
+        {
+            "code": "34.71.12",
+            "name": "Mergangsan"
+        },
+        {
+            "code": "34.71.13",
+            "name": "Umbulharjo"
+        },
+        {
+            "code": "34.71.14",
+            "name": "Kotagede"
+        }
+    ],
+    "34.71": [
+        {
+            "code": "34.71.01",
+            "name": "Tegalrejo"
+        },
+        {
+            "code": "34.71.02",
+            "name": "Jetis"
+        },
+        {
+            "code": "34.71.03",
+            "name": "Gondokusuman"
+        },
+        {
+            "code": "34.71.04",
+            "name": "Danurejan"
+        },
+        {
+            "code": "34.71.05",
+            "name": "Gedongtengen"
+        },
+        {
+            "code": "34.71.06",
+            "name": "Ngampilan"
+        },
+        {
+            "code": "34.71.07",
+            "name": "Wirobrajan"
+        },
+        {
+            "code": "34.71.08",
+            "name": "Mantrijeron"
+        },
+        {
+            "code": "34.71.09",
+            "name": "Kraton"
+        },
+        {
+            "code": "34.71.10",
+            "name": "Gondomanan"
+        },
+        {
+            "code": "34.71.11",
+            "name": "Pakualaman"
+        },
+        {
+            "code": "34.71.12",
+            "name": "Mergangsan"
+        },
+        {
+            "code": "34.71.13",
+            "name": "Umbulharjo"
+        },
+        {
+            "code": "34.71.14",
+            "name": "Kotagede"
+        }
+    ],
+    "YOGYAKARTA": [
+        {
+            "code": "34.71.01",
+            "name": "Tegalrejo"
+        },
+        {
+            "code": "34.71.02",
+            "name": "Jetis"
+        },
+        {
+            "code": "34.71.03",
+            "name": "Gondokusuman"
+        },
+        {
+            "code": "34.71.04",
+            "name": "Danurejan"
+        },
+        {
+            "code": "34.71.05",
+            "name": "Gedongtengen"
+        },
+        {
+            "code": "34.71.06",
+            "name": "Ngampilan"
+        },
+        {
+            "code": "34.71.07",
+            "name": "Wirobrajan"
+        },
+        {
+            "code": "34.71.08",
+            "name": "Mantrijeron"
+        },
+        {
+            "code": "34.71.09",
+            "name": "Kraton"
+        },
+        {
+            "code": "34.71.10",
+            "name": "Gondomanan"
+        },
+        {
+            "code": "34.71.11",
+            "name": "Pakualaman"
+        },
+        {
+            "code": "34.71.12",
+            "name": "Mergangsan"
+        },
+        {
+            "code": "34.71.13",
+            "name": "Umbulharjo"
+        },
+        {
+            "code": "34.71.14",
+            "name": "Kotagede"
+        }
+    ],
+    "7": [
+        {
+            "code": "73.71.01",
+            "name": "Mariso"
+        },
+        {
+            "code": "73.71.02",
+            "name": "Mamajang"
+        },
+        {
+            "code": "73.71.03",
+            "name": "Makassar"
+        },
+        {
+            "code": "73.71.04",
+            "name": "Ujung Pandang"
+        },
+        {
+            "code": "73.71.05",
+            "name": "Wajo"
+        },
+        {
+            "code": "73.71.06",
+            "name": "Bontoala"
+        },
+        {
+            "code": "73.71.07",
+            "name": "Tallo"
+        },
+        {
+            "code": "73.71.08",
+            "name": "Ujung Tanah"
+        },
+        {
+            "code": "73.71.09",
+            "name": "Panakkukang"
+        },
+        {
+            "code": "73.71.10",
+            "name": "Tamalate"
+        },
+        {
+            "code": "73.71.11",
+            "name": "Biringkanaya"
+        },
+        {
+            "code": "73.71.12",
+            "name": "Manggala"
+        },
+        {
+            "code": "73.71.13",
+            "name": "Rappocini"
+        },
+        {
+            "code": "73.71.14",
+            "name": "Tamalanrea"
+        },
+        {
+            "code": "73.71.15",
+            "name": "Kepulauan Sangkarrang"
+        }
+    ],
+    "73.71": [
+        {
+            "code": "73.71.01",
+            "name": "Mariso"
+        },
+        {
+            "code": "73.71.02",
+            "name": "Mamajang"
+        },
+        {
+            "code": "73.71.03",
+            "name": "Makassar"
+        },
+        {
+            "code": "73.71.04",
+            "name": "Ujung Pandang"
+        },
+        {
+            "code": "73.71.05",
+            "name": "Wajo"
+        },
+        {
+            "code": "73.71.06",
+            "name": "Bontoala"
+        },
+        {
+            "code": "73.71.07",
+            "name": "Tallo"
+        },
+        {
+            "code": "73.71.08",
+            "name": "Ujung Tanah"
+        },
+        {
+            "code": "73.71.09",
+            "name": "Panakkukang"
+        },
+        {
+            "code": "73.71.10",
+            "name": "Tamalate"
+        },
+        {
+            "code": "73.71.11",
+            "name": "Biringkanaya"
+        },
+        {
+            "code": "73.71.12",
+            "name": "Manggala"
+        },
+        {
+            "code": "73.71.13",
+            "name": "Rappocini"
+        },
+        {
+            "code": "73.71.14",
+            "name": "Tamalanrea"
+        },
+        {
+            "code": "73.71.15",
+            "name": "Kepulauan Sangkarrang"
+        }
+    ],
+    "MAKASSAR": [
+        {
+            "code": "73.71.01",
+            "name": "Mariso"
+        },
+        {
+            "code": "73.71.02",
+            "name": "Mamajang"
+        },
+        {
+            "code": "73.71.03",
+            "name": "Makassar"
+        },
+        {
+            "code": "73.71.04",
+            "name": "Ujung Pandang"
+        },
+        {
+            "code": "73.71.05",
+            "name": "Wajo"
+        },
+        {
+            "code": "73.71.06",
+            "name": "Bontoala"
+        },
+        {
+            "code": "73.71.07",
+            "name": "Tallo"
+        },
+        {
+            "code": "73.71.08",
+            "name": "Ujung Tanah"
+        },
+        {
+            "code": "73.71.09",
+            "name": "Panakkukang"
+        },
+        {
+            "code": "73.71.10",
+            "name": "Tamalate"
+        },
+        {
+            "code": "73.71.11",
+            "name": "Biringkanaya"
+        },
+        {
+            "code": "73.71.12",
+            "name": "Manggala"
+        },
+        {
+            "code": "73.71.13",
+            "name": "Rappocini"
+        },
+        {
+            "code": "73.71.14",
+            "name": "Tamalanrea"
+        },
+        {
+            "code": "73.71.15",
+            "name": "Kepulauan Sangkarrang"
+        }
+    ],
+    "8": [
+        {
+            "code": "16.71.01",
+            "name": "Ilir Barat Dua"
+        },
+        {
+            "code": "16.71.02",
+            "name": "Seberang Ulu Satu"
+        },
+        {
+            "code": "16.71.03",
+            "name": "Seberang Ulu Dua"
+        },
+        {
+            "code": "16.71.04",
+            "name": "Ilir Barat Satu"
+        },
+        {
+            "code": "16.71.05",
+            "name": "Ilir Timur Satu"
+        },
+        {
+            "code": "16.71.06",
+            "name": "Ilir Timur Dua"
+        },
+        {
+            "code": "16.71.07",
+            "name": "Sukarami"
+        },
+        {
+            "code": "16.71.08",
+            "name": "Sako"
+        },
+        {
+            "code": "16.71.09",
+            "name": "Kemuning"
+        },
+        {
+            "code": "16.71.10",
+            "name": "Kalidoni"
+        },
+        {
+            "code": "16.71.11",
+            "name": "Bukitkecil"
+        },
+        {
+            "code": "16.71.12",
+            "name": "Gandus"
+        },
+        {
+            "code": "16.71.13",
+            "name": "Kertapati"
+        },
+        {
+            "code": "16.71.14",
+            "name": "Plaju"
+        },
+        {
+            "code": "16.71.15",
+            "name": "Alang-alang Lebar"
+        },
+        {
+            "code": "16.71.16",
+            "name": "Sematangborang"
+        },
+        {
+            "code": "16.71.17",
+            "name": "Jakabaring"
+        },
+        {
+            "code": "16.71.18",
+            "name": "Ilir Timur Tiga"
+        }
+    ],
+    "16.71": [
+        {
+            "code": "16.71.01",
+            "name": "Ilir Barat Dua"
+        },
+        {
+            "code": "16.71.02",
+            "name": "Seberang Ulu Satu"
+        },
+        {
+            "code": "16.71.03",
+            "name": "Seberang Ulu Dua"
+        },
+        {
+            "code": "16.71.04",
+            "name": "Ilir Barat Satu"
+        },
+        {
+            "code": "16.71.05",
+            "name": "Ilir Timur Satu"
+        },
+        {
+            "code": "16.71.06",
+            "name": "Ilir Timur Dua"
+        },
+        {
+            "code": "16.71.07",
+            "name": "Sukarami"
+        },
+        {
+            "code": "16.71.08",
+            "name": "Sako"
+        },
+        {
+            "code": "16.71.09",
+            "name": "Kemuning"
+        },
+        {
+            "code": "16.71.10",
+            "name": "Kalidoni"
+        },
+        {
+            "code": "16.71.11",
+            "name": "Bukitkecil"
+        },
+        {
+            "code": "16.71.12",
+            "name": "Gandus"
+        },
+        {
+            "code": "16.71.13",
+            "name": "Kertapati"
+        },
+        {
+            "code": "16.71.14",
+            "name": "Plaju"
+        },
+        {
+            "code": "16.71.15",
+            "name": "Alang-alang Lebar"
+        },
+        {
+            "code": "16.71.16",
+            "name": "Sematangborang"
+        },
+        {
+            "code": "16.71.17",
+            "name": "Jakabaring"
+        },
+        {
+            "code": "16.71.18",
+            "name": "Ilir Timur Tiga"
+        }
+    ],
+    "PALEMBANG": [
+        {
+            "code": "16.71.01",
+            "name": "Ilir Barat Dua"
+        },
+        {
+            "code": "16.71.02",
+            "name": "Seberang Ulu Satu"
+        },
+        {
+            "code": "16.71.03",
+            "name": "Seberang Ulu Dua"
+        },
+        {
+            "code": "16.71.04",
+            "name": "Ilir Barat Satu"
+        },
+        {
+            "code": "16.71.05",
+            "name": "Ilir Timur Satu"
+        },
+        {
+            "code": "16.71.06",
+            "name": "Ilir Timur Dua"
+        },
+        {
+            "code": "16.71.07",
+            "name": "Sukarami"
+        },
+        {
+            "code": "16.71.08",
+            "name": "Sako"
+        },
+        {
+            "code": "16.71.09",
+            "name": "Kemuning"
+        },
+        {
+            "code": "16.71.10",
+            "name": "Kalidoni"
+        },
+        {
+            "code": "16.71.11",
+            "name": "Bukitkecil"
+        },
+        {
+            "code": "16.71.12",
+            "name": "Gandus"
+        },
+        {
+            "code": "16.71.13",
+            "name": "Kertapati"
+        },
+        {
+            "code": "16.71.14",
+            "name": "Plaju"
+        },
+        {
+            "code": "16.71.15",
+            "name": "Alang-alang Lebar"
+        },
+        {
+            "code": "16.71.16",
+            "name": "Sematangborang"
+        },
+        {
+            "code": "16.71.17",
+            "name": "Jakabaring"
+        },
+        {
+            "code": "16.71.18",
+            "name": "Ilir Timur Tiga"
+        }
+    ],
+    "9": [
+        {
+            "code": "51.71.01",
+            "name": "Denpasar Selatan"
+        },
+        {
+            "code": "51.71.02",
+            "name": "Denpasar Timur"
+        },
+        {
+            "code": "51.71.03",
+            "name": "Denpasar Barat"
+        },
+        {
+            "code": "51.71.04",
+            "name": "Denpasar Utara"
+        }
+    ],
+    "51.71": [
+        {
+            "code": "51.71.01",
+            "name": "Denpasar Selatan"
+        },
+        {
+            "code": "51.71.02",
+            "name": "Denpasar Timur"
+        },
+        {
+            "code": "51.71.03",
+            "name": "Denpasar Barat"
+        },
+        {
+            "code": "51.71.04",
+            "name": "Denpasar Utara"
+        }
+    ],
+    "DENPASAR": [
+        {
+            "code": "51.71.01",
+            "name": "Denpasar Selatan"
+        },
+        {
+            "code": "51.71.02",
+            "name": "Denpasar Timur"
+        },
+        {
+            "code": "51.71.03",
+            "name": "Denpasar Barat"
+        },
+        {
+            "code": "51.71.04",
+            "name": "Denpasar Utara"
+        }
+    ],
+    "10": [
+        {
+            "code": "35.73.01",
+            "name": "Blimbing"
+        },
+        {
+            "code": "35.73.02",
+            "name": "Klojen"
+        },
+        {
+            "code": "35.73.03",
+            "name": "Kedungkandang"
+        },
+        {
+            "code": "35.73.04",
+            "name": "Sukun"
+        },
+        {
+            "code": "35.73.05",
+            "name": "Lowokwaru"
+        }
+    ],
+    "35.73": [
+        {
+            "code": "35.73.01",
+            "name": "Blimbing"
+        },
+        {
+            "code": "35.73.02",
+            "name": "Klojen"
+        },
+        {
+            "code": "35.73.03",
+            "name": "Kedungkandang"
+        },
+        {
+            "code": "35.73.04",
+            "name": "Sukun"
+        },
+        {
+            "code": "35.73.05",
+            "name": "Lowokwaru"
+        }
+    ],
+    "MALANG": [
+        {
+            "code": "35.73.01",
+            "name": "Blimbing"
+        },
+        {
+            "code": "35.73.02",
+            "name": "Klojen"
+        },
+        {
+            "code": "35.73.03",
+            "name": "Kedungkandang"
+        },
+        {
+            "code": "35.73.04",
+            "name": "Sukun"
+        },
+        {
+            "code": "35.73.05",
+            "name": "Lowokwaru"
+        }
+    ],
+    "12": [
+        {
+            "code": "33.72.01",
+            "name": "Laweyan"
+        },
+        {
+            "code": "33.72.02",
+            "name": "Serengan"
+        },
+        {
+            "code": "33.72.03",
+            "name": "Pasar Kliwon"
+        },
+        {
+            "code": "33.72.04",
+            "name": "Jebres"
+        },
+        {
+            "code": "33.72.05",
+            "name": "Banjarsari"
+        }
+    ],
+    "33.72": [
+        {
+            "code": "33.72.01",
+            "name": "Laweyan"
+        },
+        {
+            "code": "33.72.02",
+            "name": "Serengan"
+        },
+        {
+            "code": "33.72.03",
+            "name": "Pasar Kliwon"
+        },
+        {
+            "code": "33.72.04",
+            "name": "Jebres"
+        },
+        {
+            "code": "33.72.05",
+            "name": "Banjarsari"
+        }
+    ],
+    "SOLO": [
+        {
+            "code": "33.72.01",
+            "name": "Laweyan"
+        },
+        {
+            "code": "33.72.02",
+            "name": "Serengan"
+        },
+        {
+            "code": "33.72.03",
+            "name": "Pasar Kliwon"
+        },
+        {
+            "code": "33.72.04",
+            "name": "Jebres"
+        },
+        {
+            "code": "33.72.05",
+            "name": "Banjarsari"
+        }
+    ],
+    "16": [
+        {
+            "code": "17.09.01",
+            "name": "Karang Tinggi"
+        },
+        {
+            "code": "17.09.02",
+            "name": "Talang Empat"
+        },
+        {
+            "code": "17.09.03",
+            "name": "Pondok Kelapa"
+        },
+        {
+            "code": "17.09.04",
+            "name": "Pematang Tiga"
+        },
+        {
+            "code": "17.09.05",
+            "name": "Pagar Jati"
+        },
+        {
+            "code": "17.09.06",
+            "name": "Taba Penanjung"
+        },
+        {
+            "code": "17.09.07",
+            "name": "Merigi Kelindang"
+        },
+        {
+            "code": "17.09.08",
+            "name": "Merigi Sakti"
+        },
+        {
+            "code": "17.09.09",
+            "name": "Pondok Kubang"
+        },
+        {
+            "code": "17.09.10",
+            "name": "Bang Haji"
+        },
+        {
+            "code": "17.09.11",
+            "name": "Semidang Lagan"
+        }
+    ],
+    "17.09": [
+        {
+            "code": "17.09.01",
+            "name": "Karang Tinggi"
+        },
+        {
+            "code": "17.09.02",
+            "name": "Talang Empat"
+        },
+        {
+            "code": "17.09.03",
+            "name": "Pondok Kelapa"
+        },
+        {
+            "code": "17.09.04",
+            "name": "Pematang Tiga"
+        },
+        {
+            "code": "17.09.05",
+            "name": "Pagar Jati"
+        },
+        {
+            "code": "17.09.06",
+            "name": "Taba Penanjung"
+        },
+        {
+            "code": "17.09.07",
+            "name": "Merigi Kelindang"
+        },
+        {
+            "code": "17.09.08",
+            "name": "Merigi Sakti"
+        },
+        {
+            "code": "17.09.09",
+            "name": "Pondok Kubang"
+        },
+        {
+            "code": "17.09.10",
+            "name": "Bang Haji"
+        },
+        {
+            "code": "17.09.11",
+            "name": "Semidang Lagan"
+        }
+    ],
+    "KABUPATEN BENGKULU TENGAH": [
+        {
+            "code": "17.09.01",
+            "name": "Karang Tinggi"
+        },
+        {
+            "code": "17.09.02",
+            "name": "Talang Empat"
+        },
+        {
+            "code": "17.09.03",
+            "name": "Pondok Kelapa"
+        },
+        {
+            "code": "17.09.04",
+            "name": "Pematang Tiga"
+        },
+        {
+            "code": "17.09.05",
+            "name": "Pagar Jati"
+        },
+        {
+            "code": "17.09.06",
+            "name": "Taba Penanjung"
+        },
+        {
+            "code": "17.09.07",
+            "name": "Merigi Kelindang"
+        },
+        {
+            "code": "17.09.08",
+            "name": "Merigi Sakti"
+        },
+        {
+            "code": "17.09.09",
+            "name": "Pondok Kubang"
+        },
+        {
+            "code": "17.09.10",
+            "name": "Bang Haji"
+        },
+        {
+            "code": "17.09.11",
+            "name": "Semidang Lagan"
+        }
+    ],
+    "17": [
+        {
+            "code": "34.02.01",
+            "name": "Srandakan"
+        },
+        {
+            "code": "34.02.02",
+            "name": "Sanden"
+        },
+        {
+            "code": "34.02.03",
+            "name": "Kretek"
+        },
+        {
+            "code": "34.02.04",
+            "name": "Pundong"
+        },
+        {
+            "code": "34.02.05",
+            "name": "Bambanglipuro"
+        },
+        {
+            "code": "34.02.06",
+            "name": "Pandak"
+        },
+        {
+            "code": "34.02.07",
+            "name": "Pajangan"
+        },
+        {
+            "code": "34.02.08",
+            "name": "Bantul"
+        },
+        {
+            "code": "34.02.09",
+            "name": "Jetis"
+        },
+        {
+            "code": "34.02.10",
+            "name": "Imogiri"
+        },
+        {
+            "code": "34.02.11",
+            "name": "Dlingo"
+        },
+        {
+            "code": "34.02.12",
+            "name": "Banguntapan"
+        },
+        {
+            "code": "34.02.13",
+            "name": "Pleret"
+        },
+        {
+            "code": "34.02.14",
+            "name": "Piyungan"
+        },
+        {
+            "code": "34.02.15",
+            "name": "Sewon"
+        },
+        {
+            "code": "34.02.16",
+            "name": "Kasihan"
+        },
+        {
+            "code": "34.02.17",
+            "name": "Sedayu"
+        }
+    ],
+    "34.02": [
+        {
+            "code": "34.02.01",
+            "name": "Srandakan"
+        },
+        {
+            "code": "34.02.02",
+            "name": "Sanden"
+        },
+        {
+            "code": "34.02.03",
+            "name": "Kretek"
+        },
+        {
+            "code": "34.02.04",
+            "name": "Pundong"
+        },
+        {
+            "code": "34.02.05",
+            "name": "Bambanglipuro"
+        },
+        {
+            "code": "34.02.06",
+            "name": "Pandak"
+        },
+        {
+            "code": "34.02.07",
+            "name": "Pajangan"
+        },
+        {
+            "code": "34.02.08",
+            "name": "Bantul"
+        },
+        {
+            "code": "34.02.09",
+            "name": "Jetis"
+        },
+        {
+            "code": "34.02.10",
+            "name": "Imogiri"
+        },
+        {
+            "code": "34.02.11",
+            "name": "Dlingo"
+        },
+        {
+            "code": "34.02.12",
+            "name": "Banguntapan"
+        },
+        {
+            "code": "34.02.13",
+            "name": "Pleret"
+        },
+        {
+            "code": "34.02.14",
+            "name": "Piyungan"
+        },
+        {
+            "code": "34.02.15",
+            "name": "Sewon"
+        },
+        {
+            "code": "34.02.16",
+            "name": "Kasihan"
+        },
+        {
+            "code": "34.02.17",
+            "name": "Sedayu"
+        }
+    ],
+    "KABUPATEN BANTUL": [
+        {
+            "code": "34.02.01",
+            "name": "Srandakan"
+        },
+        {
+            "code": "34.02.02",
+            "name": "Sanden"
+        },
+        {
+            "code": "34.02.03",
+            "name": "Kretek"
+        },
+        {
+            "code": "34.02.04",
+            "name": "Pundong"
+        },
+        {
+            "code": "34.02.05",
+            "name": "Bambanglipuro"
+        },
+        {
+            "code": "34.02.06",
+            "name": "Pandak"
+        },
+        {
+            "code": "34.02.07",
+            "name": "Pajangan"
+        },
+        {
+            "code": "34.02.08",
+            "name": "Bantul"
+        },
+        {
+            "code": "34.02.09",
+            "name": "Jetis"
+        },
+        {
+            "code": "34.02.10",
+            "name": "Imogiri"
+        },
+        {
+            "code": "34.02.11",
+            "name": "Dlingo"
+        },
+        {
+            "code": "34.02.12",
+            "name": "Banguntapan"
+        },
+        {
+            "code": "34.02.13",
+            "name": "Pleret"
+        },
+        {
+            "code": "34.02.14",
+            "name": "Piyungan"
+        },
+        {
+            "code": "34.02.15",
+            "name": "Sewon"
+        },
+        {
+            "code": "34.02.16",
+            "name": "Kasihan"
+        },
+        {
+            "code": "34.02.17",
+            "name": "Sedayu"
+        }
+    ],
+    "18": [
+        {
+            "code": "14.71.01",
+            "name": "Sukajadi"
+        },
+        {
+            "code": "14.71.02",
+            "name": "Pekanbaru Kota"
+        },
+        {
+            "code": "14.71.03",
+            "name": "Sail"
+        },
+        {
+            "code": "14.71.04",
+            "name": "Limapuluh"
+        },
+        {
+            "code": "14.71.05",
+            "name": "Senapelan"
+        },
+        {
+            "code": "14.71.06",
+            "name": "Rumbai Barat"
+        },
+        {
+            "code": "14.71.07",
+            "name": "Bukit Raya"
+        },
+        {
+            "code": "14.71.08",
+            "name": "Binawidya"
+        },
+        {
+            "code": "14.71.09",
+            "name": "Marpoyan Damai"
+        },
+        {
+            "code": "14.71.10",
+            "name": "Tenayan Raya"
+        },
+        {
+            "code": "14.71.11",
+            "name": "Payung Sekaki"
+        },
+        {
+            "code": "14.71.12",
+            "name": "Rumbai"
+        },
+        {
+            "code": "14.71.13",
+            "name": "Tuahmadani"
+        },
+        {
+            "code": "14.71.14",
+            "name": "Kulim"
+        },
+        {
+            "code": "14.71.15",
+            "name": "Rumbai Timur"
+        }
+    ],
+    "14.71": [
+        {
+            "code": "14.71.01",
+            "name": "Sukajadi"
+        },
+        {
+            "code": "14.71.02",
+            "name": "Pekanbaru Kota"
+        },
+        {
+            "code": "14.71.03",
+            "name": "Sail"
+        },
+        {
+            "code": "14.71.04",
+            "name": "Limapuluh"
+        },
+        {
+            "code": "14.71.05",
+            "name": "Senapelan"
+        },
+        {
+            "code": "14.71.06",
+            "name": "Rumbai Barat"
+        },
+        {
+            "code": "14.71.07",
+            "name": "Bukit Raya"
+        },
+        {
+            "code": "14.71.08",
+            "name": "Binawidya"
+        },
+        {
+            "code": "14.71.09",
+            "name": "Marpoyan Damai"
+        },
+        {
+            "code": "14.71.10",
+            "name": "Tenayan Raya"
+        },
+        {
+            "code": "14.71.11",
+            "name": "Payung Sekaki"
+        },
+        {
+            "code": "14.71.12",
+            "name": "Rumbai"
+        },
+        {
+            "code": "14.71.13",
+            "name": "Tuahmadani"
+        },
+        {
+            "code": "14.71.14",
+            "name": "Kulim"
+        },
+        {
+            "code": "14.71.15",
+            "name": "Rumbai Timur"
+        }
+    ],
+    "KOTA PEKANBARU": [
+        {
+            "code": "14.71.01",
+            "name": "Sukajadi"
+        },
+        {
+            "code": "14.71.02",
+            "name": "Pekanbaru Kota"
+        },
+        {
+            "code": "14.71.03",
+            "name": "Sail"
+        },
+        {
+            "code": "14.71.04",
+            "name": "Limapuluh"
+        },
+        {
+            "code": "14.71.05",
+            "name": "Senapelan"
+        },
+        {
+            "code": "14.71.06",
+            "name": "Rumbai Barat"
+        },
+        {
+            "code": "14.71.07",
+            "name": "Bukit Raya"
+        },
+        {
+            "code": "14.71.08",
+            "name": "Binawidya"
+        },
+        {
+            "code": "14.71.09",
+            "name": "Marpoyan Damai"
+        },
+        {
+            "code": "14.71.10",
+            "name": "Tenayan Raya"
+        },
+        {
+            "code": "14.71.11",
+            "name": "Payung Sekaki"
+        },
+        {
+            "code": "14.71.12",
+            "name": "Rumbai"
+        },
+        {
+            "code": "14.71.13",
+            "name": "Tuahmadani"
+        },
+        {
+            "code": "14.71.14",
+            "name": "Kulim"
+        },
+        {
+            "code": "14.71.15",
+            "name": "Rumbai Timur"
+        }
+    ]
+}

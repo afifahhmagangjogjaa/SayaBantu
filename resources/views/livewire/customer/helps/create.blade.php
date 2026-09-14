@@ -123,7 +123,7 @@
                         <div class="flex flex-col gap-2.5">
                             <a href="{{ route('profile.edit') }}"
                                class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs shadow-md hover:shadow-lg transition flex items-center justify-center gap-2"
-                               style="background: linear-gradient(to right, #0098e7, #0077cc);">
+                                style="background: linear-gradient(to right, #0098e7, #0077cc);">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
@@ -131,6 +131,76 @@
                             </a>
                             <a href="{{ route('customer.dashboard') }}"
                                class="w-full py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center justify-center">
+                                Kembali ke Beranda
+                            </a>
+                        </div>
+                    </div>
+                @elseif(!$isKtpVerified)
+                    <div class="py-6 text-center">
+                        <div class="w-16 h-16 bg-amber-50 border border-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-amber-500 shadow-2xs">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold text-gray-900 mb-1.5">Verifikasi KTP Sedang Diproses</h2>
+                        <p class="text-xs text-gray-600 mb-5 leading-relaxed max-w-xs mx-auto">
+                            Dokumen dan foto KTP Anda sedang dalam peninjauan oleh Admin. Anda belum dapat membuat permintaan bantuan baru hingga akun diverifikasi.
+                        </p>
+
+                        <div class="flex flex-col gap-2.5">
+                            <a href="{{ route('profile.settings.verification') }}"
+                               class="w-full py-3 px-4 rounded-xl text-amber-800 bg-amber-50 border border-amber-200 font-bold text-xs shadow-xs hover:bg-amber-100 transition flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Cek Status Dokumen KTP
+                            </a>
+                            <a href="{{ route('customer.dashboard') }}"
+                               class="w-full py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center justify-center">
+                                Kembali ke Beranda
+                            </a>
+                        </div>
+                    </div>
+                @elseif($hasReachedHelpLimit)
+                    <div class="py-6 text-center">
+                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-amber-600 shadow-sm"
+                             style="background: #fffbeb; border: 1.5px solid #f59e0b;">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold text-gray-900 mb-1.5">Batas Pembuatan Bantuan Tercapai</h2>
+                        
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3"
+                             style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">
+                            <span>{{ $activeHelpsCount }} dari {{ $maxHelpsLimit }} Kuota Bantuan Terpakai</span>
+                        </div>
+
+                        <p class="text-xs text-gray-600 mb-6 leading-relaxed max-w-xs mx-auto">
+                            Akun Anda belum verifikasi email dan telah mencapai batas maksimal <strong>{{ $maxHelpsLimit }} permintaan bantuan</strong>. Silakan verifikasi email Anda terlebih dahulu untuk membuat bantuan baru tanpa batas.
+                        </p>
+
+                        <div class="flex flex-col gap-2.5 max-w-xs mx-auto">
+                            <form method="POST" action="{{ route('verification.send') }}" onsubmit="event.preventDefault(); window.sendEmailVerification(this.querySelector('button'), '{{ route('verification.send') }}');">
+                                @csrf
+                                <button type="submit"
+                                        class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2 hover:opacity-95 cursor-pointer"
+                                        style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    Kirim Link Verifikasi Email
+                                </button>
+                            </form>
+
+                            <a href="{{ route('customer.helps.index') }}"
+                               class="w-full py-3 px-4 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 text-white shadow-md hover:opacity-95"
+                               style="background: linear-gradient(to right, #0098e7, #0077cc);">
+                                Lihat Bantuan Saya
+                            </a>
+
+                            <a href="{{ route('customer.dashboard') }}"
+                               class="w-full py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center justify-center">
                                 Kembali ke Beranda
                             </a>
                         </div>
@@ -204,9 +274,22 @@
                             </label>
                             <div class="relative">
                                 <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold text-sm">Rp</span>
-                                <input type="number" wire:model.live="amount" min="{{ $minNominal ?? 10000 }}" max="{{ $maxNominal ?? 10000000 }}" step="1000" maxlength="8"
-                                    oninput="if(this.value.length > 8) this.value = this.value.slice(0, 8); if(Number(this.value) > {{ $maxNominal ?? 10000000 }}) this.value = {{ $maxNominal ?? 10000000 }};"
-                                    class="w-full pl-12 pr-4 py-3 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition bg-white">
+                                <input type="text"
+                                    wire:ignore
+                                    x-data
+                                    x-init="
+                                        $el.value = $wire.amount ? Number($wire.amount).toLocaleString('id-ID') : '';
+                                    "
+                                    x-on:input="
+                                        let raw = $el.value.replace(/\./g, '').replace(/\D/g, '');
+                                        let max = {{ $maxNominal ?? 10000000 }};
+                                        if (parseInt(raw) > max) raw = String(max);
+                                        $el.value = raw ? raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+                                        $wire.set('amount', parseInt(raw) || 0);
+                                    "
+                                    inputmode="numeric"
+                                    class="w-full pl-12 pr-4 py-3 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition bg-white"
+                                    placeholder="0">
                             </div>
                             <p class="text-xs text-gray-500 mt-1.5 flex items-center">
                                 <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -389,21 +472,83 @@
                             <div wire:ignore id="map" style="height: 280px; min-height: 280px;"
                                 class="w-full rounded-lg border border-gray-300 mb-2 bg-gray-100"></div>
 
+                            <!-- Koordinat Display -->
+                            <div id="coordinates-display"
+                                class="bg-green-50 border border-green-200 rounded-lg p-3 mb-2 hidden">
+                                <p class="text-xs font-semibold text-green-800 mb-1">✓ Lokasi Ditandai:</p>
+                                <p class="text-xs text-green-900 font-mono">
+                                    Lat: <span id="lat-display" class="font-semibold">-</span>, 
+                                    Lng: <span id="lng-display" class="font-semibold">-</span>
+                                </p>
+                            </div>
+
                             <!-- Hidden inputs for Livewire -->
                             <input type="hidden" wire:model="latitude" id="latitude-input">
                             <input type="hidden" wire:model="longitude" id="longitude-input">
 
                             <p class="text-xs text-gray-500 mt-1.5 flex items-center">
-                                <svg class="w-3.5 h-3.5 mr-1 text-primary-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
-                                Klik pada peta untuk menandai titik lokasi bantuan
+                                Klik pada peta atau geser pin merah/biru untuk menyesuaikan titik tepat bantuan
                             </p>
+
                             @error('latitude')
-                                <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                <span class="text-red-500 text-xs mt-1.5 block">{{ $message }}</span>
                             @enderror
-                            @error('longitude')
-                                <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5">
+                                <span class="flex items-center">
+                                    <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    Deskripsi Bantuan
+                                    <span class="text-red-500 ml-1">*</span>
+                                </span>
+                            </label>
+                            <textarea wire:model="description" rows="4"
+                                placeholder="Jelaskan detail kebutuhan bantuan Anda secara lengkap..."
+                                class="w-full px-4 py-3 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-none bg-white"></textarea>
+                            @error('description')
+                                <span class="text-red-500 text-xs mt-1.5 block flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    {{ $message }}
+                                </span>
+                            @enderror
+                        </div>
+
+                        <!-- Peralatan yang Sudah Disediakan -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5">
+                                <span class="flex items-center">
+                                    <svg class="w-3.5 h-3.5 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+                                    </svg>
+                                    Peralatan yang Sudah Disediakan
+                                    <span class="text-gray-400 text-xs ml-1">(Opsional)</span>
+                                </span>
+                            </label>
+                            <textarea wire:model="equipment_provided" rows="3"
+                                placeholder="Contoh: Sudah ada gerobak dorong, ember besar 2 buah, timbangan digital"
+                                class="w-full px-4 py-3 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-none bg-white"></textarea>
+                            <p class="text-xs text-gray-500 mt-1.5 flex items-center">
+                                <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                                Tuliskan alat atau peralatan yang sudah Anda sediakan untuk membantu mitra
+                            </p>
+                            @error('equipment_provided')
+                                <span class="text-red-500 text-xs mt-1.5 block flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    {{ $message }}
+                                </span>
                             @enderror
                         </div>
 
@@ -419,44 +564,271 @@
                             </label>
 
                             <div class="flex items-center justify-center w-full">
-                                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition">
-                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                        @if ($photo)
-                                            <p class="text-xs text-green-600 font-medium mb-1">Foto terpilih: {{ $photo->getClientOriginalName() }}</p>
-                                        @else
-                                            <svg class="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                @if ($photo)
+                                    <div class="relative w-full h-44 rounded-xl overflow-hidden border-2 border-blue-400 bg-gray-900 group shadow-sm">
+                                        <!-- Gambar langsung muncul di kotakan -->
+                                        <img src="{{ $photo->temporaryUrl() }}" alt="Preview Foto" class="w-full h-full object-cover">
+                                        
+                                        <!-- Overlay info & tombol ganti / hapus foto saat hover -->
+                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                            <label for="photo-input" class="cursor-pointer px-3 py-1.5 bg-white/90 hover:bg-white text-gray-800 text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                                Ganti Foto
+                                            </label>
+                                            <button type="button" wire:click="$set('photo', null)" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                Hapus
+                                            </button>
+                                        </div>
+
+                                        <!-- Tombol Hapus Cepat (Pojok Kanan Atas) -->
+                                        <button type="button" wire:click="$set('photo', null)" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-full shadow transition" title="Hapus Foto">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
-                                            <p class="mb-1 text-xs text-gray-500"><span class="font-semibold">Klik untuk upload</span> atau drag & drop</p>
-                                            <p class="text-xs text-gray-400">PNG, JPG, JPEG (Maks. 2MB)</p>
-                                        @endif
+                                        </button>
+
+                                        <!-- Nama File (Pojok Kiri Bawah) -->
+                                        <div class="absolute bottom-2 left-2 max-w-[80%] bg-black/60 backdrop-blur-sm text-white text-[11px] px-2.5 py-1 rounded-md truncate">
+                                            📷 {{ $photo->getClientOriginalName() }}
+                                        </div>
                                     </div>
-                                    <input type="file" wire:model="photo" class="hidden" accept="image/png,image/jpeg,image/jpg" />
-                                </label>
+                                    <input type="file" id="photo-input" wire:model="photo" class="hidden" accept="image/png,image/jpeg,image/jpg" />
+                                @else
+                                    <label for="photo-input" class="flex flex-col items-center justify-center w-full h-36 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50/50 hover:border-blue-400 transition group">
+                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <div class="w-10 h-10 mb-2 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
+                                            </div>
+                                            <p class="mb-1 text-xs text-gray-700"><span class="font-semibold text-blue-600">Klik untuk upload</span> atau ambil foto</p>
+                                            <p class="text-[11px] text-gray-400">PNG, JPG, JPEG (Maks. 2MB)</p>
+                                        </div>
+                                        <input type="file" id="photo-input" wire:model="photo" class="hidden" accept="image/png,image/jpeg,image/jpg" />
+                                    </label>
+                                @endif
                             </div>
+
+                            <!-- Keterangan Penjelas Bantuan -->
+                            <p class="text-[11px] text-gray-500 mt-1.5 flex items-center">
+                                <svg class="w-3.5 h-3.5 mr-1 flex-shrink-0 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                                Tidak wajib diisi, tetapi mohon disertakan jika memungkinkan agar memudahkan mitra.
+                            </p>
+
                             @error('photo')
                                 <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
                             @enderror
-
-                            @if ($photo)
-                                <div class="mt-2">
-                                    <img src="{{ $photo->temporaryUrl() }}" class="h-24 w-auto rounded-lg object-cover border border-gray-200">
-                                </div>
-                            @endif
                         </div>
 
-                        <!-- Tombol Submit Form Bantuan -->
-                        <div class="pt-4 border-t border-gray-200">
-                            <button type="submit"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-6 rounded-lg shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                                Lanjutkan & Tinjau Permintaan
+                        <!-- Submit Button -->
+                        <div class="flex gap-3 pt-6">
+                            <a href="{{ route('dashboard') }}"
+                                class="flex-1 inline-flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-5 py-3 text-sm rounded-lg font-semibold hover:bg-gray-50 transition">
+                                Batal
+                            </a>
+                            <button type="submit" wire:loading.attr="disabled"
+                                class="flex-1 inline-flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-3 text-sm rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span wire:loading.remove wire:target="save">Kirim Permintaan</span>
                             </button>
                         </div>
                     </form>
                 @endif
+
+                <!-- Timezone Script -->
+                <script>
+                    (function() {
+                        const western = [
+                            'Aceh', 'Sumatera Utara', 'Sumatera Barat', 'Riau', 'Kepulauan Riau', 'Jambi', 'Bengkulu',
+                            'Lampung', 'Bangka Belitung',
+                            'Banten', 'DKI Jakarta', 'Jawa Barat', 'Jawa Tengah', 'DI Yogyakarta', 'Jawa Timur',
+                            'Kalimantan Barat'
+                        ];
+                        const central = [
+                            'Bali', 'Nusa Tenggara Barat', 'Nusa Tenggara Timur', 'Kalimantan Tengah', 'Kalimantan Selatan',
+                            'Kalimantan Timur', 'Sulawesi Selatan', 'Sulawesi Tengah', 'Sulawesi Tenggara', 'Gorontalo',
+                            'Sulawesi Barat', 'Sulawesi Utara'
+                        ];
+                        const eastern = [
+                            'Maluku', 'Maluku Utara', 'Papua', 'Papua Barat'
+                        ];
+
+                        const zoneIana = {
+                            'WIB': 'Asia/Jakarta',
+                            'WITA': 'Asia/Makassar',
+                            'WIT': 'Asia/Jayapura'
+                        };
+
+                        function provinceToZone(prov) {
+                            if (!prov) return 'WIB';
+                            prov = prov.trim();
+                            if (western.indexOf(prov) !== -1) return 'WIB';
+                            if (central.indexOf(prov) !== -1) return 'WITA';
+                            if (eastern.indexOf(prov) !== -1) return 'WIT';
+                            return 'WIB';
+                        }
+
+                        function formatTimeForZone(date, iana) {
+                            try {
+                                const fmt = new Intl.DateTimeFormat('id-ID', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false,
+                                    timeZone: iana
+                                });
+                                return fmt.format(date);
+                            } catch (e) {
+                                const hh = String(date.getHours()).padStart(2, '0');
+                                const mm = String(date.getMinutes()).padStart(2, '0');
+                                return `${hh}:${mm}`;
+                            }
+                        }
+
+                        function updateTimezoneDisplay() {
+                            const citySelect = document.getElementById('city-select');
+                            const tzDisplay = document.getElementById('timezone-display');
+                            if (!citySelect || !tzDisplay) return;
+                            const opt = citySelect.options[citySelect.selectedIndex];
+                            const province = opt ? (opt.dataset.province || '') : '';
+                            const zone = provinceToZone(province);
+                            const iana = zoneIana[zone];
+                            const now = new Date();
+                            const timeText = formatTimeForZone(now, iana);
+                            tzDisplay.textContent = timeText ? `Waktu lokal: ${zone} — ${timeText}` : `Waktu lokal: ${zone}`;
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const citySelect = document.getElementById('city-select');
+                            const hidden = document.getElementById('scheduled-time-hidden');
+                            const manual = document.getElementById('scheduled-time-manual');
+                            const tzBadge = document.getElementById('timezone-badge');
+
+                            if (citySelect) {
+                                citySelect.addEventListener('change', function() {
+                                    const opt = citySelect.options[citySelect.selectedIndex];
+                                    const province = opt ? (opt.dataset.province || '') : '';
+                                    const zone = provinceToZone(province);
+                                    if (tzBadge) tzBadge.textContent = zone;
+                                    updateTimezoneDisplay();
+                                });
+                            }
+
+                            window.addEventListener('help:timezone-changed', function(e) {
+                                try {
+                                    const detail = e.detail || {};
+                                    const zone = detail.zone || 'WIB';
+                                    const iana = detail.iana || zoneIana[zone] || 'Asia/Jakarta';
+                                    if (tzBadge) tzBadge.textContent = zone;
+                                    const tzDisplayEl = document.getElementById('timezone-display');
+                                    const now = new Date();
+                                    try {
+                                        const fmt = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: iana });
+                                        const timeText = fmt.format(now);
+                                        if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone} — ${timeText}`;
+                                    } catch (err) {
+                                        if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone}`;
+                                    }
+                                } catch (err) {
+                                    console.error('help:timezone-changed handler error', err);
+                                }
+                            });
+
+                            function normalizeManualAndSync() {
+                                if (!manual || !hidden) return;
+                                let v = manual.value || '';
+                                const ampmMatch = v.match(/(\d{1,2}):(\d{2})\s*([AP]M)?/i);
+                                if (ampmMatch) {
+                                    let hh = parseInt(ampmMatch[1], 10);
+                                    const mm = parseInt(ampmMatch[2], 10);
+                                    const ampm = (ampmMatch[3] || '').toUpperCase();
+                                    if (ampm === 'PM' && hh < 12) hh += 12;
+                                    if (ampm === 'AM' && hh === 12) hh = 0;
+                                    v = String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+                                }
+                                const parts = v.split(':');
+                                if (parts.length === 2) {
+                                    const hh = String(parseInt(parts[0], 10) || 0).padStart(2, '0');
+                                    const mm = String(parseInt(parts[1], 10) || 0).padStart(2, '0');
+                                    const normalized = `${hh}:${mm}`;
+                                    if (normalized !== v) manual.value = normalized;
+                                    if (hidden.value !== normalized) {
+                                        hidden.value = normalized;
+                                        hidden.dispatchEvent(new Event('input', { bubbles: true }));
+                                    }
+                                }
+                            }
+
+                            if (manual) {
+                                manual.addEventListener('blur', normalizeManualAndSync);
+                                manual.addEventListener('change', normalizeManualAndSync);
+
+                                manual.addEventListener('input', function(e) {
+                                    const raw = manual.value || '';
+                                    const selStart = manual.selectionStart || 0;
+                                    const before = raw.slice(0, selStart);
+                                    const digitsBefore = (before.match(/\d/g) || []).length;
+                                    let digits = raw.replace(/[^0-9]/g, '').slice(0, 4);
+                                    let candidate = digits.length <= 2 ? digits : digits.slice(0, 2) + ':' + digits.slice(2);
+
+                                    if (/^\d{1,2}:\d{1,2}$/.test(candidate)) {
+                                        const p = candidate.split(':');
+                                        let hh = parseInt(p[0], 10) || 0;
+                                        let mm = parseInt(p[1], 10) || 0;
+                                        hh = Math.max(0, Math.min(23, hh));
+                                        mm = Math.max(0, Math.min(59, mm));
+                                        candidate = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+                                    }
+
+                                    const inputType = (e && e.inputType) ? e.inputType : '';
+
+                                    if (inputType && inputType.startsWith('delete')) {
+                                        if (digits.length <= 2) {
+                                            if (manual.value !== digits) manual.value = digits;
+                                            try { manual.setSelectionRange(digits.length, digits.length); } catch (err) {}
+                                        } else {
+                                            const newVal = digits.slice(0,2) + ':' + digits.slice(2);
+                                            if (manual.value !== newVal) manual.value = newVal;
+                                            let newPos = digitsBefore <= 2 ? digitsBefore : digitsBefore + 1;
+                                            if (newPos > manual.value.length) newPos = manual.value.length;
+                                            try { manual.setSelectionRange(newPos, newPos); } catch (err) {}
+                                        }
+                                    } else {
+                                        if (manual.value !== candidate) {
+                                            manual.value = candidate;
+                                            let newPos = digitsBefore <= 2 ? digitsBefore : digitsBefore + 1;
+                                            if (newPos > manual.value.length) newPos = manual.value.length;
+                                            try { manual.setSelectionRange(newPos, newPos); } catch (err) {}
+                                        }
+                                    }
+
+                                    if (/^\d{2}:\d{2}$/.test(candidate)) {
+                                        if (hidden.value !== candidate) {
+                                            hidden.value = candidate;
+                                            hidden.dispatchEvent(new Event('input', { bubbles: true }));
+                                        }
+                                    }
+                                });
+
+                                normalizeManualAndSync();
+                            }
+
+                            setInterval(updateTimezoneDisplay, 60 * 1000);
+                            updateTimezoneDisplay();
+                            if (tzBadge) {
+                                const opt = citySelect ? citySelect.options[citySelect.selectedIndex] : null;
+                                const province = opt ? (opt.dataset.province || '') : '';
+                                const zone = provinceToZone(province);
+                                tzBadge.textContent = zone;
+                            }
+                        });
+                    })();
+                </script>
             </div>
         </div>
     </div>
@@ -473,142 +845,265 @@
         </div>
     </div>
 
-    <!-- Insufficient Balance Modal -->
+    <!-- Insufficient Balance Modal (Top Up Standard - Sleek & Compact Modal) -->
     @if($showInsufficientModal)
-        <div class="modal-overlay fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-            <div class="relative bg-white rounded-3xl w-full max-w-sm p-5 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto hide-scrollbar flex flex-col">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-9 h-9 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0 text-amber-600">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        <div class="modal-overlay" 
+            style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(15, 23, 42, 0.7);"
+            wire:click="closeInsufficientModal">
+            <div style="max-width: 400px; width: 100%; margin: auto; background: #ffffff; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; overflow: hidden; max-height: 90vh; border: 1px solid #f1f5f9;"
+                wire:click.stop>
+                
+                <!-- Header Modal -->
+                <div style="background: #ffffff; border-bottom: 1px solid #f1f5f9; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: #eff6ff; border: 1px solid #dbeafe; display: flex; align-items: center; justify-content: center; color: #0284c7; flex-shrink: 0;">
+                            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-base font-bold text-gray-900">Saldo Tidak Cukup</h3>
-                            <span class="inline-flex items-center text-[11px] font-semibold text-emerald-600">⚡ Top Up Tanpa Reset Form</span>
+                            <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">Top-Up Saldo</h3>
+                            <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Selesaikan top-up untuk memesan bantuan</p>
                         </div>
                     </div>
-                    <button wire:click="closeInsufficientModal" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="button" wire:click="closeInsufficientModal" 
+                        style="padding: 6px; border-radius: 9999px; border: none; background: transparent; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center;"
+                        onmouseover="this.style.background='#f1f5f9'; this.style.color='#334155';"
+                        onmouseout="this.style.background='transparent'; this.style.color='#94a3b8';">
+                        <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <!-- Balance Breakdown Card -->
-                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 mb-3 text-xs space-y-1.5">
-                    <div class="flex justify-between items-center text-gray-600">
-                        <span>Saldo Anda Saat Ini:</span>
-                        <span class="font-semibold text-gray-900">Rp {{ number_format($currentBalance ?? 0, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between items-center text-gray-600">
-                        <span>Total Biaya Bantuan:</span>
-                        <span class="font-semibold text-gray-900">Rp {{ number_format($confirmTotal ?? 0, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="pt-1.5 border-t border-gray-200 flex justify-between items-center text-amber-700 font-bold">
-                        <span>Kekurangan Saldo:</span>
-                        <span class="text-sm text-red-600">Rp {{ number_format($topupDeficit ?? 0, 0, ',', '.') }}</span>
-                    </div>
-                </div>
-
-                <!-- Topup Amount Input & Quick Chips -->
-                <div class="mb-3">
-                    <label class="block text-xs font-bold text-gray-700 mb-1">Nominal Top Up</label>
-                    <div class="flex rounded-xl shadow-xs border border-gray-300 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 overflow-hidden bg-white">
-                        <span class="inline-flex items-center px-3 bg-gray-100 border-r border-gray-200 text-gray-700 font-bold text-xs select-none">Rp</span>
-                        <input type="number" wire:model="topupAmount" min="10000" step="1000"
-                            class="w-full px-3 py-2 text-sm font-semibold border-0 focus:ring-0 focus:outline-hidden text-gray-900 bg-transparent">
-                    </div>
-                    @error('topupAmount')
-                        <span class="text-red-500 text-[11px] mt-1 block">{{ $message }}</span>
-                    @enderror
-
-                    <div class="flex flex-wrap gap-1.5 mt-2">
-                        @if($topupDeficit > 0)
-                            <button type="button" wire:click="$set('topupAmount', {{ (int)(ceil($topupDeficit / 1000) * 1000) }})"
-                                class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition">
-                                Pas Kurangnya (Rp {{ number_format(ceil($topupDeficit / 1000) * 1000, 0, ',', '.') }})
-                            </button>
-                        @endif
-                        <button type="button" wire:click="$set('topupAmount', 25000)"
-                            class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
-                            Rp 25.000
-                        </button>
-                        <button type="button" wire:click="$set('topupAmount', 50000)"
-                            class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
-                            Rp 50.000
-                        </button>
-                        <button type="button" wire:click="$set('topupAmount', 100000)"
-                            class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
-                            Rp 100.000
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Payment Method -->
-                <div class="mb-3">
-                    <label class="block text-xs font-bold text-gray-700 mb-1.5">Metode Pembayaran</label>
-                    <div class="space-y-1.5">
-                        <label class="flex items-center justify-between p-2.5 border rounded-xl cursor-pointer transition text-left {{ $topupMethod === 'all' ? 'border-blue-500 bg-blue-50/50 text-blue-900 font-semibold ring-1 ring-blue-500' : 'border-gray-200 hover:bg-gray-50' }}">
-                            <div class="flex items-center gap-2">
-                                <input type="radio" wire:model.live="topupMethod" value="all" class="text-blue-600 focus:ring-blue-500">
-                                <div>
-                                    <div class="text-xs font-bold text-gray-900">Semua Metode (Lengkap)</div>
-                                    <div class="text-[10px] text-gray-500">Bisa pilih Bank, QRIS, GoPay, ShopeePay di Midtrans</div>
-                                </div>
-                            </div>
-                            <span class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md font-bold">Rekomendasi</span>
-                        </label>
-
-                        <div class="grid grid-cols-2 gap-2">
-                            <label class="flex flex-col p-2 border rounded-xl cursor-pointer transition text-left {{ $topupMethod === 'bank' ? 'border-blue-500 bg-blue-50/50 text-blue-900 font-semibold ring-1 ring-blue-500' : 'border-gray-200 hover:bg-gray-50' }}">
-                                <div class="flex items-center gap-1.5 mb-0.5">
-                                    <input type="radio" wire:model.live="topupMethod" value="bank" class="text-blue-600 focus:ring-blue-500">
-                                    <span class="text-xs font-bold">Transfer Bank</span>
-                                </div>
-                                <span class="text-[10px] text-gray-500 pl-4">BCA, BRI, Mandiri, BNI</span>
-                            </label>
-
-                            <label class="flex flex-col p-2 border rounded-xl cursor-pointer transition text-left {{ $topupMethod === 'ewallet' ? 'border-blue-500 bg-blue-50/50 text-blue-900 font-semibold ring-1 ring-blue-500' : 'border-gray-200 hover:bg-gray-50' }}">
-                                <div class="flex items-center gap-1.5 mb-0.5">
-                                    <input type="radio" wire:model.live="topupMethod" value="ewallet" class="text-blue-600 focus:ring-blue-500">
-                                    <span class="text-xs font-bold">QRIS & E-Wallet</span>
-                                </div>
-                                <span class="text-[10px] text-gray-500 pl-4">GoPay, ShopeePay, QRIS</span>
-                            </label>
+                <!-- Scrollable Body -->
+                <div class="hide-scrollbar" style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; flex: 1;">
+                    
+                    <!-- Ringkasan Saldo Card -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #475569;">
+                            <span>Saldo Tersedia:</span>
+                            <span style="font-weight: 700; color: #0f172a;">Rp {{ number_format($currentBalance ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #475569;">
+                            <span>Total Biaya Bantuan:</span>
+                            <span style="font-weight: 700; color: #0f172a;">Rp {{ number_format($confirmTotal ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        <div style="border-top: 1px solid #e2e8f0; padding-top: 6px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 800; color: #dc2626; font-size: 12px;">Kekurangan Saldo:</span>
+                            <span style="font-weight: 900; color: #dc2626; font-size: 14px;">Rp {{ number_format($topupDeficit ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
+
+                    <!-- Input Nominal Top Up -->
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                            <label style="font-weight: 700; color: #334155; font-size: 12px;">Nominal Transfer <span style="color: #ef4444;">*</span></label>
+                            @if($topupDeficit > 0)
+                                <button type="button" wire:click="setTopupQuickAmount({{ (int)(ceil($topupDeficit / 1000) * 1000) }})"
+                                    style="font-size: 10px; font-weight: 700; color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; padding: 2px 7px; border-radius: 6px; cursor: pointer;">
+                                    ⚡ Pas Kurangnya (Rp {{ number_format(ceil($topupDeficit / 1000) * 1000, 0, ',', '.') }})
+                                </button>
+                            @endif
+                        </div>
+                        <div style="display: flex; align-items: center; border-radius: 10px; border: 1.5px solid #cbd5e1; overflow: hidden; background: #ffffff;">
+                            <span style="padding: 8px 12px; background: #f8fafc; border-right: 1px solid #e2e8f0; font-size: 13px; font-weight: 800; color: #64748b; user-select: none;">Rp</span>
+                            <input type="text"
+                                wire:ignore
+                                x-data
+                                x-init="
+                                    $el.value = $wire.topupAmount ? Number($wire.topupAmount).toLocaleString('id-ID') : '';
+                                    $wire.on('topup-amount-updated', (val) => {
+                                        $el.value = val ? Number(val).toLocaleString('id-ID') : '';
+                                    });
+                                "
+                                x-on:input="
+                                    let raw = $el.value.replace(/\./g, '').replace(/\D/g, '');
+                                    $el.value = raw ? raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+                                    $wire.set('topupAmount', parseInt(raw) || 0);
+                                "
+                                inputmode="numeric"
+                                style="width: 100%; padding: 8px 10px; font-size: 14px; font-weight: 800; color: #0f172a; border: none; outline: none; background: transparent;"
+                                placeholder="10.000">
+                        </div>
+                        @error('topupAmount') <span style="font-size: 11px; color: #dc2626; margin-top: 4px; display: block;">{{ $message }}</span> @enderror
+                        
+                        <!-- Quick Buttons -->
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 6px;">
+                            <button type="button" wire:click="setTopupQuickAmount(20000)"
+                                style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 20000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 20000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 20000 ? '#0369a1' : '#475569' }}; cursor: pointer;">20K</button>
+                            <button type="button" wire:click="setTopupQuickAmount(50000)"
+                                style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 50000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 50000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 50000 ? '#0369a1' : '#475569' }}; cursor: pointer;">50K</button>
+                            <button type="button" wire:click="setTopupQuickAmount(100000)"
+                                style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 100000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 100000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 100000 ? '#0369a1' : '#475569' }}; cursor: pointer;">100K</button>
+                            <button type="button" wire:click="setTopupQuickAmount(200000)"
+                                style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 200000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 200000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 200000 ? '#0369a1' : '#475569' }}; cursor: pointer;">200K</button>
+                            <button type="button" wire:click="setTopupQuickAmount(500000)"
+                                style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 500000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 500000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 500000 ? '#0369a1' : '#475569' }}; cursor: pointer;">500K</button>
+                        </div>
+
+                        {{-- Ringkasan Biaya Admin --}}
+                        @if($topupAmount > 0)
+                        <div style="margin-top: 8px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569;">
+                                <span>Nominal Top-Up</span>
+                                <span style="font-weight: 600;">Rp {{ number_format($topupAmount, 0, ',', '.') }}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569;">
+                                <span>Biaya Admin</span>
+                                <span style="font-weight: 600; color: #dc2626;">+ Rp {{ number_format($topupAdminFee, 0, ',', '.') }}</span>
+                            </div>
+                            <div style="border-top: 1px dashed #93c5fd; padding-top: 5px; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 12px; font-weight: 800; color: #0369a1;">Total Transfer</span>
+                                <span style="font-size: 14px; font-weight: 900; color: #0369a1;">Rp {{ number_format($topupTotalTransfer, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Pilihan Tab Metode Pembayaran -->
+                    <div>
+                        <label style="display: block; font-weight: 700; color: #334155; font-size: 12px; margin-bottom: 6px;">Metode Pembayaran <span style="color: #ef4444;">*</span></label>
+                        
+                        <!-- Segmented Switcher -->
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 3px; background: #f1f5f9; border-radius: 10px; margin-bottom: 10px;">
+                            @if($qrisEnabled)
+                                <button type="button" wire:click="selectTopupMethod('qris')"
+                                    style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ $topupMethod === 'qris' ? '#ffffff' : 'transparent' }}; color: {{ $topupMethod === 'qris' ? '#0284c7' : '#64748b' }}; box-shadow: {{ $topupMethod === 'qris' ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
+                                    📱 QRIS E-Wallet
+                                </button>
+                            @endif
+                            <button type="button" wire:click="selectTopupMethod('{{ $availableBanks[0]['value'] ?? 'bank_bca' }}')"
+                                style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ str_starts_with($topupMethod, 'bank_') ? '#ffffff' : 'transparent' }}; color: {{ str_starts_with($topupMethod, 'bank_') ? '#0284c7' : '#64748b' }}; box-shadow: {{ str_starts_with($topupMethod, 'bank_') ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
+                                🏦 Transfer Bank
+                            </button>
+                        </div>
+
+                        <!-- Konten QRIS -->
+                        @if($topupMethod === 'qris')
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px; text-align: center;">
+                                <p style="font-size: 11px; font-weight: 700; color: #1e293b; margin: 0 0 6px 0;">Scan QRIS (Semua E-Wallet / Bank)</p>
+                                @if(file_exists(public_path('images/payment/qris.png')))
+                                    <div style="background: #ffffff; padding: 6px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-block; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 6px;">
+                                        <img src="{{ asset('images/payment/qris.png') }}" 
+                                            alt="QRIS QR Code" 
+                                            style="width: 130px; height: 130px; margin: auto; object-fit: contain; display: block;">
+                                    </div>
+                                @else
+                                    <div style="width: 130px; height: 130px; margin: auto; border: 2px dashed #cbd5e1; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #ffffff; margin-bottom: 6px;">
+                                        <p style="font-size: 11px; color: #94a3b8; margin: 0;">QRIS Code</p>
+                                    </div>
+                                @endif
+                                <p style="font-size: 10px; color: #64748b; margin: 0;">GoPay, OVO, DANA, LinkAja, ShopeePay, BCA, Mandiri, dll</p>
+                            </div>
+                        @endif
+
+                        <!-- Konten Transfer Bank -->
+                        @if(str_starts_with($topupMethod, 'bank_'))
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                @foreach($availableBanks as $bank)
+                                    <div wire:click="selectTopupMethod('{{ $bank['value'] }}')"
+                                        style="border: 2px solid {{ $topupMethod === $bank['value'] ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupMethod === $bank['value'] ? '#f0f9ff' : '#ffffff' }}; border-radius: 12px; padding: 8px 10px; cursor: pointer; transition: all 0.2s;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div style="width: 36px; height: 36px; background: #ffffff; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; font-size: 10px; font-weight: 900; color: #1e293b; flex-shrink: 0;">
+                                                {{ strtoupper($bank['code']) }}
+                                            </div>
+                                            <div style="flex: 1; min-width: 0;">
+                                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <span style="font-weight: 800; color: #0f172a; font-size: 12px;">{{ $bank['name'] }}</span>
+                                                    <button type="button" 
+                                                        onclick="event.stopPropagation(); navigator.clipboard.writeText('{{ $bank['account_number'] }}'); alert('Nomor rekening {{ $bank['name'] }} ({{ $bank['account_number'] }}) berhasil disalin!');"
+                                                        style="padding: 2px 6px; font-size: 10px; font-weight: 700; background: #e2e8f0; color: #0369a1; border-radius: 4px; border: none; cursor: pointer;">
+                                                        📋 Salin
+                                                    </button>
+                                                </div>
+                                                <p style="font-family: monospace; font-size: 12px; font-weight: 800; color: #1e293b; margin: 1px 0 0 0;">{{ $bank['account_number'] }}</p>
+                                                <p style="font-size: 10px; color: #64748b; margin: 0;">a.n. {{ $bank['account_name'] }}</p>
+                                            </div>
+                                            @if($topupMethod === $bank['value'])
+                                                <svg style="width: 18px; height: 18px; color: #0284c7; flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                                </svg>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                        @error('topupMethod') <span style="font-size: 11px; color: #dc2626; margin-top: 4px; display: block;">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Upload Bukti Transfer -->
+                    <div>
+                        <label style="display: block; font-weight: 700; color: #334155; font-size: 12px; margin-bottom: 6px;">Upload Bukti Transfer <span style="color: #ef4444;">*</span></label>
+                        
+                        @if ($topupReceipt)
+                            <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; background: #f8fafc; padding: 8px; text-align: center;">
+                                <img src="{{ $topupReceipt->temporaryUrl() }}" style="max-height: 100px; margin: auto; border-radius: 6px; object-fit: contain; display: block;">
+                                <button type="button" wire:click="$set('topupReceipt', null)" 
+                                    style="position: absolute; top: 8px; right: 8px; background: #dc2626; color: #ffffff; padding: 4px; border-radius: 9999px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                    <svg style="width: 12px; height: 12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                                <p style="font-size: 11px; color: #16a34a; font-weight: 700; margin: 4px 0 0 0;">✓ Bukti transfer siap dikirim</p>
+                            </div>
+                        @else
+                            <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 64px; border: 2px dashed #cbd5e1; border-radius: 12px; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <svg style="width: 18px; height: 18px; color: #94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span style="font-size: 12px; font-weight: 700; color: #334155;">Pilih Bukti Transfer</span>
+                                    <span style="font-size: 10px; color: #94a3b8;">(Maks 2MB)</span>
+                                </div>
+                                <input type="file" wire:model="topupReceipt" accept="image/*" style="display: none;">
+                            </label>
+                        @endif
+
+                        @error('topupReceipt')
+                            <span style="font-size: 11px; color: #dc2626; margin-top: 4px; display: block;">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- Catatan -->
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 8px 10px; font-size: 11px; color: #166534; display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 12px;">💡</span>
+                        <p style="margin: 0; line-height: 1.3;">Saldo otomatis diverifikasi & masuk ke akun Anda setelah admin mengecek bukti.</p>
+                    </div>
                 </div>
 
-                <div class="bg-blue-50/80 border border-blue-100 rounded-xl p-2.5 mb-4">
-                    <p class="text-[11px] text-blue-800 leading-tight">
-                        ✨ <strong>Data form tidak akan hilang.</strong> Setelah pembayaran Midtrans berhasil, saldo langsung terisi dan konfirmasi bantuan otomatis terbuka.
-                    </p>
-                </div>
-
-                <div class="flex gap-2.5 mt-auto pt-1">
+                <!-- Footer Action Buttons (Proporsional & Seimbang) -->
+                <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
                     <button wire:click="closeInsufficientModal" type="button"
-                        class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 text-xs font-semibold hover:bg-gray-50 transition">
+                        style="flex: 1; height: 44px; border-radius: 12px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #475569; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                        onmouseover="this.style.background='#f1f5f9';"
+                        onmouseout="this.style.background='#ffffff';">
                         Batal
                     </button>
-                    <button wire:click="processDirectTopup" type="button" wire:loading.attr="disabled"
-                        class="flex-1 px-4 py-2.5 rounded-xl text-white text-xs font-bold text-center shadow transition flex items-center justify-center gap-2 disabled:opacity-50"
-                        style="background: linear-gradient(to right, #0098e7, #0077cc);">
-                        <span wire:loading.remove wire:target="processDirectTopup">Bayar via Midtrans</span>
-                        <span wire:loading wire:target="processDirectTopup" class="flex items-center gap-1.5">
-                            <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                    <button wire:click="processDirectTopup" type="button" wire:loading.attr="disabled" wire:target="processDirectTopup"
+                        style="flex: 2; height: 44px; border-radius: 12px; border: none; background: linear-gradient(135deg, #0098e7, #0077cc); color: #ffffff; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0, 152, 231, 0.35); transition: opacity 0.2s;"
+                        onmouseover="this.style.opacity='0.95';"
+                        onmouseout="this.style.opacity='1';">
+                        <span wire:loading.remove wire:target="processDirectTopup" style="display: inline-flex; align-items: center; gap: 6px;">
+                            <span>Kirim Bukti</span>
+                            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </span>
+                        <span wire:loading.flex wire:target="processDirectTopup" style="display: none; align-items: center; gap: 6px;">
+                            <svg class="animate-spin" style="width: 16px; height: 16px; color: #ffffff;" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                             </svg>
-                            Memproses...
+                            <span>Mengirim...</span>
                         </span>
                     </button>
                 </div>
             </div>
         </div>
     @endif
-
+    
     <!-- Confirmation Modal -->
     @if ($showConfirmModal)
         <div class="modal-overlay fixed inset-0 z-[9999] flex items-end justify-center animate-fade-in"
@@ -759,23 +1254,17 @@
                 @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
                 .animate-fade-in { animation: fadeIn 0.2s ease-out; }
                 .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-                .blur-target { filter: blur(8px); transition: filter 0.3s ease; }
                 body.modal-open { overflow: hidden; }
                 body.modal-open #bottom-nav { display: none !important; }
-                .modal-overlay { filter: none !important; }
             `;
             document.head.appendChild(style);
 
             function updateModalState() {
                 const hasOverlay = document.querySelector('.modal-overlay') !== null;
-                const mainContent = document.getElementById('main-content');
-
                 if (hasOverlay) {
                     document.body.classList.add('modal-open');
-                    if (mainContent) mainContent.classList.add('blur-target');
                 } else {
                     document.body.classList.remove('modal-open');
-                    if (mainContent) mainContent.classList.remove('blur-target');
                 }
             }
 
@@ -915,97 +1404,3 @@
         }
     </script>
 </div>
-
-@push('scripts')
-    {{-- Midtrans Snap JS --}}
-    <script
-        src="https://{{ config('services.midtrans.is_production') ? 'app.midtrans.com' : 'app.sandbox.midtrans.com' }}/snap/snap.js"
-        data-client-key="{{ config('services.midtrans.client_key') }}">
-    </script>
-
-    <script>
-        (function() {
-            function handleDirectMidtransSnap(snapToken) {
-                if (!snapToken) {
-                    console.error('Snap token kosong');
-                    return;
-                }
-
-                if (typeof window.snap === 'undefined') {
-                    console.error('Snap JS belum termuat');
-                    alert('Sistem pembayaran Midtrans sedang memuat. Silakan coba sesaat lagi.');
-                    return;
-                }
-
-                window.snap.pay(snapToken, {
-                    onSuccess: function (result) {
-                        try {
-                            fetch('{{ route('topup.client-callback') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({ order_id: result.order_id, payment_status: 'success' })
-                            }).finally(function () {
-                                if (window.Livewire) {
-                                    Livewire.dispatch('topupCompleted');
-                                }
-                            });
-                        } catch (e) {
-                            if (window.Livewire) {
-                                Livewire.dispatch('topupCompleted');
-                            }
-                        }
-                    },
-                    onPending: function (result) {
-                        try {
-                            fetch('{{ route('topup.client-callback') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    order_id: result.order_id,
-                                    payment_status: 'pending_va',
-                                    va_number: result.va_numbers ? result.va_numbers[0]?.va_number : null
-                                })
-                            }).finally(function() {
-                                if (window.Livewire) {
-                                    Livewire.dispatch('topupCompleted');
-                                }
-                            });
-                        } catch(e) {
-                            if (window.Livewire) {
-                                Livewire.dispatch('topupCompleted');
-                            }
-                        }
-                    },
-                    onError: function (result) {
-                        alert('Pembayaran gagal atau dibatalkan.');
-                    },
-                    onClose: function () {
-                        console.log('Modal Midtrans ditutup');
-                    }
-                });
-            }
-
-            document.addEventListener('livewire:init', function () {
-                Livewire.on('openDirectMidtransSnap', function (event) {
-                    let token = (Array.isArray(event) && event.length > 0) 
-                        ? (event[0].snapToken || event[0]) 
-                        : (event?.snapToken || event);
-                    handleDirectMidtransSnap(token);
-                });
-            });
-
-            window.addEventListener('openDirectMidtransSnap', function (e) {
-                let token = e.detail?.snapToken || e.detail;
-                if (token) {
-                    handleDirectMidtransSnap(token);
-                }
-            });
-        })();
-    </script>
-@endpush

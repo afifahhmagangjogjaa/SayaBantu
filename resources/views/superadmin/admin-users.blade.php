@@ -71,7 +71,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-100">
                         @forelse($users as $user)
-                            <tr class="hover:bg-gray-50/80 transition-colors">
+                            <tr wire:key="admin-user-row-{{ $user->id }}" class="hover:bg-gray-50/80 transition-colors">
                                 <td class="px-2.5 py-3 text-center text-xs font-medium text-gray-500 whitespace-nowrap">
                                     {{ $users->firstItem() + $loop->index }}
                                 </td>
@@ -95,8 +95,8 @@
                                     </span>
                                 </td>
                                 <td class="px-2.5 py-3 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full {{ (isset($user->status) && $user->status === 'active') ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200' }}">
-                                        {{ (isset($user->status) && $user->status === 'active') ? 'Aktif' : 'Nonaktif' }}
+                                    <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full {{ ($user->status === 'active') ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200' }}">
+                                        {{ ($user->status === 'active') ? 'Aktif' : 'Nonaktif' }}
                                     </span>
                                 </td>
                                 <td class="px-2.5 py-3 text-xs text-gray-600">
@@ -137,15 +137,17 @@
                                             </svg>
                                         </button>
                                         {{-- Toggle Status ON/OFF --}}
+                                        @php
+                                            $isAdminStatusActive = ($user->status === 'active');
+                                        @endphp
                                         <button type="button"
-                                            x-data="{ on: {{ (isset($user->status) && $user->status === 'active') ? 'true' : 'false' }} }"
-                                            @click="on = !on; $wire.toggleStatus({{ $user->id }})"
+                                            wire:key="admin-user-toggle-{{ $user->id }}-{{ $user->status }}"
+                                            wire:click="toggleStatus({{ $user->id }})"
                                             wire:loading.attr="disabled"
                                             wire:target="toggleStatus({{ $user->id }})"
                                             class="inline-flex items-center gap-1.5 cursor-pointer focus:outline-none"
-                                            title="{{ (isset($user->status) && $user->status === 'active') ? 'Aktif — Klik me-nonaktifkan' : 'Nonaktif — Klik mengaktifkan' }}">
-                                            <span class="inline-flex items-center h-5 w-9 p-0.5 rounded-full transition-colors duration-200 ease-in-out"
-                                                :class="on ? 'bg-emerald-500 justify-end' : 'bg-gray-300 justify-start'">
+                                            title="{{ $isAdminStatusActive ? 'Aktif — Klik me-nonaktifkan' : 'Nonaktif — Klik mengaktifkan' }}">
+                                            <span class="inline-flex items-center h-5 w-9 p-0.5 rounded-full transition-colors duration-200 ease-in-out border border-gray-300 {{ $isAdminStatusActive ? 'bg-emerald-500 justify-end' : 'bg-gray-300 justify-start' }}">
                                                 <span class="h-4 w-4 rounded-full bg-white shadow ring-0"></span>
                                             </span>
                                         </button>
@@ -456,7 +458,7 @@
 
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Tanggal Lahir <span class="text-red-500">*</span></label>
-                                            <input type="date" wire:model="date_of_birth" max="{{ date('Y-m-d') }}" onkeydown="return false" onclick="this.showPicker()"
+                                            <input type="date" wire:model="date_of_birth" max="{{ \Carbon\Carbon::now()->subYears(17)->format('Y-m-d') }}" onkeydown="return false" onclick="this.showPicker()"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                             @error('date_of_birth') <div class="text-sm text-red-600 mt-1">{{ $message }}
                                             </div> @enderror

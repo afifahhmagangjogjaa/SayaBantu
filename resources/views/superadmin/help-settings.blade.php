@@ -224,7 +224,18 @@
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Nominal Minimal Bantuan</label>
                             <div class="flex items-center rounded-xl shadow-xs border border-gray-300 bg-white" style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 12px; background: #fff; padding-left: 14px; padding-right: 14px;">
                                 <span style="color: #64748b; font-size: 14px; font-weight: 600; margin-right: 8px; user-select: none;">Rp</span>
-                                <input type="number" wire:model="min_help_nominal" placeholder="10000"
+                                <input type="text"
+                                    inputmode="numeric"
+                                    wire:ignore
+                                    x-data
+                                    x-init="$el.value = ($wire.min_help_nominal !== null && $wire.min_help_nominal !== '') ? Number($wire.min_help_nominal).toLocaleString('id-ID') : ''"
+                                    x-on:input="
+                                        let raw = $el.value.replace(/\D/g, '');
+                                        $el.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+                                        $wire.set('min_help_nominal', raw ? parseInt(raw, 10) : 0);
+                                    "
+                                    value="{{ number_format((int) ($min_help_nominal ?? 0), 0, ',', '.') }}"
+                                    placeholder="10.000"
                                     style="border: none; outline: none; padding: 10px 0; width: 100%; font-size: 14px; font-weight: 500; color: #0f172a; background: transparent;" />
                             </div>
                             @error('min_help_nominal')
@@ -244,7 +255,18 @@
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Biaya Admin Bantuan</label>
                             <div class="flex items-center rounded-xl shadow-xs border border-gray-300 bg-white" style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 12px; background: #fff; padding-left: 14px; padding-right: 14px;">
                                 <span style="color: #64748b; font-size: 14px; font-weight: 600; margin-right: 8px; user-select: none;">Rp</span>
-                                <input type="number" wire:model="admin_fee" placeholder="0"
+                                <input type="text"
+                                    inputmode="numeric"
+                                    wire:ignore
+                                    x-data
+                                    x-init="$el.value = ($wire.admin_fee !== null && $wire.admin_fee !== '') ? Number($wire.admin_fee).toLocaleString('id-ID') : ''"
+                                    x-on:input="
+                                        let raw = $el.value.replace(/\D/g, '');
+                                        $el.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+                                        $wire.set('admin_fee', raw ? parseInt(raw, 10) : 0);
+                                    "
+                                    value="{{ number_format((int) ($admin_fee ?? 0), 0, ',', '.') }}"
+                                    placeholder="0"
                                     style="border: none; outline: none; padding: 10px 0; width: 100%; font-size: 14px; font-weight: 500; color: #0f172a; background: transparent;" />
                             </div>
                             @error('admin_fee')
@@ -285,7 +307,18 @@
                                 <label class="block text-xs font-semibold text-gray-700 mb-1.5">Batas Maksimal Tier 1</label>
                                 <div class="flex items-center rounded-xl shadow-xs border border-gray-300 bg-white" style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 12px; background: #fff; padding-left: 14px; padding-right: 14px;">
                                     <span style="color: #64748b; font-size: 14px; font-weight: 600; margin-right: 8px; user-select: none;">Rp</span>
-                                    <input type="number" wire:model="tier1_limit" placeholder="50000"
+                                    <input type="text"
+                                        inputmode="numeric"
+                                        wire:ignore
+                                        x-data
+                                        x-init="$el.value = ($wire.tier1_limit !== null && $wire.tier1_limit !== '') ? Number($wire.tier1_limit).toLocaleString('id-ID') : ''"
+                                        x-on:input="
+                                            let raw = $el.value.replace(/\D/g, '');
+                                            $el.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+                                            $wire.set('tier1_limit', raw ? parseInt(raw, 10) : 0);
+                                        "
+                                        value="{{ number_format((int) ($tier1_limit ?? 50000), 0, ',', '.') }}"
+                                        placeholder="50.000"
                                         style="border: none; outline: none; padding: 10px 0; width: 100%; font-size: 14px; font-weight: 500; color: #0f172a; background: transparent;" />
                                 </div>
                                 @error('tier1_limit')
@@ -300,7 +333,18 @@
                                 <label class="block text-xs font-semibold text-gray-700 mb-1.5">Biaya Admin Tier 1</label>
                                 <div class="flex items-center rounded-xl shadow-xs border border-gray-300 bg-white" style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 12px; background: #fff; padding-left: 14px; padding-right: 14px;">
                                     <span style="color: #64748b; font-size: 14px; font-weight: 600; margin-right: 8px; user-select: none;">Rp</span>
-                                    <input type="number" wire:model="tier1_fee" placeholder="5000"
+                                    <input type="text"
+                                        inputmode="numeric"
+                                        wire:ignore
+                                        x-data
+                                        x-init="$el.value = ($wire.tier1_fee !== null && $wire.tier1_fee !== '') ? Number($wire.tier1_fee).toLocaleString('id-ID') : ''"
+                                        x-on:input="
+                                            let raw = $el.value.replace(/\D/g, '');
+                                            $el.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+                                            $wire.set('tier1_fee', raw ? parseInt(raw, 10) : 0);
+                                        "
+                                        value="{{ number_format((int) ($tier1_fee ?? 5000), 0, ',', '.') }}"
+                                        placeholder="5.000"
                                         style="border: none; outline: none; padding: 10px 0; width: 100%; font-size: 14px; font-weight: 500; color: #0f172a; background: transparent;" />
                                 </div>
                                 @error('tier1_fee')
@@ -327,7 +371,18 @@
                                 <label class="block text-xs font-semibold text-gray-700 mb-1.5">Batas Maksimal Tier 2</label>
                                 <div class="flex items-center rounded-xl shadow-xs border border-gray-300 bg-white" style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 12px; background: #fff; padding-left: 14px; padding-right: 14px;">
                                     <span style="color: #64748b; font-size: 14px; font-weight: 600; margin-right: 8px; user-select: none;">Rp</span>
-                                    <input type="number" wire:model="tier2_limit" placeholder="100000"
+                                    <input type="text"
+                                        inputmode="numeric"
+                                        wire:ignore
+                                        x-data
+                                        x-init="$el.value = ($wire.tier2_limit !== null && $wire.tier2_limit !== '') ? Number($wire.tier2_limit).toLocaleString('id-ID') : ''"
+                                        x-on:input="
+                                            let raw = $el.value.replace(/\D/g, '');
+                                            $el.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+                                            $wire.set('tier2_limit', raw ? parseInt(raw, 10) : 0);
+                                        "
+                                        value="{{ number_format((int) ($tier2_limit ?? 100000), 0, ',', '.') }}"
+                                        placeholder="100.000"
                                         style="border: none; outline: none; padding: 10px 0; width: 100%; font-size: 14px; font-weight: 500; color: #0f172a; background: transparent;" />
                                 </div>
                                 @error('tier2_limit')
@@ -342,7 +397,18 @@
                                 <label class="block text-xs font-semibold text-gray-700 mb-1.5">Biaya Admin Tier 2</label>
                                 <div class="flex items-center rounded-xl shadow-xs border border-gray-300 bg-white" style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 12px; background: #fff; padding-left: 14px; padding-right: 14px;">
                                     <span style="color: #64748b; font-size: 14px; font-weight: 600; margin-right: 8px; user-select: none;">Rp</span>
-                                    <input type="number" wire:model="tier2_fee" placeholder="7500"
+                                    <input type="text"
+                                        inputmode="numeric"
+                                        wire:ignore
+                                        x-data
+                                        x-init="$el.value = ($wire.tier2_fee !== null && $wire.tier2_fee !== '') ? Number($wire.tier2_fee).toLocaleString('id-ID') : ''"
+                                        x-on:input="
+                                            let raw = $el.value.replace(/\D/g, '');
+                                            $el.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+                                            $wire.set('tier2_fee', raw ? parseInt(raw, 10) : 0);
+                                        "
+                                        value="{{ number_format((int) ($tier2_fee ?? 7500), 0, ',', '.') }}"
+                                        placeholder="7.500"
                                         style="border: none; outline: none; padding: 10px 0; width: 100%; font-size: 14px; font-weight: 500; color: #0f172a; background: transparent;" />
                                 </div>
                                 @error('tier2_fee')
@@ -384,7 +450,18 @@
                                 <label class="block text-xs font-semibold text-gray-700 mb-1.5">Biaya Maksimal Tier 3 (Cap)</label>
                                 <div class="flex items-center rounded-xl shadow-xs border border-gray-300 bg-white" style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 12px; background: #fff; padding-left: 14px; padding-right: 14px;">
                                     <span style="color: #64748b; font-size: 14px; font-weight: 600; margin-right: 8px; user-select: none;">Rp</span>
-                                    <input type="number" wire:model="tier3_max" placeholder="15000"
+                                    <input type="text"
+                                        inputmode="numeric"
+                                        wire:ignore
+                                        x-data
+                                        x-init="$el.value = ($wire.tier3_max !== null && $wire.tier3_max !== '') ? Number($wire.tier3_max).toLocaleString('id-ID') : ''"
+                                        x-on:input="
+                                            let raw = $el.value.replace(/\D/g, '');
+                                            $el.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+                                            $wire.set('tier3_max', raw ? parseInt(raw, 10) : 0);
+                                        "
+                                        value="{{ number_format((int) ($tier3_max ?? 15000), 0, ',', '.') }}"
+                                        placeholder="15.000"
                                         style="border: none; outline: none; padding: 10px 0; width: 100%; font-size: 14px; font-weight: 500; color: #0f172a; background: transparent;" />
                                 </div>
                                 @error('tier3_max')

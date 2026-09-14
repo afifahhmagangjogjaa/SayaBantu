@@ -59,7 +59,7 @@ class IndexNew extends Component
         }
         $user = User::where('email', $reg->email)->first();
         if ($user) {
-            $user->update(['status' => 'active', 'verified' => true, 'email_verified_at' => now()]);
+            $user->update(['status' => 'active', 'verified' => true]);
         }
         $reg->update(['status' => 'approved']);
         session()->flash('message','Registrasi disetujui');

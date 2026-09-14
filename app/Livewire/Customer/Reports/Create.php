@@ -160,6 +160,32 @@ class Create extends Component
             'status' => 'pending',
         ]);
 
+        // Kirim notifikasi ke Admin Kota dan Seluruh Super Admin
+        try {
+            $cityId = auth()->user()->city_id;
+            $cityAdmins = \App\Models\User::where('role', 'admin')
+                ->where('status', 'active')
+                ->where(function ($query) use ($cityId) {
+                    if ($cityId) {
+                        $query->whereHas('managedCities', function ($q) use ($cityId) {
+                            $q->where('cities.id', $cityId);
+                        })->orWhere('city_id', $cityId);
+                    }
+                })
+                ->get();
+
+            $superAdmins = \App\Models\User::where('role', 'super_admin')
+                ->where('status', 'active')
+                ->get();
+
+            $allAdmins = $cityAdmins->merge($superAdmins)->unique('id');
+            foreach ($allAdmins as $adminUser) {
+                $adminUser->notify(new \App\Notifications\NewReportNotification($report));
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Failed sending report notification to admins: ' . $e->getMessage());
+        }
+
         session()->flash('message', 'Laporan aduan berhasil dikirim. Admin akan meninjau laporan Anda.');
         return redirect()->route('customer.reports.show', ['report' => $report->id]);
     }

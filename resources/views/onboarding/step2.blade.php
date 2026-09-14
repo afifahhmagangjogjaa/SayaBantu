@@ -10,12 +10,13 @@
                     <div class="flex-1 h-1.5 bg-blue-600 rounded-full"></div>
                     <div class="flex-1 h-1.5 bg-blue-600 rounded-full"></div>
                     <div class="flex-1 h-1.5 bg-gray-200 rounded-full"></div>
+                    <div class="flex-1 h-1.5 bg-gray-200 rounded-full"></div>
                 </div>
 
                 <!-- Sub Row: Left hint & Right Step indicator -->
                 <div class="flex items-center justify-between text-xs text-gray-500">
                     <span>Upload foto fisik KTP asli Anda</span>
-                    <span class="font-bold text-blue-600">Langkah 2 dari 3</span>
+                    <span class="font-bold text-blue-600">Langkah 2 dari 4</span>
                 </div>
             </div>
 

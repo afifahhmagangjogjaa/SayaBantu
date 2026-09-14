@@ -77,18 +77,18 @@
         <div class="mb-8">
             <!-- Section Header & Filter Bar -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 px-1 sm:px-2">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2.5">
+                <div class="flex-shrink-0">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2.5 whitespace-nowrap">
                         <span>Request Menunggu Approval</span>
                         <span class="px-3 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
                             {{ $totalPendingCount ?? 0 }} Data
                         </span>
                     </h2>
-                    <p class="text-xs text-gray-500 mt-1.5">Antrean request top-up dari customer wilayah Anda yang menunggu approval Super Admin</p>
+                    <p class="text-xs text-gray-500 mt-1.5">Antrean request top-up dari customer yang menunggu approval Super Admin</p>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <div class="flex items-center h-9 w-72 sm:w-80 bg-white border border-gray-300 rounded-xl px-3 shadow-2xs transition focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
+                    <div class="flex items-center h-9 w-60 sm:w-72 bg-white border border-gray-300 rounded-xl px-3 shadow-2xs transition focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
                         <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -241,36 +241,36 @@
         <!-- ========================================== -->
         <div class="border-t border-gray-200 pt-6 mt-6">
             <!-- Section Header & Filter Bar -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 px-1 sm:px-2">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2.5">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 px-1 sm:px-2">
+                <div class="flex-shrink-0">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2.5 whitespace-nowrap">
                         <span>Riwayat Approval & Transaksi</span>
-                        <span class="px-3 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
                             {{ $totalHistoryCount ?? 0 }} Data
                         </span>
                     </h2>
-                    <p class="text-xs text-gray-500 mt-1.5">Histori seluruh transaksi top-up yang telah disetujui maupun ditolak</p>
+                    <p class="text-xs text-gray-500 mt-1">Histori seluruh transaksi top-up yang telah disetujui maupun ditolak</p>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
                     <!-- Status Filter Tabs -->
-                    <div class="inline-flex h-9 items-center rounded-xl border border-gray-200 p-1 bg-gray-50 shadow-2xs">
+                    <div class="inline-flex h-9 items-center rounded-xl border border-gray-200 p-1 bg-gray-50 shadow-2xs flex-shrink-0">
                         <button type="button" wire:click="filterHistoryStatus('')"
-                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold transition cursor-pointer {{ $historyStatusFilter === '' || $historyStatusFilter === 'all' ? 'bg-white text-gray-900 font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === '' || $historyStatusFilter === 'all' ? 'bg-white text-gray-900 font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
                             Semua ({{ $totalHistoryCount ?? 0 }})
                         </button>
                         <button type="button" wire:click="filterHistoryStatus('completed')"
-                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold transition cursor-pointer {{ $historyStatusFilter === 'completed' ? 'bg-green-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === 'completed' ? 'bg-green-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
                             Disetujui ({{ $totalCompletedCount ?? 0 }})
                         </button>
                         <button type="button" wire:click="filterHistoryStatus('rejected')"
-                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold transition cursor-pointer {{ $historyStatusFilter === 'rejected' ? 'bg-red-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === 'rejected' ? 'bg-red-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
                             Ditolak ({{ $totalRejectedCount ?? 0 }})
                         </button>
                     </div>
 
                     <!-- Search Input History -->
-                    <div class="flex items-center h-9 w-64 sm:w-72 bg-white border border-gray-300 rounded-xl px-3 shadow-2xs transition focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
+                    <div class="flex items-center h-9 w-48 sm:w-56 bg-white border border-gray-300 rounded-xl px-3 shadow-2xs transition focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
                         <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -283,6 +283,15 @@
                             </button>
                         @endif
                     </div>
+
+                    <!-- Tombol Hapus Riwayat -->
+                    <button type="button" wire:click="openDeleteModal"
+                        class="h-9 px-3.5 flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span>Hapus Riwayat</span>
+                    </button>
                 </div>
             </div>
 
@@ -300,7 +309,7 @@
                                 <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Metode</th>
                                 <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Status</th>
                                 <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Waktu Diproses</th>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-20">Aksi</th>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-28">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
@@ -371,12 +380,22 @@
                                         <div class="text-[10px] text-gray-500">{{ $transaction->approved_at ? $transaction->approved_at->format('H:i') : $transaction->updated_at->format('H:i') }} WIB</div>
                                     </td>
                                     <td class="px-2.5 py-3 whitespace-nowrap text-center text-xs font-medium">
-                                        <button type="button" wire:click="viewDetail({{ $transaction->id }})"
-                                            wire:loading.attr="disabled"
-                                            class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold transition border border-gray-200"
-                                            title="Lihat Detail Transaksi">
-                                            Detail
-                                        </button>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button type="button" wire:click="viewDetail({{ $transaction->id }})"
+                                                wire:loading.attr="disabled"
+                                                class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold transition border border-gray-200 cursor-pointer"
+                                                title="Lihat Detail Transaksi">
+                                                Detail
+                                            </button>
+                                            <button type="button" wire:click="deleteHistoryItem({{ $transaction->id }})"
+                                                wire:confirm="Apakah Anda yakin ingin menghapus data riwayat transaksi ini?"
+                                                class="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                                                title="Hapus Riwayat">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -657,4 +676,163 @@
             }
         }
     </script>
+
+    <!-- MODAL HAPUS RIWAYAT TOP-UP BERDASARKAN PERIODE -->
+    @if ($showDeleteModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-xs transition-opacity">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+                
+                <!-- Header Modal -->
+                <div class="flex items-start justify-between border-b border-gray-100 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-gray-900">Hapus Riwayat Top-Up</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Pilih periode bulanan atau tahunan</p>
+                        </div>
+                    </div>
+                    <button type="button" wire:click="closeDeleteModal" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Pilihan Tipe Hapus (Tabs) -->
+                <div class="flex rounded-xl bg-gray-100 p-1 gap-1">
+                    <button type="button" wire:click="$set('deleteMode', 'monthly')"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer {{ $deleteMode === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800' }}">
+                        Bulanan
+                    </button>
+                    <button type="button" wire:click="$set('deleteMode', 'yearly')"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer {{ $deleteMode === 'yearly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800' }}">
+                        Tahunan
+                    </button>
+                    <button type="button" wire:click="$set('deleteMode', 'all')"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer {{ $deleteMode === 'all' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-500 hover:text-rose-600' }}">
+                        Hapus Semua
+                    </button>
+                </div>
+
+                <!-- Konten Sesuai Mode -->
+                @if($deleteMode === 'monthly')
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
+                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                @foreach($availableYears ?? [date('Y')] as $yr)
+                                    <option value="{{ $yr }}">{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Bulan</label>
+                            <select wire:model.live="deleteMonth" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                <option value="1">01 - Januari</option>
+                                <option value="2">02 - Februari</option>
+                                <option value="3">03 - Maret</option>
+                                <option value="4">04 - April</option>
+                                <option value="5">05 - Mei</option>
+                                <option value="6">06 - Juni</option>
+                                <option value="7">07 - Juli</option>
+                                <option value="8">08 - Agustus</option>
+                                <option value="9">09 - September</option>
+                                <option value="10">10 - Oktober</option>
+                                <option value="11">11 - November</option>
+                                <option value="12">12 - Desember</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2.5 items-start">
+                            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                Hanya riwayat top-up (disetujui/ditolak) pada bulan dan tahun terpilih yang akan dihapus. Permintaan pending tetap aman.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                            wire:click="executeDelete"
+                            wire:confirm="Apakah Anda yakin ingin menghapus data riwayat top-up pada bulan terpilih? Tindakan ini tidak dapat dibatalkan."
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Riwayat Bulan Terpilih</span>
+                        </button>
+                    </div>
+
+                @elseif($deleteMode === 'yearly')
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
+                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                @foreach($availableYears ?? [date('Y')] as $yr)
+                                    <option value="{{ $yr }}">{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2.5 items-start">
+                            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                Seluruh riwayat top-up (disetujui/ditolak) sepanjang tahun <strong>{{ $deleteYear }}</strong> akan dihapus.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                            wire:click="executeDelete"
+                            wire:confirm="Apakah Anda yakin ingin menghapus SELURUH riwayat top-up pada tahun {{ $deleteYear }}? Tindakan ini tidak dapat dibatalkan."
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Seluruh Tahun {{ $deleteYear }}</span>
+                        </button>
+                    </div>
+
+                @else
+                    <div class="space-y-4">
+                        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div>
+                                <h4 class="text-xs font-bold text-rose-900 uppercase tracking-wider mb-1">Peringatan Ekstrem</h4>
+                                <p class="text-xs text-rose-800 leading-relaxed">
+                                    Tindakan ini akan menghapus <strong>SEMUA</strong> riwayat top-up (disetujui/ditolak) tanpa batasan waktu. Permintaan top-up yang masih pending tetap aman.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button type="button"
+                            wire:click="executeDelete"
+                            wire:confirm="PERINGATAN EKSTREM: Apakah Anda BENAR-BENAR yakin ingin menghapus SEMUA riwayat transaksi top-up tanpa terkecuali?"
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Semua Riwayat Sekarang</span>
+                        </button>
+                    </div>
+                @endif
+
+                <!-- Footer Cancel -->
+                <div class="border-t border-gray-100 pt-3 flex items-center justify-end">
+                    <button type="button" wire:click="closeDeleteModal" class="px-4 py-2 text-xs text-gray-600 hover:text-gray-800 font-medium hover:bg-gray-100 rounded-lg transition cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    @endif
 </div>

@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="space-y-6">
+    <div class="space-y-6" x-data="{ showDeleteModal: false, deleteMode: 'monthly', deleteYear: '{{ $availableYears[0] ?? date('Y') }}', deleteMonth: '{{ (int) date('n') }}' }">
         @if(session('status'))
             <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded">{{ session('status') }}</div>
         @endif
@@ -22,6 +22,15 @@
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900">Daftar Withdraw</h2>
                     <p class="text-xs text-gray-500 mt-1">Menampilkan permintaan tarik saldo terbaru dari mitra.</p>
+                </div>
+                <div>
+                    <button type="button" @click="showDeleteModal = true"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-2xs transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span>Hapus Riwayat</span>
+                    </button>
                 </div>
             </div>
 
@@ -216,17 +225,31 @@
                                     @endif
                                 </td>
                                 <td class="px-2.5 py-2.5 text-center whitespace-nowrap">
-                                    @if(auth()->user() && auth()->user()->isSuperAdmin())
-                                        <button data-id="{{ $item->id }}"
-                                            class="open-withdraw-modal inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold">
-                                            Proses
-                                        </button>
-                                    @else
-                                        <a href="{{ route('admin.withdraws.show', $item) }}" 
-                                           class="inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold">
-                                            Detail
-                                        </a>
-                                    @endif
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        @if(auth()->user() && auth()->user()->isSuperAdmin())
+                                            <button data-id="{{ $item->id }}"
+                                                class="open-withdraw-modal inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold cursor-pointer">
+                                                Proses
+                                            </button>
+                                        @else
+                                            <a href="{{ route('admin.withdraws.show', $item) }}" 
+                                               class="inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold">
+                                                Detail
+                                            </a>
+                                        @endif
+                                        @if($item->status !== 'pending')
+                                            <form action="{{ route('admin.withdraws.destroy', $item) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data riwayat withdraw ini?');" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" title="Hapus Riwayat Ini"
+                                                    class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg border border-rose-200 transition cursor-pointer">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -249,6 +272,178 @@
                     {{ $items->links() }}
                 </div>
             @endif
+        </div>
+
+        <!-- Modal Hapus Riwayat Withdraw Berdasarkan Periode -->
+        <div x-show="showDeleteModal" style="display: none;" 
+            class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-xs transition-opacity" @click="showDeleteModal = false"></div>
+            <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg p-6 space-y-5 border border-gray-100" @click.away="showDeleteModal = false">
+                    
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900">Hapus Riwayat Withdraw</h3>
+                                <p class="text-xs text-gray-500">Pilih rentang bulan & tahun yang ingin dibersihkan.</p>
+                            </div>
+                        </div>
+                        <button type="button" @click="showDeleteModal = false" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                  <!-- Pilihan Tipe Hapus (Tabs) -->
+                <div class="flex rounded-xl bg-gray-100 p-1 gap-1">
+                    <button type="button" @click="deleteMode = 'monthly'"
+                        :class="deleteMode === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800'"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer">
+                        Bulanan
+                    </button>
+                    <button type="button" @click="deleteMode = 'yearly'"
+                        :class="deleteMode === 'yearly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800'"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer">
+                        Tahunan
+                    </button>
+                    <button type="button" @click="deleteMode = 'all'"
+                        :class="deleteMode === 'all' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-500 hover:text-rose-600'"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer">
+                        Hapus Semua
+                    </button>
+                </div>
+
+                <!-- Konten Mode Bulanan -->
+                <div x-show="deleteMode === 'monthly'" class="space-y-4">
+                    <form action="{{ route('admin.withdraws.destroy_period') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data riwayat withdraw pada bulan terpilih? Tindakan ini tidak dapat dibatalkan.');" class="space-y-4">
+                        @csrf
+                        @method('DELETE')
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
+                            <select name="year" x-model="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                @foreach($availableYears as $yr)
+                                    <option value="{{ $yr }}">{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Bulan</label>
+                            <select name="month" x-model="deleteMonth" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                <option value="1">01 - Januari</option>
+                                <option value="2">02 - Februari</option>
+                                <option value="3">03 - Maret</option>
+                                <option value="4">04 - April</option>
+                                <option value="5">05 - Mei</option>
+                                <option value="6">06 - Juni</option>
+                                <option value="7">07 - Juli</option>
+                                <option value="8">08 - Agustus</option>
+                                <option value="9">09 - September</option>
+                                <option value="10">10 - Oktober</option>
+                                <option value="11">11 - November</option>
+                                <option value="12">12 - Desember</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2.5 items-start">
+                            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                Hanya riwayat withdraw yang telah <strong>selesai atau gagal</strong> pada bulan terpilih di wilayah Anda yang akan dihapus. Permintaan pending tetap aman.
+                            </p>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Riwayat Bulan Terpilih</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Konten Mode Tahunan -->
+                <div x-show="deleteMode === 'yearly'" style="display: none;" class="space-y-4">
+                    <form action="{{ route('admin.withdraws.destroy_period') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus SELURUH riwayat withdraw pada tahun terpilih? Tindakan ini tidak dapat dibatalkan.');" class="space-y-4">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="month" value="all">
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
+                            <select name="year" x-model="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                @foreach($availableYears as $yr)
+                                    <option value="{{ $yr }}">{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2.5 items-start">
+                            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                Seluruh riwayat withdraw yang telah selesai atau gagal di wilayah Anda sepanjang tahun terpilih akan dihapus. Permintaan pending tetap aman.
+                            </p>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Seluruh Tahun Terpilih</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Konten Mode Hapus Semua -->
+                <div x-show="deleteMode === 'all'" style="display: none;" class="space-y-4">
+                    <form action="{{ route('admin.withdraws.destroy_all') }}" method="POST" onsubmit="return confirm('PERINGATAN EKSTREM: Apakah Anda yakin ingin menghapus SEMUA riwayat withdraw selesai/gagal di wilayah Anda?');" class="space-y-4">
+                        @csrf
+                        @method('DELETE')
+
+                        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div>
+                                <h4 class="text-xs font-bold text-rose-900 uppercase tracking-wider mb-1">Peringatan Ekstrem</h4>
+                                <p class="text-xs text-rose-800 leading-relaxed">
+                                    Tindakan ini akan menghapus <strong>SEMUA</strong> riwayat withdraw selesai atau gagal di wilayah Anda tanpa batasan waktu. Permintaan withdraw yang masih pending tetap aman.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Semua Riwayat Sekarang</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Footer Cancel -->
+                <div class="border-t border-gray-100 pt-3 flex items-center justify-end">
+                    <button type="button" @click="showDeleteModal = false" class="px-4 py-2 text-xs text-gray-600 hover:text-gray-800 font-medium hover:bg-gray-100 rounded-lg transition cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
+
+                </div>
+            </div>
         </div>
     </div>
     <!-- Modal container -->

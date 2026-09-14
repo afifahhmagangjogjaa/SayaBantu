@@ -33,7 +33,7 @@ class EnsureMitra
             abort(403, 'Unauthorized. Mitra access only.');
         }
 
-        // Halaman yang tetap bisa diakses meski belum terverifikasi
+        // Halaman yang tetap bisa diakses meski belum terverifikasi (kuota order dibatasi di controller)
         $allowedRoutes = [
             'mitra.dashboard',
             'mitra.profile',
@@ -43,6 +43,16 @@ class EnsureMitra
             'mitra.settings.password',
             'mitra.help-support',
             'profile.settings.verification',
+            'mitra.helps.all',
+            'mitra.helps.detail',
+            'mitra.helps.processing',
+            'mitra.helps.completed',
+            'mitra.chat',
+            'mitra.notifications.index',
+            'mitra.ratings',
+            'mitra.reports.create',
+            'mitra.reports.show',
+            'mitra.reports.status-check',
         ];
 
         // Jika mitra belum terverifikasi dan mencoba akses halaman yang dibatasi,

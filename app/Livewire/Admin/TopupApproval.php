@@ -27,8 +27,133 @@ class TopupApproval extends Component
     public $historyStatusFilter = '';
     public $perPagePending = 10;
     public $perPageHistory = 10;
+
+    public $deleteYear;
+    public $deleteMonth = 'all';
+    public $deleteMode = 'monthly'; // 'monthly', 'yearly', 'all'
+    public $showDeleteModal = false;
     
     protected $listeners = ['topupRequestCreated' => '$refresh'];
+
+    public function openDeleteModal()
+    {
+        $this->deleteYear = (int) date('Y');
+        $this->deleteMonth = (string) (int) date('n');
+        $this->deleteMode = 'monthly';
+        $this->showDeleteModal = true;
+    }
+
+    public function closeDeleteModal()
+    {
+        $this->showDeleteModal = false;
+    }
+
+    public function executeDelete()
+    {
+        if ($this->deleteMode === 'all') {
+            $this->deleteAllHistory();
+            return;
+        }
+
+        if ($this->deleteMode === 'yearly') {
+            $this->deleteMonth = 'all';
+        }
+
+        $this->deleteHistoryByPeriod();
+    }
+
+    public function deleteHistoryItem($id)
+    {
+        $adminCityIds = auth()->user()?->getAdminCityIds() ?? [];
+        $query = BalanceTransaction::where('id', $id);
+
+        if (!empty($adminCityIds)) {
+            $query->where(function ($q) use ($adminCityIds) {
+                $q->whereHas('user', function ($sq) use ($adminCityIds) {
+                    $sq->whereIn('city_id', $adminCityIds);
+                })->orWhereHas('user', function ($sq) {
+                    $sq->whereNull('city_id');
+                });
+            });
+        }
+
+        $tx = $query->first();
+        if ($tx) {
+            if ($tx->status === 'waiting_approval') {
+                session()->flash('error', 'Permintaan top-up yang masih menunggu persetujuan tidak boleh dihapus.');
+                return;
+            }
+            $tx->delete();
+            session()->flash('success', 'Data riwayat top-up berhasil dihapus.');
+        }
+    }
+
+    public function deleteHistoryByPeriod()
+    {
+        $adminCityIds = auth()->user()?->getAdminCityIds() ?? [];
+        $query = BalanceTransaction::where('type', 'topup')
+            ->whereIn('status', ['completed', 'rejected', 'failed'])
+            ->whereYear('created_at', (int) $this->deleteYear);
+
+        if (!empty($adminCityIds)) {
+            $query->where(function ($q) use ($adminCityIds) {
+                $q->whereHas('user', function ($sq) use ($adminCityIds) {
+                    $sq->whereIn('city_id', $adminCityIds);
+                })->orWhereHas('user', function ($sq) {
+                    $sq->whereNull('city_id');
+                });
+            });
+        }
+
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        if ($this->deleteMonth && $this->deleteMonth !== 'all') {
+            $monthNum = (int) $this->deleteMonth;
+            $query->whereMonth('created_at', $monthNum);
+            $periodLabel = ($monthNames[$monthNum] ?? "Bulan $monthNum") . " {$this->deleteYear}";
+        } else {
+            $periodLabel = "Tahun {$this->deleteYear}";
+        }
+
+        $count = $query->count();
+        if ($count === 0) {
+            session()->flash('error', "Tidak ada riwayat top-up pada periode {$periodLabel}.");
+            $this->showDeleteModal = false;
+            return;
+        }
+
+        $query->delete();
+        $this->resetPage('historyPage');
+        $this->showDeleteModal = false;
+        session()->flash('success', "Berhasil menghapus {$count} data riwayat top-up pada periode {$periodLabel}.");
+    }
+
+    public function deleteAllHistory()
+    {
+        $adminCityIds = auth()->user()?->getAdminCityIds() ?? [];
+        $query = BalanceTransaction::where('type', 'topup')
+            ->whereIn('status', ['completed', 'rejected', 'failed']);
+
+        if (!empty($adminCityIds)) {
+            $query->where(function ($q) use ($adminCityIds) {
+                $q->whereHas('user', function ($sq) use ($adminCityIds) {
+                    $sq->whereIn('city_id', $adminCityIds);
+                })->orWhereHas('user', function ($sq) {
+                    $sq->whereNull('city_id');
+                });
+            });
+        }
+
+        $count = $query->count();
+        $query->delete();
+        $this->resetPage('historyPage');
+        $this->showDeleteModal = false;
+        session()->flash('success', "Seluruh riwayat top-up ({$count} data) berhasil dihapus.");
+    }
 
     public function updatedSearchPending()
     {
@@ -217,6 +342,22 @@ class TopupApproval extends Component
             ->where($baseCityScope)
             ->sum('amount');
 
+        $availableYears = BalanceTransaction::where('type', 'topup')
+            ->whereIn('status', ['completed', 'rejected', 'failed'])
+            ->where($baseCityScope)
+            ->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->toArray();
+
+        $curYear = (int) date('Y');
+        if (empty($availableYears)) {
+            $availableYears = [$curYear];
+        } elseif (!in_array($curYear, $availableYears)) {
+            array_unshift($availableYears, $curYear);
+        }
+
         return view('admin.topup-approval', [
             'pendingRequests' => $pendingRequests,
             'historyRequests' => $historyRequests,
@@ -227,6 +368,7 @@ class TopupApproval extends Component
             'totalCompletedCount' => $totalCompletedCount,
             'totalRejectedCount' => $totalRejectedCount,
             'totalHistoryCount' => $totalHistoryCount,
+            'availableYears' => $availableYears,
         ]);
     }
 }

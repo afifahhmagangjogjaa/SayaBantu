@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Carbon\Carbon;
-use Midtrans\Config;
-use Midtrans\Snap;
 
 class Create extends Component
 {
@@ -48,9 +46,14 @@ class Create extends Component
     public $showInsufficientModal = false;
     public $insufficientMessage = '';
     public $topupAmount = 10000;
+    public $topupAdminFee = 0;
+    public $topupTotalTransfer = 10000;
     public $topupDeficit = 0;
-    public $topupMethod = 'all';
+    public $topupMethod = 'qris';
     public $topupSnapToken = null;
+    public $topupReceipt;
+    public $availableBanks = [];
+    public $qrisEnabled = true;
     public $showConfirmModal = false;
     public $showSuccessModal = false;
     public $confirmAmount = 0;
@@ -59,7 +62,11 @@ class Create extends Component
     public $currentBalance = 0;
     public $confirmScheduled = null;
     public $isProfileComplete = true;
+    public $isKtpVerified = true;
     public $missingProfileFields = [];
+    public $hasReachedHelpLimit = false;
+    public $activeHelpsCount = 0;
+    public $maxHelpsLimit = 2;
     public $minNominal = 10000;
     public $maxNominal = 10000000;
 
@@ -80,6 +87,20 @@ class Create extends Component
             return;
         }
 
+        if ($user && !$user->verified) {
+            $this->isKtpVerified = false;
+            return;
+        }
+
+        if ($user) {
+            $this->activeHelpsCount = $user->getActiveCustomerHelpsCount();
+            $this->maxHelpsLimit = $user->getMaxActiveCustomerHelpsLimit();
+            if (!$user->canCreateMoreHelps()) {
+                $this->hasReachedHelpLimit = true;
+                return;
+            }
+        }
+
         // Set default city_id from user's profile if available
         if ($user && $user->city_id) {
             $this->city_id = (string) $user->city_id;
@@ -97,6 +118,8 @@ class Create extends Component
         } else {
             $this->req_provinces = [];
         }
+
+        $this->loadPaymentSettings();
     }
 
     public function updatedCityId($value)
@@ -397,12 +420,21 @@ class Create extends Component
                     }
                 }
 
+                if ($targetCity && !$targetCity->is_active) {
+                    continue;
+                }
+
                 if (! $targetCity) {
+                    // Check if city already exists in DB (might be inactive)
+                    $existing = City::where('code', $r->regency_id)->orWhere('name', $r->regency)->first();
+                    if ($existing && !$existing->is_active) {
+                        continue;
+                    }
+
                     // Not a district-coded row or parent lookup failed: use the
                     // regency-level code/name as provided in $r
-                    $targetCity = City::firstOrCreate(
-                        ['code' => $r->regency_id],
-                        ['name' => $r->regency, 'province' => $r->province, 'type' => $r->type ?? null, 'is_active' => true]
+                    $targetCity = $existing ?: City::create(
+                        ['code' => $r->regency_id, 'name' => $r->regency, 'province' => $r->province, 'type' => $r->type ?? null, 'is_active' => true]
                     );
                     // if no explicit display was set, and this row actually came
                     // from a district search that didn't include parent name, try
@@ -412,6 +444,10 @@ class Create extends Component
                             $display = $r->regency . ', ' . $r->parent_regency . ', ' . $r->province;
                         }
                     }
+                }
+
+                if ($targetCity && !$targetCity->is_active) {
+                    continue;
                 }
 
                 // Ensure minimal display fallback
@@ -424,7 +460,7 @@ class Create extends Component
                 foreach ($results as $res) {
                     if ($res['id'] == $targetCity->id) { $exists = true; break; }
                 }
-                if (! $exists) {
+                if (! $exists && $targetCity->is_active) {
                     $item = ['id' => $targetCity->id, 'name' => $targetCity->name, 'province' => $targetCity->province, 'code' => $targetCity->code];
                     if ($display) $item['display'] = $display;
                     $results[] = $item;
@@ -530,7 +566,7 @@ class Create extends Component
         'equipment_provided' => 'nullable|string|max:1000',
         'amount' => 'required|numeric|min:10000|max:10000000',
         'category_id' => 'required|exists:categories,id',
-        'city_id' => 'required|exists:cities,id',
+        'city_id' => 'required|exists:cities,id,is_active,1',
         'location' => 'required|string|max:255',
         'full_address' => 'required|string|max:1000',
         'latitude' => 'required|numeric|between:-90,90',
@@ -549,6 +585,7 @@ class Create extends Component
         'amount.max' => 'Nominal maksimal Rp 10.000.000',
         'category_id.required' => 'Kategori bantuan wajib dipilih',
         'city_id.required' => 'Kota wajib dipilih',
+        'city_id.exists' => 'Kota yang dipilih saat ini sedang tidak aktif.',
         'location.required' => 'Detail patokan lokasi bantuan wajib diisi',
         'full_address.required' => 'Alamat lengkap wajib diisi',
         'latitude.required' => 'Silakan tentukan titik lokasi pada peta',
@@ -565,6 +602,20 @@ class Create extends Component
         if (!$user || !$user->isProfileComplete()) {
             $missing = implode(', ', optional($user)->getMissingProfileFields() ?? []);
             session()->flash('error', "Harap lengkapi profil Anda ({$missing}) terlebih dahulu sebelum mengajukan bantuan.");
+            return;
+        }
+
+        if (!$user->verified) {
+            session()->flash('error', 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi disetujui sebelum mengajukan bantuan.');
+            return;
+        }
+
+        if (!$user->canCreateMoreHelps()) {
+            if (!$user->hasVerifiedEmail()) {
+                session()->flash('error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 permintaan bantuan. Silakan verifikasi email Anda terlebih dahulu untuk membuat bantuan baru.');
+            } else {
+                session()->flash('error', 'Anda telah mencapai batas maksimal permintaan bantuan yang dapat dibuat.');
+            }
             return;
         }
 
@@ -676,9 +727,25 @@ class Create extends Component
     public function prepareConfirm()
     {
         $user = auth()->user();
+
+        // Cek kuota permintaan bantuan customer (belum verifikasi email = maks 2 bantuan)
+        if ($user && !$user->canCreateMoreHelps()) {
+            if (!$user->hasVerifiedEmail()) {
+                session()->flash('error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 permintaan bantuan. Silakan verifikasi email Anda terlebih dahulu untuk membuat bantuan baru.');
+            } else {
+                session()->flash('error', 'Anda telah mencapai batas maksimal permintaan bantuan yang dapat dibuat.');
+            }
+            return;
+        }
+
         if (!$user || !$user->isProfileComplete()) {
             $missing = implode(', ', optional($user)->getMissingProfileFields() ?? []);
             session()->flash('error', "Harap lengkapi profil Anda ({$missing}) terlebih dahulu sebelum mengajukan bantuan.");
+            return;
+        }
+
+        if (!$user->verified) {
+            session()->flash('error', 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi disetujui sebelum mengajukan bantuan.');
             return;
         }
 
@@ -718,6 +785,8 @@ class Create extends Component
             $this->confirmAdminFee = $adminFee;
             $this->confirmTotal = $total;
             $this->insufficientMessage = 'Saldo Anda saat ini Rp ' . number_format($userBalance->balance, 0, ',', '.') . ', sedangkan total yang harus dibayar adalah Rp ' . number_format($total, 0, ',', '.') . ' (Kurang Rp ' . number_format($deficit, 0, ',', '.') . ').';
+            $this->loadPaymentSettings();
+            $this->calculateTopupFee(); // hitung biaya admin segera
             $this->showInsufficientModal = true;
             return;
         }
@@ -743,8 +812,82 @@ class Create extends Component
         $this->insufficientMessage = '';
     }
 
+    public function setTopupQuickAmount($amount)
+    {
+        $this->topupAmount = (int) $amount;
+        $this->calculateTopupFee();
+        $this->dispatch('topup-amount-updated', $this->topupAmount);
+    }
+
+    public function updatedTopupAmount()
+    {
+        // Strip titik pemisah ribuan dari input teks berformat (misal "50.000" → 50000)
+        $this->topupAmount = (int) preg_replace('/\D/', '', (string) $this->topupAmount);
+        $this->calculateTopupFee();
+    }
+
+    public function calculateTopupFee()
+    {
+        $amount = (float) $this->topupAmount;
+        if ($amount <= 0) {
+            $this->topupAdminFee = 0;
+            $this->topupTotalTransfer = 0;
+            return;
+        }
+
+        $tier1_limit      = (int)   AppSetting::get('topup_tier1_limit',      50000);
+        $tier1_fee        = (int)   AppSetting::get('topup_tier1_fee',         9000);
+        $tier2_limit      = (int)   AppSetting::get('topup_tier2_limit',     100000);
+        $tier2_fee        = (int)   AppSetting::get('topup_tier2_fee',         7500);
+        $tier3_pct        = (float) AppSetting::get('topup_tier3_percentage',     3);
+        $tier3_max        = (int)   AppSetting::get('topup_tier3_max',        15000);
+
+        if ($amount < $tier1_limit) {
+            $fee = $tier1_fee;
+        } elseif ($amount < $tier2_limit) {
+            $fee = $tier2_fee;
+        } else {
+            $fee = min($amount * ($tier3_pct / 100), $tier3_max);
+        }
+
+        $this->topupAdminFee      = (int) round($fee);
+        $this->topupTotalTransfer = (int) round($amount + $fee);
+    }
+
+    public function loadPaymentSettings()
+    {
+        $raw = AppSetting::get('topup_payment_methods', '{}');
+        $methods = json_decode((string) $raw, true) ?: [];
+
+        $this->qrisEnabled = $methods['qris']['enabled'] ?? true;
+
+        $defaultBanks = [
+            ['code' => 'bca', 'name' => 'BCA', 'account_number' => '1234567890', 'account_name' => 'PT sayabantu', 'enabled' => true],
+            ['code' => 'mandiri', 'name' => 'Mandiri', 'account_number' => '0987654321', 'account_name' => 'PT sayabantu', 'enabled' => true],
+            ['code' => 'bni', 'name' => 'BNI', 'account_number' => '5555666677', 'account_name' => 'PT sayabantu', 'enabled' => true],
+            ['code' => 'bri', 'name' => 'BRI', 'account_number' => '8888999900', 'account_name' => 'PT sayabantu', 'enabled' => true],
+        ];
+
+        $banks = $methods['banks'] ?? $defaultBanks;
+
+        $this->availableBanks = collect($banks)
+            ->filter(fn($bank) => $bank['enabled'] ?? false)
+            ->map(fn($bank) => array_merge($bank, ['value' => 'bank_' . ($bank['code'] ?? '')]))
+            ->values()
+            ->toArray();
+
+        if (empty($this->topupMethod) || $this->topupMethod === 'all') {
+            $this->topupMethod = $this->qrisEnabled ? 'qris' : ($this->availableBanks[0]['value'] ?? 'bank_bca');
+        }
+    }
+
+    public function selectTopupMethod($method)
+    {
+        $this->topupMethod = $method;
+    }
+
     /**
-     * Process direct topup via Midtrans without leaving the create help page
+     * Process direct topup via manual transfer/QRIS without leaving the create help page
      */
     public function processDirectTopup()
     {
@@ -754,86 +897,105 @@ class Create extends Component
             return;
         }
 
-        try {
-            Config::$serverKey = config('services.midtrans.server_key');
-            Config::$isProduction = config('services.midtrans.is_production');
-            Config::$isSanitized = config('services.midtrans.is_sanitized');
-            Config::$is3ds = config('services.midtrans.is_3ds');
+        $this->validate([
+            'topupAmount' => 'required|numeric|min:10000|max:10000000',
+            'topupMethod' => 'required|string',
+            'topupReceipt' => 'required|image|max:2048',
+        ], [
+            'topupAmount.required' => 'Nominal top up wajib diisi',
+            'topupAmount.min' => 'Minimal top up adalah Rp 10.000',
+            'topupAmount.max' => 'Maksimal top up adalah Rp 10.000.000',
+            'topupMethod.required' => 'Metode pembayaran wajib dipilih',
+            'topupReceipt.required' => 'Bukti transfer wajib diunggah',
+            'topupReceipt.image' => 'File bukti harus berupa gambar',
+            'topupReceipt.max' => 'Ukuran maksimal gambar 2MB',
+        ]);
 
-            if (!config('services.midtrans.is_production')) {
-                Config::$curlOptions = [
-                    CURLOPT_SSL_VERIFYPEER => false,
-                    CURLOPT_SSL_VERIFYHOST => false,
-                    CURLOPT_HTTPHEADER     => [],
-                ];
+        try {
+            $user = auth()->user();
+            $orderId = 'TOPUP-MANUAL-' . $user->id . '-' . time();
+
+            // Simpan bukti transfer ke storage
+            $receiptPath = $this->topupReceipt->store('proof-of-payment', 'public');
+
+            // Format nama metode pembayaran
+            $methodName = 'Transfer Bank';
+            if ($this->topupMethod === 'qris') {
+                $methodName = 'QRIS';
+            } else {
+                foreach ($this->availableBanks as $b) {
+                    if ($b['value'] === $this->topupMethod) {
+                        $methodName = 'Transfer ' . $b['name'];
+                        break;
+                    }
+                }
             }
 
-            $user = auth()->user();
-            $orderId = 'TOPUP-' . $user->id . '-' . time();
+            // Generate request code TPU-YYYYMMDD-XXX
+            $date = now()->format('Ymd');
+            $lastCode = BalanceTransaction::where('request_code', 'like', "TPU-{$date}-%")
+                ->orderBy('id', 'desc')
+                ->first();
+            $sequence = 1;
+            if ($lastCode) {
+                $parts = explode('-', $lastCode->request_code);
+                $sequence = intval($parts[2] ?? 0) + 1;
+            }
+            $requestCode = "TPU-{$date}-" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+
+            // Hitung biaya admin berdasarkan tier fee dari AppSetting
+            $this->calculateTopupFee();
 
             $transaction = BalanceTransaction::create([
                 'user_id' => $user->id,
                 'amount' => $topupVal,
+                'admin_fee' => $this->topupAdminFee,
+                'total_payment' => $this->topupTotalTransfer,
                 'type' => 'topup',
-                'description' => 'Top up saldo via Midtrans saat buat bantuan',
+                'description' => 'Top up saldo via ' . $methodName . ' saat buat bantuan',
                 'order_id' => $orderId,
-                'status' => 'pending',
+                'request_code' => $requestCode,
+                'status' => 'waiting_approval',
+                'customer_name' => $user->name,
+                'customer_phone' => $user->phone,
+                'customer_email' => $user->email,
+                'payment_method' => $this->topupMethod,
+                'proof_of_payment' => $receiptPath,
+                'expired_at' => now()->addHours(24),
             ]);
 
-            if ($this->topupMethod === 'bank') {
-                $payments = ['bank_transfer', 'echannel'];
-            } elseif ($this->topupMethod === 'ewallet') {
-                $payments = ['gopay', 'shopeepay', 'qris'];
-            } else {
-                // All payment methods: Bank Transfer (BCA, BRI, Mandiri, BNI, Permata), QRIS, E-Wallet (GoPay, ShopeePay), dll
-                $payments = ['bank_transfer', 'echannel', 'gopay', 'shopeepay', 'qris', 'cstore'];
+            // Kirim notifikasi ke Admin / SuperAdmin
+            try {
+                $cityAdmins = \App\Models\User::where('role', 'admin')
+                    ->where('status', 'active')
+                    ->when($user->city_id, function ($query, $cityId) {
+                        $query->where('city_id', $cityId);
+                    })
+                    ->get();
+
+                $superAdmins = \App\Models\User::whereIn('role', ['superadmin', 'super_admin'])
+                    ->where('status', 'active')
+                    ->get();
+
+                $allAdmins = $cityAdmins->merge($superAdmins)->unique('id');
+                foreach ($allAdmins as $admin) {
+                    $admin->notify(new \App\Notifications\NewTopupRequest($transaction));
+                }
+            } catch (\Throwable $err) {
+                \Log::warning('Gagal kirim notifikasi topup admin: ' . $err->getMessage());
             }
 
-            $params = [
-                'transaction_details' => [
-                    'order_id' => $orderId,
-                    'gross_amount' => (int) $topupVal,
-                ],
-                'customer_details' => [
-                    'first_name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone ?? '08123456789',
-                ],
-                'enabled_payments' => $payments,
-            ];
+            // Dispatch global event
+            $this->dispatch('topupRequestCreated');
 
-            $snapToken = Snap::getSnapToken($params);
-            $transaction->snap_token = $snapToken;
-            $transaction->save();
+            $this->showInsufficientModal = false;
+            $this->reset(['topupReceipt']);
 
-            $this->topupSnapToken = $snapToken;
-
-            // Dispatch event to frontend to launch Snap
-            $this->dispatch('openDirectMidtransSnap', snapToken: $snapToken);
+            session()->flash('message', 'Bukti transfer berhasil dikirim! Kode request: ' . $requestCode . '. Silakan tunggu verifikasi admin.');
 
         } catch (\Throwable $e) {
-            \Log::error('Direct Topup Midtrans error: ' . $e->getMessage());
-
-            // Sandbox local fallback if DNS/network issue
-            if (!config('services.midtrans.is_production')) {
-                $user = auth()->user();
-                $orderId = 'TOPUP-' . $user->id . '-' . time();
-
-                BalanceTransaction::create([
-                    'user_id' => $user->id,
-                    'amount' => $topupVal,
-                    'type' => 'topup',
-                    'description' => 'Top up saldo (Simulasi Sandbox)',
-                    'order_id' => $orderId,
-                    'status' => 'completed',
-                    'processed_at' => now(),
-                ]);
-
-                $this->onTopupCompleted();
-                return;
-            }
-
-            $this->addError('topupAmount', 'Gagal memproses pembayaran: ' . $e->getMessage());
+            \Log::error('Manual Topup error: ' . $e->getMessage());
+            $this->addError('topupAmount', 'Gagal mengirim bukti: ' . $e->getMessage());
         }
     }
 

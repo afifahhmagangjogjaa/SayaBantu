@@ -55,5 +55,12 @@ class City extends Model
         return $this->hasMany(District::class);
     }
 
+    /**
+     * Scope a query to only include active cities.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }
 

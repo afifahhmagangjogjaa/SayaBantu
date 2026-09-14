@@ -32,9 +32,15 @@
                             <p class="text-sm font-bold uppercase">{{ $user->role === 'mitra' ? 'Mitra' : 'Customer' }}</p>
                         </div>
                     </div>
+                    @if($user->hasVerifiedEmail())
                     <span class="text-xs px-2.5 py-1 rounded-full font-semibold {{ $user->role === 'mitra' ? 'bg-green-200/80 text-green-800' : 'bg-blue-200/80 text-blue-800' }}">
                         Email Terverifikasi ✓
                     </span>
+                    @else
+                    <span class="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                        Email Belum Diverifikasi
+                    </span>
+                    @endif
                 </div>
 
                 <!-- 1. Ringkasan Data Diri -->
@@ -58,24 +64,22 @@
                         </div>
                         <div>
                             <span class="text-gray-400 block text-[10px] font-bold uppercase">Tempat, Tgl Lahir</span>
-                            <span class="font-medium text-gray-900">{{ $user->place_of_birth }}, {{ $user->date_of_birth ? $user->date_of_birth->format('d/m/Y') : '-' }}</span>
+                            <span class="font-medium text-gray-900">{{ $user->place_of_birth }}, {{ $user->date_of_birth ? ($user->date_of_birth instanceof \Carbon\CarbonInterface ? $user->date_of_birth->format('d/m/Y') : \Carbon\Carbon::parse($user->date_of_birth)->format('d/m/Y')) : '-' }}</span>
                         </div>
                         <div>
                             <span class="text-gray-400 block text-[10px] font-bold uppercase">Jenis Kelamin</span>
                             <span class="font-medium text-gray-900">{{ $user->gender }}</span>
                         </div>
-                        <div>
+                        <div class="{{ empty($user->occupation) ? 'col-span-2' : '' }}">
                             <span class="text-gray-400 block text-[10px] font-bold uppercase">No. WhatsApp</span>
                             <span class="font-medium text-gray-900">{{ $user->phone }}</span>
                         </div>
+                        @if(!empty($user->occupation))
                         <div>
-                            <span class="text-gray-400 block text-[10px] font-bold uppercase">Agama / Status</span>
-                            <span class="font-medium text-gray-900">{{ $user->religion }} ({{ $user->marital_status }})</span>
-                        </div>
-                        <div class="col-span-2">
                             <span class="text-gray-400 block text-[10px] font-bold uppercase">Pekerjaan</span>
                             <span class="font-medium text-gray-900">{{ $user->occupation }}</span>
                         </div>
+                        @endif
                         <div class="col-span-2">
                             <span class="text-gray-400 block text-[10px] font-bold uppercase">Alamat Lengkap</span>
                             <span class="font-medium text-gray-900">{{ $user->address }} {{ $user->rt ? 'RT '.$user->rt : '' }} {{ $user->rw ? 'RW '.$user->rw : '' }}, {{ $user->kelurahan }}, {{ $user->kecamatan }}, {{ $user->city ?? optional($user->cityRelation)->name }}, {{ $user->province }}</span>
@@ -135,7 +139,7 @@
                     <button type="submit"
                         class="flex-1 text-white font-bold py-3.5 rounded-full shadow-md hover:shadow-lg active:scale-98 transition text-base tracking-wide"
                         style="background-color: #0098e7;">
-                        Selesaikan Pendaftaran & Masuk
+                        Selesai & Masuk
                     </button>
                 </div>
             </form>

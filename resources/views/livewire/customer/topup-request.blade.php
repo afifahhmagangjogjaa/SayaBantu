@@ -81,10 +81,24 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nominal Top-Up *</label>
                         <div class="relative flex items-center">
                             <span class="absolute left-4 text-gray-500 font-semibold text-sm select-none pointer-events-none">Rp</span>
-                            <input type="number" wire:model.live="amount" wire:change="calculateFees"
-                                oninput="if(parseInt(this.value) > 10000000) this.value = 10000000; else if(parseInt(this.value) < 0) this.value = 0;"
+                            <input type="text"
+                                wire:ignore
+                                x-data
+                                x-init="
+                                    $el.value = $wire.amount ? Number($wire.amount).toLocaleString('id-ID') : '';
+                                    $wire.on('topup-request-amount-updated', (val) => {
+                                        $el.value = val ? Number(val).toLocaleString('id-ID') : '';
+                                    });
+                                "
+                                x-on:input="
+                                    let raw = $el.value.replace(/\./g, '').replace(/\D/g, '');
+                                    if (parseInt(raw) > 10000000) raw = '10000000';
+                                    $el.value = raw ? raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+                                    $wire.set('amount', parseInt(raw) || 0);
+                                "
+                                inputmode="numeric"
                                 class="w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-medium text-gray-900"
-                                placeholder="0" min="10000" max="10000000">
+                                placeholder="0">
                         </div>
                         @error('amount') <span class="text-xs text-red-600 mt-1">{{ $message }}</span> @enderror
                         <p class="text-xs text-gray-500 mt-1">Min: Rp 10.000 - Max: Rp 10.000.000</p>

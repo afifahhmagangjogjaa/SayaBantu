@@ -324,4 +324,19 @@ class PartnerActivityController extends Controller
             'reasons' => $reasons,
         ];
     }
+
+    public function destroy($id)
+    {
+        $activity = PartnerActivity::findOrFail($id);
+        $activity->delete();
+
+        return redirect()->back()->with('success', 'Log aktivitas berhasil dihapus.');
+    }
+
+    public function destroyAll()
+    {
+        PartnerActivity::query()->delete();
+
+        return redirect()->back()->with('success', 'Seluruh log aktivitas berhasil dihapus.');
+    }
 }

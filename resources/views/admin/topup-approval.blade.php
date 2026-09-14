@@ -1,20 +1,15 @@
 @section('page-title', 'Approval Top-Up Saldo')
-@section('page-description', 'Monitoring request top-up saldo dari customer')
+@section('page-description', 'Monitoring request top-up saldo customer')
+@php
+    $title = 'Approval Top-Up Saldo';
+    $breadcrumb = 'Admin / Approval Top-Up';
+@endphp
 
 <div class="space-y-6">
     <div wire:poll.4s>
-        <!-- Header Info Notice -->
-        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
-            <div class="inline-flex items-center gap-2.5 px-4 py-2.5 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-xs font-semibold shadow-2xs">
-                <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                </svg>
-                <span>Akses Monitoring: Tindakan approval dilakukan oleh Super Admin.</span>
-            </div>
-        </div>
-
+        <!-- Alerts -->
         @if (session()->has('success'))
-            <div class="mb-10 p-4.5 bg-green-50 border border-green-200 rounded-2xl text-green-800 flex items-start gap-3 shadow-2xs">
+            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-800 flex items-start gap-3 shadow-2xs">
                 <svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
@@ -35,7 +30,7 @@
                     <div>
                         <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total Pending</p>
                         <h3 class="text-2xl font-extrabold text-gray-900 mt-1.5">{{ $pendingRequests->total() }}</h3>
-                        <p class="text-amber-600 text-xs font-semibold mt-1">Request menunggu approval</p>
+                        <p class="text-amber-600 text-xs font-semibold mt-1">Request butuh verifikasi</p>
                     </div>
                     <div class="w-11 h-11 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -84,8 +79,8 @@
         <div class="mb-8">
             <!-- Section Header & Filter Bar -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 px-1 sm:px-2">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2.5">
+                <div class="flex-shrink-0">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2.5 whitespace-nowrap">
                         <span>Request Menunggu Approval</span>
                         <span class="px-3 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
                             {{ $totalPendingCount ?? 0 }} Data
@@ -95,7 +90,7 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <div class="flex items-center h-9 w-72 sm:w-80 bg-white border border-gray-300 rounded-xl px-3 shadow-2xs transition focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
+                    <div class="flex items-center h-9 w-60 sm:w-72 bg-white border border-gray-300 rounded-xl px-3 shadow-2xs transition focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
                         <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -125,38 +120,40 @@
                                 <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Metode</th>
                                 <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Status</th>
                                 <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Waktu Masuk</th>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-20">Aksi</th>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-28">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
                             @forelse($pendingRequests as $transaction)
                                 <tr class="hover:bg-gray-50/80 transition-colors">
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap text-center text-xs font-medium text-gray-500">
+                                    <td class="px-2.5 py-3 whitespace-nowrap text-center text-xs font-medium text-gray-500">
                                         {{ $pendingRequests->firstItem() + $loop->index }}
                                     </td>
-                                    <td class="px-2.5 py-2.5">
-                                        <div class="flex items-center gap-2.5">
-                                            <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 font-bold flex items-center justify-center text-xs shadow-2xs flex-shrink-0">
+                                    <td class="px-2.5 py-3">
+                                        <div class="flex items-center gap-3" style="gap: 12px;">
+                                            <div class="w-8 h-8 flex-shrink-0 rounded-full bg-primary-100 text-primary-700 font-bold flex items-center justify-center text-xs" style="width: 32px; height: 32px; min-width: 32px;">
                                                 {{ strtoupper(substr($transaction->user->name ?? 'U', 0, 1)) }}
                                             </div>
-                                            <div class="min-w-0">
-                                                <div class="text-sm font-semibold text-gray-900 leading-tight truncate max-w-[150px]">{{ $transaction->user->name ?? '-' }}</div>
-                                                <div class="text-[10px] text-gray-500 truncate max-w-[150px]">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
+                                            <div class="min-w-0" style="margin-left: 4px;">
+                                                <div class="text-sm font-semibold text-gray-900 leading-tight truncate max-w-[150px]" title="{{ $transaction->user->name ?? '-' }}">{{ $transaction->user->name ?? '-' }}</div>
+                                                <div class="text-xs text-gray-500 mt-0.5 truncate max-w-[150px]" title="{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
                                                 @if(!empty($transaction->user->city->name))
-                                                    <div class="text-[10px] text-gray-400">📍 {{ $transaction->user->city->name }}</div>
+                                                    <div class="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
+                                                        <span>📍 {{ $transaction->user->city->name }}</span>
+                                                    </div>
                                                 @endif
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap">
+                                    <td class="px-2.5 py-3 whitespace-nowrap">
                                         <div class="text-xs font-mono font-bold text-gray-900 px-2 py-0.5 bg-gray-100 border border-gray-200 rounded inline-block">
                                             {{ $transaction->request_code ?? '#' . $transaction->id }}
                                         </div>
-                                        <div class="text-[10px] text-gray-500 mt-0.5">
+                                        <div class="text-xs text-gray-500 mt-0.5 font-mono">
                                             {{ $transaction->customer_phone ?? ($transaction->user->phone ?? '-') }}
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap">
+                                    <td class="px-2.5 py-3 whitespace-nowrap">
                                         <div class="text-xs font-bold text-gray-900">
                                             Rp {{ number_format($transaction->amount, 0, ',', '.') }}
                                         </div>
@@ -164,29 +161,29 @@
                                             +Rp {{ number_format($transaction->admin_fee, 0, ',', '.') }} fee
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap">
-                                        <div class="text-xs font-bold text-primary-600 px-2 py-0.5 bg-primary-50 border border-primary-100 rounded inline-block">
+                                    <td class="px-2.5 py-3 whitespace-nowrap">
+                                        <div class="text-xs font-bold text-primary-700 px-2 py-0.5 bg-primary-50 border border-primary-100 rounded inline-block">
                                             Rp {{ number_format($transaction->total_payment, 0, ',', '.') }}
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap text-center">
-                                        <span class="px-2 py-0.5 text-[11px] font-semibold rounded bg-gray-100 text-gray-700 inline-block">
+                                    <td class="px-2.5 py-3 whitespace-nowrap text-center">
+                                        <span class="px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-700 inline-block border border-gray-200">
                                             {{ $transaction->payment_method ?? 'QRIS' }}
                                         </span>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap text-center">
-                                        <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
+                                    <td class="px-2.5 py-3 whitespace-nowrap text-center">
+                                        <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                                             Menunggu
                                         </span>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap">
-                                        <div class="text-xs text-gray-900">{{ $transaction->created_at->format('d M Y') }}</div>
+                                    <td class="px-2.5 py-3 whitespace-nowrap">
+                                        <div class="text-xs font-semibold text-gray-900">{{ $transaction->created_at->format('d M Y') }}</div>
                                         <div class="text-[10px] text-gray-500">{{ $transaction->created_at->format('H:i') }} WIB</div>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap text-center text-xs font-medium">
+                                    <td class="px-2.5 py-3 whitespace-nowrap text-center text-xs font-medium">
                                         <button type="button" wire:click="viewDetail({{ $transaction->id }})"
                                             wire:loading.attr="disabled"
-                                            class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold transition shadow-2xs"
+                                            class="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer"
                                             title="Lihat Detail">
                                             Detail
                                         </button>
@@ -224,36 +221,36 @@
         <!-- ========================================== -->
         <div class="border-t border-gray-200 pt-6 mt-6">
             <!-- Section Header & Filter Bar -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 px-1 sm:px-2">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2.5">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 px-1 sm:px-2">
+                <div class="flex-shrink-0">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2.5 whitespace-nowrap">
                         <span>Riwayat Approval & Transaksi</span>
-                        <span class="px-3 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
                             {{ $totalHistoryCount ?? 0 }} Data
                         </span>
                     </h2>
-                    <p class="text-xs text-gray-500 mt-1.5">Histori seluruh transaksi top-up yang telah disetujui maupun ditolak</p>
+                    <p class="text-xs text-gray-500 mt-1">Histori seluruh transaksi top-up yang telah disetujui maupun ditolak</p>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
                     <!-- Status Filter Tabs -->
-                    <div class="inline-flex h-9 items-center rounded-xl border border-gray-200 p-1 bg-gray-50 shadow-2xs">
+                    <div class="inline-flex h-9 items-center rounded-xl border border-gray-200 p-1 bg-gray-50 shadow-2xs flex-shrink-0">
                         <button type="button" wire:click="filterHistoryStatus('')"
-                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold transition cursor-pointer {{ $historyStatusFilter === '' || $historyStatusFilter === 'all' ? 'bg-white text-gray-900 font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === '' || $historyStatusFilter === 'all' ? 'bg-white text-gray-900 font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
                             Semua ({{ $totalHistoryCount ?? 0 }})
                         </button>
                         <button type="button" wire:click="filterHistoryStatus('completed')"
-                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold transition cursor-pointer {{ $historyStatusFilter === 'completed' ? 'bg-green-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === 'completed' ? 'bg-green-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
                             Disetujui ({{ $totalCompletedCount ?? 0 }})
                         </button>
                         <button type="button" wire:click="filterHistoryStatus('rejected')"
-                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold transition cursor-pointer {{ $historyStatusFilter === 'rejected' ? 'bg-red-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === 'rejected' ? 'bg-red-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
                             Ditolak ({{ $totalRejectedCount ?? 0 }})
                         </button>
                     </div>
 
                     <!-- Search Input History -->
-                    <div class="flex items-center h-9 w-64 sm:w-72 bg-white border border-gray-300 rounded-xl px-3 shadow-2xs transition focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
+                    <div class="flex items-center h-9 w-48 sm:w-56 bg-white border border-gray-300 rounded-xl px-3 shadow-2xs transition focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
                         <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -266,6 +263,15 @@
                             </button>
                         @endif
                     </div>
+
+                    <!-- Tombol Hapus Riwayat -->
+                    <button type="button" wire:click="openDeleteModal"
+                        class="h-9 px-3.5 flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span>Hapus Riwayat</span>
+                    </button>
                 </div>
             </div>
 
@@ -283,38 +289,40 @@
                                 <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Metode</th>
                                 <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Status</th>
                                 <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Waktu Diproses</th>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-20">Aksi</th>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-28">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
                             @forelse($historyRequests as $transaction)
                                 <tr class="hover:bg-gray-50/80 transition-colors">
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap text-center text-xs font-medium text-gray-500">
+                                    <td class="px-2.5 py-3 whitespace-nowrap text-center text-xs font-medium text-gray-500">
                                         {{ $historyRequests->firstItem() + $loop->index }}
                                     </td>
-                                    <td class="px-2.5 py-2.5">
-                                        <div class="flex items-center gap-2.5">
-                                            <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs shadow-2xs flex-shrink-0">
+                                    <td class="px-2.5 py-3">
+                                        <div class="flex items-center gap-3" style="gap: 12px;">
+                                            <div class="w-8 h-8 flex-shrink-0 rounded-full bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs" style="width: 32px; height: 32px; min-width: 32px;">
                                                 {{ strtoupper(substr($transaction->user->name ?? 'U', 0, 1)) }}
                                             </div>
-                                            <div class="min-w-0">
-                                                <div class="text-sm font-semibold text-gray-900 leading-tight truncate max-w-[150px]">{{ $transaction->user->name ?? '-' }}</div>
-                                                <div class="text-[10px] text-gray-500 truncate max-w-[150px]">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
+                                            <div class="min-w-0" style="margin-left: 4px;">
+                                                <div class="text-sm font-semibold text-gray-900 leading-tight truncate max-w-[150px]" title="{{ $transaction->user->name ?? '-' }}">{{ $transaction->user->name ?? '-' }}</div>
+                                                <div class="text-xs text-gray-500 mt-0.5 truncate max-w-[150px]" title="{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
                                                 @if(!empty($transaction->user->city->name))
-                                                    <div class="text-[10px] text-gray-400">📍 {{ $transaction->user->city->name }}</div>
+                                                    <div class="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
+                                                        <span>📍 {{ $transaction->user->city->name }}</span>
+                                                    </div>
                                                 @endif
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap">
+                                    <td class="px-2.5 py-3 whitespace-nowrap">
                                         <div class="text-xs font-mono font-bold text-gray-900 px-2 py-0.5 bg-gray-100 border border-gray-200 rounded inline-block">
                                             {{ $transaction->request_code ?? '#' . $transaction->id }}
                                         </div>
-                                        <div class="text-[10px] text-gray-500 mt-0.5">
+                                        <div class="text-xs text-gray-500 mt-0.5 font-mono">
                                             {{ $transaction->customer_phone ?? ($transaction->user->phone ?? '-') }}
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap">
+                                    <td class="px-2.5 py-3 whitespace-nowrap">
                                         <div class="text-xs font-bold text-gray-900">
                                             Rp {{ number_format($transaction->amount, 0, ',', '.') }}
                                         </div>
@@ -322,42 +330,52 @@
                                             +Rp {{ number_format($transaction->admin_fee, 0, ',', '.') }} fee
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap">
+                                    <td class="px-2.5 py-3 whitespace-nowrap">
                                         <div class="text-xs font-bold text-gray-900">
                                             Rp {{ number_format($transaction->total_payment, 0, ',', '.') }}
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap text-center">
-                                        <span class="px-2 py-0.5 text-[11px] font-semibold rounded bg-gray-100 text-gray-700 inline-block">
+                                    <td class="px-2.5 py-3 whitespace-nowrap text-center">
+                                        <span class="px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-700 inline-block border border-gray-200">
                                             {{ $transaction->payment_method ?? 'QRIS' }}
                                         </span>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap text-center">
+                                    <td class="px-2.5 py-3 whitespace-nowrap text-center">
                                         @if($transaction->status === 'completed' || $transaction->status === 'approved')
-                                            <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">
+                                            <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">
                                                 Disetujui
                                             </span>
                                         @elseif($transaction->status === 'rejected')
-                                            <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
+                                            <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
                                                 Ditolak
                                             </span>
                                         @else
-                                            <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                                            <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">
                                                 {{ ucfirst($transaction->status) }}
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap">
-                                        <div class="text-xs text-gray-900">{{ $transaction->updated_at->format('d M Y') }}</div>
-                                        <div class="text-[10px] text-gray-500">{{ $transaction->updated_at->format('H:i') }} WIB</div>
+                                    <td class="px-2.5 py-3 whitespace-nowrap">
+                                        <div class="text-xs font-semibold text-gray-900">{{ $transaction->approved_at ? $transaction->approved_at->format('d M Y') : $transaction->updated_at->format('d M Y') }}</div>
+                                        <div class="text-[10px] text-gray-500">{{ $transaction->approved_at ? $transaction->approved_at->format('H:i') : $transaction->updated_at->format('H:i') }} WIB</div>
                                     </td>
-                                    <td class="px-2.5 py-2.5 whitespace-nowrap text-center text-xs font-medium">
-                                        <button type="button" wire:click="viewDetail({{ $transaction->id }})"
-                                            wire:loading.attr="disabled"
-                                            class="px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-lg text-xs font-semibold transition shadow-2xs"
-                                            title="Lihat Detail">
-                                            Detail
-                                        </button>
+                                    <td class="px-2.5 py-3 whitespace-nowrap text-center text-xs font-medium">
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button type="button" wire:click="viewDetail({{ $transaction->id }})"
+                                                wire:loading.attr="disabled"
+                                                class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold transition border border-gray-200 cursor-pointer"
+                                                title="Lihat Detail Transaksi">
+                                                Detail
+                                            </button>
+                                            <button type="button" wire:click="deleteHistoryItem({{ $transaction->id }})"
+                                                wire:confirm="Apakah Anda yakin ingin menghapus data riwayat transaksi ini?"
+                                                class="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                                                title="Hapus Riwayat">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -410,7 +428,7 @@
                     </div>
                     <button type="button" wire:click="closeModal" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
@@ -495,14 +513,173 @@
                         <p class="text-gray-500 text-center py-8 bg-gray-50 rounded-xl text-xs mb-5 border border-dashed border-gray-200">Bukti transfer tidak tersedia</p>
                     @endif
 
-                    <!-- Modal Actions -->
-                    <div class="mt-6 flex gap-3">
+                    <!-- Actions in modal -->
+                    <div class="mt-6">
                         <button type="button" wire:click="closeModal"
-                            class="w-full px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 text-sm transition">
+                            class="w-full px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 text-sm transition cursor-pointer">
                             Tutup
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- MODAL HAPUS RIWAYAT TOP-UP BERDASARKAN PERIODE -->
+    @if ($showDeleteModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-xs transition-opacity">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+                
+                <!-- Header Modal -->
+                <div class="flex items-start justify-between border-b border-gray-100 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-gray-900">Hapus Riwayat Top-Up</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Pilih periode bulanan atau tahunan</p>
+                        </div>
+                    </div>
+                    <button type="button" wire:click="closeDeleteModal" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Pilihan Tipe Hapus (Tabs) -->
+                <div class="flex rounded-xl bg-gray-100 p-1 gap-1">
+                    <button type="button" wire:click="$set('deleteMode', 'monthly')"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer {{ $deleteMode === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800' }}">
+                        Bulanan
+                    </button>
+                    <button type="button" wire:click="$set('deleteMode', 'yearly')"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer {{ $deleteMode === 'yearly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800' }}">
+                        Tahunan
+                    </button>
+                    <button type="button" wire:click="$set('deleteMode', 'all')"
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer {{ $deleteMode === 'all' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-500 hover:text-rose-600' }}">
+                        Hapus Semua
+                    </button>
+                </div>
+
+                <!-- Konten Sesuai Mode -->
+                @if($deleteMode === 'monthly')
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
+                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                @foreach($availableYears ?? [date('Y')] as $yr)
+                                    <option value="{{ $yr }}">{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Bulan</label>
+                            <select wire:model.live="deleteMonth" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                <option value="1">01 - Januari</option>
+                                <option value="2">02 - Februari</option>
+                                <option value="3">03 - Maret</option>
+                                <option value="4">04 - April</option>
+                                <option value="5">05 - Mei</option>
+                                <option value="6">06 - Juni</option>
+                                <option value="7">07 - Juli</option>
+                                <option value="8">08 - Agustus</option>
+                                <option value="9">09 - September</option>
+                                <option value="10">10 - Oktober</option>
+                                <option value="11">11 - November</option>
+                                <option value="12">12 - Desember</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2.5 items-start">
+                            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                Hanya riwayat top-up (disetujui/ditolak) pada bulan dan tahun terpilih yang akan dihapus. Permintaan pending tetap aman.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                            wire:click="executeDelete"
+                            wire:confirm="Apakah Anda yakin ingin menghapus data riwayat top-up pada bulan terpilih? Tindakan ini tidak dapat dibatalkan."
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Riwayat Bulan Terpilih</span>
+                        </button>
+                    </div>
+
+                @elseif($deleteMode === 'yearly')
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
+                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                                @foreach($availableYears ?? [date('Y')] as $yr)
+                                    <option value="{{ $yr }}">{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2.5 items-start">
+                            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                Seluruh riwayat top-up (disetujui/ditolak) sepanjang tahun <strong>{{ $deleteYear }}</strong> akan dihapus.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                            wire:click="executeDelete"
+                            wire:confirm="Apakah Anda yakin ingin menghapus SELURUH riwayat top-up pada tahun {{ $deleteYear }}? Tindakan ini tidak dapat dibatalkan."
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Seluruh Tahun {{ $deleteYear }}</span>
+                        </button>
+                    </div>
+
+                @else
+                    <div class="space-y-4">
+                        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div>
+                                <h4 class="text-xs font-bold text-rose-900 uppercase tracking-wider mb-1">Peringatan Ekstrem</h4>
+                                <p class="text-xs text-rose-800 leading-relaxed">
+                                    Tindakan ini akan menghapus <strong>SEMUA</strong> riwayat top-up (disetujui/ditolak) tanpa batasan waktu. Permintaan top-up yang masih pending tetap aman.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button type="button"
+                            wire:click="executeDelete"
+                            wire:confirm="PERINGATAN EKSTREM: Apakah Anda BENAR-BENAR yakin ingin menghapus SEMUA riwayat transaksi top-up tanpa terkecuali?"
+                            class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Semua Riwayat Sekarang</span>
+                        </button>
+                    </div>
+                @endif
+
+                <!-- Footer Cancel -->
+                <div class="border-t border-gray-100 pt-3 flex items-center justify-end">
+                    <button type="button" wire:click="closeDeleteModal" class="px-4 py-2 text-xs text-gray-600 hover:text-gray-800 font-medium hover:bg-gray-100 rounded-lg transition cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
+
             </div>
         </div>
     @endif
