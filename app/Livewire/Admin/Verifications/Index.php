@@ -81,6 +81,12 @@ class Index extends Component
                     $user->verified = true;
                     $user->status = 'active';
                     $user->save();
+
+                    try {
+                        $user->notify(new \App\Notifications\KtpVerificationStatusNotification('approved'));
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP approved: ' . $e->getMessage());
+                    }
                 }
             }
         } catch (\Exception $e) {
@@ -125,6 +131,12 @@ class Index extends Component
                     $user->verified = false;
                     $user->status = 'inactive';
                     $user->save();
+
+                    try {
+                        $user->notify(new \App\Notifications\KtpVerificationStatusNotification('rejected', $reason));
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP rejected: ' . $e->getMessage());
+                    }
                 }
             }
         } catch (\Exception $e) {

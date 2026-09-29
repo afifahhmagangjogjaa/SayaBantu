@@ -188,6 +188,7 @@
                         <!-- Tombol Shadow Ban -->
                         <button type="button" 
                             wire:click="toggleShadowBan({{ $selectedUser->id }})" 
+                            wire:confirm="{{ $selectedUser->isShadowBanned() ? 'Apakah Anda yakin ingin melepaskan status Shadow Ban untuk ' . $selectedUser->name . '?' : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada ' . $selectedUser->name . '? User tidak akan menerima/melihat pesanan baru secara senyap.' }}"
                             wire:loading.attr="disabled"
                             wire:target="toggleShadowBan"
                             style="{{ $selectedUser->isShadowBanned() ? 'background-color: #7e22ce; color: #ffffff; border-color: #6b21a8;' : 'background-color: #ffffff; color: #374151; border-color: #d1d5db;' }}"

@@ -27,7 +27,8 @@
                             <option value="dalam_proses">Sedang Diproses</option>
                             <option value="selesai">Selesai</option>
                             <option value="komplain">⚠️ Mediasi Komplain</option>
-                            <option value="dibatalkan">Dibatalkan / Ditolak</option>
+                            <option value="dibatalkan">Dibatalkan</option>
+                            <option value="rejected">Ditolak</option>
                         </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pointer-events-none" style="padding-right: 14px;">
                             <svg class="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
@@ -65,11 +66,11 @@
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Judul</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Customer</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Kategori</th>
-                            <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Status</th>
-                            <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Kota</th>
-                            <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Jumlah</th>
-                            <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
-                            <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-24">Aksi</th>
+                            <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                            <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Kota</th>
+                            <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Biaya</th>
+                            <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Tanggal</th>
+                            <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider w-24">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-100">
@@ -77,10 +78,25 @@
                             <tr class="hover:bg-gray-50/80 transition-colors">
                                 <td class="px-2.5 py-3 text-center text-xs text-gray-500 font-medium whitespace-nowrap">{{ $helps->firstItem() + $loop->index }}</td>
                                 <td class="px-2.5 py-3">
-                                    <div class="text-sm font-semibold text-gray-900 leading-tight">{{ $help->title }}</div>
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <div class="text-sm font-semibold text-gray-900 leading-tight">{{ $help->title }}</div>
+                                        @if($help->isUrgent())
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                        @endif
+                                    </div>
                                     <div class="text-[10px] text-gray-400 font-mono mt-0.5">ID: {{ $help->order_id ?? '#' . $help->id }}</div>
                                 </td>
-                                <td class="px-2.5 py-3 text-xs text-gray-700">{{ $help->customer->name ?? '-' }}</td>
+                                <td class="px-2.5 py-3 text-xs text-gray-700">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span>{{ $help->customer->name ?? '-' }}</span>
+                                        @if(!empty($help->customer->is_shadow_banned))
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200" title="Akun ini sedang dalam status Shadow Ban">👻 Shadow</span>
+                                        @endif
+                                        @if(($help->customer->status ?? '') === 'blocked')
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-700 border border-red-200" title="Akun ini sedang diblokir">⛔ Blokir</span>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td class="px-2.5 py-3">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-700">
                                         {{ $help->category->name ?? '-' }}
@@ -92,8 +108,16 @@
                                           ($help->status === 'menunggu_mitra' ? 'bg-amber-100 text-amber-800' : 
                                           ($help->status === 'partner_on_the_way' || $help->status === 'waiting_customer_confirmation' ? 'bg-blue-100 text-blue-800' : 
                                           ($help->status === 'selesai' || $help->status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 
-                                          ($help->status === 'rejected' || $help->status === 'dibatalkan' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
-                                        {{ in_array($help->status, ['komplain', 'disputed']) ? '⚠️ Mediasi Komplain' : str_replace('_', ' ', $help->status) }}
+                                          ($help->status === 'rejected' || $help->status === 'dibatalkan' || $help->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
+                                        @if(in_array($help->status, ['komplain', 'disputed']))
+                                            ⚠️ Mediasi Komplain
+                                        @elseif($help->status === 'rejected')
+                                            Ditolak
+                                        @elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
+                                            Dibatalkan
+                                        @else
+                                            {{ str_replace('_', ' ', $help->status) }}
+                                        @endif
                                     </span>
                                 </td>
                                 <td class="px-2.5 py-3 text-xs text-gray-600 whitespace-nowrap">{{ $help->city->name ?? '-' }}</td>
@@ -189,7 +213,12 @@
         <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50/80">
                 <div>
-                    <h3 class="text-base font-bold text-gray-900">{{ $detailHelp->title }}</h3>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="text-base font-bold text-gray-900">{{ $detailHelp->title }}</h3>
+                        @if($detailHelp->isUrgent())
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider">⚡ Urgent</span>
+                        @endif
+                    </div>
                     <p class="text-xs text-gray-400 font-mono mt-0.5">ID: {{ $detailHelp->order_id ?? '#' . $detailHelp->id }}</p>
                 </div>
                 <div class="flex items-center gap-3">
@@ -198,8 +227,16 @@
                           ($detailHelp->status === 'menunggu_mitra' ? 'bg-amber-100 text-amber-800' :
                           ($detailHelp->status === 'partner_on_the_way' || $detailHelp->status === 'waiting_customer_confirmation' ? 'bg-blue-100 text-blue-800' :
                           ($detailHelp->status === 'selesai' || $detailHelp->status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
-                          ($detailHelp->status === 'rejected' || $detailHelp->status === 'dibatalkan' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
-                        {{ in_array($detailHelp->status, ['komplain', 'disputed']) ? '⚠️ Mediasi Komplain' : str_replace('_', ' ', $detailHelp->status) }}
+                          ($detailHelp->status === 'rejected' || $detailHelp->status === 'dibatalkan' || $detailHelp->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
+                        @if(in_array($detailHelp->status, ['komplain', 'disputed']))
+                            ⚠️ Mediasi Komplain
+                        @elseif($detailHelp->status === 'rejected')
+                            Ditolak
+                        @elseif($detailHelp->status === 'dibatalkan' || $detailHelp->status === 'cancelled')
+                            Dibatalkan
+                        @else
+                            {{ str_replace('_', ' ', $detailHelp->status) }}
+                        @endif
                     </span>
                     <button wire:click="closeDetailModal" class="text-gray-400 hover:text-gray-600 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,25 +260,81 @@
                 @endif
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200/80">
-                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Customer / Pemohon</h4>
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200/80 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Customer / Pemohon</h4>
+                            @if($detailHelp->customer)
+                                @if($detailHelp->customer->status === 'blocked')
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-700 border border-red-200">⛔ Diblokir</span>
+                                @elseif($detailHelp->customer->is_shadow_banned)
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-200">👻 Shadow Ban</span>
+                                @else
+                                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Aktif</span>
+                                @endif
+                            @endif
+                        </div>
                         @if($detailHelp->customer)
-                            <p class="text-sm font-semibold text-gray-900">{{ $detailHelp->customer->name }}</p>
-                            <p class="text-xs text-gray-500 mt-0.5">{{ $detailHelp->customer->email }}</p>
-                            <p class="text-xs text-gray-400 font-mono mt-0.5">{{ $detailHelp->customer->phone ?? '-' }}</p>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ $detailHelp->customer->name }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">{{ $detailHelp->customer->email }}</p>
+                                <p class="text-xs text-gray-400 font-mono mt-0.5">{{ $detailHelp->customer->phone ?? '-' }}</p>
+                            </div>
+
+                            <div class="pt-2 border-t border-gray-200 flex items-center gap-2">
+                                <button type="button" wire:click="toggleShadowBan({{ $detailHelp->customer->id }})"
+                                    wire:confirm="{{ $detailHelp->customer->is_shadow_banned ? 'Apakah Anda yakin ingin membebaskan ' . $detailHelp->customer->name . ' dari Shadow Ban?' : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada ' . $detailHelp->customer->name . '? Permintaan bantuan berikutnya akan disembunyikan secara senyap dari mitra.' }}"
+                                    class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg border text-xs font-semibold transition cursor-pointer {{ $detailHelp->customer->is_shadow_banned ? 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100' }}">
+                                    <span>👻</span>
+                                    <span>{{ $detailHelp->customer->is_shadow_banned ? 'Lepas Shadow' : 'Shadow Ban' }}</span>
+                                </button>
+                                <button type="button" wire:click="toggleBlockUser({{ $detailHelp->customer->id }})"
+                                    wire:confirm="{{ $detailHelp->customer->status === 'blocked' ? 'Apakah Anda yakin ingin membuka blokir akun ' . $detailHelp->customer->name . '?' : 'Apakah Anda yakin ingin memblokir akun ' . $detailHelp->customer->name . '? Pengguna tidak dapat login lagi.' }}"
+                                    class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg border text-xs font-semibold transition cursor-pointer {{ $detailHelp->customer->status === 'blocked' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' }}">
+                                    <span>⛔</span>
+                                    <span>{{ $detailHelp->customer->status === 'blocked' ? 'Buka Blokir' : 'Blokir Akun' }}</span>
+                                </button>
+                            </div>
                         @else
                             <p class="text-xs text-gray-400 italic">User terhapus</p>
                         @endif
                     </div>
 
-                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200/80">
-                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Mitra / Relawan</h4>
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200/80 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Mitra / Relawan</h4>
+                            @if($detailHelp->mitra)
+                                @if($detailHelp->mitra->status === 'blocked')
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-700 border border-red-200">⛔ Diblokir</span>
+                                @elseif($detailHelp->mitra->is_shadow_banned)
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-200">👻 Shadow Ban</span>
+                                @else
+                                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Aktif</span>
+                                @endif
+                            @endif
+                        </div>
                         @if($detailHelp->mitra)
-                            <p class="text-sm font-semibold text-gray-900">{{ $detailHelp->mitra->name }}</p>
-                            <p class="text-xs text-gray-500 mt-0.5">{{ $detailHelp->mitra->email }}</p>
-                            <p class="text-xs text-gray-400 font-mono mt-0.5">{{ $detailHelp->mitra->phone ?? '-' }}</p>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ $detailHelp->mitra->name }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">{{ $detailHelp->mitra->email }}</p>
+                                <p class="text-xs text-gray-400 font-mono mt-0.5">{{ $detailHelp->mitra->phone ?? '-' }}</p>
+                            </div>
+
+                            <div class="pt-2 border-t border-gray-200 flex items-center gap-2">
+                                <button type="button" wire:click="toggleShadowBan({{ $detailHelp->mitra->id }})"
+                                    wire:confirm="{{ $detailHelp->mitra->is_shadow_banned ? 'Apakah Anda yakin ingin membebaskan mitra ' . $detailHelp->mitra->name . ' dari Shadow Ban?' : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada mitra ' . $detailHelp->mitra->name . '? Mitra tidak akan menerima pesanan baru.' }}"
+                                    class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg border text-xs font-semibold transition cursor-pointer {{ $detailHelp->mitra->is_shadow_banned ? 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100' }}">
+                                    <span>👻</span>
+                                    <span>{{ $detailHelp->mitra->is_shadow_banned ? 'Lepas Shadow' : 'Shadow Ban' }}</span>
+                                </button>
+                                <button type="button" wire:click="toggleBlockUser({{ $detailHelp->mitra->id }})"
+                                    wire:confirm="{{ $detailHelp->mitra->status === 'blocked' ? 'Apakah Anda yakin ingin membuka blokir akun mitra ' . $detailHelp->mitra->name . '?' : 'Apakah Anda yakin ingin memblokir akun mitra ' . $detailHelp->mitra->name . '?' }}"
+                                    class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg border text-xs font-semibold transition cursor-pointer {{ $detailHelp->mitra->status === 'blocked' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' }}">
+                                    <span>⛔</span>
+                                    <span>{{ $detailHelp->mitra->status === 'blocked' ? 'Buka Blokir' : 'Blokir Akun' }}</span>
+                                </button>
+                            </div>
                         @else
-                            <p class="text-xs text-gray-400 italic">Belum ada mitra</p>
+                            <p class="text-sm text-gray-400 italic">Belum ada mitra</p>
                         @endif
                     </div>
                 </div>
@@ -272,6 +365,12 @@
                         <div>
                             <span class="text-gray-400 block">Dibuat Pada</span>
                             <span class="font-semibold text-gray-800">{{ $detailHelp->created_at?->format('d M Y, H:i') }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block">Tipe Layanan</span>
+                            <span class="font-bold {{ $detailHelp->isUrgent() ? 'text-red-600' : 'text-blue-600' }}">
+                                {{ $detailHelp->isUrgent() ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -321,6 +420,28 @@
                         <p class="text-xs font-semibold text-gray-900">{{ $detailHelp->location ?? '-' }}</p>
                         @if($detailHelp->full_address)
                             <p class="text-xs text-gray-600 mt-1">{{ $detailHelp->full_address }}</p>
+                        @endif
+                    </div>
+                @endif
+
+                @if($detailHelp->customer_cancel_reason || $detailHelp->partner_cancel_reason)
+                    <div class="bg-amber-50 rounded-xl p-4 border border-amber-200">
+                        <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <span>⚠️</span> Riwayat Alasan Pembatalan
+                        </h4>
+                        @if($detailHelp->customer_cancel_reason)
+                            <div class="text-xs text-amber-900 mt-1">
+                                <span class="font-semibold text-gray-800">Dibatalkan oleh Customer:</span>
+                                <p class="italic mt-0.5 text-gray-700 bg-white p-2.5 rounded-lg border border-amber-100">"{{ $detailHelp->customer_cancel_reason }}"</p>
+                                <p class="text-[10px] text-gray-400 mt-0.5">Waktu: {{ optional($detailHelp->cancelled_at)->format('d M Y, H:i') ?? '-' }}</p>
+                            </div>
+                        @endif
+                        @if($detailHelp->partner_cancel_reason)
+                            <div class="text-xs text-amber-900 mt-2">
+                                <span class="font-semibold text-gray-800">Dibatalkan oleh Rekan Jasa (Mitra):</span>
+                                <p class="italic mt-0.5 text-gray-700 bg-white p-2.5 rounded-lg border border-amber-100">"{{ $detailHelp->partner_cancel_reason }}"</p>
+                                <p class="text-[10px] text-gray-400 mt-0.5">Waktu: {{ optional($detailHelp->partner_cancel_requested_at)->format('d M Y, H:i') ?? '-' }}</p>
+                            </div>
                         @endif
                     </div>
                 @endif

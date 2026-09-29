@@ -61,10 +61,12 @@ class TopupApproved extends Notification
     {
         return [
             'type' => 'topup_approved',
+            'title' => '✅ Request Top-Up Disetujui',
             'transaction_id' => $this->transaction->id,
             'request_code' => $this->transaction->request_code,
             'amount' => $this->transaction->amount,
             'message' => 'Request top-up saldo Anda telah disetujui! Saldo Rp ' . number_format($this->transaction->amount, 0, ',', '.') . ' telah ditambahkan.',
+            'url' => route('customer.topup.history'),
         ];
     }
 }

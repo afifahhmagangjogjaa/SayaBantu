@@ -181,7 +181,7 @@
                                 </td>
                                 <td class="px-2.5 py-3 whitespace-nowrap">
                                     <div class="text-xs font-semibold text-gray-900">
-                                        {{ $item->created_at->isToday() ? 'Hari ini' : ($item->created_at->isYesterday() ? 'Kemarin' : $item->created_at->translatedFormat('d M Y')) }}
+                                        {{ $item->created_at->format('d M Y') }}
                                     </div>
                                     <div class="text-[10px] text-gray-500 mt-0.5">{{ $item->created_at->format('H:i') }} WIB</div>
                                 </td>

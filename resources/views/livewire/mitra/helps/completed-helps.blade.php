@@ -141,7 +141,13 @@
                 @elseif(isset($helps))
                     <div class="space-y-3">
                         @foreach($helps as $help)
-                            <div x-data="{ open: false }" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                            @php
+                                $mitraFeePercent = (float)($help->mitra_fee_percent ?? 10);
+                                $baseWage = (float)($help->base_amount > 0 ? $help->base_amount : ($help->amount ?? 0));
+                                $platformFee = (float)($help->mitra_fee_amount > 0 ? $help->mitra_fee_amount : round(($baseWage * $mitraFeePercent) / 100));
+                                $netMitra = (float)($help->net_mitra_amount > 0 ? $help->net_mitra_amount : max(0, $baseWage - $platformFee));
+                            @endphp
+                            <div x-data="{ open: false }" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition {{ $help->isUrgent() ? 'border-l-4 border-l-red-500' : '' }}">
                                 <div class="p-4">
                                     <div class="flex items-center gap-3 mb-3">
                                         <div class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-50">
@@ -155,15 +161,26 @@
                                         </div>
 
                                         <div class="flex-1 min-w-0">
-                                            <h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
+                                            <div class="flex items-center gap-1.5 min-w-0">
+                                                <h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
+                                                @if($help->isUrgent())
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                @endif
+                                            </div>
                                             <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} • {{ optional($help->updated_at)->format('d M Y') }}</p>
-                                            @if($help->scheduled_at)
-                                                <div class="text-xs text-gray-500 mt-1">📅 {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d M Y, H:i') }}</div>
+                                            @php
+                                                $displayDate = $help->scheduled_at ?? $help->created_at;
+                                            @endphp
+                                            @if($displayDate)
+                                                <div class="text-xs {{ $help->isUrgent() ? 'text-red-600 font-semibold' : 'text-gray-500' }} mt-1">
+                                                    {{ $help->isUrgent() ? '⚡ ' : '📅 ' }}{{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}
+                                                </div>
                                             @endif
                                         </div>
 
                                         <div class="text-right flex-shrink-0">
-                                            <div class="text-sm font-bold" style="color: #0098e7;">Rp {{ number_format($help->amount ?? 0, 0, ',', '.') }}</div>
+                                            <div class="text-sm font-bold text-emerald-600">Rp {{ number_format($netMitra, 0, ',', '.') }}</div>
+                                            <span class="text-[10px] text-gray-400 font-medium block">Netto (-{{ $mitraFeePercent }}%)</span>
                                             <div class="flex flex-col items-end mt-1">
                                                 @if($help->status === 'rejected')
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
@@ -198,6 +215,45 @@
 
                                 <div x-show="open" x-cloak x-transition class="px-4 pb-4 border-t border-gray-100 mt-3 pt-4">
                                     <div class="space-y-4">
+                                        {{-- Rincian Transparansi Potongan Platform 10% --}}
+                                        <div class="bg-emerald-50/70 rounded-xl p-3.5 border border-emerald-200/80 text-xs space-y-2">
+                                            <div class="flex items-center justify-between pb-2 border-b border-emerald-200/60">
+                                                <span class="font-bold text-gray-800 text-xs flex items-center gap-1.5">
+                                                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                    </svg>
+                                                    Rincian Transparansi Upah
+                                                </span>
+                                                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                                                    Potongan {{ $mitraFeePercent }}%
+                                                </span>
+                                            </div>
+
+                                            <div class="space-y-1.5 text-xs">
+                                                <div class="flex justify-between text-gray-600">
+                                                    <span>Upah Pokok dari Customer:</span>
+                                                    <span class="font-semibold text-gray-900">Rp {{ number_format($baseWage, 0, ',', '.') }}</span>
+                                                </div>
+                                                <div class="flex justify-between text-red-600 font-medium">
+                                                    <span>Biaya Operasional Platform ({{ $mitraFeePercent }}%):</span>
+                                                    <span class="font-semibold">- Rp {{ number_format($platformFee, 0, ',', '.') }}</span>
+                                                </div>
+                                                <div class="flex justify-between text-emerald-700 font-bold border-t border-emerald-200/80 pt-1.5">
+                                                    <span>Pendapatan Bersih Masuk Saldo:</span>
+                                                    <span class="text-sm font-extrabold text-emerald-600">Rp {{ number_format($netMitra, 0, ',', '.') }}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="p-2 bg-white/90 rounded-lg border border-emerald-100 text-[11px] text-gray-600 flex items-start gap-1.5 leading-relaxed">
+                                                <svg class="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                <span>
+                                                    Upah dipotong <strong>{{ $mitraFeePercent }}%</strong> untuk biaya operasional platform. Saldo bersih sebesar <strong>Rp {{ number_format($netMitra, 0, ',', '.') }}</strong> telah masuk ke dompet akun Anda.
+                                                </span>
+                                            </div>
+                                        </div>
+
                                         @if($help->photo)
                                             <img src="{{ asset('storage/' . $help->photo) }}" alt="foto bantuan" class="w-full h-48 object-cover rounded-xl">
                                         @endif
@@ -230,9 +286,6 @@
                                                 <div>
                                                     <div class="text-xs text-gray-500 mb-1">Customer</div>
                                                     <div class="text-sm text-gray-900">{{ $help->user->name }}</div>
-                                                    @if($help->user->phone)
-                                                        <a href="tel:{{ $help->user->phone }}" class="text-xs font-semibold" style="color: #0098e7;">{{ $help->user->phone }}</a>
-                                                    @endif
                                                 </div>
                                             @endif
                                         </div>

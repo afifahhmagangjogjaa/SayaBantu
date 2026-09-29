@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use App\Models\Help;
+use App\Models\User;
 use App\Notifications\HelpStatusNotification;
 
 #[Layout('layouts.superadmin')]
@@ -39,6 +40,39 @@ class HelpsApproved extends Component
     {
         $this->showDetailModal = false;
         $this->detailHelp = null;
+    }
+
+    public function toggleShadowBan($userId)
+    {
+        $user = User::findOrFail($userId);
+        $user->is_shadow_banned = !((bool) $user->is_shadow_banned);
+        $user->shadow_banned_at = $user->is_shadow_banned ? now() : null;
+        $user->save();
+
+        if ($this->detailHelp) {
+            $this->detailHelp = Help::with(['customer', 'mitra', 'category', 'city'])->find($this->detailHelp->id);
+        }
+
+        $label = $user->is_shadow_banned 
+            ? "👻 Shadow Ban berhasil diaktifkan untuk {$user->name}. Permintaan berikutnya akan disembunyikan secara senyap."
+            : "✅ Shadow Ban berhasil dinonaktifkan untuk {$user->name}.";
+        session()->flash('message', $label);
+    }
+
+    public function toggleBlockUser($userId)
+    {
+        $user = User::findOrFail($userId);
+        $user->status = ($user->status === 'blocked') ? 'active' : 'blocked';
+        $user->save();
+
+        if ($this->detailHelp) {
+            $this->detailHelp = Help::with(['customer', 'mitra', 'category', 'city'])->find($this->detailHelp->id);
+        }
+
+        $label = $user->status === 'blocked' 
+            ? "⛔ Pengguna {$user->name} berhasil diblokir."
+            : "✅ Blokir pengguna {$user->name} berhasil dibuka.";
+        session()->flash('message', $label);
     }
 
     public function updatedSearch()
@@ -218,7 +252,9 @@ class HelpsApproved extends Component
                 } elseif ($this->filterStatus === 'selesai') {
                     $query->whereIn('status', ['selesai', 'completed']);
                 } elseif ($this->filterStatus === 'dibatalkan') {
-                    $query->whereIn('status', ['dibatalkan', 'cancelled', 'rejected']);
+                    $query->whereIn('status', ['dibatalkan', 'cancelled']);
+                } elseif ($this->filterStatus === 'rejected') {
+                    $query->where('status', 'rejected');
                 } elseif ($this->filterStatus === 'dalam_proses') {
                     $query->whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'taken', 'in_progress']);
                 } else {
@@ -228,6 +264,16 @@ class HelpsApproved extends Component
             ->latest()
             ->paginate($this->perPage);
 
-        return view('superadmin.helps-approved', compact('helps'));
+        return view('superadmin.helps-approved', [
+            'helps' => $helps,
+            'search' => $this->search,
+            'filterStatus' => $this->filterStatus,
+            'showRejectModal' => $this->showRejectModal,
+            'rejectingHelpId' => $this->rejectingHelpId,
+            'rejectingHelpTitle' => $this->rejectingHelpTitle,
+            'rejectionReason' => $this->rejectionReason,
+            'showDetailModal' => $this->showDetailModal,
+            'detailHelp' => $this->detailHelp,
+        ]);
     }
 }

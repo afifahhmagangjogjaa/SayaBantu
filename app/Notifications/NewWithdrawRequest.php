@@ -49,6 +49,7 @@ class NewWithdrawRequest extends Notification
             'withdraw_id' => $this->withdraw->id,
             'user_name' => $userName,
             'user_id' => $this->withdraw->user_id,
+            'city_id' => $this->withdraw->user?->city_id,
             'amount' => $amount,
             'bank_code' => $this->withdraw->bank_code,
             'account_number' => $this->withdraw->account_number,

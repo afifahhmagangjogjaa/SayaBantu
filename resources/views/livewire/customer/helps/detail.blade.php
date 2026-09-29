@@ -132,6 +132,121 @@
             </button>
         </div>
 
+        {{-- Banner Countdown Auto-Batal untuk Urgent Help --}}
+        @if($help->status === 'menunggu_mitra' && $help->help_type === 'urgent' && $help->auto_cancel_at)
+            <div x-data="{
+                targetTime: new Date('{{ $help->auto_cancel_at->toIso8601String() }}').getTime(),
+                timeLeft: '',
+                isExpired: false,
+                updateTimer() {
+                    const now = new Date().getTime();
+                    const diff = this.targetTime - now;
+                    if (diff <= 0) {
+                        this.timeLeft = '00:00';
+                        this.isExpired = true;
+                        $wire.$refresh();
+                        return;
+                    }
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    this.timeLeft = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                }
+            }" x-init="updateTimer(); setInterval(() => updateTimer(), 1000)"
+            class="mt-3 p-4 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-2xl shadow-xs">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center text-red-600 flex-shrink-0 animate-pulse">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-bold text-red-600 uppercase tracking-wider block">Batas Waktu Tunggu Mitra</span>
+                            <span class="text-xs text-gray-600 font-medium">Bantuan Mendesak (Urgent)</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-lg font-black text-red-600 font-mono tracking-wider" x-text="timeLeft">--:--</span>
+                        <span class="text-[10px] text-gray-500 block">menit : detik</span>
+                    </div>
+                </div>
+                <div class="mt-2.5 pt-2.5 border-t border-red-200/60 text-[11px] text-red-700 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Jika waktu habis dan belum ada mitra yang mengambil, pesanan otomatis batal & saldo 100% kembali.</span>
+                </div>
+            </div>
+        @endif
+
+        {{-- Banner Notifikasi Jika Rekan Jasa Membatalkan Langsung --}}
+        @if($help->status === 'menunggu_mitra' && !empty($help->partner_cancel_requested_at))
+            <div class="mt-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 shadow-2xs">
+                <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 text-amber-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 text-xs">
+                    <h4 class="font-bold text-amber-900 text-sm">Rekan Jasa Berhalangan Hadir</h4>
+                    <p class="text-amber-800 mt-1">
+                        Rekan Jasa sebelumnya membatalkan pesanan ini dengan alasan:
+                        <span class="italic font-medium">"{{ $help->partner_cancel_reason ?: 'Kendala darurat di jalan' }}"</span>
+                    </p>
+                    <div class="mt-2 flex items-center gap-1.5 text-amber-900 font-semibold bg-amber-100/70 px-2.5 py-1.5 rounded-lg">
+                        <svg class="w-4 h-4 animate-spin text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Sistem otomatis mencari Rekan Jasa pengganti baru untuk Anda...</span>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Banner Notifikasi Jika Pesanan Dibatalkan Customer atau Ditolak Admin --}}
+        @if(in_array($help->status, ['dibatalkan', 'cancelled']))
+            <div class="mt-3 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 shadow-2xs">
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-red-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+                <div class="flex-1 text-xs">
+                    <h4 class="font-bold text-red-900 text-sm">Pesanan Dibatalkan</h4>
+                    @if(!empty($help->customer_cancel_reason))
+                        <p class="text-red-700 mt-1">
+                            Alasan pembatalan: <span class="italic font-semibold">"{{ $help->customer_cancel_reason }}"</span>
+                        </p>
+                    @endif
+                    <p class="text-emerald-700 text-[11px] mt-1 font-medium">
+                        ✓ Saldo pembayaran telah dikembalikan penuh ke dompet Anda.
+                    </p>
+                </div>
+            </div>
+        @elseif(in_array($help->status, ['rejected', 'ditolak']))
+            <div class="mt-3 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 shadow-2xs">
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-red-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+                <div class="flex-1 text-xs">
+                    <h4 class="font-bold text-red-900 text-sm">Pesanan Ditolak Admin</h4>
+                    @if(!empty($help->admin_notes))
+                        <p class="text-red-700 mt-1">
+                            Alasan penolakan: <span class="italic font-semibold">"{{ $help->admin_notes }}"</span>
+                        </p>
+                    @else
+                        <p class="text-red-700 mt-1">Permintaan bantuan ini tidak memenuhi kualifikasi atau kebijakan layanan.</p>
+                    @endif
+                    <p class="text-emerald-700 text-[11px] mt-1 font-medium">
+                        ✓ Saldo pembayaran telah dikembalikan penuh ke dompet Anda.
+                    </p>
+                </div>
+            </div>
+        @endif
+
         {{-- Status Pengajuan Komplain / Refund (Jika customer telah mengajukan komplain atau dalam proses refund) --}}
         @if(in_array($help->status, ['komplain', 'disputed']) || !empty($help->complaint_reason) || !empty($help->complaint_resolution))
             <div class="mt-2 bg-white rounded-xl shadow-sm border border-red-200 overflow-hidden">
@@ -207,7 +322,12 @@
                 </div>
                 <div class="flex-1">
                     <div class="text-xs font-semibold text-blue-600 mb-0.5">{{ $help->category?->name ?? 'Lainnya' }}</div>
-                    <h2 class="font-semibold text-base text-gray-900 leading-tight">{{ $help->title }}</h2>
+                    <div class="flex items-center gap-2">
+                        <h2 class="font-semibold text-base text-gray-900 leading-tight">{{ $help->title }}</h2>
+                        @if($help->isUrgent())
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 flex-shrink-0">⚡ URGENT</span>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -318,6 +438,9 @@
                     @if(!empty($help->scheduled_at))
                         <div>Jadwal: {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d F Y, H:i') }}</div>
                     @endif
+                    <div class="mt-1">
+                        Jenis: <span class="font-bold {{ $help->isUrgent() ? 'text-red-600' : 'text-blue-600' }}">{{ $help->isUrgent() ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}</span>
+                    </div>
                 </div>
             </div>
 
@@ -588,39 +711,92 @@
 
         {{-- Confirmation & Complaint Action Section --}}
         @if($help->status === 'waiting_customer_confirmation')
-            <div class="bg-gradient-to-r from-orange-50 to-yellow-50 mt-2 px-4 py-4 border border-orange-200 rounded-xl shadow-xs">
+            @php
+                $deadline = $help->getCustomerConfirmationDeadline();
+                $diffInSeconds = $deadline ? max(0, (int) round(now()->diffInSeconds($deadline, false))) : 0;
+            @endphp
+            <div class="bg-gradient-to-r from-orange-50/80 via-amber-50/60 to-yellow-50/80 mt-2 p-4 sm:p-5 border border-amber-200/90 rounded-2xl shadow-xs"
+                 x-data="{
+                    remainingSeconds: Math.max(0, Math.floor(Number({{ $diffInSeconds }}))),
+                    formattedTime: '',
+                    timer: null,
+                    init() {
+                        this.updateFormattedTime();
+                        this.timer = setInterval(() => {
+                            if (this.remainingSeconds > 0) {
+                                this.remainingSeconds--;
+                                this.updateFormattedTime();
+                            } else {
+                                clearInterval(this.timer);
+                                $wire.$refresh();
+                            }
+                        }, 1000);
+                    },
+                    updateFormattedTime() {
+                        const totalSec = Math.max(0, Math.floor(Number(this.remainingSeconds)));
+                        if (totalSec <= 0) {
+                            this.formattedTime = 'Waktu habis (otomatis selesai)';
+                            return;
+                        }
+                        const h = Math.floor(totalSec / 3600);
+                        const m = Math.floor((totalSec % 3600) / 60);
+                        const s = Math.floor(totalSec % 60);
+                        this.formattedTime = `${h}j ${m}m ${s}d`;
+                    }
+                 }">
                 <div class="flex items-start gap-3 mb-4">
-                    <div class="w-11 h-11 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0 shadow-xs">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-gray-900 mb-0.5">Konfirmasi Penyelesaian Pesanan</h3>
-                        <p class="text-xs text-gray-700 leading-relaxed">Rekan jasa telah menyelesaikan pekerjaan dan mengirim bukti. Silakan periksa hasil kerja sebelum mengonfirmasi.</p>
+                        <div class="flex items-center justify-between gap-2 flex-wrap mb-1">
+                            <h3 class="font-bold text-sm text-gray-900">Konfirmasi Penyelesaian Pesanan</h3>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                <svg class="w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span x-text="formattedTime">Menghitung...</span>
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-600 leading-relaxed">Rekan jasa telah menyelesaikan pekerjaan dan mengirim bukti. Silakan periksa hasil kerja sebelum mengonfirmasi.</p>
+                    </div>
+                </div>
+
+                {{-- Alert info 24 jam auto-confirm --}}
+                <div class="bg-amber-100/70 border border-amber-300/80 rounded-xl p-3 mb-4 text-xs text-amber-900 flex items-start gap-2.5">
+                    <span class="text-base flex-shrink-0">⏳</span>
+                    <div>
+                        <span class="font-bold">Batas Konfirmasi 24 Jam:</span>
+                        Jika Anda tidak melakukan konfirmasi atau komplain dalam 24 jam
+                        @if($deadline)
+                            (sebelum <span class="font-semibold underline">{{ $deadline->isoFormat('dddd, D MMMM Y HH:mm') }} WIB</span>),
+                        @endif
+                        sistem akan <strong>langsung menyelesaikan pesanan secara otomatis dan mencairkan dana ke mitra</strong>.
                     </div>
                 </div>
 
                 <div class="space-y-2.5">
+                    {{-- Tombol Utama: Konfirmasi Selesai --}}
                     <button type="button" wire:click="confirmCompletion" 
-                            style="background-color: #2563eb !important; color: #ffffff !important; border: 1px solid #1d4ed8;"
-                            class="w-full font-bold py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer hover:opacity-90 transition-all duration-200">
-                        <svg class="w-5 h-5 text-white" style="color: #ffffff !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            class="w-full font-bold py-3 px-4 rounded-xl shadow-xs bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer transition-all duration-200">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                         </svg>
-                        <span style="color: #ffffff !important; font-weight: 700;">Konfirmasi Pesanan Selesai</span>
+                        <span>Konfirmasi Pesanan Selesai</span>
                     </button>
 
+                    {{-- Tombol Kedua: Komplain / Tolak Hasil --}}
                     <button type="button" wire:click="openComplaintModal" 
-                            style="background-color: #ffffff !important; color: #dc2626 !important; border: 1.5px solid #fca5a5;"
-                            class="w-full font-bold py-2.5 px-4 rounded-xl hover:bg-red-50 transition-all duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer shadow-xs">
-                        <svg class="w-4 h-4 text-red-500" style="color: #dc2626 !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="w-full font-semibold py-2.5 px-4 rounded-xl border border-red-200 bg-white hover:bg-red-50/80 active:bg-red-100 text-red-600 flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer transition-all duration-200 shadow-2xs group">
+                        <svg class="w-4 h-4 text-red-500 shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
-                        <span style="color: #dc2626 !important; font-weight: 700;">Tolak Hasil & Ajukan Pengembalian Dana (Komplain)</span>
+                        <span>Tolak Hasil & Ajukan Komplain (Refund)</span>
                     </button>
                 </div>
-                <p class="text-[11px] text-center text-gray-500 mt-2.5">Jika pekerjaan belum selesai atau bermasalah, ajukan komplain disertai foto bukti untuk mediasi Admin.</p>
+                <p class="text-[11px] text-center text-gray-500 mt-2.5">Pekerjaan belum selesai atau bermasalah? Ajukan komplain dengan bukti foto untuk mediasi & refund oleh Admin.</p>
             </div>
         @endif
 
@@ -907,16 +1083,23 @@
 
             <div class="space-y-3">
                 <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-700">Harga Asli</span>
-                    <span class="font-semibold text-gray-900">Rp{{ number_format($help->amount, 0, ',', '.') }}</span>
+                    <span class="text-gray-700">Nominal Pokok Bantuan</span>
+                    <span class="font-semibold text-gray-900">Rp{{ number_format($help->base_amount > 0 ? $help->base_amount : $help->amount, 0, ',', '.') }}</span>
                 </div>
 
                 {{-- Perlengkapan ditampilkan di bagian "Deskripsi & Detail" di atas --}}
 
                 <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-700">Biaya Admin</span>
-                    <span class="font-semibold text-gray-900">Rp{{ number_format($help->admin_fee ?? $help->booking_fee ?? 0, 0, ',', '.') }}</span>
+                    <span class="text-gray-700">Biaya Layanan ({{ (float)($help->customer_fee_percent ?? 10) }}%)</span>
+                    <span class="font-semibold text-gray-900">Rp{{ number_format($help->customer_fee_amount > 0 ? $help->customer_fee_amount : 0, 0, ',', '.') }}</span>
                 </div>
+
+                @if(($help->admin_fee ?? 0) > 0)
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-700">Biaya Admin</span>
+                    <span class="font-semibold text-gray-900">Rp{{ number_format($help->admin_fee, 0, ',', '.') }}</span>
+                </div>
+                @endif
 
                 @if(!empty($help->voucher_code) && ($help->discount_amount ?? 0) > 0)
                     <div class="flex items-center justify-between text-sm">
@@ -932,7 +1115,7 @@
 
                 <div class="border-t pt-3 flex items-center justify-between">
                     <span class="font-bold text-gray-900">Total Pembayaran</span>
-                    <span class="font-bold text-gray-900">Rp{{ number_format($help->total_amount ?? ($help->amount + ($help->admin_fee ?? $help->booking_fee ?? 0) - ($help->discount_amount ?? 0)), 0, ',', '.') }}</span>
+                    <span class="font-bold text-gray-900">Rp{{ number_format($help->total_customer_paid > 0 ? $help->total_customer_paid : ($help->total_amount ?? ($help->amount + ($help->admin_fee ?? 0) - ($help->discount_amount ?? 0))), 0, ',', '.') }}</span>
                 </div>
             </div>
 
@@ -943,12 +1126,24 @@
             </div>
         </div>
 
-        {{-- Cancel Button --}}
+        {{-- Cancel Button dengan Logika Pembatas Dinamis --}}
         @if(in_array($help->status, ['menunggu_pembayaran', 'mencari_mitra', 'menunggu_mitra', 'memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived']))
-            <div class="bg-white mt-2 px-4 py-4">
-                <button wire:click="confirmCancel" class="w-full py-3 border-2 border-red-500 text-red-500 rounded-lg font-semibold text-sm hover:bg-red-50 transition cursor-pointer">
-                    Batalkan Pesanan
-                </button>
+            <div class="bg-white mt-2 px-4 py-4" wire:poll.15s="loadHelp">
+                @if($this->canCustomerCancel)
+                    <button wire:click="confirmCancel" class="w-full py-3 border-2 border-red-500 text-red-500 rounded-lg font-semibold text-sm hover:bg-red-50 transition cursor-pointer">
+                        Batalkan Pesanan
+                    </button>
+                @else
+                    <div class="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-center space-y-1">
+                        <p class="text-xs text-amber-900 font-semibold flex items-center justify-center gap-1.5">
+                            <span>⏳</span>
+                            <span>Pesanan Sedang Ditangani Rekan Jasa</span>
+                        </p>
+                        <p class="text-xs text-amber-800 leading-relaxed">
+                            {{ $this->cancelRestrictionMessage }}
+                        </p>
+                    </div>
+                @endif
             </div>
         @endif
 
@@ -1037,27 +1232,72 @@
         </div>
     @endif
 
-    {{-- Cancel Confirmation Modal --}}
+    {{-- Cancel Confirmation Modal with Reason Selection --}}
     @if($showCancelConfirm)
-        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4" wire:click="closeModal" data-confirm-modal>
-            <div class="bg-white rounded-2xl max-w-sm w-full p-6" wire:click.stop style="transform: translateY(-120px);">
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto" wire:click="closeModal" data-confirm-modal>
+            <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative my-auto animate-scale-up" wire:click.stop>
+                <div class="flex items-center gap-3 pb-3 border-b border-gray-100 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Batalkan Pesanan?</h3>
-                    <p class="text-sm text-gray-600 mb-6">Apakah Anda yakin ingin membatalkan pesanan ini? Saldo Anda sebesar <strong class="text-gray-900">Rp{{ number_format($help->total_amount ?? ($help->amount + ($help->admin_fee ?? 0)), 0, ',', '.') }}</strong> akan otomatis dikembalikan penuh ke akun Anda.</p>
-                    
-                    <div class="flex gap-3">
-                        <button wire:click="closeModal" class="flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition cursor-pointer">
-                            Tidak
-                        </button>
-                        <button wire:click="cancelHelp" class="flex-1 py-2.5 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition cursor-pointer">
-                            Ya, Batalkan
-                        </button>
+                    <div class="min-w-0 flex-1">
+                        <h3 class="text-base font-bold text-gray-900 leading-tight">Batalkan Pesanan?</h3>
+                        <p class="text-xs text-gray-500">Saldo akan dikembalikan 100% penuh ke akun Anda.</p>
                     </div>
+                    <button type="button" wire:click="closeModal" class="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Alert info refund --}}
+                <div class="p-3 bg-emerald-50 border border-emerald-100 rounded-xl mb-4 text-xs text-emerald-800 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Pengembalian dana: <strong>Rp{{ number_format($help->total_customer_paid > 0 ? $help->total_customer_paid : ($help->total_amount ?? ($help->amount + ($help->admin_fee ?? 0))), 0, ',', '.') }}</strong></span>
+                </div>
+
+                {{-- Radio Reason Selection --}}
+                <div class="mb-4 text-left">
+                    <label class="text-xs font-bold text-gray-700 block mb-2">
+                        Pilih Alasan Pembatalan <span class="text-red-500">*</span>
+                    </label>
+                    <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                        @foreach($this->availableCancelReasons as $reason)
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer {{ $selectedCancelReason === $reason ? 'border-red-500 bg-red-50/50' : 'border-gray-200 hover:bg-gray-50' }}">
+                                <input type="radio" wire:model.live="selectedCancelReason" value="{{ $reason }}" class="mt-0.5 text-red-600 focus:ring-red-500">
+                                <span class="text-xs font-medium text-gray-800 leading-snug">{{ $reason }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('selectedCancelReason')
+                        <p class="text-xs text-red-500 mt-1.5 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Custom reason textarea when Lainnya selected --}}
+                @if($selectedCancelReason === 'Lainnya')
+                    <div class="mb-4 text-left">
+                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda <span class="text-red-500">*</span></label>
+                        <textarea wire:model="customCancelReason" rows="2" placeholder="Contoh: Perlu reschedule atau ada keperluan mendesak..." class="w-full text-xs p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
+                        @error('customCancelReason')
+                            <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endif
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" wire:click="closeModal" class="flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 transition cursor-pointer">
+                        Kembali
+                    </button>
+                    <button type="button" wire:click="cancelHelp" wire:loading.attr="disabled" class="flex-1 py-2.5 bg-red-600 text-white rounded-xl font-semibold text-sm hover:bg-red-700 transition cursor-pointer flex items-center justify-center gap-2">
+                        <span wire:loading.remove wire:target="cancelHelp">Konfirmasi Batal</span>
+                        <span wire:loading wire:target="cancelHelp">Memproses...</span>
+                    </button>
                 </div>
             </div>
         </div>

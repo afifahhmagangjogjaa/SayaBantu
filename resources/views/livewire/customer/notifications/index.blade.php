@@ -38,6 +38,32 @@
 
         <!-- Content -->
         <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24">
+            @if (session()->has('message'))
+                <div class="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-xs font-medium text-green-700 flex items-center justify-between">
+                    <span>{{ session('message') }}</span>
+                    <button type="button" class="text-green-500 hover:text-green-700" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            @endif
+
+            @if (session()->has('error'))
+                <div class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs font-bold text-red-700 flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-red-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                    <button type="button" class="text-red-500 hover:text-red-700 ml-2" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            @endif
+
+            @php
+                $selectableIds = $notifications->reject(function($n) {
+                    $t = $n->data['type'] ?? '';
+                    return $t === 'sanction_warning' || str_contains($t, 'sanction');
+                })->pluck('id')->toArray();
+            @endphp
+
             <!-- Filter Tabs Standar Bawaan -->
             <div class="mb-5 flex items-center justify-between gap-2">
                 <div class="flex gap-2 overflow-x-auto pb-1">
@@ -65,8 +91,8 @@
                             ✕
                         </button>
                     </div>
-                @elseif($notifications->count() > 0)
-                    <button type="button" wire:click="selectAllOnPage({{ json_encode($notifications->pluck('id')->toArray()) }})" class="text-xs font-semibold text-blue-600 hover:text-blue-700 whitespace-nowrap">
+                @elseif(count($selectableIds) > 0)
+                    <button type="button" wire:click="selectAllOnPage({{ json_encode($selectableIds) }})" class="text-xs font-semibold text-blue-600 hover:text-blue-700 whitespace-nowrap">
                         Pilih Semua
                     </button>
                 @endif
@@ -80,8 +106,24 @@
                             $data = $notification->data ?? [];
                             $isUnread = is_null($notification->read_at);
                             $type = $data['type'] ?? 'general';
+                            $isSanction = ($type === 'sanction_warning' || str_contains($type, 'sanction'));
 
-                            if ($type === 'chat_message') {
+                            if ($isSanction) {
+                                $warningLevel = (int) ($data['warning_level'] ?? 1);
+                                if ($warningLevel === 0) {
+                                    $titleText = '✅ Surat Peringatan Dicabut';
+                                    $bodyText = $data['message'] ?? 'Surat Peringatan pada akun Anda telah resmi dicabut oleh Admin. Status akun Anda kini kembali normal. Ketuk Lihat Detail Surat untuk membaca surat pencabutan selengkapnya.';
+                                } else {
+                                    $titleText = match ($warningLevel) {
+                                        1 => '⚠️ Surat Peringatan 1',
+                                        2 => '⚠️ Surat Peringatan 2',
+                                        3 => '⛔ Surat Peringatan 3 - Akun Dinonaktifkan',
+                                        default => 'Surat Peringatan Resmi',
+                                    };
+                                    $bodyText = 'Anda menerima sanksi Surat Peringatan ' . $warningLevel . ' resmi dari SayaBantu. Ketuk Lihat Detail Surat untuk membaca surat selengkapnya.';
+                                }
+                                $detailUrl = route('notifications.sanction', $notification->id);
+                            } elseif ($type === 'chat_message') {
                                 $titleText = 'Pesan dari ' . ($data['from_name'] ?? 'Mitra');
                                 $bodyText = 'Ketuk untuk membuka chat.'; // Hide actual message content
                                 $detailUrl = route('customer.chat', ['help' => $data['help_id'] ?? null]);
@@ -96,10 +138,11 @@
                             } elseif ($type === 'help_status') {
                                 $newStatus = $data['new_status'] ?? '';
                                 $statusTitle = match (strtolower($newStatus)) {
-                                    'partner_on_the_way' => "🚗 Relawan Dalam Perjalanan",
-                                    'partner_arrived' => "📍 Relawan Telah Tiba",
+                                    'partner_on_the_way' => "🚗 Mitra Dalam Perjalanan",
+                                    'partner_arrived' => "📍 Mitra Telah Tiba di Lokasi",
                                     'in_progress' => "⚙️ Pekerjaan Dimulai",
                                     'waiting_customer_confirmation' => "✋ Menunggu Konfirmasi Anda",
+                                    'partner_cancelled_direct' => "🔄 Rekan Jasa Berhalangan Hadir",
                                     'partner_cancel_requested' => "⚠️ Permintaan Pembatalan Mitra",
                                     'cancel_accepted' => "✅ Pembatalan Disetujui",
                                     'cancel_rejected' => "❌ Pembatalan Ditolak",
@@ -109,41 +152,94 @@
                                 $titleText = $data['title'] ?? $statusTitle;
                                 $bodyText = $data['message'] ?? ($data['body'] ?? 'Status bantuan diperbarui');
                                 $detailUrl = isset($data['help_id']) ? route('customer.helps.detail', $data['help_id']) : '#';
-                            } elseif ($type === 'rating_received') {
-                                $titleText = $data['title'] ?? 'Rating Baru dari Mitra';
-                                $bodyText = $data['message'] ?? 'Mitra telah memberikan rating.';
-                                $detailUrl = isset($data['help_id']) ? route('customer.helps.detail', $data['help_id']) : route('customer.helps.history');
+                            } elseif (str_contains($type, 'ktp') || str_contains($type, 'verification')) {
+                                $titleText = $data['title'] ?? 'Verifikasi KTP';
+                                $bodyText = $data['message'] ?? ($data['body'] ?? 'Pemberitahuan verifikasi akun.');
+                                $detailUrl = $data['url'] ?? route('profile.settings.verification');
                             } elseif ($type === 'help_completed' || str_contains($type, 'completed')) {
                                 $titleText = $data['title'] ?? 'Bantuan Telah Selesai';
                                 $bodyText = $data['message'] ?? ($data['body'] ?? 'Notifikasi baru');
-                                $detailUrl = isset($data['help_id']) ? route('customer.helps.detail', $data['help_id']) : '#';
+                            } elseif ($type === 'topup_approved') {
+                                $titleText = $data['title'] ?? '✅ Top-Up Saldo Disetujui';
+                                $amountFormatted = isset($data['amount']) ? 'Rp ' . number_format((float)$data['amount'], 0, ',', '.') : '';
+                                $code = $data['request_code'] ?? '';
+                                $bodyText = $data['message'] ?? ("Request top-up saldo Anda ($code) sebesar $amountFormatted telah disetujui! Saldo sudah masuk ke akun Anda.");
+                                $detailUrl = $data['url'] ?? route('customer.transactions.index', ['tab' => 'masuk']);
+                            } elseif ($type === 'topup_rejected') {
+                                $titleText = $data['title'] ?? '❌ Top-Up Saldo Ditolak';
+                                $reason = $data['rejection_reason'] ?? '';
+                                $code = $data['request_code'] ?? '';
+                                $bodyText = $data['message'] ?? ("Request top-up saldo Anda ($code) ditolak. Alasan: " . ($reason ?: 'Bukti transfer tidak valid.'));
+                                $detailUrl = $data['url'] ?? route('customer.topup.history');
+                            } elseif ($type === 'topup_request_submitted') {
+                                $titleText = $data['title'] ?? '⏳ Request Top-Up Terkirim';
+                                $code = $data['request_code'] ?? '';
+                                $bodyText = $data['message'] ?? ("Request top-up saldo Anda ($code) telah diterima dan sedang menunggu verifikasi admin.");
+                                $detailUrl = $data['url'] ?? route('customer.topup.history');
+                            } elseif ($type === 'report_status') {
+                                $titleText = $data['title'] ?? 'Update Status Laporan Aduan';
+                                $bodyText = $data['message'] ?? 'Status laporan aduan Anda telah diperbarui oleh Admin.';
+                                $detailUrl = isset($data['report_id']) ? route('customer.reports.show', $data['report_id']) : ($data['url'] ?? '#');
                             } else {
                                 $titleText = $data['title'] ?? 'Notifikasi';
                                 $bodyText = $data['message'] ?? ($data['body'] ?? 'Notifikasi baru');
-                                $detailUrl = isset($data['help_id']) ? route('customer.helps.detail', $data['help_id']) : '#';
+                                $detailUrl = $data['url'] ?? (isset($data['help_id']) ? route('customer.helps.detail', $data['help_id']) : '#');
                             }
 
-                            $isRejected = ($type === 'help_status' && ($data['new_status'] ?? '') === 'rejected');
+                            $isTopupApproved = ($type === 'topup_approved');
+                            $isTopupRejected = ($type === 'topup_rejected');
+                            $isTopupSubmitted = ($type === 'topup_request_submitted');
+                            $isRejected = ($type === 'help_status' && ($data['new_status'] ?? '') === 'rejected') || $type === 'ktp_rejected' || $isTopupRejected;
+                            $isKtpApproved = ($type === 'ktp_approved');
+                            $isKtpNotice = (str_contains($type, 'ktp') || str_contains($type, 'verification'));
 
                             $helpId = $data['help_id'] ?? null;
                         @endphp
 
-                        <div wire:key="notif-{{ $notification->id }}" class="bg-white rounded-2xl border {{ $isUnread ? 'border-blue-200 bg-blue-50/20' : 'border-gray-200' }} p-4 transition hover:border-blue-300 shadow-2xs">
+                        <div wire:key="notif-{{ $notification->id }}" 
+                            class="rounded-2xl border transition shadow-2xs overflow-hidden relative p-4 {{ $isSanction ? 'border-red-200 bg-red-50/40 hover:border-red-300' : ($isTopupApproved ? 'border-emerald-200 bg-emerald-50/20 hover:border-emerald-300' : ($isTopupRejected ? 'border-red-200 bg-red-50/20 hover:border-red-300' : ($isUnread ? 'border-blue-200 bg-blue-50/20' : 'border-gray-200 bg-white hover:border-blue-300'))) }}">
+
                             <div class="flex items-start gap-3">
-                                <div class="flex-shrink-0 mt-1">
-                                    <input type="checkbox" wire:model.live="selected" value="{{ $notification->id }}" class="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 cursor-pointer" aria-label="Pilih notifikasi">
-                                </div>
+                                @if($isSanction)
+                                    <div class="flex-shrink-0 mt-1" title="Surat Peringatan resmi tidak dapat dihapus">
+                                        <div class="w-4 h-4 flex items-center justify-center text-red-400">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="flex-shrink-0 mt-1">
+                                        <input type="checkbox" wire:model.live="selected" value="{{ $notification->id }}" class="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 cursor-pointer" aria-label="Pilih notifikasi">
+                                    </div>
+                                @endif
 
                                 <div class="flex-shrink-0 mt-0.5">
                                     <div class="w-10 h-10 rounded-full flex items-center justify-center border
-                                        {{ $isRejected ? 'border-red-200 bg-red-50' : ($isUnread ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-gray-50') }}">
-                                        @if($type === 'chat_message')
+                                        {{ $isSanction ? 'border-red-200 bg-red-100/70 text-red-600' : ($isTopupApproved ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : ($isTopupSubmitted ? 'border-amber-200 bg-amber-50 text-amber-600' : ($isRejected ? 'border-red-200 bg-red-50 text-red-600' : ($isKtpApproved ? 'border-green-200 bg-green-50 text-green-600' : ($isKtpNotice ? 'border-amber-200 bg-amber-50 text-amber-600' : ($isUnread ? 'border-blue-200 bg-blue-50 text-blue-600' : 'border-gray-200 bg-gray-50 text-gray-500')))))) }}">
+                                        @if($isSanction)
+                                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                            </svg>
+                                        @elseif($isTopupApproved)
+                                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        @elseif($isTopupSubmitted)
+                                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        @elseif($type === 'chat_message')
                                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                             </svg>
-                                        @elseif($type === 'rating_received')
-                                            <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        @elseif($isKtpApproved)
+                                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        @elseif($isKtpNotice)
+                                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                                             </svg>
                                         @elseif($isRejected)
                                             <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +256,14 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between">
                                         <div>
-                                            <h3 class="text-sm font-semibold text-gray-900">{{ $titleText }}</h3>
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <h3 class="text-sm font-semibold {{ $isSanction ? 'text-red-900' : 'text-gray-900' }}">{{ $titleText }}</h3>
+                                                @if($isSanction)
+                                                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-red-100 text-red-700">
+                                                        Sanksi
+                                                    </span>
+                                                @endif
+                                            </div>
                                             <p class="text-xs text-gray-400 mt-0.5">{{ $notification->created_at->diffForHumans() }}</p>
                                         </div>
                                         @if(isset($data['help_amount']))
@@ -170,20 +273,33 @@
                                         @endif
                                     </div>
 
-                                    <p class="text-xs text-gray-600 mt-2 leading-relaxed">{{ $bodyText }}</p>
+                                    <p class="text-xs {{ $isSanction ? 'text-red-800/80 font-medium' : 'text-gray-600' }} mt-1.5 leading-relaxed line-clamp-2">{{ $bodyText }}</p>
 
                                     @if(isset($data['from_name']) || isset($data['mitra_name']))
                                         <div class="text-xs text-gray-400 mt-1.5">Dari: {{ $data['from_name'] ?? $data['mitra_name'] ?? '-' }}</div>
                                     @endif
 
-                                    <div class="flex items-center gap-3 mt-3 pt-2 border-t border-gray-100">
-                                        @if($detailUrl !== '#')
-                                            <button type="button" wire:click="readAndRedirect('{{ $notification->id }}', '{{ $detailUrl }}')" class="text-xs font-semibold text-blue-600 hover:underline text-left">Lihat Detail &rarr;</button>
+                                    <div class="flex items-center gap-3 mt-3 pt-2 border-t {{ $isSanction ? 'border-red-100' : 'border-gray-100' }}">
+                                        @if($isSanction)
+                                            <a href="{{ $detailUrl }}" class="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline">Lihat Detail Surat &rarr;</a>
+                                            @if($isUnread)
+                                                <button type="button" wire:click="markAsRead('{{ $notification->id }}')" class="text-xs font-medium text-gray-500 hover:underline">Tandai Dibaca</button>
+                                            @endif
+                                            <span class="text-[10px] font-medium text-red-400 ml-auto flex items-center gap-1">
+                                                <svg class="w-3 h-3 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                                </svg>
+                                                Tidak dapat dihapus
+                                            </span>
+                                        @else
+                                            @if($detailUrl !== '#')
+                                                <button type="button" wire:click="readAndRedirect('{{ $notification->id }}', '{{ $detailUrl }}')" class="text-xs font-semibold text-blue-600 hover:underline text-left">Lihat Detail &rarr;</button>
+                                            @endif
+                                            @if($isUnread)
+                                                <button type="button" wire:click="markAsRead('{{ $notification->id }}')" class="text-xs font-semibold text-emerald-600 hover:underline">Tandai Dibaca</button>
+                                            @endif
+                                            <button type="button" wire:click="deleteNotification('{{ $notification->id }}')" class="text-xs font-semibold text-red-500 hover:underline ml-auto">Hapus</button>
                                         @endif
-                                        @if($isUnread)
-                                            <button type="button" wire:click="markAsRead('{{ $notification->id }}')" class="text-xs font-semibold text-emerald-600 hover:underline">Tandai Dibaca</button>
-                                        @endif
-                                        <button type="button" wire:click="deleteNotification('{{ $notification->id }}')" class="text-xs font-semibold text-red-500 hover:underline ml-auto">Hapus</button>
                                     </div>
                                 </div>
                             </div>

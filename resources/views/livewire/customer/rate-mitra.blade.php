@@ -3,7 +3,7 @@
         <div class="text-sm text-green-700 font-semibold">Anda sudah memberikan rating. Terima kasih!</div>
     @else
         <div class="space-y-3">
-            <label class="text-sm text-gray-600">Beri Rating:</label>
+            <label class="text-sm text-gray-600">Beri Rating dan Ulasan untuk Mitra</label>
 
             <div class="flex items-center gap-3">
                 @for($i=1;$i<=5;$i++)
@@ -23,7 +23,7 @@
             </div>
 
             <div class="mt-3">
-                <textarea wire:model="review" rows="4" class="w-full rounded-lg border border-gray-200 p-3 text-sm" placeholder="Cerita pengalaman Anda... (opsional)"></textarea>
+                <textarea wire:model="review" rows="4" class="w-full rounded-lg border border-gray-200 p-3 text-sm" placeholder="Cerita pengalaman Anda... "></textarea>
                 <div class="text-xs text-gray-400 mt-1">Maksimal 500 karakter</div>
             </div>
 

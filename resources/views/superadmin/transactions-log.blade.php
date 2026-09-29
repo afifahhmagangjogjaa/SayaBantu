@@ -154,6 +154,40 @@
         .print-header {
             display: none;
         }
+
+        /* Spacing tabel transaksi di layar agar proporsional dan pas tanpa scroll horizontal */
+        .transaction-table th {
+            padding: 10px 8px !important;
+        }
+        .transaction-table td {
+            padding-top: 10px !important;
+            padding-bottom: 10px !important;
+            padding-left: 6px !important;
+            padding-right: 6px !important;
+        }
+        .transaction-table td.user-col {
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+        }
+        .transaction-table .user-avatar {
+            width: 30px !important;
+            height: 30px !important;
+            min-width: 30px !important;
+            margin-right: 8px !important;
+            font-size: 11px !important;
+        }
+        .transaction-table .user-name {
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            color: #111827 !important;
+            line-height: 1.3 !important;
+        }
+        .transaction-table .user-email {
+            font-size: 10.5px !important;
+            color: #64748b !important;
+            margin-top: 1px !important;
+            line-height: 1.2 !important;
+        }
     </style>
 
     <!-- Print Header (Hanya muncul saat PDF/Print: Langsung Judul Center) -->
@@ -261,23 +295,29 @@
     <div class="main-table-card bg-white rounded-2xl shadow">
         <!-- Filter Section -->
         <div class="p-6 border-b border-gray-100 no-print">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-gray-800">Daftar Transaksi</h2>
-                <div class="export-btn-group flex items-center gap-2">
-                    <a href="{{ route('superadmin.transactions.export.excel', ['type' => $type, 'search' => $search, 'from' => $from, 'to' => $to, 'city_id' => $city_id]) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-sm">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <h2 class="text-base sm:text-lg font-medium text-gray-800">Daftar Transaksi</h2>
+                <div class="export-btn-group flex flex-wrap items-center gap-2">
+                    <button wire:click="resetFilters" type="button" class="inline-flex items-center px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-xs sm:text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-2xs" title="Reset Filter">
+                        <svg class="w-3.5 h-3.5 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <span>Reset</span>
+                    </button>
+                    <a href="{{ route('superadmin.transactions.export.excel', ['type' => $type, 'search' => $search, 'from' => $from, 'to' => $to, 'city_id' => $city_id]) }}" class="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-2xs">
+                        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                         Excel
                     </a>
-                    <button type="button" onclick="window.print()" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-sm">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="button" onclick="window.print()" class="inline-flex items-center px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-2xs">
+                        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                         </svg>
                         PDF
                     </button>
-                    <button type="button" wire:click="openDeleteModal" class="inline-flex items-center px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer shadow-sm">
-                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="button" wire:click="openDeleteModal" class="inline-flex items-center px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-2xs">
+                        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                         Hapus Riwayat
@@ -285,28 +325,28 @@
                 </div>
             </div>
 
-            <div class="filter-form-section flex flex-wrap items-center gap-3">
-                <div class="flex-1 min-w-[220px]">
+            <div class="filter-form-section flex flex-wrap items-center gap-2">
+                <div class="flex-1 min-w-[170px]">
                     <input wire:model.live.debounce.400ms="search" type="text" placeholder="Cari user, email atau ref..."
-                        class="border border-gray-300 rounded-lg px-4 py-2.5 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm" />
+                        class="border border-gray-300 rounded-lg px-3 py-1.5 h-9 w-full focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm" />
                 </div>
 
                 <!-- Dropdown Filter Wilayah / Kota -->
-                <select wire:model.live="city_id" class="border border-gray-300 rounded-lg pl-3.5 pr-9 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm cursor-pointer font-medium text-gray-700">
+                <select wire:model.live="city_id" class="border border-gray-300 rounded-lg pl-2.5 pr-7 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
                     <option value="">Semua Wilayah</option>
                     @foreach($cities as $city)
                         <option value="{{ $city->id }}">{{ $city->name }}</option>
                     @endforeach
                 </select>
 
-                <select wire:model.live="type" class="border border-gray-300 rounded-lg pl-3.5 pr-9 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm cursor-pointer">
+                <select wire:model.live="type" class="border border-gray-300 rounded-lg pl-2.5 pr-7 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
                     <option value="all">Semua Tipe</option>
                     <option value="topup">Topup</option>
                     <option value="withdraw">Withdraw</option>
                     <option value="other">Lainnya</option>
                 </select>
 
-                <select wire:model.live="period" class="border border-gray-300 rounded-lg pl-3.5 pr-9 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm cursor-pointer font-medium text-gray-700">
+                <select wire:model.live="period" class="border border-gray-300 rounded-lg pl-2.5 pr-7 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
                     <option value="this_month">Bulan Ini</option>
                     <option value="all_time">Keseluruhan Transaksi</option>
                     <option value="today">Hari Ini</option>
@@ -314,17 +354,12 @@
                     <option value="custom">Pilih Rentang Tanggal</option>
                 </select>
 
-                <select wire:model.live="perPage" class="border border-gray-300 rounded-lg pl-3.5 pr-9 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm cursor-pointer">
+                <select wire:model.live="perPage" class="border border-gray-300 rounded-lg pl-2.5 pr-7 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
                     <option value="10">10 / halaman</option>
                     <option value="15">15 / halaman</option>
                     <option value="30">30 / halaman</option>
                     <option value="50">50 / halaman</option>
                 </select>
-
-                <button wire:click="resetFilters" type="button" class="border border-gray-300 rounded-lg px-3.5 py-2.5 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm cursor-pointer flex items-center gap-1.5 text-gray-700" title="Reset Filter">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    <span class="hidden sm:inline">Reset</span>
-                </button>
             </div>
 
             @if($period === 'custom' || ($from && $to && !in_array($period, ['this_month', 'all_time', 'today', 'last_month'])))
@@ -346,38 +381,43 @@
 
         <!-- Table Section -->
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse transaction-table">
                 <thead class="bg-gray-50/80 border-b border-gray-200">
                     <tr>
-                        <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 45px;">No</th>
-                        <th class="px-3.5 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 140px;">Waktu</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">User</th>
-                        <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 120px;">Kota / Wilayah</th>
-                        <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 130px;">Tipe</th>
-                        <th class="px-3.5 py-3.5 text-right text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 130px;">Jumlah</th>
-                        <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 110px;">Ref</th>
-                        <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 100px;">Status</th>
-                        <th class="px-3.5 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap no-print" style="width: 75px;">Aksi</th>
+                        <th class="text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 38px;">No</th>
+                        <th class="text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 100px;">Waktu</th>
+                        <th class="text-left text-xs font-bold text-gray-600 uppercase tracking-wider">User</th>
+                        <th class="text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 90px;">Wilayah</th>
+                        <th class="text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 100px;">Tipe</th>
+                        <th class="text-right text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 105px;">Jumlah</th>
+                        <th class="text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 95px;">Ref</th>
+                        <th class="text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" style="width: 80px;">Status</th>
+                        <th class="text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap no-print" style="width: 65px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-100">
                     @forelse($transactions as $index => $t)
                         <tr class="hover:bg-gray-50/80 transition-colors">
-                            <td class="px-3.5 py-3.5 text-xs text-center text-gray-500">
+                            <td class="text-xs text-center text-gray-500 whitespace-nowrap">
                                 {{ ($transactions->currentPage() - 1) * $transactions->perPage() + $loop->iteration }}
                             </td>
-                            <td class="px-3.5 py-3.5 text-xs text-gray-600 whitespace-nowrap">
-                                {{ $t->created_at ? \Carbon\Carbon::parse($t->created_at)->translatedFormat('d M Y, H:i') : '-' }}
+                            <td class="text-xs text-gray-600 whitespace-nowrap">
+                                <div class="font-medium text-gray-800 leading-tight text-[11.5px]">
+                                    {{ $t->created_at ? \Carbon\Carbon::parse($t->created_at)->translatedFormat('d M Y') : '-' }}
+                                </div>
+                                <div class="text-[10px] text-gray-400 mt-0.5 leading-tight">
+                                    {{ $t->created_at ? \Carbon\Carbon::parse($t->created_at)->format('H:i') . ' WIB' : '' }}
+                                </div>
                             </td>
-                            <td class="px-5 py-3.5">
+                            <td class="user-col">
                                 @if($t->user)
                                     <div class="flex items-center">
-                                        <div class="w-9 h-9 rounded-full bg-primary-100 text-primary-700 font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-2xs mr-4 no-print">
+                                        <div class="user-avatar rounded-full bg-primary-100 text-primary-700 font-bold flex items-center justify-center shadow-2xs no-print">
                                             {{ strtoupper(substr($t->user->name, 0, 1)) }}
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <div class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug truncate max-w-[190px] user-name-print">{{ $t->user->name }}</div>
-                                            <div class="text-[11px] text-gray-500 truncate max-w-[190px] user-email-print mt-0.5">{{ $t->user->email }}</div>
+                                            <div class="user-name user-name-print truncate max-w-[130px]" title="{{ $t->user->name }}">{{ $t->user->name }}</div>
+                                            <div class="user-email user-email-print truncate max-w-[130px]" title="{{ $t->user->email }}">{{ $t->user->email }}</div>
                                         </div>
                                     </div>
                                 @else
@@ -385,53 +425,58 @@
                                 @endif
                             </td>
                             <!-- Kolom Kota/Wilayah -->
-                            <td class="px-3.5 py-3.5 text-center whitespace-nowrap">
-                                <span class="text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md">
+                            <td class="text-center whitespace-nowrap">
+                                <span class="text-[10.5px] font-medium text-gray-700 bg-gray-50 border border-gray-200 px-1.5 py-0.5 rounded truncate max-w-[85px] inline-block align-middle" title="{{ $t->user->city_name ?? '-' }}">
                                     {{ $t->user->city_name ?? '-' }}
                                 </span>
                             </td>
-                            <td class="px-3.5 py-3.5 text-center whitespace-nowrap">
+                            <td class="text-center whitespace-nowrap">
                                 @php
                                     $userRole = optional($t->user)->role;
                                     if ($t->type === 'withdraw' || ($userRole === 'mitra' && in_array($t->type, ['deduction', 'withdraw_deduction']))) {
                                         $label = 'Withdraw';
                                         $badgeStyle = 'bg-amber-50 text-amber-700 border border-amber-200';
                                     } elseif ($userRole === 'mitra' && ($t->type === 'topup' || $t->type === 'income')) {
-                                        $label = 'Pendapatan Mitra';
+                                        $label = 'Pendapatan';
                                         $badgeStyle = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
                                     } elseif ($t->type === 'topup' || $t->type === 'deposit') {
                                         $label = 'Topup';
                                         $badgeStyle = 'bg-blue-50 text-blue-700 border border-blue-100';
                                     } elseif ($t->type === 'deduction') {
-                                        $label = 'Pembayaran Bantuan';
+                                        $label = 'Bantuan';
                                         $badgeStyle = 'bg-rose-50 text-rose-700 border border-rose-100';
                                     } else {
                                         $label = ucfirst($t->type);
                                         $badgeStyle = 'bg-gray-50 text-gray-700 border border-gray-200';
                                     }
                                 @endphp
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold {{ $badgeStyle }}">
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10.5px] font-semibold {{ $badgeStyle }}">
                                     {{ $label }}
                                 </span>
                             </td>
-                            <td class="px-3.5 py-3.5 text-xs text-right font-bold text-gray-900 whitespace-nowrap">
+                            <td class="text-xs text-right font-bold text-gray-900 whitespace-nowrap">
                                 Rp {{ number_format($t->amount, 0, ',', '.') }}
                             </td>
-                            <td class="px-3.5 py-3.5 text-center whitespace-nowrap">
-                                <code class="text-[11px] bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200 text-gray-700 font-mono">{{ $t->request_code ?? $t->order_id ?? $t->reference_id ?? $t->reference ?? '-' }}</code>
+                            @php
+                                $refCode = $t->request_code ?? $t->order_id ?? $t->reference_id ?? $t->reference ?? '-';
+                            @endphp
+                            <td class="text-center whitespace-nowrap">
+                                <span class="inline-block max-w-[95px] truncate text-[10.5px] bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200 text-gray-700 font-mono tracking-tight align-middle" title="{{ $refCode }}">
+                                    {{ $refCode }}
+                                </span>
                             </td>
-                            <td class="px-3.5 py-3.5 text-center whitespace-nowrap">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-green-50 text-green-700 border border-green-200">
+                            <td class="text-center whitespace-nowrap">
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-green-50 text-green-700 border border-green-200">
                                     {{ $t->status ?? 'ok' }}
                                 </span>
                             </td>
-                            <td class="px-3.5 py-3.5 text-center whitespace-nowrap no-print">
+                            <td class="text-center whitespace-nowrap no-print">
                                 <div class="flex items-center justify-center gap-1">
                                     @if($t->user)
                                         <button type="button" wire:click="viewUserBalance({{ $t->user->id }})" wire:loading.attr="disabled"
-                                            class="p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer inline-flex items-center justify-center"
+                                            class="w-6 h-6 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer inline-flex items-center justify-center"
                                             title="Lihat Detail Saldo & Info User ({{ $t->user->name }})">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
@@ -440,9 +485,9 @@
                                     <button type="button" 
                                         wire:click="deleteTransaction({{ $t->id }})" 
                                         wire:confirm="Apakah Anda yakin ingin menghapus data transaksi ini?"
-                                        class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center" 
+                                        class="w-6 h-6 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center" 
                                         title="Hapus Data Transaksi">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
                                     </button>

@@ -29,11 +29,6 @@ return Application::configure(basePath: dirname(__DIR__))
             // Tambahkan alias ini di sini:
             'onboarded'   => \App\Http\Middleware\EnsureOnboardingCompleted::class,
         ]);
-
-        // Exclude Midtrans webhook from CSRF verification
-        $middleware->validateCsrfTokens(except: [
-            'topup/notification',
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

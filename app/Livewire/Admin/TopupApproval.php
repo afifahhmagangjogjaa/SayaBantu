@@ -91,7 +91,7 @@ class TopupApproval extends Component
     public function deleteHistoryByPeriod()
     {
         $adminCityIds = auth()->user()?->getAdminCityIds() ?? [];
-        $query = BalanceTransaction::where('type', 'topup')
+        $query = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->whereYear('created_at', (int) $this->deleteYear);
 
@@ -135,7 +135,7 @@ class TopupApproval extends Component
     public function deleteAllHistory()
     {
         $adminCityIds = auth()->user()?->getAdminCityIds() ?? [];
-        $query = BalanceTransaction::where('type', 'topup')
+        $query = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed']);
 
         if (!empty($adminCityIds)) {
@@ -223,7 +223,7 @@ class TopupApproval extends Component
         $adminCityIds = ($user && $user->role === 'admin') ? $user->getAdminCityIds() : [];
 
         // 1. Pending Table Query
-        $pendingQuery = BalanceTransaction::where('type', 'topup')
+        $pendingQuery = BalanceTransaction::topupRequests()
             ->where('status', 'waiting_approval')
             ->with(['user', 'user.city']);
 
@@ -251,11 +251,11 @@ class TopupApproval extends Component
             });
         }
 
-        $pendingRequests = $pendingQuery->orderBy('created_at', 'asc')
+        $pendingRequests = $pendingQuery->orderBy('created_at', 'desc')
             ->paginate($this->perPagePending, ['*'], 'pendingPage');
 
         // 2. History Table Query
-        $historyQuery = BalanceTransaction::where('type', 'topup')
+        $historyQuery = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->with(['user', 'user.city']);
 
@@ -303,46 +303,46 @@ class TopupApproval extends Component
             }
         };
 
-        $totalPendingCount = BalanceTransaction::where('type', 'topup')
+        $totalPendingCount = BalanceTransaction::topupRequests()
             ->where('status', 'waiting_approval')
             ->where($baseCityScope)
             ->count();
 
-        $totalCompletedCount = BalanceTransaction::where('type', 'topup')
+        $totalCompletedCount = BalanceTransaction::topupRequests()
             ->where('status', 'completed')
             ->where($baseCityScope)
             ->count();
 
-        $totalRejectedCount = BalanceTransaction::where('type', 'topup')
+        $totalRejectedCount = BalanceTransaction::topupRequests()
             ->where('status', 'rejected')
             ->where($baseCityScope)
             ->count();
 
-        $totalHistoryCount = BalanceTransaction::where('type', 'topup')
+        $totalHistoryCount = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->where($baseCityScope)
             ->count();
         
-        $approvedToday = BalanceTransaction::where('type', 'topup')
+        $approvedToday = BalanceTransaction::topupRequests()
             ->where('status', 'completed')
             ->whereNotNull('approved_by')
             ->whereDate('approved_at', now()->toDateString())
             ->where($baseCityScope)
             ->count();
             
-        $totalPendingAmount = BalanceTransaction::where('type', 'topup')
+        $totalPendingAmount = BalanceTransaction::topupRequests()
             ->where('status', 'waiting_approval')
             ->where($baseCityScope)
             ->sum('amount');
             
-        $totalApprovedAmountToday = BalanceTransaction::where('type', 'topup')
+        $totalApprovedAmountToday = BalanceTransaction::topupRequests()
             ->where('status', 'completed')
             ->whereNotNull('approved_by')
             ->whereDate('approved_at', now()->toDateString())
             ->where($baseCityScope)
             ->sum('amount');
 
-        $availableYears = BalanceTransaction::where('type', 'topup')
+        $availableYears = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->where($baseCityScope)
             ->selectRaw('YEAR(created_at) as year')

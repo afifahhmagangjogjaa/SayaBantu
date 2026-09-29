@@ -438,7 +438,32 @@
                                         </label>
                                         <span class="text-xs text-red-600 font-medium">Boleh diisi / Opsional</span>
                                     </div>
-                                    <textarea wire:model="rejectReason" rows="2" placeholder="Tulis alasan penolakan (contoh: Foto KTP tidak jelas / NIK tidak cocok / Foto selfie blur)..." class="w-full px-3 py-2 border border-red-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white placeholder-gray-400"></textarea>
+                                    <!-- Pilihan Cepat Template Alasan Penolakan -->
+                                    <div class="mb-2.5">
+                                        <div class="text-[11px] font-semibold text-red-700 mb-1.5 flex items-center gap-1">
+                                            <span>Pilih Alasan Cepat:</span>
+                                            <span class="text-[10px] text-gray-500 font-normal">(klik untuk mengisi otomatis)</span>
+                                        </div>
+                                        <div class="flex flex-wrap gap-1.5">
+                                            <button type="button" wire:click="$set('rejectReason', 'Foto KTP buram / NIK tidak terbaca jelas')" class="text-xs px-2.5 py-1 bg-white border border-red-200 hover:bg-red-100 text-red-800 rounded-lg transition font-medium">
+                                                📸 Foto KTP Buram
+                                            </button>
+                                            <button type="button" wire:click="$set('rejectReason', 'Foto Selfie buram / wajah tidak terlihat jelas')" class="text-xs px-2.5 py-1 bg-white border border-red-200 hover:bg-red-100 text-red-800 rounded-lg transition font-medium">
+                                                🤳 Foto Selfie Buram
+                                            </button>
+                                            <button type="button" wire:click="$set('rejectReason', 'Wajah pada foto selfie tidak cocok dengan foto di KTP')" class="text-xs px-2.5 py-1 bg-white border border-red-200 hover:bg-red-100 text-red-800 rounded-lg transition font-medium">
+                                                👤 Wajah Tidak Cocok
+                                            </button>
+                                            <button type="button" wire:click="$set('rejectReason', 'Foto KTP terpotong / bukan fisik KTP asli')" class="text-xs px-2.5 py-1 bg-white border border-red-200 hover:bg-red-100 text-red-800 rounded-lg transition font-medium">
+                                                ✂️ KTP Terpotong / Bukan Asli
+                                            </button>
+                                            <button type="button" wire:click="$set('rejectReason', 'Foto KTP dan Selfie tidak jelas / tidak memenuhi syarat')" class="text-xs px-2.5 py-1 bg-white border border-red-200 hover:bg-red-100 text-red-800 rounded-lg transition font-medium">
+                                                ⚠️ Keduanya Tidak Jelas
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <textarea wire:model="rejectReason" rows="2" placeholder="Tulis atau edit alasan penolakan di sini..." class="w-full px-3 py-2 border border-red-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white placeholder-gray-400"></textarea>
                                     
                                     <div class="mt-3 flex items-center justify-end gap-2">
                                         <button type="button" wire:click="cancelRejectForm" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium transition">

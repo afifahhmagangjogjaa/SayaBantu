@@ -162,9 +162,30 @@ class PartnerReportController extends Controller
 
     public function show(PartnerReport $report)
     {
-        $report->load(['reporter', 'reportedUser', 'reportedHelp', 'resolvedBy']);
+        $report->load([
+            'reporter', 
+            'reportedUser', 
+            'reportedHelp.messages.mitra', 
+            'reportedHelp.messages.customer', 
+            'reportedHelp.user', 
+            'reportedHelp.mitra', 
+            'resolvedBy'
+        ]);
 
-        return view('admin.partners.report-detail', compact('report'));
+        // Cari riwayat chat terkait
+        $chats = collect();
+        if ($report->reportedHelp && $report->reportedHelp->messages) {
+            $chats = $report->reportedHelp->messages()->with(['mitra', 'customer'])->orderBy('created_at', 'asc')->get();
+        } elseif ($report->reporter_id && $report->reported_user_id) {
+            // Jika tidak ada help_id langsung, cari percakapan antara reporter dan reported user
+            $chats = \App\Models\Chat::where(function ($q) use ($report) {
+                $q->where('mitra_id', $report->reporter_id)->where('customer_id', $report->reported_user_id);
+            })->orWhere(function ($q) use ($report) {
+                $q->where('mitra_id', $report->reported_user_id)->where('customer_id', $report->reporter_id);
+            })->with(['mitra', 'customer'])->orderBy('created_at', 'asc')->get();
+        }
+
+        return view('admin.partners.report-detail', compact('report', 'chats'));
     }
 
     public function reportsIndex()
@@ -191,42 +212,202 @@ class PartnerReportController extends Controller
             $data['resolved_at'] = null;
         }
 
+        $oldStatus = $report->status;
         $report->update($data);
 
+        // Kirim notifikasi pembaruan status ke pelapor jika status berubah
+        $reporterUser = $report->reporter ?? $report->user;
+        if ($oldStatus !== $request->status && $reporterUser) {
+            try {
+                $reporterUser->notify(new \App\Notifications\ReportStatusUpdatedNotification($report, $oldStatus, $request->status));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi status aduan ke pelapor: " . $e->getMessage());
+            }
+        }
+
         return back()->with('success', 'Status laporan berhasil diperbarui.');
+    }
+
+    public function storeSanction(Request $request, PartnerReport $report)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'warning_level' => 'required|integer|in:0,1,2,3',
+            'sanction_reason' => 'nullable|string|max:1000',
+        ]);
+
+        // Tentukan user (mitra/customer) yang dijatuhi sanksi
+        $targetUser = \App\Models\User::findOrFail($validated['user_id']);
+
+        // Set level Surat Peringatan & alasan
+        $targetUser->warning_level = (int) $validated['warning_level'];
+        $targetUser->warning_reason = $validated['sanction_reason'] ?? null;
+        $targetUser->warning_applied_at = $targetUser->warning_level > 0 ? now() : null;
+
+        // SP 3: JANGAN langsung blokir akun di sini.
+        // Pemblokiran terjadi nanti saat user menutup modal pop-up SP 3 (dismissSanctionModal).
+        // Ini agar user sempat melihat notifikasi SP 3 sebelum akun benar-benar terkunci.
+        if ($targetUser->warning_level < 3) {
+            $targetUser->is_banned = false;
+            // Jika sebelumnya di-block karena SP dan sekarang diturunkan/dicabut
+            if ($targetUser->status === 'blocked') {
+                $targetUser->status = 'active';
+            }
+        }
+        // Jika warning_level = 0 (cabut SP), pastikan tidak banned
+        if ($targetUser->warning_level === 0) {
+            $targetUser->is_banned = false;
+            if ($targetUser->status === 'blocked') {
+                $targetUser->status = 'active';
+            }
+        }
+
+        $targetUser->save();
+
+        // Jika SP dicabut (level 0), mark semua notifikasi SP lama yang belum di-pop sebagai sudah dibaca
+        // Supaya modal peringatan SP lama (mis. SP 3) tidak muncul lagi setelah pencabutan
+        if ($targetUser->warning_level === 0) {
+            try {
+                $targetUser->notifications()
+                    ->whereNull('popped_at')
+                    ->where(function ($q) {
+                        $q->where('type', 'App\Notifications\SanctionNotification')
+                          ->orWhere('data->type', 'sanction_warning');
+                    })
+                    ->update(['popped_at' => now()]);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Gagal mark SP notifications as popped: ' . $e->getMessage());
+            }
+        }
+
+        // Kirim Notifikasi Database Resmi agar pop-up / toast muncul di browser target
+        try {
+            $targetUser->notify(new \App\Notifications\SanctionNotification(
+                $targetUser->warning_level,
+                $validated['sanction_reason'] ?? null,
+                $report->id
+            ));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed sending SanctionNotification: ' . $e->getMessage());
+        }
+
+        // Bersihkan session flag pop-up yang mungkin pernah tersimpan agar pop-up PASTI muncul
+        try {
+            $sessions = \Illuminate\Support\Facades\DB::table('sessions')->where('user_id', $targetUser->id)->get();
+            foreach ($sessions as $s) {
+                $payload = base64_decode($s->payload);
+                $data = @unserialize($payload);
+                if (is_array($data)) {
+                    $changed = false;
+                    foreach (array_keys($data) as $k) {
+                        if (str_contains($k, 'sanction_sp_popped')) {
+                            unset($data[$k]);
+                            $changed = true;
+                        }
+                    }
+                    if ($changed) {
+                        \Illuminate\Support\Facades\DB::table('sessions')->where('id', $s->id)->update([
+                            'payload' => base64_encode(serialize($data))
+                        ]);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore session error
+        }
+
+        // Tambahkan ke catatan admin pada laporan agar tercatat jejaknya
+        $reasonText = !empty($validated['sanction_reason']) ? ' Alasan: ' . $validated['sanction_reason'] : '';
+        $actionText = $targetUser->warning_level > 0
+            ? ('memberikan sanksi Surat Peringatan ' . $targetUser->warning_level)
+            : 'mencabut/mereset Surat Peringatan (Kembali Normal)';
+
+        $logNote = sprintf(
+            "\n[%s] %s %s kepada %s (%s).%s",
+            now()->format('d/m/Y H:i'),
+            auth()->user()?->name ?? 'Admin',
+            $actionText,
+            $targetUser->name,
+            $targetUser->email,
+            $reasonText
+        );
+        $report->update([
+            'admin_notes' => trim(($report->admin_notes ?? '') . $logNote),
+        ]);
+
+        $message = $targetUser->warning_level > 0
+            ? 'Surat Peringatan ' . $targetUser->warning_level . ' berhasil diberikan kepada ' . $targetUser->name . '.' . ($targetUser->is_banned ? ' Akun telah dibanned.' : '')
+            : 'Surat Peringatan untuk ' . $targetUser->name . ' telah dicabut/direset.';
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function addNote(PartnerReport $report, Request $request)
     {
         $request->validate([
-            'admin_notes' => 'required|string|max:5000',
+            'note' => 'nullable|string|max:2000',
+            'admin_notes' => 'nullable|string|max:5000',
         ]);
 
-        $report->update([
-            'admin_notes' => $request->admin_notes,
-        ]);
+        if ($request->filled('note')) {
+            $timestamp = now()->format('d/m/Y H:i');
+            $adminName = auth()->user()?->name ?? 'Admin';
+            $entry = "[{$timestamp}] {$adminName}: " . trim($request->note);
+            $current = trim($report->admin_notes ?? '');
+            $report->update([
+                'admin_notes' => $current !== '' ? $current . "\n" . $entry : $entry,
+            ]);
+            return back()->with('success', 'Catatan baru berhasil ditambahkan.');
+        }
 
-        return back()->with('success', 'Catatan admin berhasil ditambahkan.');
+        if ($request->has('admin_notes')) {
+            $report->update([
+                'admin_notes' => $request->admin_notes ? trim($request->admin_notes) : null,
+            ]);
+            return back()->with('success', 'Riwayat catatan berhasil diperbarui.');
+        }
+
+        return back();
     }
 
     public function resolve(PartnerReport $report)
     {
+        $oldStatus = $report->status;
         $report->update([
             'status' => 'resolved',
             'resolved_by' => auth()->id(),
             'resolved_at' => now(),
         ]);
 
+        $reporterUser = $report->reporter ?? $report->user;
+        if ($oldStatus !== 'resolved' && $reporterUser) {
+            try {
+                $reporterUser->notify(new \App\Notifications\ReportStatusUpdatedNotification($report, $oldStatus, 'resolved'));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi status aduan ke pelapor: " . $e->getMessage());
+            }
+        }
+
         return back()->with('success', 'Laporan telah ditandai sebagai resolved.');
     }
 
     public function reopen(PartnerReport $report)
     {
+        $oldStatus = $report->status;
         $report->update([
             'status' => 'in_progress',
             'resolved_by' => null,
             'resolved_at' => null,
         ]);
+
+        $reporterUser = $report->reporter ?? $report->user;
+        if ($oldStatus !== 'in_progress' && $reporterUser) {
+            try {
+                $reporterUser->notify(new \App\Notifications\ReportStatusUpdatedNotification($report, $oldStatus, 'in_progress'));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi status aduan ke pelapor: " . $e->getMessage());
+            }
+        }
 
         return back()->with('success', 'Laporan telah dibuka kembali.');
     }

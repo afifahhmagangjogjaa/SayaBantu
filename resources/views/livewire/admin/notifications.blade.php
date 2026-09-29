@@ -126,7 +126,7 @@
          }
      }" 
      @click.away="open = false"
-     wire:poll.10s="loadNotifications">
+     wire:poll.4s="loadNotifications">
     <!-- Notification Bell Button -->
     <button 
         @click="toggle()"
@@ -300,7 +300,7 @@
         @if($notifications->count() > 0)
             <div class="px-4 py-3 border-t border-gray-200 text-center">
                 <a 
-                    href="{{ route('admin.dashboard') }}" 
+                    href="{{ route('admin.notifications.index') }}" 
                     class="text-sm text-primary-600 hover:text-primary-700 font-semibold"
                 >
                     Lihat Semua Notifikasi
@@ -367,8 +367,11 @@
 
                 <!-- Text Content -->
                 <div class="flex-1 min-w-0 cursor-pointer" @click="openUrl()">
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1.5 flex-wrap">
                         <span class="text-xs font-bold text-gray-900 truncate" x-text="currentNotif ? currentNotif.title : ''"></span>
+                        <template x-if="currentNotif && currentNotif.city_name">
+                            <span class="text-[9px] font-semibold text-primary-700 bg-primary-50 border border-primary-200 px-1.5 py-0.5 rounded-full flex-shrink-0" x-text="currentNotif.city_name"></span>
+                        </template>
                         <template x-if="queue.length > 0">
                             <span class="text-[9px] font-bold text-primary-700 bg-primary-50 px-1.5 py-0.5 rounded-full border border-primary-200 flex-shrink-0"
                                   x-text="`+${queue.length}`"></span>

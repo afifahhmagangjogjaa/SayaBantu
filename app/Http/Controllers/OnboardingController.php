@@ -502,6 +502,26 @@ class OnboardingController extends Controller
             }
         } catch (\Throwable $e) {}
 
+        // Kirim notifikasi pengajuan KTP baru ke Admin Kota terkait
+        try {
+            $cityId = $user->city_id;
+            if (!$cityId && !empty($user->city)) {
+                $cityId = \App\Models\City::where('name', 'like', '%' . trim($user->city) . '%')->value('id');
+                if ($cityId) {
+                    $user->city_id = $cityId;
+                    $user->save();
+                }
+            }
+            if ($cityId) {
+                $cityAdmins = User::getAdminsForCity($cityId);
+                if ($cityAdmins->isNotEmpty()) {
+                    \Illuminate\Support\Facades\Notification::send($cityAdmins, new \App\Notifications\NewKtpVerificationNotification($user));
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP baru ke admin kota: ' . $e->getMessage());
+        }
+
         // Login kan user langsung
         Auth::login($user);
 

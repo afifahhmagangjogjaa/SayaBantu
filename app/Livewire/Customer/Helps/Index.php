@@ -7,7 +7,8 @@ use App\Models\City;
 use App\Models\Rating;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-// (Schema/DB imports removed - restored original file state)
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -18,9 +19,11 @@ class Index extends Component
 
     protected $queryString = [
         'statusFilter' => ['except' => 'menunggu_mitra'],
+        'search' => ['except' => ''],
     ];
 
     public $statusFilter = 'menunggu_mitra';
+    public $search = ''; // Variabel penampung teks pencarian
 
     // Status-status yang termasuk dalam filter 'diproses'
     protected $diprosesStatuses = [
@@ -30,7 +33,6 @@ class Index extends Component
         'partner_arrived',
         'in_progress',
         'sedang_diproses',
-        'waiting_customer_confirmation',
         // show partner-cancel requests in "Diproses" tab for customer awareness
         'partner_cancel_requested',
     ];
@@ -58,6 +60,18 @@ class Index extends Component
     // Delete confirmation modal state
     public $showDeleteConfirm = false;
     public $deletingHelpId = null;
+
+    // Reset pagination ketika user mengetik di kolom search
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function resetSearch()
+    {
+        $this->search = '';
+        $this->resetPage();
+    }
 
     /**
      * Trigger the delete confirmation modal for a given help id.
@@ -147,19 +161,56 @@ class Index extends Component
         }
 
         try {
-            $help->update([
-                'status' => 'selesai',
-                'completed_at' => now(),
-            ]);
+            \Illuminate\Support\Facades\DB::transaction(function () use ($help) {
+                // 1. Update status bantuan menjadi selesai
+                // HelpObserver otomatis mencairkan saldo bersih ke akun mitra
+                $help->update([
+                    'status' => 'selesai',
+                    'completed_at' => now(),
+                ]);
 
-            if ($help->mitra_id) {
-                $mitra = \App\Models\User::find($help->mitra_id);
-                if ($mitra) {
-                    $mitra->notify(new \App\Notifications\HelpStatusNotification($help, 'waiting_customer_confirmation', 'selesai', $mitra));
+                // 2. Safety fallback jika belum dicairkan oleh HelpObserver
+                if ($help->mitra_id) {
+                    $already = \App\Models\BalanceTransaction::where('user_id', $help->mitra_id)
+                        ->where(function ($q) use ($help) {
+                            $q->where('reference_id', $help->id)
+                              ->orWhere(function ($sq) use ($help) {
+                                  if (!empty($help->order_id)) {
+                                      $sq->where('order_id', $help->order_id);
+                                  }
+                              })
+                              ->orWhere('description', 'like', 'Pendapatan Bantuan #' . $help->id . '%')
+                              ->orWhere('description', 'like', 'Auto-confirm Bantuan #' . $help->id . '%');
+                        })
+                        ->exists();
+
+                    if (!$already) {
+                        $payoutAmount = $help->getMitraPayoutAmount();
+
+                        if ($payoutAmount > 0) {
+                            $mitraBalance = \App\Models\UserBalance::firstOrCreate(
+                                ['user_id' => $help->mitra_id],
+                                ['balance' => 0]
+                            );
+
+                            $feeText = ($help->mitra_fee_amount > 0)
+                                ? " (Potongan Platform {$help->mitra_fee_percent}%: Rp " . number_format($help->mitra_fee_amount, 0, ',', '.') . ")"
+                                : "";
+
+                            $mitraBalance->addBalance($payoutAmount, "Pendapatan Bantuan #{$help->id}" . $feeText, $help->id);
+                        }
+                    }
+
+                    $mitra = \App\Models\User::find($help->mitra_id);
+                    if ($mitra) {
+                        try {
+                            $mitra->notify(new \App\Notifications\HelpStatusNotification($help, 'waiting_customer_confirmation', 'selesai', $mitra));
+                        } catch (\Throwable $e) {}
+                    }
                 }
-            }
+            });
 
-            session()->flash('message', 'Permintaan telah ditandai selesai.');
+            session()->flash('message', 'Permintaan telah ditandai selesai dan saldo telah dicairkan ke rekan jasa.');
         } catch (\Throwable $e) {
             session()->flash('error', 'Gagal menandai permintaan sebagai selesai.');
         }
@@ -466,7 +517,6 @@ class Index extends Component
     }
 
     /**
-            \Illuminate\Support\Facades\Log::info('updatedEditCityQuery finished', ['q' => $q, 'results_count' => count($results)]);
      * Submit rating and optional comment for a help.
      */
     public function submitRating($helpId)
@@ -511,12 +561,21 @@ class Index extends Component
             'editTitle' => 'required|string|max:255',
             'editDescription' => 'required|string',
             'editAmount' => 'required|numeric|min:10000|max:10000000',
-            'editLocation' => 'nullable|string|max:255',
-            'editFullAddress' => 'nullable|string|max:500',
+            'editLocation' => 'required|string|max:255',
+            'editFullAddress' => 'required|string|max:1000',
             'editEquipmentProvided' => 'nullable|string|max:1000',
             'editCityId' => ['required', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
+            'editLatitude' => 'required|numeric|between:-90,90',
+            'editLongitude' => 'required|numeric|between:-180,180',
             'editPhoto' => 'nullable|image|max:2048', // 2MB max
         ], [
+            'editTitle.required' => 'Judul bantuan wajib diisi.',
+            'editDescription.required' => 'Deskripsi bantuan wajib diisi.',
+            'editLocation.required' => 'Detail patokan lokasi bantuan wajib diisi.',
+            'editFullAddress.required' => 'Alamat lengkap wajib diisi.',
+            'editLatitude.required' => 'Silakan tentukan titik lokasi pada peta.',
+            'editLongitude.required' => 'Silakan tentukan titik lokasi pada peta.',
+            'editCityId.required' => 'Kota wajib dipilih.',
             'editCityId.exists' => 'Kota yang dipilih saat ini sedang tidak aktif.',
             'editAmount.min' => 'Nominal minimal Rp 10.000',
             'editAmount.max' => 'Nominal maksimal Rp 10.000.000',
@@ -576,6 +635,15 @@ class Index extends Component
     {
         $user = auth()->user();
 
+        // Auto-confirm bantuan yang sudah lewat 24 jam menunggu konfirmasi
+        try {
+            Help::autoConfirmExpiredCustomerHelps();
+        } catch (\Throwable $e) {}
+
+        try {
+            Help::cancelExpiredUrgentHelps();
+        } catch (\Throwable $e) {}
+
         if ($user->isCustomer()) {
             $helps = Help::where('user_id', $user->id)
                 ->with([
@@ -590,20 +658,39 @@ class Index extends Component
                 ->when($this->statusFilter !== '', function ($query) {
                     if ($this->statusFilter === 'diproses') {
                         $query->whereIn('status', $this->diprosesStatuses);
-                    } elseif ($this->statusFilter === 'ditolak') {
-                        $query->whereIn('status', ['rejected', 'ditolak']);
+                    } elseif (in_array($this->statusFilter, ['ditolak', 'dibatalkan'])) {
+                        $query->whereIn('status', ['dibatalkan', 'rejected', 'ditolak']);
                     } elseif ($this->statusFilter === 'komplain') {
                         $query->where(function ($q) {
                             $q->whereIn('status', ['komplain', 'disputed'])
-                              ->orWhere('complaint_resolution', 'refunded');
+                                ->orWhere('complaint_resolution', 'refunded');
                         });
                     } else {
                         $query->where('status', $this->statusFilter);
                     }
                 })
                 ->when($this->statusFilter === '', function ($query) {
-                    // By default exclude completed/rejected - those go to history
-                    $query->whereNotIn('status', ['selesai', 'rejected']);
+                    // By default exclude completed/rejected/cancelled - those go to history
+                    $query->whereNotIn('status', ['selesai', 'rejected', 'ditolak', 'dibatalkan']);
+                })
+                // Logika Filter Pencarian (Search)
+                ->when($this->search !== '', function ($query) {
+                    $keyword = trim($this->search);
+                    $query->where(function ($sub) use ($keyword) {
+                        $sub->where('title', 'like', '%' . $keyword . '%')
+                            ->orWhere('description', 'like', '%' . $keyword . '%')
+                            ->orWhere('location', 'like', '%' . $keyword . '%')
+                            ->orWhere('full_address', 'like', '%' . $keyword . '%')
+                            ->orWhereHas('category', function ($catQuery) use ($keyword) {
+                                $catQuery->where('name', 'like', '%' . $keyword . '%');
+                            })
+                            ->orWhereHas('city', function ($cityQuery) use ($keyword) {
+                                $cityQuery->where('name', 'like', '%' . $keyword . '%');
+                            })
+                            ->orWhereHas('mitra', function ($mitraQuery) use ($keyword) {
+                                $mitraQuery->where('name', 'like', '%' . $keyword . '%');
+                            });
+                    });
                 })
                 ->latest()
                 ->paginate(10);
@@ -614,6 +701,15 @@ class Index extends Component
                     ->whereNull('mitra_id')
                     ->with(['user', 'city'])
                         ->withCount('chatMessages')
+                    ->when($this->search !== '', function ($query) {
+                        $query->where(function ($sub) {
+                            $sub->where('title', 'like', '%' . $this->search . '%')
+                                ->orWhere('description', 'like', '%' . $this->search . '%')
+                                ->orWhereHas('city', function ($cityQuery) {
+                                    $cityQuery->where('name', 'like', '%' . $this->search . '%');
+                                });
+                        });
+                    })
                     ->latest()
                     ->paginate(10);
             } else {
@@ -624,59 +720,23 @@ class Index extends Component
                     ->when($this->statusFilter !== '', function ($query) {
                         $query->where('status', $this->statusFilter);
                     })
+                    ->when($this->search !== '', function ($query) {
+                        $query->where(function ($sub) {
+                            $sub->where('title', 'like', '%' . $this->search . '%')
+                                ->orWhere('description', 'like', '%' . $this->search . '%')
+                                ->orWhereHas('city', function ($cityQuery) {
+                                    $cityQuery->where('name', 'like', '%' . $this->search . '%');
+                                })
+                                ->orWhereHas('user', function ($userQuery) {
+                                    $userQuery->where('name', 'like', '%' . $this->search . '%');
+                                });
+                        });
+                    })
                     ->latest()
                     ->paginate(10);
             }
         } else {
             $helps = collect();
-        }
-
-        // Safe debug: render the view with the component's essential public
-        // properties passed in so we can capture the actual HTML Livewire sees
-        // (helps, statusFilter, editingHelp). This helps locate stray top-level
-        // elements that trigger Livewire's multiple-root detection.
-        try {
-            $debugHtml = view('livewire.customer.helps.index', [
-                'helps' => $helps,
-                'statusFilter' => $this->statusFilter,
-                'editingHelp' => $this->editingHelp,
-            ])->render();
-
-            // Use DOMDocument to count top-level element children inside the
-            // rendered fragment. If count > 1, Livewire will complain about
-            // multiple root elements.
-            libxml_use_internal_errors(true);
-            $dom = new \DOMDocument();
-            $dom->loadHTML('<!doctype html><html><body>' . $debugHtml . '</body></html>');
-            $body = $dom->getElementsByTagName('body')->item(0);
-
-            $rootTags = [];
-            $rootCount = 0;
-            if ($body) {
-                foreach ($body->childNodes as $child) {
-                    if ($child->nodeType === XML_ELEMENT_NODE) {
-                        $rootCount++;
-                        $rootTags[] = $child->nodeName;
-                    }
-                }
-            }
-
-            \Illuminate\Support\Facades\Log::info('Debug rendered customer.helps roots', ['count' => $rootCount, 'tags' => $rootTags]);
-            \Illuminate\Support\Facades\Log::info('Debug rendered customer.helps HTML (first 3000 chars)', ['html_snippet' => substr($debugHtml, 0, 3000)]);
-            libxml_clear_errors();
-            // Additionally, write the full rendered HTML to storage for inspection when
-            // running locally. This helps examining the exact markup Livewire received.
-            try {
-                if (app()->environment('local') || app()->environment('development') || app()->runningUnitTests()) {
-                    $path = storage_path('debug_customer_helps.html');
-                    file_put_contents($path, $debugHtml);
-                    \Illuminate\Support\Facades\Log::info('Wrote debug_customer_helps.html for inspection', ['path' => $path]);
-                }
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('Failed writing debug HTML file', ['exception' => $e->getMessage()]);
-            }
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Debug render error for customer.helps', ['exception' => $e->getMessage()]);
         }
 
         // load active cities for the edit form
@@ -685,6 +745,12 @@ class Index extends Component
         return view('livewire.customer.helps.index', [
             'helps' => $helps,
             'cities' => $this->cities,
+            'statusFilter' => $this->statusFilter,
+            'editingHelp' => $this->editingHelp,
+            'selectedHelpData' => $this->selectedHelpData,
+            'showDeleteConfirm' => $this->showDeleteConfirm,
+            'confirmingHelpId' => $this->confirmingHelpId,
+            'deletingHelpId' => $this->deletingHelpId,
         ]);
     }
 }

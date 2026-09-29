@@ -164,26 +164,12 @@ class Create extends Component
             'status' => 'pending',
         ]);
 
-        // Kirim notifikasi ke Admin Kota dan Seluruh Super Admin
+        // Kirim notifikasi khusus ke Admin Kota terkait
         try {
             $cityId = auth()->user()->city_id;
-            $cityAdmins = \App\Models\User::where('role', 'admin')
-                ->where('status', 'active')
-                ->where(function ($query) use ($cityId) {
-                    if ($cityId) {
-                        $query->whereHas('managedCities', function ($q) use ($cityId) {
-                            $q->where('cities.id', $cityId);
-                        })->orWhere('city_id', $cityId);
-                    }
-                })
-                ->get();
+            $cityAdmins = \App\Models\User::getAdminsForCity($cityId);
 
-            $superAdmins = \App\Models\User::where('role', 'super_admin')
-                ->where('status', 'active')
-                ->get();
-
-            $allAdmins = $cityAdmins->merge($superAdmins)->unique('id');
-            foreach ($allAdmins as $adminUser) {
+            foreach ($cityAdmins as $adminUser) {
                 $adminUser->notify(new \App\Notifications\NewReportNotification($report));
             }
         } catch (\Throwable $e) {

@@ -38,6 +38,9 @@ class Create extends Component
     public $latitude = null;
     public $longitude = null;
     // Scheduling
+    public $help_type = 'scheduled'; // 'urgent' or 'scheduled'
+    public $auto_cancel_minutes = 30; // Batas waktu tunggu auto-cancel untuk bantuan urgent (menit)
+    public $confirmAutoCancelMinutes = 30;
     public $scheduled_date = null; // YYYY-MM-DD
     public $scheduled_time = null; // HH:MM
     public $timezoneLabel = 'WIB';
@@ -50,17 +53,21 @@ class Create extends Component
     public $topupTotalTransfer = 10000;
     public $topupDeficit = 0;
     public $topupMethod = 'qris';
-    public $topupSnapToken = null;
     public $topupReceipt;
     public $availableBanks = [];
     public $qrisEnabled = true;
     public $showConfirmModal = false;
     public $showSuccessModal = false;
+    public $hasActivePendingTopup = false;
+    public $activePendingTopup = null;
     public $confirmAmount = 0;
     public $confirmAdminFee = 0;
+    public $confirmCustomerFee = 0;
+    public $confirmCustomerFeePercent = 10;
     public $confirmTotal = 0;
     public $currentBalance = 0;
     public $confirmScheduled = null;
+    public $confirmHelpType = 'scheduled';
     public $isProfileComplete = true;
     public $isKtpVerified = true;
     public $missingProfileFields = [];
@@ -101,7 +108,6 @@ class Create extends Component
             }
         }
 
-        // Set default city_id from user's profile if available
         if ($user && $user->city_id) {
             $this->city_id = (string) $user->city_id;
             $city = City::find($user->city_id);
@@ -112,7 +118,6 @@ class Create extends Component
             }
         }
 
-        // Guard against missing req_* tables (some installs may not have these import tables)
         if (Schema::hasTable('req_provinces')) {
             $this->req_provinces = \Illuminate\Support\Facades\DB::table('req_provinces')->orderBy('province')->get()->toArray();
         } else {
@@ -120,6 +125,7 @@ class Create extends Component
         }
 
         $this->loadPaymentSettings();
+        $this->checkPendingTopup();
     }
 
     public function updatedCityId($value)
@@ -142,10 +148,76 @@ class Create extends Component
 
     public function updatedAmount($value)
     {
-        if ($value !== '' && is_numeric($value)) {
+        $minNominal = $this->help_type === 'urgent'
+            ? (float) AppSetting::get('default_urgent_nominal', 50000)
+            : (float) AppSetting::get('min_help_nominal', 10000);
+        $this->minNominal = (int) $minNominal;
+        $maxNominal = (float) AppSetting::get('max_help_nominal', 10000000);
+        $this->maxNominal = (int) $maxNominal;
+
+        if ($value === '' || $value === null) {
+            $this->addError('amount', 'Nominal wajib diisi.');
+            return;
+        }
+
+        if (is_numeric($value)) {
             $num = (float) $value;
             if ($num > $this->maxNominal) {
                 $this->amount = $this->maxNominal;
+                $this->addError('amount', 'Nominal maksimal Rp ' . number_format($this->maxNominal, 0, ',', '.'));
+            } elseif ($num < $this->minNominal) {
+                $msg = $this->help_type === 'urgent'
+                    ? 'Nominal bantuan mendesak (urgent) minimal Rp ' . number_format($this->minNominal, 0, ',', '.')
+                    : 'Nominal minimal Rp ' . number_format($this->minNominal, 0, ',', '.');
+                $this->addError('amount', $msg);
+            } else {
+                $this->resetErrorBag('amount');
+            }
+        }
+    }
+
+    public function updatedHelpType($value)
+    {
+        $tz = $this->timezoneIana ?: 'Asia/Jakarta';
+        $now = Carbon::now($tz);
+
+        if ($value === 'urgent') {
+            $urgentMin = (int) AppSetting::get('default_urgent_nominal', 50000);
+            $this->minNominal = $urgentMin;
+
+            // Default dari setting jika kosong
+            if (empty($this->amount)) {
+                $this->amount = $urgentMin;
+            }
+
+            // Tanggal otomatis diset ke hari ini
+            $this->scheduled_date = $now->format('Y-m-d');
+
+            // Jam langsung diset ke 15 menit setelah waktu sekarang
+            $this->scheduled_time = $now->copy()->addMinutes(15)->format('H:i');
+            $this->auto_cancel_minutes = $this->auto_cancel_minutes ?: 30;
+
+            if (!empty($this->amount) && (float) $this->amount < $urgentMin) {
+                $this->addError('amount', 'Nominal minimal untuk bantuan urgent adalah Rp ' . number_format($urgentMin, 0, ',', '.'));
+            } else {
+                $this->resetErrorBag(['scheduled_date', 'scheduled_time', 'amount', 'auto_cancel_minutes']);
+            }
+        } else {
+            $this->minNominal = (int) AppSetting::get('min_help_nominal', 10000);
+
+            // Bersihkan kembali tanggal, jam, dan nominal default jika beralih ke terjadwal
+            $this->scheduled_date = null;
+            $this->scheduled_time = null;
+
+            $urgentMin = (int) AppSetting::get('default_urgent_nominal', 50000);
+            if ((float) $this->amount === (float) $urgentMin) {
+                $this->amount = '';
+            }
+
+            if (!empty($this->amount) && (float) $this->amount < $this->minNominal) {
+                $this->addError('amount', 'Nominal minimal Rp ' . number_format($this->minNominal, 0, ',', '.'));
+            } else {
+                $this->resetErrorBag(['scheduled_date', 'scheduled_time', 'amount', 'auto_cancel_minutes']);
             }
         }
     }
@@ -201,11 +273,9 @@ class Create extends Component
             return;
         }
 
-        // Prefer mapping the district to its parent regency (so Mitra filtered by regency/city will match).
         $regencyCode = 'reqr-' . $row->regency_id;
         $city = City::where('code', $regencyCode)->first();
         if (! $city) {
-            // create a regency-level city record if not exists
             $city = City::create([
                 'name' => $row->regency,
                 'province' => $row->province,
@@ -219,16 +289,13 @@ class Create extends Component
         $this->cityQuery = $row->district . ', ' . $row->regency . ', ' . $row->province;
         $this->searchResults = [];
 
-        // set timezone based on selected district's city/province and notify frontend
         $zone = $this->computeTimezoneLabelFromCity($city);
         $iana = $this->ianaForZone($zone);
         $this->timezoneLabel = $zone;
         $this->timezoneIana = $iana;
         $this->dispatch('help:timezone-changed', zone: $zone, iana: $iana);
 
-        // set selected req_* ids to reflect selection
         $this->req_district_id = $row->district_id;
-        // find regency and province ids
         $reg = \Illuminate\Support\Facades\DB::table('req_regencies')->where('regency', $row->regency)->first();
         if ($reg) {
             $this->req_regency_id = $reg->id;
@@ -243,8 +310,6 @@ class Create extends Component
     {
         $q = trim($value);
 
-        \Illuminate\Support\Facades\Log::info('Livewire updatedCityQuery called', ['q' => $q]);
-
         if ($q === '') {
             $this->searchResults = [];
             return;
@@ -258,7 +323,6 @@ class Create extends Component
                         ->orWhere('province', 'like', "%{$q}%")
                         ->orWhere('code', 'like', "%{$q}%");
             })
-            // Prefer regency-level cities: ignore existing district-coded rows
             ->whereRaw("COALESCE(code,'') NOT LIKE 'reqd-%' AND COALESCE(code,'') NOT LIKE 'regd-%'")
             ->select('id', 'name', 'province', 'code')
             ->orderBy('name')
@@ -266,11 +330,8 @@ class Create extends Component
             ->get()
             ->toArray();
 
-        // If not enough results, also search imported regencies/provinces
         if (count($results) < $limit) {
             $remaining = $limit - count($results);
-
-            // Prefer req_* tables if present
             $regRows = collect();
 
             if (Schema::hasTable('req_regencies') && Schema::hasTable('req_provinces')) {
@@ -286,7 +347,6 @@ class Create extends Component
                     ->get();
             }
 
-            // Also search kecamatan-level tables if present (match district names)
             if (count($regRows) < $remaining && Schema::hasTable('req_districts') && Schema::hasTable('req_regencies') && Schema::hasTable('req_provinces')) {
                 $remaining2 = $remaining - count($regRows);
                 $distRows = \Illuminate\Support\Facades\DB::table('req_districts')
@@ -307,84 +367,19 @@ class Create extends Component
                 }
             }
 
-            // Also support legacy 'reg_districts' / 'reg_regencies' / 'reg_provinces' naming
-            if (count($regRows) < $remaining && Schema::hasTable('reg_districts') && Schema::hasTable('reg_regencies') && Schema::hasTable('reg_provinces')) {
-                $remaining3 = $remaining - count($regRows);
-                $rows = \Illuminate\Support\Facades\DB::table('reg_districts')
-                    ->join('reg_regencies', 'reg_districts.regency_id', '=', 'reg_regencies.id')
-                    ->join('reg_provinces', 'reg_regencies.province_id', '=', 'reg_provinces.id')
-                    ->where(function ($builder) use ($q) {
-                        $builder->where('reg_districts.name', 'like', "%{$q}%")
-                                ->orWhere('reg_regencies.name', 'like', "%{$q}%")
-                                ->orWhere('reg_provinces.name', 'like', "%{$q}%");
-                    })
-                    ->select(\Illuminate\Support\Facades\DB::raw("CONCAT('regd-', reg_districts.id) as regency_id"), 'reg_districts.name as regency', 'reg_regencies.name as parent_regency', \Illuminate\Support\Facades\DB::raw('null as type'), 'reg_provinces.name as province')
-                    ->orderBy('reg_districts.name')
-                    ->limit($remaining3)
-                    ->get();
-
-                foreach ($rows as $r) {
-                    $regRows->push($r);
-                }
-            }
-
-            // If still not enough, try reg_regencies/reg_provinces (older import naming)
-            if (count($regRows) < $remaining && Schema::hasTable('reg_regencies') && Schema::hasTable('reg_provinces')) {
-                $remaining2 = $remaining - count($regRows);
-                $rows = \Illuminate\Support\Facades\DB::table('reg_regencies')
-                    ->join('reg_provinces', 'reg_regencies.province_id', '=', 'reg_provinces.id')
-                    ->where(function ($builder) use ($q) {
-                        $builder->where('reg_regencies.name', 'like', "%{$q}%")
-                                ->orWhere('reg_provinces.name', 'like', "%{$q}%");
-                    })
-                    ->select('reg_regencies.id as regency_id', 'reg_regencies.name as regency', \Illuminate\Support\Facades\DB::raw('null as type'), 'reg_provinces.name as province')
-                    ->orderBy('reg_regencies.name')
-                    ->limit($remaining2)
-                    ->get();
-
-                foreach ($rows as $r) {
-                    $regRows->push($r);
-                }
-            }
-
-            // As a last fallback, try legacy regencies/provinces tables if they exist
-            if (count($regRows) < $remaining && Schema::hasTable('regencies') && Schema::hasTable('provinces')) {
-                $remaining3 = $remaining - count($regRows);
-                $rows = \Illuminate\Support\Facades\DB::table('regencies')
-                    ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
-                    ->where(function ($builder) use ($q) {
-                        $builder->where('regencies.regency', 'like', "%{$q}%")
-                                ->orWhere('provinces.province', 'like', "%{$q}%");
-                    })
-                    ->select('regencies.id as regency_id', 'regencies.regency', 'regencies.type', 'provinces.province')
-                    ->orderBy('regencies.regency')
-                    ->limit($remaining3)
-                    ->get();
-
-                foreach ($rows as $r) {
-                    $regRows->push($r);
-                }
-            }
-
             foreach ($regRows as $r) {
-                // If this row represents a district (reqd-/regd-) prefer to map
-                // selection to the parent regency (kabupaten/kota) so stored
-                // `city_id` matches mitra's city. We still provide a display
-                // string that includes the district name for UX.
                 $regencyIdStr = is_string($r->regency_id) ? $r->regency_id : (string) $r->regency_id;
-
                 $display = null;
                 $targetCity = null;
 
                 if (strpos($regencyIdStr, 'reqd-') === 0) {
-                    // req_districts -> find parent regency id
                     try {
                         $did = substr($regencyIdStr, 5);
                         $parentRow = \Illuminate\Support\Facades\DB::table('req_districts')
-                            ->join('req_regencies','req_districts.regency_id','=','req_regencies.id')
-                            ->join('req_provinces','req_regencies.province_id','=','req_provinces.id')
+                            ->join('req_regencies', 'req_districts.regency_id', '=', 'req_regencies.id')
+                            ->join('req_provinces', 'req_regencies.province_id', '=', 'req_provinces.id')
                             ->where('req_districts.id', $did)
-                            ->select('req_districts.district as district','req_regencies.id as parent_regency_id','req_regencies.regency as parent_regency','req_provinces.province')
+                            ->select('req_districts.district as district', 'req_regencies.id as parent_regency_id', 'req_regencies.regency as parent_regency', 'req_provinces.province')
                             ->first();
                         if ($parentRow) {
                             $parentCode = 'reqr-' . $parentRow->parent_regency_id;
@@ -395,28 +390,6 @@ class Create extends Component
                             $display = $parentRow->district . ', ' . $parentRow->parent_regency . ', ' . $parentRow->province;
                         }
                     } catch (\Throwable $e) {
-                        // fall back to using the original row values
-                    }
-                } elseif (strpos($regencyIdStr, 'regd-') === 0) {
-                    // reg_districts legacy
-                    try {
-                        $did = substr($regencyIdStr, 5);
-                        $parentRow = \Illuminate\Support\Facades\DB::table('reg_districts')
-                            ->join('reg_regencies','reg_districts.regency_id','=','reg_regencies.id')
-                            ->join('reg_provinces','reg_regencies.province_id','=','reg_provinces.id')
-                            ->where('reg_districts.id', $did)
-                            ->select('reg_districts.name as district','reg_regencies.id as parent_regency_id','reg_regencies.name as parent_regency','reg_provinces.name as province')
-                            ->first();
-                        if ($parentRow) {
-                            $parentCode = 'reqr-' . $parentRow->parent_regency_id;
-                            $targetCity = City::firstOrCreate(
-                                ['code' => $parentCode],
-                                ['name' => $parentRow->parent_regency, 'province' => $parentRow->province, 'is_active' => true]
-                            );
-                            $display = $parentRow->district . ', ' . $parentRow->parent_regency . ', ' . $parentRow->province;
-                        }
-                    } catch (\Throwable $e) {
-                        // ignore
                     }
                 }
 
@@ -425,24 +398,16 @@ class Create extends Component
                 }
 
                 if (! $targetCity) {
-                    // Check if city already exists in DB (might be inactive)
                     $existing = City::where('code', $r->regency_id)->orWhere('name', $r->regency)->first();
                     if ($existing && !$existing->is_active) {
                         continue;
                     }
 
-                    // Not a district-coded row or parent lookup failed: use the
-                    // regency-level code/name as provided in $r
                     $targetCity = $existing ?: City::create(
                         ['code' => $r->regency_id, 'name' => $r->regency, 'province' => $r->province, 'type' => $r->type ?? null, 'is_active' => true]
                     );
-                    // if no explicit display was set, and this row actually came
-                    // from a district search that didn't include parent name, try
-                    // to construct a display when parent info exists
-                    if (! $display) {
-                        if (! empty($r->parent_regency)) {
-                            $display = $r->regency . ', ' . $r->parent_regency . ', ' . $r->province;
-                        }
+                    if (! $display && ! empty($r->parent_regency)) {
+                        $display = $r->regency . ', ' . $r->parent_regency . ', ' . $r->province;
                     }
                 }
 
@@ -450,55 +415,23 @@ class Create extends Component
                     continue;
                 }
 
-                // Ensure minimal display fallback
                 if (! $display) {
                     $display = $targetCity->name . ', ' . $targetCity->province;
                 }
 
-                // Add to results if city id not already present
                 $exists = false;
                 foreach ($results as $res) {
-                    if ($res['id'] == $targetCity->id) { $exists = true; break; }
+                    if ($res['id'] == $targetCity->id) {
+                        $exists = true;
+                        break;
+                    }
                 }
                 if (! $exists && $targetCity->is_active) {
                     $item = ['id' => $targetCity->id, 'name' => $targetCity->name, 'province' => $targetCity->province, 'code' => $targetCity->code];
-                    if ($display) $item['display'] = $display;
-                    $results[] = $item;
-                }
-            }
-        }
-
-        // Enrich results: if a result code indicates a district (reqd- or regd-),
-        // fetch parent regency and province names to build a display string
-        foreach ($results as $idx => $res) {
-            if (! empty($res['code']) && is_string($res['code'])) {
-                $code = $res['code'];
-                try {
-                    if (strpos($code, 'reqd-') === 0 && Schema::hasTable('req_districts')) {
-                        $did = substr($code, 5);
-                        $row = DB::table('req_districts')
-                            ->join('req_regencies', 'req_districts.regency_id', '=', 'req_regencies.id')
-                            ->join('req_provinces', 'req_regencies.province_id', '=', 'req_provinces.id')
-                            ->where('req_districts.id', $did)
-                            ->select('req_districts.district as district', 'req_regencies.regency as regency', 'req_provinces.province as province')
-                            ->first();
-                        if ($row) {
-                            $results[$idx]['display'] = $row->district . ', ' . $row->regency . ', ' . $row->province;
-                        }
-                    } elseif (strpos($code, 'regd-') === 0 && Schema::hasTable('reg_districts')) {
-                        $did = substr($code, 5);
-                        $row = DB::table('reg_districts')
-                            ->join('reg_regencies', 'reg_districts.regency_id', '=', 'reg_regencies.id')
-                            ->join('reg_provinces', 'reg_regencies.province_id', '=', 'reg_provinces.id')
-                            ->where('reg_districts.id', $did)
-                            ->select('reg_districts.name as district', 'reg_regencies.name as regency', 'reg_provinces.name as province')
-                            ->first();
-                        if ($row) {
-                            $results[$idx]['display'] = $row->district . ', ' . $row->regency . ', ' . $row->province;
-                        }
+                    if ($display) {
+                        $item['display'] = $display;
                     }
-                } catch (\Throwable $e) {
-                    // ignore and leave without display
+                    $results[] = $item;
                 }
             }
         }
@@ -544,16 +477,40 @@ class Create extends Component
             return false;
         }
 
-        if ($this->scheduled_date === $todayStr) {
+        if ($this->help_type === 'urgent') {
+            $maxUrgentDate = $now->copy()->addDay()->format('Y-m-d');
+            if ($this->scheduled_date > $maxUrgentDate) {
+                $this->addError('scheduled_date', 'Untuk bantuan mendesak (urgent), tanggal hanya bisa hari ini atau besok');
+                return false;
+            }
+
             try {
                 $scheduledAt = Carbon::createFromFormat('Y-m-d H:i', $this->scheduled_date . ' ' . $this->scheduled_time, $tz);
-                if ($scheduledAt->lt($now)) {
-                    $this->addError('scheduled_time', 'Jam pelaksanaan tidak boleh sebelum jam sekarang (' . $now->format('H:i') . ')');
-                    return false;
+                $minTime = $now->copy()->addMinutes(15);
+                if ($scheduledAt->lt($minTime)) {
+                    if ($this->scheduled_date === $todayStr && $scheduledAt->gte($now->copy()->addMinutes(8))) {
+                        $this->scheduled_time = $minTime->format('H:i');
+                    } else {
+                        $this->addError('scheduled_time', 'Untuk bantuan mendesak (urgent), jadwal minimal 15 menit setelah waktu sekarang (minimal pukul ' . $minTime->format('H:i') . ' ' . $this->timezoneLabel . ')');
+                        return false;
+                    }
                 }
             } catch (\Exception $e) {
                 $this->addError('scheduled_time', 'Format jam tidak valid');
                 return false;
+            }
+        } else {
+            if ($this->scheduled_date === $todayStr) {
+                try {
+                    $scheduledAt = Carbon::createFromFormat('Y-m-d H:i', $this->scheduled_date . ' ' . $this->scheduled_time, $tz);
+                    if ($scheduledAt->lt($now)) {
+                        $this->addError('scheduled_time', 'Jam pelaksanaan tidak boleh sebelum jam sekarang (' . $now->format('H:i') . ')');
+                        return false;
+                    }
+                } catch (\Exception $e) {
+                    $this->addError('scheduled_time', 'Format jam tidak valid');
+                    return false;
+                }
             }
         }
 
@@ -619,15 +576,25 @@ class Create extends Component
             return;
         }
 
-        // Finalize creation after confirmation
-        // Load settings (double-check)
-        $minNominal = (float) AppSetting::get('min_help_nominal', 10000);
+        $minNominal = $this->help_type === 'urgent'
+            ? (float) AppSetting::get('default_urgent_nominal', 50000)
+            : (float) AppSetting::get('min_help_nominal', 10000);
         $maxNominal = (float) AppSetting::get('max_help_nominal', 10000000);
-        $adminFee = (float) AppSetting::get('admin_fee', 0);
+        $custPercent = (float) AppSetting::get('customer_service_fee_percent', 10);
+        $mitraPercent = (float) AppSetting::get('mitra_platform_fee_percent', 10);
+        $adminFee = 0;
 
         $this->rules['amount'] = 'required|numeric|min:' . $minNominal . '|max:' . $maxNominal;
-        $this->messages['amount.min'] = 'Nominal minimal Rp ' . number_format($minNominal, 0, ',', '.');
+        $this->messages['amount.min'] = 'Nominal minimal ' . ($this->help_type === 'urgent' ? 'untuk bantuan urgent adalah ' : '') . 'Rp ' . number_format($minNominal, 0, ',', '.');
         $this->messages['amount.max'] = 'Nominal maksimal Rp ' . number_format($maxNominal, 0, ',', '.');
+
+        if ($this->help_type === 'urgent') {
+            $this->rules['auto_cancel_minutes'] = 'required|integer|min:30|max:180';
+            $this->messages['auto_cancel_minutes.required'] = 'Batas waktu tunggu pembatalan otomatis wajib ditentukan';
+            $this->messages['auto_cancel_minutes.min'] = 'Batas waktu tunggu minimal 30 menit';
+            $this->messages['auto_cancel_minutes.max'] = 'Batas waktu tunggu maksimal 180 menit';
+        }
+
         $this->validate();
 
         if (!$this->validateScheduleDateTime()) {
@@ -637,26 +604,27 @@ class Create extends Component
         $userId = auth()->id();
         $userBalance = UserBalance::firstOrCreate(['user_id' => $userId], ['balance' => 0]);
 
-        $amount = (float) $this->amount;
-        $total = $amount + $adminFee;
+        $baseAmount = (float) $this->amount;
+        $custFeeAmount = round(($baseAmount * $custPercent) / 100);
+        $totalPaid = $baseAmount + $custFeeAmount;
 
-        if ($userBalance->balance < $total) {
-            $this->insufficientMessage = 'Saldo Anda tidak cukup. Total yang harus dibayar: Rp ' . number_format($total, 0, ',', '.');
+        $mitraFeeAmount = round(($baseAmount * $mitraPercent) / 100);
+        $netMitra = $baseAmount - $mitraFeeAmount;
+
+        if ($userBalance->balance < $totalPaid) {
+            $this->checkPendingTopup();
+            $this->insufficientMessage = 'Saldo Anda tidak cukup. Total yang harus dibayar: Rp ' . number_format($totalPaid, 0, ',', '.');
             $this->showInsufficientModal = true;
             return;
         }
 
-        // Proceed to create help and deduct balance atomically
-        DB::transaction(function () use ($userId, $amount, $adminFee, $total) {
+        DB::transaction(function () use ($userId, $baseAmount, $custPercent, $custFeeAmount, $adminFee, $totalPaid, $mitraPercent, $mitraFeeAmount, $netMitra) {
             $photoPath = null;
             if ($this->photo) {
                 $photoPath = $this->photo->store('helps', 'public');
             }
 
-            // Generate unique order id for this help
             $orderId = $this->generateOrderId();
-
-            // Combine scheduled_date and scheduled_time into scheduled_at
             $scheduledAt = date('Y-m-d H:i:s', strtotime($this->scheduled_date . ' ' . $this->scheduled_time));
 
             $lat = $this->latitude;
@@ -667,43 +635,43 @@ class Create extends Component
                 $lng = $city?->longitude ?: 110.3695;
             }
 
-            \Log::info('Create Help - Saving to database', [
-                'latitude' => $lat,
-                'longitude' => $lng,
-                'user_id' => $userId
-            ]);
-            
+            $isUrgent = ($this->help_type === 'urgent');
+            $minutes = $isUrgent ? (int) ($this->auto_cancel_minutes ?: 30) : null;
+            $autoCancelAt = ($isUrgent && $minutes) ? now()->addMinutes($minutes) : null;
+
             $help = Help::create([
-                'user_id' => $userId,
-                'order_id' => $orderId,
-                'category_id' => $this->category_id,
-                'city_id' => $this->city_id,
-                'title' => $this->title,
-                'amount' => $amount,
-                'admin_fee' => $adminFee,
-                'total_amount' => $total,
-                'description' => $this->description,
-                'equipment_provided' => $this->equipment_provided,
-                'location' => $this->location,
-                'full_address' => $this->full_address,
-                'scheduled_at' => $scheduledAt,
-                'latitude' => $lat,
-                'longitude' => $lng,
-                'photo' => $photoPath,
-                'status' => 'menunggu_mitra',
-            ]);
-            
-            \Log::info('Create Help - Saved successfully', [
-                'help_id' => $help->id,
-                'latitude' => $help->latitude,
-                'longitude' => $help->longitude
+                'user_id'              => $userId,
+                'order_id'             => $orderId,
+                'help_type'            => $this->help_type ?: 'scheduled',
+                'auto_cancel_minutes'  => $minutes,
+                'auto_cancel_at'       => $autoCancelAt,
+                'category_id'          => $this->category_id,
+                'city_id'              => $this->city_id,
+                'title'                => $this->title,
+                'amount'               => $baseAmount,
+                'base_amount'          => $baseAmount,
+                'customer_fee_percent' => $custPercent,
+                'customer_fee_amount'  => $custFeeAmount,
+                'total_customer_paid'  => $totalPaid,
+                'mitra_fee_percent'    => $mitraPercent,
+                'mitra_fee_amount'     => $mitraFeeAmount,
+                'net_mitra_amount'     => $netMitra,
+                'admin_fee'            => 0,
+                'total_amount'         => $totalPaid,
+                'description'          => $this->description,
+                'equipment_provided'   => $this->equipment_provided,
+                'location'             => $this->location,
+                'full_address'         => $this->full_address,
+                'scheduled_at'         => $scheduledAt,
+                'latitude'             => $lat,
+                'longitude'            => $lng,
+                'photo'                => $photoPath,
+                'status'               => 'menunggu_mitra',
             ]);
 
-            // Deduct balance using UserBalance helper to keep history
             $userBalance = UserBalance::firstOrCreate(['user_id' => $userId], ['balance' => 0]);
-            $userBalance->deductBalance($total, 'Pembayaran bantuan #' . $help->id, $help->id);
-            
-            // Send notification to verified active Mitras in the same city (excluding shadow-banned users)
+            $userBalance->deductBalance($totalPaid, 'Pembayaran bantuan #' . $help->id, $help->id);
+
             $customerUser = auth()->user();
             if ($customerUser && !$customerUser->isShadowBanned()) {
                 $mitras = \App\Models\User::where('role', 'mitra')
@@ -712,7 +680,7 @@ class Create extends Component
                     ->where('is_shadow_banned', false)
                     ->where('city_id', $this->city_id)
                     ->get();
-                    
+
                 if ($mitras->count() > 0) {
                     \Illuminate\Support\Facades\Notification::send($mitras, new \App\Notifications\NewHelpRequestNotification($help));
                 }
@@ -728,7 +696,6 @@ class Create extends Component
     {
         $user = auth()->user();
 
-        // Cek kuota permintaan bantuan customer (belum verifikasi email = maks 2 bantuan)
         if ($user && !$user->canCreateMoreHelps()) {
             if (!$user->hasVerifiedEmail()) {
                 session()->flash('error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 permintaan bantuan. Silakan verifikasi email Anda terlebih dahulu untuk membuat bantuan baru.');
@@ -749,54 +716,80 @@ class Create extends Component
             return;
         }
 
-        // Load settings
-        $minNominal = (float) AppSetting::get('min_help_nominal', 10000);
+        $minNominal = $this->help_type === 'urgent'
+            ? (float) AppSetting::get('default_urgent_nominal', 50000)
+            : (float) AppSetting::get('min_help_nominal', 10000);
+        $this->minNominal = (int) $minNominal;
         $maxNominal = (float) AppSetting::get('max_help_nominal', 10000000);
-        $adminFee = (float) AppSetting::get('admin_fee', 0);
+        $custPercent = (float) AppSetting::get('customer_service_fee_percent', 10);
+        $adminFee = 0;
+
+        // Fallback koordinat jika belum dipilih di peta
+        if (empty($this->latitude) || empty($this->longitude)) {
+            if ($this->city_id) {
+                $city = City::find($this->city_id);
+                if ($city && $city->latitude && $city->longitude) {
+                    $this->latitude = (float) $city->latitude;
+                    $this->longitude = (float) $city->longitude;
+                }
+            }
+            if (empty($this->latitude) || empty($this->longitude)) {
+                $this->latitude = -7.7956;
+                $this->longitude = 110.3695;
+            }
+        }
 
         $this->rules['amount'] = 'required|numeric|min:' . $minNominal . '|max:' . $maxNominal;
-        $this->messages['amount.min'] = 'Nominal minimal Rp ' . number_format($minNominal, 0, ',', '.');
+        $this->messages['amount.min'] = 'Nominal minimal ' . ($this->help_type === 'urgent' ? 'untuk bantuan urgent adalah ' : '') . 'Rp ' . number_format($minNominal, 0, ',', '.');
         $this->messages['amount.max'] = 'Nominal maksimal Rp ' . number_format($maxNominal, 0, ',', '.');
+
+        if ($this->help_type === 'urgent') {
+            $this->rules['auto_cancel_minutes'] = 'required|integer|min:30|max:180';
+            $this->messages['auto_cancel_minutes.required'] = 'Batas waktu tunggu pembatalan otomatis wajib ditentukan';
+            $this->messages['auto_cancel_minutes.min'] = 'Batas waktu tunggu minimal 30 menit';
+            $this->messages['auto_cancel_minutes.max'] = 'Batas waktu tunggu maksimal 180 menit';
+        }
+
         $this->validate();
 
         if (!$this->validateScheduleDateTime()) {
             return;
         }
-        
-        // Log koordinat untuk debugging
-        \Log::info('Create Help - Koordinat diterima', [
-            'latitude' => $this->latitude,
-            'longitude' => $this->longitude,
-            'user_id' => auth()->id()
-        ]);
 
-        $amount = (float) $this->amount;
-        $total = $amount + $adminFee;
+        $baseAmount = (float) $this->amount;
+        $custFeeAmount = round(($baseAmount * $custPercent) / 100);
+        $totalPaid = $baseAmount + $custFeeAmount;
 
         $userId = auth()->id();
         $userBalance = UserBalance::firstOrCreate(['user_id' => $userId], ['balance' => 0]);
 
-        if ($userBalance->balance < $total) {
-            $deficit = max(0, $total - (float) $userBalance->balance);
+        if ($userBalance->balance < $totalPaid) {
+            $this->checkPendingTopup();
+            $deficit = max(0, $totalPaid - (float) $userBalance->balance);
             $this->topupDeficit = $deficit;
             $this->topupAmount = $deficit > 10000 ? (int) (ceil($deficit / 1000) * 1000) : 10000;
             $this->currentBalance = (float) $userBalance->balance;
-            $this->confirmAmount = $amount;
-            $this->confirmAdminFee = $adminFee;
-            $this->confirmTotal = $total;
-            $this->insufficientMessage = 'Saldo Anda saat ini Rp ' . number_format($userBalance->balance, 0, ',', '.') . ', sedangkan total yang harus dibayar adalah Rp ' . number_format($total, 0, ',', '.') . ' (Kurang Rp ' . number_format($deficit, 0, ',', '.') . ').';
+            $this->confirmAmount = $baseAmount;
+            $this->confirmAdminFee = 0;
+            $this->confirmCustomerFee = $custFeeAmount;
+            $this->confirmCustomerFeePercent = $custPercent;
+            $this->confirmTotal = $totalPaid;
+            $this->insufficientMessage = 'Saldo Anda saat ini Rp ' . number_format($userBalance->balance, 0, ',', '.') . ', sedangkan total yang harus dibayar adalah Rp ' . number_format($totalPaid, 0, ',', '.') . ' (Kurang Rp ' . number_format($deficit, 0, ',', '.') . ').';
             $this->loadPaymentSettings();
-            $this->calculateTopupFee(); // hitung biaya admin segera
+            $this->calculateTopupFee();
             $this->showInsufficientModal = true;
             return;
         }
 
-        $this->confirmAmount = $amount;
-        $this->confirmAdminFee = $adminFee;
-        $this->confirmTotal = $total;
-        
-        // Prepare scheduled display
+        $this->confirmAmount = $baseAmount;
+        $this->confirmAdminFee = 0;
+        $this->confirmCustomerFee = $custFeeAmount;
+        $this->confirmCustomerFeePercent = $custPercent;
+        $this->confirmTotal = $totalPaid;
+
         $this->confirmScheduled = Carbon::parse($this->scheduled_date . ' ' . $this->scheduled_time)->translatedFormat('d F Y, H:i');
+        $this->confirmHelpType = $this->help_type;
+        $this->confirmAutoCancelMinutes = (int) ($this->auto_cancel_minutes ?: 30);
         $this->currentBalance = $userBalance->balance ?? 0;
         $this->showConfirmModal = true;
     }
@@ -821,7 +814,6 @@ class Create extends Component
 
     public function updatedTopupAmount()
     {
-        // Strip titik pemisah ribuan dari input teks berformat (misal "50.000" → 50000)
         $this->topupAmount = (int) preg_replace('/\D/', '', (string) $this->topupAmount);
         $this->calculateTopupFee();
     }
@@ -835,12 +827,12 @@ class Create extends Component
             return;
         }
 
-        $tier1_limit      = (int)   AppSetting::get('topup_tier1_limit',      50000);
-        $tier1_fee        = (int)   AppSetting::get('topup_tier1_fee',         9000);
-        $tier2_limit      = (int)   AppSetting::get('topup_tier2_limit',     100000);
-        $tier2_fee        = (int)   AppSetting::get('topup_tier2_fee',         7500);
-        $tier3_pct        = (float) AppSetting::get('topup_tier3_percentage',     3);
-        $tier3_max        = (int)   AppSetting::get('topup_tier3_max',        15000);
+        $tier1_limit = (int) AppSetting::get('topup_tier1_limit', 50000);
+        $tier1_fee   = (int) AppSetting::get('topup_tier1_fee', 9000);
+        $tier2_limit = (int) AppSetting::get('topup_tier2_limit', 100000);
+        $tier2_fee   = (int) AppSetting::get('topup_tier2_fee', 7500);
+        $tier3_pct   = (float) AppSetting::get('topup_tier3_percentage', 3);
+        $tier3_max   = (int) AppSetting::get('topup_tier3_max', 15000);
 
         if ($amount < $tier1_limit) {
             $fee = $tier1_fee;
@@ -871,8 +863,8 @@ class Create extends Component
         $banks = $methods['banks'] ?? $defaultBanks;
 
         $this->availableBanks = collect($banks)
-            ->filter(fn($bank) => $bank['enabled'] ?? false)
-            ->map(fn($bank) => array_merge($bank, ['value' => 'bank_' . ($bank['code'] ?? '')]))
+            ->filter(fn ($bank) => $bank['enabled'] ?? false)
+            ->map(fn ($bank) => array_merge($bank, ['value' => 'bank_' . ($bank['code'] ?? '')]))
             ->values()
             ->toArray();
 
@@ -881,16 +873,46 @@ class Create extends Component
         }
     }
 
+    public function checkPendingTopup()
+    {
+        $userId = auth()->id();
+        if ($userId) {
+            $this->activePendingTopup = BalanceTransaction::where('user_id', $userId)
+                ->where('type', 'topup')
+                ->where('status', 'waiting_approval')
+                ->latest()
+                ->first();
+            $this->hasActivePendingTopup = !is_null($this->activePendingTopup);
+        } else {
+            $this->hasActivePendingTopup = false;
+            $this->activePendingTopup = null;
+        }
+    }
+
     public function selectTopupMethod($method)
     {
         $this->topupMethod = $method;
     }
 
-    /**
-     * Process direct topup via manual transfer/QRIS without leaving the create help page
-     */
     public function processDirectTopup()
     {
+        $user = auth()->user();
+        if (!$user) {
+            return;
+        }
+
+        if (!$user->canTopup()) {
+            $this->addError('topupAmount', $user->getCannotTopupReason() ?? 'Akun Anda belum memenuhi syarat untuk melakukan top up.');
+            return;
+        }
+
+        $this->checkPendingTopup();
+        if ($this->hasActivePendingTopup) {
+            $this->addError('topupAmount', 'Anda masih memiliki permintaan top-up (' . ($this->activePendingTopup->request_code ?? '#' . $this->activePendingTopup->id) . ') yang sedang menunggu persetujuan admin. Harap tunggu hingga diproses.');
+            session()->flash('topup_error', 'Anda masih memiliki permintaan top-up yang menunggu persetujuan admin. Harap tunggu hingga diproses.');
+            return;
+        }
+
         $topupVal = (float) $this->topupAmount;
         if ($topupVal < 10000) {
             $this->addError('topupAmount', 'Minimal top up adalah Rp 10.000');
@@ -914,11 +936,8 @@ class Create extends Component
         try {
             $user = auth()->user();
             $orderId = 'TOPUP-MANUAL-' . $user->id . '-' . time();
-
-            // Simpan bukti transfer ke storage
             $receiptPath = $this->topupReceipt->store('proof-of-payment', 'public');
 
-            // Format nama metode pembayaran
             $methodName = 'Transfer Bank';
             if ($this->topupMethod === 'qris') {
                 $methodName = 'QRIS';
@@ -931,7 +950,6 @@ class Create extends Component
                 }
             }
 
-            // Generate request code TPU-YYYYMMDD-XXX
             $date = now()->format('Ymd');
             $lastCode = BalanceTransaction::where('request_code', 'like', "TPU-{$date}-%")
                 ->orderBy('id', 'desc')
@@ -943,7 +961,6 @@ class Create extends Component
             }
             $requestCode = "TPU-{$date}-" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
 
-            // Hitung biaya admin berdasarkan tier fee dari AppSetting
             $this->calculateTopupFee();
 
             $transaction = BalanceTransaction::create([
@@ -964,7 +981,6 @@ class Create extends Component
                 'expired_at' => now()->addHours(24),
             ]);
 
-            // Kirim notifikasi ke Admin / SuperAdmin
             try {
                 $cityAdmins = \App\Models\User::where('role', 'admin')
                     ->where('status', 'active')
@@ -985,23 +1001,17 @@ class Create extends Component
                 \Log::warning('Gagal kirim notifikasi topup admin: ' . $err->getMessage());
             }
 
-            // Dispatch global event
             $this->dispatch('topupRequestCreated');
-
             $this->showInsufficientModal = false;
             $this->reset(['topupReceipt']);
 
             session()->flash('message', 'Bukti transfer berhasil dikirim! Kode request: ' . $requestCode . '. Silakan tunggu verifikasi admin.');
-
         } catch (\Throwable $e) {
             \Log::error('Manual Topup error: ' . $e->getMessage());
             $this->addError('topupAmount', 'Gagal mengirim bukti: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Called when topup succeeds to refresh balance and preserve all form inputs
-     */
     public function onTopupCompleted()
     {
         $userId = auth()->id();
@@ -1009,9 +1019,10 @@ class Create extends Component
         $this->currentBalance = $newBalance;
         $this->showInsufficientModal = false;
 
-        $amount = (float) $this->amount;
-        $adminFee = (float) AppSetting::get('admin_fee', 0);
-        $total = $amount + $adminFee;
+        $baseAmount = (float) $this->amount;
+        $custPercent = (float) AppSetting::get('customer_service_fee_percent', 10);
+        $custFeeAmount = ($baseAmount * $custPercent) / 100;
+        $total = $baseAmount + $custFeeAmount;
 
         if ($newBalance >= $total) {
             session()->flash('topup_success', '🎉 Top up berhasil! Saldo Anda sekarang: Rp ' . number_format($newBalance, 0, ',', '.') . '. Silakan konfirmasi permintaan bantuan.');
@@ -1026,13 +1037,11 @@ class Create extends Component
         $this->city_id = $id;
         $city = City::find($id);
         if ($city) {
-            // If the current search results included a custom 'display' for this id (district, regency, province), prefer it
             $usedDisplay = false;
             if (! empty($this->searchResults)) {
                 foreach ($this->searchResults as $res) {
                     if (isset($res['id']) && $res['id'] == $id) {
                         if (! empty($res['display'])) {
-                            // Use the custom display string (includes kecamatan, kabupaten, provinsi)
                             $this->cityQuery = $res['display'];
                             $this->searchResults = [];
                             $usedDisplay = true;
@@ -1043,12 +1052,10 @@ class Create extends Component
                 }
             }
 
-            // Only overwrite the cityQuery with the canonical city name if we
-            // didn't already set a richer display value from the search result.
             if (! $usedDisplay) {
                 $this->cityQuery = $city->name . ', ' . $city->province;
             }
-            // determine timezone label from city (longitude preferred, fallback to province)
+
             $zone = $this->computeTimezoneLabelFromCity($city);
             $iana = $this->ianaForZone($zone);
             $this->timezoneLabel = $zone;
@@ -1060,37 +1067,44 @@ class Create extends Component
 
     private function computeTimezoneLabelFromCity(City $city)
     {
-        // Prefer longitude if available
         if (! empty($city->longitude)) {
             $lon = floatval($city->longitude);
-            if ($lon >= 130) return 'WIT';
-            if ($lon >= 115) return 'WITA';
+            if ($lon >= 130) {
+                return 'WIT';
+            }
+            if ($lon >= 115) {
+                return 'WITA';
+            }
             return 'WIB';
         }
 
         $prov = strtolower($city->province ?? '');
-        // eastern provinces => WIT
         $eastern = ['papua', 'papua barat', 'maluku', 'maluku utara'];
         foreach ($eastern as $p) {
-            if (strpos($prov, $p) !== false) return 'WIT';
+            if (strpos($prov, $p) !== false) {
+                return 'WIT';
+            }
         }
 
-        // central provinces => WITA
         $centralKeywords = ['bali', 'nusa tenggara', 'sulawesi', 'kalimantan tengah', 'kalimantan timur', 'kalimantan selatan'];
         foreach ($centralKeywords as $p) {
-            if (strpos($prov, $p) !== false) return 'WITA';
+            if (strpos($prov, $p) !== false) {
+                return 'WITA';
+            }
         }
 
-        // default to WIB
         return 'WIB';
     }
 
     private function ianaForZone($zone)
     {
         switch ($zone) {
-            case 'WITA': return 'Asia/Makassar';
-            case 'WIT': return 'Asia/Jayapura';
-            default: return 'Asia/Jakarta';
+            case 'WITA':
+                return 'Asia/Makassar';
+            case 'WIT':
+                return 'Asia/Jayapura';
+            default:
+                return 'Asia/Jakarta';
         }
     }
 
@@ -1101,28 +1115,23 @@ class Create extends Component
         $this->searchResults = [];
     }
 
-    /**
-     * Generate a unique order id for a Help record.
-     * Format: HELP-YYYYMMDDHHIISS-<random4>
-     */
     private function generateOrderId()
     {
-        // Try a few times to avoid collision
         for ($i = 0; $i < 5; $i++) {
             $candidate = 'HELP-' . date('YmdHis') . '-' . random_int(1000, 9999);
             if (!Help::where('order_id', $candidate)->exists()) {
                 return $candidate;
             }
-            // small sleep to change timestamp if collision
             usleep(200);
         }
 
-        // Fallback - use uniqid
         return 'HELP-' . uniqid();
     }
 
     public function render()
     {
+        $this->checkPendingTopup();
+
         $cities = City::where('is_active', true)->orderBy('name')->get();
         $categories = \App\Models\Category::where('is_active', true)
             ->orderByRaw("name = 'Lainnya' ASC")

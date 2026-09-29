@@ -62,11 +62,13 @@ class TopupRejected extends Notification
     {
         return [
             'type' => 'topup_rejected',
+            'title' => '❌ Request Top-Up Ditolak',
             'transaction_id' => $this->transaction->id,
             'request_code' => $this->transaction->request_code,
             'amount' => $this->transaction->amount,
             'rejection_reason' => $this->transaction->rejection_reason,
-            'message' => 'Request top-up saldo Anda ditolak. Alasan: ' . $this->transaction->rejection_reason,
+            'message' => 'Request top-up saldo Anda ditolak. Alasan: ' . ($this->transaction->rejection_reason ?: 'Bukti transfer tidak valid.'),
+            'url' => route('customer.topup.history'),
         ];
     }
 }

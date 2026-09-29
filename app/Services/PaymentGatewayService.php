@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * Dummy Payment Gateway Service for Disbursement (simulate Xendit/Midtrans)
+ * Dummy Payment Gateway Service for Disbursement.
  * In production replace with real SDK integration.
  */
 class PaymentGatewayService

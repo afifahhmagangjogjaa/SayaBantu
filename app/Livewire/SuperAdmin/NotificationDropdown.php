@@ -38,8 +38,9 @@ class NotificationDropdown extends Component
         // Get unread count
         $this->unreadCount = $user->unreadNotifications()->count();
 
-        // Ambil notifikasi unread terbaru untuk popup alert (notif apapun)
+        // Ambil notifikasi unread terbaru yang BELUM pernah di-pop-up (popped_at is null)
         $unreads = $user->unreadNotifications()
+            ->whereNull('popped_at')
             ->latest()
             ->take(5)
             ->get();
@@ -70,6 +71,11 @@ class NotificationDropdown extends Component
                 'created_at_human' => $notif->created_at->diffForHumans(),
             ];
         })->values()->toArray();
+
+        // Tandai notifikasi yang dipop-upkan sebagai sudah pernah muncul (popped_at = now())
+        if ($unreads->isNotEmpty()) {
+            $user->notifications()->whereIn('id', $unreads->pluck('id'))->update(['popped_at' => now()]);
+        }
     }
 
     public function resolveNotificationUrl($notification)
@@ -98,7 +104,7 @@ class NotificationDropdown extends Component
         $notification = $user->notifications()->find($notificationId);
         
         if ($notification) {
-            $notification->markAsRead();
+            $notification->update(['read_at' => now(), 'popped_at' => $notification->popped_at ?? now()]);
             $this->loadNotifications();
             $this->dispatch('notification-updated');
         }
@@ -109,9 +115,17 @@ class NotificationDropdown extends Component
         $user = Auth::user();
         if (!$user) return;
 
-        $user->unreadNotifications->markAsRead();
+        $user->unreadNotifications()->update(['read_at' => now(), 'popped_at' => now()]);
         $this->loadNotifications();
         $this->dispatch('notification-updated');
+    }
+
+    public function markAsPopped(array $ids)
+    {
+        $user = Auth::user();
+        if ($user && !empty($ids)) {
+            $user->notifications()->whereIn('id', $ids)->update(['popped_at' => now()]);
+        }
     }
 
     public function deleteNotification($notificationId)
@@ -148,7 +162,7 @@ class NotificationDropdown extends Component
 
         // Mark as read
         if (!$notification->read_at) {
-            $notification->markAsRead();
+            $notification->update(['read_at' => now(), 'popped_at' => $notification->popped_at ?? now()]);
         }
 
         $data = $notification->data ?? [];

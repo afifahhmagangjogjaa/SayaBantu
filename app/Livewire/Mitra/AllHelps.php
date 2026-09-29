@@ -4,6 +4,7 @@ namespace App\Livewire\Mitra;
 
 use App\Models\Help;
 use App\Models\User;
+use App\Models\AppSetting;
 use App\Notifications\HelpTakenNotification;
 use Livewire\Component;
 use App\Services\LocationTrackingService;
@@ -28,6 +29,16 @@ class AllHelps extends Component
     public $userLat = null;
     public $userLng = null;
 
+    public function mount()
+    {
+        $user = auth()->user();
+        if ($user) {
+            $city = $user->city_id ? \App\Models\City::find($user->city_id) : null;
+            $this->userLat = $user->latitude ? (float) $user->latitude : ($city ? (float) $city->latitude : null);
+            $this->userLng = $user->longitude ? (float) $user->longitude : ($city ? (float) $city->longitude : null);
+        }
+    }
+
     public function updatingSearch()
     {
         $this->resetPage();
@@ -40,24 +51,54 @@ class AllHelps extends Component
 
     public function setCoordinates($lat, $lng)
     {
-        $this->userLat = $lat;
-        $this->userLng = $lng;
+        $this->userLat = (float) $lat;
+        $this->userLng = (float) $lng;
+
+        if (auth()->check()) {
+            auth()->user()->update([
+                'latitude' => $lat,
+                'longitude' => $lng,
+            ]);
+        }
+
         $this->resetPage();
     }
 
     public function render()
     {
         $user = auth()->user();
+        \App\Services\KtpVerificationNoticeService::ensurePromptNotification($user);
+
+        try {
+            Help::cancelExpiredUrgentHelps();
+        } catch (\Throwable $e) {}
+
         $isMitraShadowBanned = $user ? $user->isShadowBanned() : false;
+
+        $userCity = ($user && $user->city_id) ? \App\Models\City::find($user->city_id) : null;
+        $effectiveLat = $this->userLat ?: ($user && $user->latitude ? (float) $user->latitude : ($userCity ? (float) $userCity->latitude : null));
+        $effectiveLng = $this->userLng ?: ($user && $user->longitude ? (float) $user->longitude : ($userCity ? (float) $userCity->longitude : null));
 
         $query = Help::query()
             ->whereDoesntHave('user', function ($q) {
                 $q->where('is_shadow_banned', true);
             });
 
-        // Default behavior: show helps from the same city as the authenticated mitra
-        // if the mitra has a city set. If mitra belum menetapkan kota, don't show any helps
-        // and instruct them to set their city in profile.
+        $maxRadius = (float) \App\Models\AppSetting::get('mitra_max_distance_km', \App\Models\AppSetting::get('max_help_radius_km', 10));
+
+        if ($effectiveLat && $effectiveLng) {
+            $lat = (float) $effectiveLat;
+            $lng = (float) $effectiveLng;
+            $haversine = "(6371 * acos(least(1.0, greatest(-1.0, cos(radians($lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians($lng)) + sin(radians($lat)) * sin(radians(latitude))))))";
+            
+            $query->select('helps.*', \Illuminate\Support\Facades\DB::raw("$haversine AS distance"))
+                ->whereNotNull('helps.latitude')
+                ->whereNotNull('helps.longitude')
+                ->whereRaw("$haversine <= ?", [$maxRadius]);
+        } else {
+            $query->select('helps.*');
+        }
+        
         $needsCity = false;
         if ($isMitraShadowBanned) {
             $query->whereRaw('1 = 0');
@@ -78,24 +119,31 @@ class AllHelps extends Component
             $query->where('status', 'menunggu_mitra')->whereNull('mitra_id');
         }
 
-        // Search berdasarkan nama, deskripsi, atau lokasi
-        if ($this->search) {
-            $query->where(function ($q) {
-                $q->whereHas('user', function ($userQuery) {
-                    $userQuery->where('name', 'like', '%' . $this->search . '%');
-                })
-                    ->orWhere('description', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('city', function ($cityQuery) {
-                        $cityQuery->where('name', 'like', '%' . $this->search . '%');
+        // Search berdasarkan judul, deskripsi, lokasi, alamat, nama pelanggan, kota, atau kategori
+        if (!empty($this->search)) {
+            $keyword = trim($this->search);
+            $query->where(function ($q) use ($keyword) {
+                $q->where('helps.title', 'like', '%' . $keyword . '%')
+                    ->orWhere('helps.description', 'like', '%' . $keyword . '%')
+                    ->orWhere('helps.location', 'like', '%' . $keyword . '%')
+                    ->orWhere('helps.full_address', 'like', '%' . $keyword . '%')
+                    ->orWhereHas('user', function ($userQuery) use ($keyword) {
+                        $userQuery->where('name', 'like', '%' . $keyword . '%');
+                    })
+                    ->orWhereHas('city', function ($cityQuery) use ($keyword) {
+                        $cityQuery->where('name', 'like', '%' . $keyword . '%');
+                    })
+                    ->orWhereHas('category', function ($catQuery) use ($keyword) {
+                        $catQuery->where('name', 'like', '%' . $keyword . '%');
                     });
             });
         }
 
         // Sort
         if ($this->sortBy === 'nearby') {
-            if ($this->userLat && $this->userLng) {
-                $lat = (float) $this->userLat;
-                $lng = (float) $this->userLng;
+            if ($effectiveLat && $effectiveLng) {
+                $lat = (float) $effectiveLat;
+                $lng = (float) $effectiveLng;
                 $haversine = "(6371 * acos(least(1.0, greatest(-1.0, cos(radians($lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians($lng)) + sin(radians($lat)) * sin(radians(latitude))))))";
                 $query->orderByRaw("CASE WHEN latitude IS NOT NULL AND longitude IS NOT NULL THEN 0 ELSE 1 END")
                       ->orderByRaw("$haversine ASC")
@@ -124,6 +172,7 @@ class AllHelps extends Component
             return view('livewire.mitra.helps.all-helps', [
                 'helps' => $helps,
                 'needsCity' => true,
+                'maxRadius' => $maxRadius,
             ]);
         }
 
@@ -133,6 +182,7 @@ class AllHelps extends Component
         return view('livewire.mitra.helps.all-helps', [
             'helps' => $helps,
             'needsCity' => false,
+            'maxRadius' => $maxRadius,
         ]);
     }
 
@@ -171,6 +221,19 @@ class AllHelps extends Component
 
         $help = Help::with('user')->findOrFail($helpId);
 
+        if ($help->isExpired() || $help->status !== 'menunggu_mitra') {
+            if ($help->isExpired()) {
+                Help::cancelExpiredUrgentHelps();
+            }
+            session()->flash('error', 'Maaf, batas waktu pencarian mitra untuk bantuan ini sudah habis atau bantuan sudah tidak tersedia.');
+            return;
+        }
+
+        if ($help->wasCancelledByMitra(auth()->id())) {
+            session()->flash('error', 'Anda tidak bisa mengambil bantuan ini karena sudah pernah dibatalkan.');
+            return;
+        }
+
         if ($help->user && $help->user->isShadowBanned()) {
             session()->flash('error', 'Bantuan ini sudah tidak tersedia.');
             return;
@@ -179,6 +242,20 @@ class AllHelps extends Component
         if ($help->mitra_id) {
             session()->flash('error', 'Bantuan ini sudah diambil oleh mitra lain.');
             return;
+        }
+
+        // Cek apakah jarak melebihi batas maksimal radius mitra
+        $maxRadius = (float) AppSetting::get('mitra_max_distance_km', AppSetting::get('max_help_radius_km', 10));
+        $userCity = ($user && $user->city_id) ? \App\Models\City::find($user->city_id) : null;
+        $checkLat = $latitude ?: (($user && \Illuminate\Support\Facades\Schema::hasColumn('users', 'latitude') && $user->latitude) ? (float) $user->latitude : ($userCity ? (float) $userCity->latitude : null));
+        $checkLng = $longitude ?: (($user && \Illuminate\Support\Facades\Schema::hasColumn('users', 'longitude') && $user->longitude) ? (float) $user->longitude : ($userCity ? (float) $userCity->longitude : null));
+
+        if ($checkLat && $checkLng && $help->latitude && $help->longitude) {
+            $dist = 6371 * acos(min(1.0, max(-1.0, cos(deg2rad((float)$checkLat)) * cos(deg2rad((float)$help->latitude)) * cos(deg2rad((float)$help->longitude) - deg2rad((float)$checkLng)) + sin(deg2rad((float)$checkLat)) * sin(deg2rad((float)$help->latitude)))));
+            if ($dist > $maxRadius) {
+                session()->flash('error', "Jarak bantuan ini (" . number_format($dist, 1) . " km) melebihi batas maksimal radius {$maxRadius} km.");
+                return;
+            }
         }
 
         $help->update([

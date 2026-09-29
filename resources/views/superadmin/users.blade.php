@@ -31,7 +31,6 @@
         <!-- Filter Toolbar -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-6">
             <div class="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
-                <!-- Search Input with inline Icon -->
                 <div class="relative w-full md:flex-1">
                     <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none" style="padding-left: 14px;">
                         <svg class="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
@@ -44,8 +43,7 @@
                 </div>
 
                 <div class="flex items-center gap-3 w-full md:w-auto flex-wrap sm:flex-nowrap">
-                    @if(!request()->routeIs('superadmin.customers*') && !request()->routeIs('superadmin.mitra*'))
-                    <!-- Role Filter -->
+                    @if($pageType === 'users')
                     <div class="relative min-w-[150px] flex-1 sm:flex-initial">
                         <select wire:model.live="roleFilter"
                             style="padding-left: 14px; padding-right: 36px; padding-top: 10px; padding-bottom: 10px; font-size: 14px;"
@@ -57,7 +55,18 @@
                     </div>
                     @endif
 
-                    <!-- Per Page Filter -->
+                    <div class="relative min-w-[140px] flex-1 sm:flex-initial">
+                        <select wire:model.live="spFilter"
+                            style="padding-left: 14px; padding-right: 36px; padding-top: 10px; padding-bottom: 10px; font-size: 14px;"
+                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                            <option value="">Semua SP</option>
+                            <option value="has_sp">Kena SP (Aktif)</option>
+                            <option value="1">SP 1 (Ringan)</option>
+                            <option value="2">SP 2 (Sedang)</option>
+                            <option value="3">SP 3 (Berat)</option>
+                        </select>
+                    </div>
+
                     <div class="relative min-w-[120px] flex-1 sm:flex-initial">
                         <select wire:model.live="perPage"
                             style="padding-left: 14px; padding-right: 36px; padding-top: 10px; padding-bottom: 10px; font-size: 14px;"
@@ -81,13 +90,14 @@
                             <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-10">No</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Nama & Email</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">No. HP</th>
-                            @if(!$roleFilter)
+                            @if($pageType === 'users' && !$roleFilter)
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Role</th>
                             @endif
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Verified</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Kota</th>
                             <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Rating</th>
+                            <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">SP</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Terdaftar</th>
                             <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-24">Aksi</th>
                         </tr>
@@ -112,7 +122,7 @@
                                 <td class="px-2.5 py-3 whitespace-nowrap text-xs text-gray-700 font-mono">
                                     {{ $user->phone ?? '-' }}
                                 </td>
-                                @if(!$roleFilter)
+                                @if($pageType === 'users' && !$roleFilter)
                                 <td class="px-2.5 py-3 whitespace-nowrap">
                                     @php
                                         $roleColors = [
@@ -135,9 +145,21 @@
                                     </span>
                                 </td>
                                 <td class="px-2.5 py-3 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full {{ ($user->status === 'active') ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200' }}">
-                                        {{ ($user->status === 'active') ? 'Aktif' : 'Nonaktif' }}
-                                    </span>
+                                    <div class="flex flex-col gap-1 items-start">
+                                        @if ($user->status === 'blocked' || $user->is_banned)
+                                            <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
+                                                Diblokir
+                                            </span>
+                                        @elseif ($user->status === 'inactive')
+                                            <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
+                                                Nonaktif
+                                            </span>
+                                        @else
+                                            <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">
+                                                Aktif
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-2.5 py-3 text-xs text-gray-600">
                                     @if($user->role === 'admin' && $user->managedCities && $user->managedCities->count() > 0)
@@ -175,12 +197,35 @@
                                         <span class="text-xs text-gray-400">-</span>
                                     @endif
                                 </td>
+
+                                {{-- Kolom SP --}}
+                                <td class="px-2.5 py-3 text-center whitespace-nowrap">
+                                    @php
+                                        $spLevel = (int) ($user->warning_level ?? 0);
+                                    @endphp
+                                    @if($spLevel > 0)
+                                        <button type="button" wire:click="viewUser({{ $user->id }})"
+                                           class="inline-flex items-center group cursor-pointer hover:opacity-85 transition"
+                                           title="Klik untuk melihat riwayat SP">
+                                            <span class="px-2.5 py-0.5 inline-flex text-[11px] font-bold rounded-full
+                                                {{ $spLevel >= 3
+                                                    ? 'bg-red-50 text-red-700 border border-red-200 group-hover:bg-red-100'
+                                                    : ($spLevel == 2
+                                                        ? 'bg-orange-50 text-orange-700 border border-orange-200 group-hover:bg-orange-100'
+                                                        : 'bg-yellow-50 text-yellow-800 border border-yellow-200 group-hover:bg-yellow-100') }}">
+                                                SP {{ $spLevel }}
+                                            </span>
+                                        </button>
+                                    @else
+                                        <span class="text-xs text-gray-400">-</span>
+                                    @endif
+                                </td>
+
                                 <td class="px-2.5 py-3 whitespace-nowrap text-xs text-gray-500">
                                     {{ $user->created_at->format('d M Y') }}
                                 </td>
                                 <td class="px-2.5 py-3 whitespace-nowrap text-center">
                                     <div class="inline-flex items-center justify-center gap-1.5 leading-none">
-                                        {{-- Detail --}}
                                         <button wire:click="viewUser({{ $user->id }})" wire:loading.attr="disabled"
                                             wire:target="viewUser,editUser,confirmDelete,deleteUser"
                                             class="p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer"
@@ -190,7 +235,6 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </button>
-                                        {{-- Edit --}}
                                         <button wire:click="editUser({{ $user->id }})" wire:loading.attr="disabled"
                                             wire:target="viewUser,editUser,confirmDelete,deleteUser"
                                             class="p-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer"
@@ -199,7 +243,6 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
-                                        {{-- Toggle Status ON/OFF --}}
                                         @php
                                             $isStatusActive = ($user->status === 'active');
                                         @endphp
@@ -214,7 +257,6 @@
                                                 <span class="h-4 w-4 rounded-full bg-white shadow ring-0"></span>
                                             </span>
                                         </button>
-                                        {{-- Hapus --}}
                                         <button wire:click="confirmDelete({{ $user->id }})" wire:loading.attr="disabled"
                                             wire:target="viewUser,editUser,confirmDelete,deleteUser"
                                             class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer"
@@ -229,10 +271,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ $roleFilter ? 9 : 10 }}" class="px-6 py-12 text-center">
+                                <td colspan="{{ ($pageType === 'users' && !$roleFilter) ? 11 : 10 }}" class="px-6 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center">
-                                        <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+                                        <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                         </svg>
@@ -246,7 +287,6 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             @if ($users->hasPages())
                 <div class="bg-gray-50 px-6 py-5 border-t border-gray-200">
                     {{ $users->links() }}
@@ -254,7 +294,6 @@
             @endif
         </div>
     </div>
-    <!-- Modals -->
 
     {{-- View User Modal --}}
     @if($showViewModal && $selectedUser)
@@ -262,16 +301,15 @@
             <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl overflow-hidden">
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <div class="flex items-center gap-4">
-                        <div
-                            class="w-14 h-14 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold text-xl">
-                            {{ strtoupper(substr($selectedUser->name, 0, 1)) }}</div>
+                        <div class="w-14 h-14 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold text-xl">
+                            {{ strtoupper(substr($selectedUser->name, 0, 1)) }}
+                        </div>
                         <div>
                             <div class="text-lg font-semibold text-gray-900">{{ $selectedUser->name }}</div>
                             <div class="text-sm text-gray-500">{{ $selectedUser->email }}</div>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                            <br>
                         <button type="button" wire:click.prevent="closeModal"
                             class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
                     </div>
@@ -284,28 +322,23 @@
                                 <div class="text-xs text-gray-500">Nama Lengkap</div>
                                 <div class="font-medium text-gray-900">{{ $selectedUser->name }}</div>
                             </div>
-
                             <div>
                                 <div class="text-xs text-gray-500">Email</div>
                                 <div class="font-medium text-gray-900">{{ $selectedUser->email }}</div>
                             </div>
-
                             <div>
                                 <div class="text-xs text-gray-500">No. HP</div>
                                 <div class="font-medium text-gray-900">{{ $selectedUser->phone ?? '-' }}</div>
                             </div>
-
                             <div>
                                 <div class="text-xs text-gray-500">NIK</div>
                                 <div class="font-medium text-gray-900">{{ $selectedUser->nik ?? '-' }}</div>
                             </div>
-
                             <div>
                                 <div class="text-xs text-gray-500">Tempat, Tanggal Lahir</div>
                                 <div class="font-medium text-gray-900">{{ $selectedUser->place_of_birth ?? '-' }},
                                     {{ optional($selectedUser->date_of_birth)->format('d M Y') ?? '-' }}</div>
                             </div>
-
                             <div>
                                 <div class="text-xs text-gray-500">Jenis Kelamin</div>
                                 <div class="font-medium text-gray-900">
@@ -327,19 +360,16 @@
                                 <div class="font-medium text-gray-900">
                                     {{ $roleLabels[$selectedUser->role] ?? ucfirst($selectedUser->role) }}</div>
                             </div>
-
                             <div>
                                 <div class="text-xs text-gray-500">Status</div>
                                 <div class="font-medium text-gray-900">
                                     {{ $selectedUser->status ? ucfirst($selectedUser->status) : '—' }}</div>
                             </div>
-
                             <div>
                                 <div class="text-xs text-gray-500">Verified</div>
                                 <div class="font-medium text-gray-900">
                                     {{ $selectedUser->verified ? 'Terverifikasi' : 'Belum' }}</div>
                             </div>
-
                             <div>
                                 <div class="text-xs text-gray-500">Kota</div>
                                 <div class="font-medium text-gray-900">{{ $selectedUser->city_name ?? '-' }}</div>
@@ -351,10 +381,6 @@
                                 <div class="flex flex-wrap gap-2">
                                     @foreach($selectedUser->managedCities as $managedCity)
                                         <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-800">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
                                             {{ $managedCity->name }}
                                         </span>
                                     @endforeach
@@ -366,7 +392,6 @@
                                 <div class="text-xs text-gray-500">Pekerjaan</div>
                                 <div class="font-medium text-gray-900">{{ $selectedUser->occupation ?? '-' }}</div>
                             </div>
-
                             <div>
                                 <div class="text-xs text-gray-500">Terdaftar</div>
                                 <div class="font-medium text-gray-900">
@@ -411,7 +436,7 @@
                         </div>
                     </div>
 
-                    {{-- Rating Summary & Link ke Menu Rating --}}
+                    {{-- Rating Summary --}}
                     @php
                         if ($selectedUser->isMitra()) {
                             $avgScore = $selectedUser->mitra_average_rating;
@@ -450,10 +475,9 @@
                                     <span class="text-xs text-gray-400 italic">Belum ada rating atau ulasan</span>
                                 @endif
                             </div>
-
                             <a href="{{ route('superadmin.ratings.index', ['search' => $selectedUser->email ?? $selectedUser->name]) }}"
                                 class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-black text-xs font-semibold rounded-lg shadow-2xs transition flex-shrink-0 cursor-pointer"
-                                title="Buka menu Rating & Ulasan untuk pengguna ini">
+                                title="Buka menu Rating & Ulasan">
                                 <span>Lihat Semua Ulasan</span>
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -461,87 +485,149 @@
                             </a>
                         </div>
                     </div>
+
+                    {{-- Riwayat SP & Sanksi --}}
+                    @php
+                        $currentSp = (int) ($selectedUser->warning_level ?? 0);
+                        $isBanned  = (bool) ($selectedUser->is_banned ?? false) || $selectedUser->status === 'blocked';
+                    @endphp
+                    <div class="mt-4 rounded-xl border {{ $currentSp > 0 ? 'border-red-200 bg-red-50/30' : 'border-gray-200 bg-gray-50/30' }} p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold {{ $currentSp > 0 ? 'text-red-900' : 'text-gray-700' }}">
+                                📋 Surat Peringatan (SP)
+                            </span>
+                            {{-- Badge status aktif --}}
+                            @if ($isBanned)
+                                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-800">🔴 Dibanned</span>
+                            @elseif ($currentSp >= 3)
+                                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-800">SP 3 — Berat</span>
+                            @elseif ($currentSp === 2)
+                                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-orange-100 text-orange-800">SP 2 — Sedang</span>
+                            @elseif ($currentSp === 1)
+                                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-yellow-100 text-yellow-800">SP 1 — Ringan</span>
+                            @else
+                                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-green-100 text-green-800">✓ Normal</span>
+                            @endif
+                        </div>
+
+                        {{-- Progress bar SP (3 segmen) --}}
+                        <div class="mb-3">
+                            <div class="flex justify-between text-[10px] text-gray-400 mb-1">
+                                <span>Level SP Aktif</span>
+                                <span>{{ $currentSp }} / 3</span>
+                            </div>
+                            <div class="h-2 bg-white rounded-full overflow-hidden flex gap-0.5 border border-gray-200">
+                                @for ($i = 1; $i <= 3; $i++)
+                                    <div class="flex-1 h-full rounded-full {{ $i <= $currentSp ? ($currentSp >= 3 ? 'bg-red-500' : ($currentSp === 2 ? 'bg-orange-400' : 'bg-yellow-400')) : 'bg-gray-200' }}"></div>
+                                @endfor
+                            </div>
+                        </div>
+
+                        {{-- Timeline riwayat SP --}}
+                        @if (!empty($selectedUserSpHistory))
+                            <div class="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                                @foreach ($selectedUserSpHistory as $item)
+                                    @php
+                                        $isReset = ($item['type'] ?? '') === 'reset' || ($item['level'] ?? -1) === 0;
+                                        $isLog   = ($item['type'] ?? '') === 'log';
+                                        $lvl     = $item['level'] ?? null;
+                                    @endphp
+                                    <div class="flex items-start gap-2 p-2 rounded-lg text-xs
+                                        {{ $isReset ? 'bg-green-50 border border-green-100 text-green-800'
+                                                   : 'bg-white border border-red-100 text-red-900' }}">
+                                        <span class="shrink-0 mt-0.5">
+                                            @if ($isReset)
+                                                <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            @else
+                                                <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                            @endif
+                                        </span>
+                                        <div class="flex-1 min-w-0">
+                                            @if ($isLog)
+                                                <p class="break-words leading-snug">{{ $item['log'] }}</p>
+                                            @else
+                                                <p class="font-semibold leading-tight">
+                                                    @if ($isReset) SP Dicabut / Reset ke Normal
+                                                    @else Surat Peringatan{{ $lvl > 0 ? ' SP ' . $lvl : '' }}
+                                                    @endif
+                                                </p>
+                                                @if (!empty($item['reason']))
+                                                    <p class="text-[10px] mt-0.5 opacity-80 break-words">Alasan: {{ $item['reason'] }}</p>
+                                                @endif
+                                                @if (!empty($item['date']))
+                                                    <p class="text-[10px] mt-0.5 opacity-60">{{ $item['date'] }} WIB</p>
+                                                @endif
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-xs text-gray-400 italic">Belum pernah kena SP.</p>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     @endif
 
-    
-
-    {{-- Create / Edit Modal (polished) --}}
+    {{-- Create / Edit Modal --}}
     @if($showCreateModal || $showEditModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-                <!-- Modal header -->
                 <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-primary-600 to-primary-700">
                     <div>
-                        <h3 class="text-xl font-bold text-white">{{ $showEditModal ? 'Edit ' . $roleLabel : 'Tambah ' . $roleLabel . ' Baru' }}
-                        </h3>
+                        <h3 class="text-xl font-bold text-white">{{ $showEditModal ? 'Edit ' . $roleLabel : 'Tambah ' . $roleLabel . ' Baru' }}</h3>
                         <p class="text-sm text-white/90">
                             {{ $showEditModal ? 'Perbarui informasi ' . strtolower($roleLabel) . ' dengan hati-hati' : 'Lengkapi formulir untuk menambah ' . strtolower($roleLabel) . ' baru' }}
                         </p>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button type="button" wire:click.prevent="closeModal"
-                            class="text-white/90 hover:text-white p-2 rounded-md" aria-label="Tutup modal">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
+                    <button type="button" wire:click.prevent="closeModal"
+                        class="text-white/90 hover:text-white p-2 rounded-md" aria-label="Tutup modal">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
 
-                <!-- Modal body (form) -->
                 <div class="px-6 py-6 max-h-[70vh] overflow-y-auto">
                     <form wire:submit.prevent="saveUser" class="space-y-6">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <!-- Main form fields (2-column layout) -->
                             <div class="lg:col-span-2 space-y-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="text-xs font-medium text-gray-700">Nama Lengkap <span
-                                                class="text-red-500">*</span></label>
+                                        <label class="text-xs font-medium text-gray-700">Nama Lengkap <span class="text-red-500">*</span></label>
                                         <input type="text" wire:model="name" placeholder="Nama lengkap"
                                             oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                                             class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                                         @error('name') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                     </div>
-
                                     <div>
-                                        <label class="text-xs font-medium text-gray-700">Email <span
-                                                class="text-red-500">*</span></label>
+                                        <label class="text-xs font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
                                         <input type="email" wire:model="email" placeholder="email@contoh.com"
                                             class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-                                        @error('email') <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                                        @enderror
+                                        @error('email') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                     </div>
-
                                     <div>
                                         <label class="text-xs font-medium text-gray-700">No. HP <span class="text-red-500">*</span></label>
-                                        <input type="text" wire:model="phone" placeholder="08xxxxxxxxxx"
-                                            maxlength="13"
+                                        <input type="text" wire:model="phone" placeholder="08xxxxxxxxxx" maxlength="13"
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)" inputmode="numeric"
                                             class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-                                        @error('phone') <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                                        @enderror
+                                        @error('phone') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                     </div>
-
                                     <div>
-                                        <label class="text-xs font-medium text-gray-700">Password 
+                                        <label class="text-xs font-medium text-gray-700">Password
                                             @if($showEditModal)
                                                 <span class="text-gray-500 text-xs">(kosongkan jika tidak ingin mengubah)</span>
                                             @else
                                                 <span class="text-red-500">*</span>
                                             @endif
                                         </label>
-                                        <input type="password" wire:model="password" 
+                                        <input type="password" wire:model="password"
                                             placeholder="{{ $showEditModal ? 'Isi untuk mengubah password' : 'Minimal 8 karakter' }}"
                                             class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-                                        @error('password') <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                                        @enderror
+                                        @error('password') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                     </div>
-
                                     <div>
                                         <label class="text-xs font-medium text-gray-700">Verifikasi <span class="text-red-500">*</span></label>
                                         <select wire:model="verified"
@@ -560,10 +646,8 @@
                                             <input type="text" wire:model="nik" maxlength="16"
                                                 oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16)" inputmode="numeric"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono" />
-                                            @error('nik') <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                                            @enderror
+                                            @error('nik') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
-
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Jenis Kelamin <span class="text-red-500">*</span></label>
                                             <select wire:model="gender"
@@ -574,7 +658,6 @@
                                             </select>
                                             @error('gender') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
-
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Tempat Lahir <span class="text-red-500">*</span></label>
                                             <input type="text" wire:model="place_of_birth"
@@ -582,15 +665,12 @@
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                             @error('place_of_birth') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
-
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Tanggal Lahir <span class="text-red-500">*</span></label>
                                             <input type="date" wire:model="date_of_birth" max="{{ \Carbon\Carbon::now()->subYears(17)->format('Y-m-d') }}" onkeydown="return false" onclick="this.showPicker()"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
-                                            @error('date_of_birth') <div class="text-sm text-red-600 mt-1">{{ $message }}
-                                            </div> @enderror
+                                            @error('date_of_birth') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
-
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Agama</label>
                                             <select wire:model="religion"
@@ -604,7 +684,6 @@
                                                 <option value="Khonghucu">Khonghucu</option>
                                             </select>
                                         </div>
-
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Status Perkawinan</label>
                                             <select wire:model="marital_status"
@@ -616,13 +695,11 @@
                                                 <option value="Cerai Mati">Cerai Mati</option>
                                             </select>
                                         </div>
-
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Pekerjaan</label>
                                             <input type="text" wire:model="occupation" placeholder="Contoh: Wiraswasta"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                         </div>
-
                                         <div class="grid grid-cols-2 gap-3">
                                             <div>
                                                 <label class="text-xs font-medium text-gray-700">RT</label>
@@ -637,8 +714,6 @@
                                                     class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                             </div>
                                         </div>
-
-                                        <!-- Wilayah Domisili (Kota Terdaftar di DB -> Auto-fetch Kecamatan & Kelurahan API) -->
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Kota / Kabupaten Domisili <span class="text-red-500">*</span></label>
                                             <select wire:model.live="city_id"
@@ -650,14 +725,12 @@
                                             </select>
                                             @error('city_id') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
-
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Provinsi Domisili</label>
                                             <input type="text" wire:model="province" readonly placeholder="Otomatis terisi dari kota"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-600 cursor-not-allowed focus:outline-none" />
                                             @error('province') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
-
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Kecamatan <span class="text-red-500">*</span></label>
                                             <select wire:model.live="selectedDistrictCode"
@@ -670,7 +743,6 @@
                                             </select>
                                             @error('kecamatan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
-
                                         <div>
                                             <label class="text-xs font-medium text-gray-700">Kelurahan / Desa <span class="text-red-500">*</span></label>
                                             <select wire:model.live="selectedVillageCode"
@@ -683,7 +755,6 @@
                                             </select>
                                             @error('kelurahan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
-
                                         <div class="md:col-span-2">
                                             <label class="text-xs font-medium text-gray-700">Alamat Lengkap <span class="text-red-500">*</span></label>
                                             <textarea wire:model="address" rows="3" placeholder="Jl. Merdeka No. 123..."
@@ -692,44 +763,24 @@
                                         </div>
                                         @if($role === 'admin')
                                         <div class="md:col-span-2">
-                                            <label class="text-xs font-medium text-gray-700 mb-2 block">
-                                                <svg class="w-4 h-4 inline mr-1 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                Kota yang Dikelola Admin (Checklist)
-                                            </label>
+                                            <label class="text-xs font-medium text-gray-700 mb-2 block">Kota yang Dikelola Admin (Checklist)</label>
                                             <div class="mt-2 p-4 bg-gray-50 border border-gray-200 rounded-xl max-h-64 overflow-y-auto">
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                     @forelse($cities as $c)
                                                         <label class="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-primary-400 hover:bg-primary-50 transition-all cursor-pointer">
-                                                            <input 
-                                                                type="checkbox" 
-                                                                wire:model="managed_city_ids" 
-                                                                value="{{ $c->id }}"
-                                                                class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-2 focus:ring-primary-500 cursor-pointer"
-                                                            />
+                                                            <input type="checkbox" wire:model="managed_city_ids" value="{{ $c->id }}"
+                                                                class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-2 focus:ring-primary-500 cursor-pointer" />
                                                             <div class="flex-1">
                                                                 <div class="text-sm font-semibold text-gray-900">{{ $c->name }}</div>
                                                                 <div class="text-xs text-gray-500">{{ $c->province ?? 'Indonesia' }}</div>
                                                             </div>
                                                         </label>
                                                     @empty
-                                                        <div class="col-span-2 text-center text-sm text-gray-500 py-4">
-                                                            Belum ada kota tersedia
-                                                        </div>
+                                                        <div class="col-span-2 text-center text-sm text-gray-500 py-4">Belum ada kota tersedia</div>
                                                     @endforelse
                                                 </div>
                                             </div>
-                                            <p class="text-xs text-gray-500 mt-2">
-                                                <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                                                </svg>
-                                                Admin dapat mengelola lebih dari satu kota. Pilih kota yang ingin dikelola oleh admin ini.
-                                            </p>
-                                            @error('managed_city_ids') 
-                                                <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                                            @enderror
+                                            @error('managed_city_ids') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
                                         @endif
                                     </div>
@@ -744,12 +795,11 @@
                                 </svg>
                                 <div>
                                     <h4 class="text-sm font-semibold text-red-800">Gagal menyimpan</h4>
-                                    <p class="text-xs text-red-700 mt-0.5">Silakan periksa kembali isian formulir yang masih kosong atau salah (scroll ke atas).</p>
+                                    <p class="text-xs text-red-700 mt-0.5">Silakan periksa kembali isian formulir yang masih kosong atau salah.</p>
                                 </div>
                             </div>
                         @endif
 
-                        <!-- Footer Actions inside form so submit works with enter -->
                         <div class="pt-2 border-t flex items-center justify-end gap-3">
                             <button type="button" wire:click.prevent="closeModal"
                                 class="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">Batal</button>
@@ -757,10 +807,8 @@
                                 class="px-4 py-2 bg-primary-600 text-white rounded-lg flex items-center gap-2 text-sm"
                                 wire:loading.attr="disabled">
                                 <svg wire:loading class="w-4 h-4 animate-spin" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
-                                        fill="none"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
-                                    </path>
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                 </svg>
                                 <span>{{ $showEditModal ? 'Perbarui User' : 'Simpan User' }}</span>
                             </button>
@@ -776,15 +824,12 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div class="bg-white rounded-xl shadow-lg w-11/12 max-w-md p-6">
                 <h3 class="text-lg font-semibold mb-2">Konfirmasi Hapus</h3>
-                <p class="text-sm text-gray-600 mb-4">Anda yakin ingin menghapus user ini? Aksi ini tidak dapat dibatalkan.
-                </p>
+                <p class="text-sm text-gray-600 mb-4">Anda yakin ingin menghapus user ini? Aksi ini tidak dapat dibatalkan.</p>
                 <div class="text-right">
-                    <button type="button" wire:click.prevent="closeModal"
-                        class="px-4 py-2 mr-2 bg-gray-100 rounded-lg">Batal</button>
+                    <button type="button" wire:click.prevent="closeModal" class="px-4 py-2 mr-2 bg-gray-100 rounded-lg">Batal</button>
                     <button wire:click="deleteUser" class="px-4 py-2 bg-red-600 text-white rounded-lg">Hapus</button>
                 </div>
             </div>
         </div>
     @endif
-
 </div>

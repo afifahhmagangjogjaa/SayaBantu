@@ -86,6 +86,13 @@ class HelpDetail extends Component
 
         $this->currentStatus = $this->help->status;
 
+        // Auto-confirm jika customer tidak merespon dalam 24 jam
+        if ($this->help->status === 'waiting_customer_confirmation' && $this->help->isCustomerConfirmationExpired()) {
+            $this->help->autoConfirmIfExpired();
+            $this->help->refresh();
+            $this->currentStatus = $this->help->status;
+        }
+
         // Tidak perlu session flash lagi, gunakan flag di database
     }
 
@@ -151,42 +158,90 @@ class HelpDetail extends Component
 
     public function requestPartnerCancel()
     {
-        // Only allow partner assigned mitra to request cancel and only for certain statuses
+        // Only allow partner assigned mitra to cancel and only for certain statuses
         if ($this->help->mitra_id !== auth()->id()) {
             session()->flash('error', 'Anda tidak memiliki izin untuk membatalkan bantuan ini.');
             return;
         }
 
         if (!in_array($this->help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived'])) {
-            session()->flash('error', 'Pembatalan tidak dapat diminta pada status ini.');
+            session()->flash('error', 'Pembatalan tidak dapat dilakukan pada status ini.');
             return;
         }
 
         $oldStatus = $this->help->status;
+        $mitra = auth()->user();
+        $mitraId = auth()->id();
+        $reason = $this->partnerCancelReason ?: 'Kendala di jalan / darurat';
 
+        // 1. Catat ke log riwayat aktivitas mitra (PartnerActivity)
+        try {
+            \App\Models\PartnerActivity::create([
+                'user_id' => $mitraId,
+                'activity_type' => 'help_cancelled',
+                'description' => 'Membatalkan Bantuan #' . $this->help->id . ' - Alasan: ' . $reason,
+                'ip_address' => request()?->ip(),
+                'user_agent' => request()?->header('User-Agent'),
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to record PartnerActivity on help cancelled: ' . $e->getMessage());
+        }
+
+        // 2. Lepaskan mitra & kembalikan pesanan ke antrean menunggu mitra baru
         $this->help->update([
             'partner_cancel_prev_status' => $oldStatus,
-            'status' => 'partner_cancel_requested',
             'partner_cancel_requested_at' => now(),
-            'partner_cancel_reason' => $this->partnerCancelReason ?: null,
+            'partner_cancel_reason' => $reason,
+            'status' => 'menunggu_mitra',
+            'mitra_id' => null,
+            'partner_current_lat' => null,
+            'partner_current_lng' => null,
+            'partner_initial_lat' => null,
+            'partner_initial_lng' => null,
         ]);
 
-        // Notify customer
+        // 3. Kirim notifikasi instan ke customer
         try {
-            $this->help->user->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'partner_cancel_requested', $this->help->mitra));
+            $customer = $this->help->user ?? $this->help->customer;
+            if ($customer) {
+                $customer->notify(new \App\Notifications\HelpStatusNotification(
+                    $this->help, 
+                    $oldStatus, 
+                    'partner_cancelled_direct', 
+                    $mitra
+                ));
+            }
         } catch (\Exception $e) {
-            // silent fail for notification
+            // silent fail for customer notification
+        }
+
+        // 4. Kirim notifikasi ke Admin yang mengelola wilayah/kota pesanan ini
+        try {
+            $cityId = $this->help->city_id;
+
+            if ($cityId) {
+                $cityAdmins = \App\Models\User::getAdminsForCity($cityId);
+
+                foreach ($cityAdmins as $adminUser) {
+                    try {
+                        $adminUser->notify(new \App\Notifications\HelpStatusNotification(
+                            $this->help,
+                            $oldStatus,
+                            'partner_cancelled_direct',
+                            $mitra
+                        ));
+                    } catch (\Exception $e) {
+                        // silent fail per admin
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed notifying admins on partner cancel: ' . $e->getMessage());
         }
 
         $this->showPartnerCancelModal = false;
-        $this->help->refresh();
-        $this->currentStatus = $this->help->status;
-
-        // Show status modal to indicate request sent and await customer confirmation
-        $this->showPartnerCancelStatusModal = true;
-        $this->partnerCancelStatus = 'pending';
-
-        session()->flash('message', 'Permintaan pembatalan telah dikirim ke customer. Menunggu konfirmasi.');
+        session()->flash('warning', 'Pesanan telah dibatalkan dan dialihkan kembali untuk mencari Rekan Jasa lain. Pembatalan dicatat dalam riwayat akun Anda.');
+        return redirect()->route('mitra.dashboard');
     }
 
     public function closePartnerCancelStatusModal()
@@ -227,20 +282,32 @@ class HelpDetail extends Component
 
     public function markPartnerStarted()
     {
+        $oldStatus = $this->help->status;
         $this->help->update([
             'status' => 'partner_on_the_way',
             'partner_started_at' => now(),
+            'partner_started_moving_at' => now(),
         ]);
 
         $this->currentStatus = 'partner_on_the_way';
         $this->help->refresh();
+        $this->help->load(['user', 'mitra']);
 
         // Kirim notifikasi database ke customer
         try {
-            $this->help->user->notify(new \App\Notifications\HelpStatusNotification($this->help, 'taken', 'partner_on_the_way', $this->help->mitra));
-        } catch (\Exception $e) {
-            // silent fail
+            if ($this->help->user) {
+                $this->help->user->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'partner_on_the_way', $this->help->mitra));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi partner_on_the_way: ' . $e->getMessage());
         }
+
+        // Dispatch notifikasi status changed
+        $this->dispatch('status-changed', [
+            'helpId' => $this->help->id,
+            'oldStatus' => $oldStatus,
+            'newStatus' => 'partner_on_the_way'
+        ]);
 
         // Dispatch notifikasi ke Alpine.js
         $this->dispatch('show-status-notification', message: 'Perjalanan dimulai!');
@@ -250,6 +317,7 @@ class HelpDetail extends Component
 
     public function markPartnerArrived()
     {
+        $oldStatus = $this->help->status;
         $this->help->update([
             'status' => 'partner_arrived',
             'partner_arrived_at' => now(),
@@ -257,13 +325,23 @@ class HelpDetail extends Component
 
         $this->currentStatus = 'partner_arrived';
         $this->help->refresh();
+        $this->help->load(['user', 'mitra']);
 
         // Kirim notifikasi database ke customer
         try {
-            $this->help->user->notify(new \App\Notifications\HelpStatusNotification($this->help, 'partner_on_the_way', 'partner_arrived', $this->help->mitra));
-        } catch (\Exception $e) {
-            // silent fail
+            if ($this->help->user) {
+                $this->help->user->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'partner_arrived', $this->help->mitra));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi partner_arrived: ' . $e->getMessage());
         }
+
+        // Dispatch notifikasi status changed
+        $this->dispatch('status-changed', [
+            'helpId' => $this->help->id,
+            'oldStatus' => $oldStatus,
+            'newStatus' => 'partner_arrived'
+        ]);
 
         // Dispatch notifikasi ke Alpine.js
         $this->dispatch('show-status-notification', message: 'Anda sudah tiba di lokasi!');
@@ -283,6 +361,7 @@ class HelpDetail extends Component
 
     public function startService()
     {
+        $oldStatus = $this->help->status;
         // Ubah status ke in_progress dan set service_started_at
         $this->help->update([
             'status' => 'in_progress',
@@ -291,13 +370,23 @@ class HelpDetail extends Component
 
         $this->currentStatus = 'in_progress';
         $this->help->refresh();
+        $this->help->load(['user', 'mitra']);
 
         // Kirim notifikasi database ke customer
         try {
-            $this->help->user->notify(new \App\Notifications\HelpStatusNotification($this->help, 'partner_arrived', 'in_progress', $this->help->mitra));
-        } catch (\Exception $e) {
-            // silent fail
+            if ($this->help->user) {
+                $this->help->user->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'in_progress', $this->help->mitra));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi in_progress: ' . $e->getMessage());
         }
+
+        // Dispatch notifikasi status changed
+        $this->dispatch('status-changed', [
+            'helpId' => $this->help->id,
+            'oldStatus' => $oldStatus,
+            'newStatus' => 'in_progress'
+        ]);
 
         // Dispatch notifikasi ke Alpine.js
         $this->dispatch('show-status-notification', message: 'Pekerjaan telah dimulai!');
@@ -415,6 +504,12 @@ class HelpDetail extends Component
 
     public function render()
     {
+        if ($this->help && $this->help->status === 'waiting_customer_confirmation' && $this->help->isCustomerConfirmationExpired()) {
+            $this->help->autoConfirmIfExpired();
+            $this->help->refresh();
+            $this->currentStatus = $this->help->status;
+        }
+
         return view('livewire.mitra.helps.help-detail');
     }
 }

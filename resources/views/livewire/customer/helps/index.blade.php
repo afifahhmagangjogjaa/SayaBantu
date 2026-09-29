@@ -54,7 +54,8 @@
 
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        <!-- Pengatur panjang area biru ke bawah: sesuaikan 'padding-bottom' pada style di bawah ini -->
+        <div class="px-5 pt-5 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0); padding-bottom: 36px;">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
             
@@ -76,46 +77,148 @@
                     </div>
                 </div>
 
-                <!-- Filter Tabs - horizontal scrollable -->
-                <div class="flex gap-2 mt-1 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
-                    <button type="button" wire:click="$set('statusFilter', 'menunggu_mitra')" role="tab"
-                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0098e7] shadow-md' : 'bg-white/20 text-white' }}">
-                        Menunggu Mitra
-                    </button>
-                    <button type="button" wire:click="$set('statusFilter', 'diproses')" role="tab"
-                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ $statusFilter === 'diproses' ? 'bg-white text-[#0098e7] shadow-md' : 'bg-white/20 text-white' }}">
-                        Diproses
-                    </button>
-                    <button type="button" wire:click="$set('statusFilter', 'waiting_customer_confirmation')" role="tab"
-                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0098e7] shadow-md' : 'bg-white/20 text-white' }}">
-                        Menunggu Konfirmasi
-                    </button>
-                    <button type="button" wire:click="$set('statusFilter', 'komplain')" role="tab"
-                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md' : 'bg-white/20 text-white' }}">
-                        Komplain & Refund
-                    </button>
-                    <button type="button" wire:click="$set('statusFilter', 'selesai')" role="tab"
-                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ $statusFilter === 'selesai' ? 'bg-white text-[#0098e7] shadow-md' : 'bg-white/20 text-white' }}">
-                        Selesai
-                    </button>
-                    <button type="button" wire:click="$set('statusFilter', 'ditolak')" role="tab"
-                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ $statusFilter === 'ditolak' ? 'bg-white text-red-500 shadow-md' : 'bg-white/20 text-white' }}">
-                        Ditolak
-                    </button>
+                <!-- Filter Tabs dengan Sistem Halaman Penuh (Tampilan Asli, Area Biru Dikebawahkan) -->
+                <div x-data="{
+                    page: {{ in_array($statusFilter, ['komplain', 'selesai', 'ditolak', 'dibatalkan']) ? 2 : 1 }},
+                    startX: 0,
+                    handleTouchStart(e) {
+                        this.startX = e.touches[0].clientX;
+                    },
+                    handleTouchEnd(e) {
+                        const endX = e.changedTouches[0].clientX;
+                        const diff = this.startX - endX;
+                        if (diff > 40 && this.page === 1) {
+                            this.page = 2;
+                        } else if (diff < -40 && this.page === 2) {
+                            this.page = 1;
+                        }
+                    }
+                }"
+                class="mt-3.5">
+                    <div class="flex items-center gap-1.5">
+                        <!-- Tombol Panah Kiri -->
+                        <button type="button"
+                            @click="page = 1"
+                            :disabled="page === 1"
+                            :class="page === 2 ? 'opacity-100 hover:bg-white/30 active:scale-95 cursor-pointer shadow-sm' : 'invisible pointer-events-none'"
+                            class="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center flex-shrink-0 transition-all"
+                            aria-label="Halaman tab sebelumnya">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        <!-- Wrapper Slide Halaman Penuh (Grid Stack - Bebas Glitch Geser Fokus) -->
+                        <div class="flex-1 grid grid-cols-1 grid-rows-1 overflow-hidden" style="overflow: clip;"
+                            @touchstart.passive="handleTouchStart($event)"
+                            @touchend.passive="handleTouchEnd($event)">
+
+                            <!-- Halaman 1 (3 Menu Utama) -->
+                            <div x-show="page === 1"
+                                x-transition:enter="transition-all duration-200 ease-out"
+                                x-transition:enter-start="opacity-0 -translate-x-3"
+                                x-transition:enter-end="opacity-100 translate-x-0"
+                                x-transition:leave="transition-all duration-100 ease-in"
+                                x-transition:leave-start="opacity-100 translate-x-0"
+                                x-transition:leave-end="opacity-0 -translate-x-3"
+                                class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
+                                <button type="button" wire:key="tab-menunggu-mitra" @click="page = 1" wire:click="$set('statusFilter', 'menunggu_mitra')" role="tab"
+                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0098e7] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    Menunggu Mitra
+                                </button>
+
+                                <button type="button" wire:key="tab-diproses" @click="page = 1" wire:click="$set('statusFilter', 'diproses')" role="tab"
+                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0098e7] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    Diproses
+                                </button>
+
+                                <button type="button" wire:key="tab-waiting-confirmation" @click="page = 1" wire:click="$set('statusFilter', 'waiting_customer_confirmation')" role="tab"
+                                    class="flex-1 text-center py-1.5 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0098e7] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    Menunggu Konfirmasi
+                                </button>
+                            </div>
+
+                            <!-- Halaman 2 (3 Menu Lanjutan) -->
+                            <div x-show="page === 2"
+                                x-transition:enter="transition-all duration-200 ease-out"
+                                x-transition:enter-start="opacity-0 translate-x-3"
+                                x-transition:enter-end="opacity-100 translate-x-0"
+                                x-transition:leave="transition-all duration-100 ease-in"
+                                x-transition:leave-start="opacity-100 translate-x-0"
+                                x-transition:leave-end="opacity-0 translate-x-3"
+                                class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
+                                <button type="button" wire:key="tab-komplain" @click="page = 2" wire:click="$set('statusFilter', 'komplain')" role="tab"
+                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    Komplain & Refund
+                                </button>
+
+                                <button type="button" wire:key="tab-selesai" @click="page = 2" wire:click="$set('statusFilter', 'selesai')" role="tab"
+                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0098e7] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    Selesai
+                                </button>
+
+                                <button type="button" wire:key="tab-dibatalkan" @click="page = 2" wire:click="$set('statusFilter', 'dibatalkan')" role="tab"
+                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    Dibatalkan
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Panah Kanan -->
+                        <button type="button"
+                            @click="page = 2"
+                            :disabled="page === 2"
+                            :class="page === 1 ? 'opacity-100 hover:bg-white/30 active:scale-95 cursor-pointer shadow-sm' : 'invisible pointer-events-none'"
+                            class="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center flex-shrink-0 transition-all"
+                            aria-label="Halaman tab berikutnya">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Indikator Halaman (Dot Indicator) -->
+                    <div class="flex justify-center items-center gap-1.5 mt-2">
+                        <button type="button" @click="page = 1" :class="page === 1 ? 'w-4 bg-white' : 'w-1.5 bg-white/40'" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer" aria-label="Halaman 1"></button>
+                        <button type="button" @click="page = 2" :class="page === 2 ? 'w-4 bg-white' : 'w-1.5 bg-white/40'" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer" aria-label="Halaman 2"></button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Curved separator (SVG) to create non-flat divider into content -->
-            <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            <!-- Curved separator (SVG) pembatas gelombang yang melengkung anggun di bawah tab -->
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
+                <path d="M0,32 C420,68 1020,12 1440,32 L1440,72 L0,72 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
-        <!-- Content -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6 min-h-[60vh]"> 
+        <!-- Content (Menyambung langsung secara mulus dengan lengkungan putih di atasnya) -->
+        <div class="bg-white px-5 pt-2.5 pb-6 min-h-[60vh] -mt-[1px]">  
             <div class="space-y-4">
+                
+                <!-- INPUT SEARCH BAR -->
+                <div class="mb-4">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </span>
+                        <input type="text" 
+                            wire:model.live.debounce.300ms="search" 
+                            placeholder="Cari bantuan, kategori, rekan jasa, atau lokasi..." 
+                            class="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0098e7]/20 focus:border-[#0098e7] focus:bg-white transition">
+                        @if(!empty($search))
+                            <button type="button" wire:click="resetSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 rounded-full hover:bg-gray-200 transition" title="Hapus pencarian">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+
                 {{-- Loading skeleton --}}
-                <div wire:loading wire:target="statusFilter" class="space-y-3">
+                <div wire:loading wire:target="statusFilter, search" class="space-y-3">
                     @for($i=0;$i<4;$i++)
                         <div class="bg-gray-50 rounded-2xl p-4 card-shadow animate-pulse">
                             <div class="flex items-center gap-3">
@@ -131,17 +234,17 @@
                 </div>
 
                 {{-- List based on filter --}}
-                <div wire:loading.remove wire:target="statusFilter" class="space-y-4">
+                <div wire:loading.remove wire:target="statusFilter, search" class="space-y-4">
                 @forelse($helps as $help)
                     @if($statusFilter === 'menunggu_mitra')
                         {{-- Simple Menunggu Mitra Card --}}
-                        <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100">
+                        <div class="bg-white rounded-2xl p-4 shadow-xs hover:shadow-md transition-all border border-gray-100">
                             <div class="flex items-start gap-3">
-                                <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                <div class="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50/70 border border-blue-100/60 flex items-center justify-center flex-shrink-0 shadow-2xs">
                                     @if($help->photo)
                                         <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
                                     @else
-                                        <div class="w-full h-full flex items-center justify-center text-lg">
+                                        <div class="w-full h-full flex items-center justify-center text-xl">
                                             {{ $help->category?->icon ?? '📦' }}
                                         </div>
                                     @endif
@@ -149,40 +252,81 @@
 
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between gap-2 mb-1">
-                                        <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
-                                        <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <h3 class="font-bold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                            @if($help->isUrgent())
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                @if($help->auto_cancel_at && in_array($help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra']))
+                                                    @php
+                                                        $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
+                                                        $minsLeft = (int) ceil($secsLeft / 60);
+                                                    @endphp
+                                                    @if($secsLeft > 0)
+                                                        <span x-data="{
+                                                            target: new Date('{{ $help->auto_cancel_at->toIso8601String() }}').getTime(),
+                                                            label: '{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}',
+                                                            init() {
+                                                                this.update();
+                                                                setInterval(() => this.update(), 5000);
+                                                            },
+                                                            update() {
+                                                                const diff = this.target - Date.now();
+                                                                if (diff <= 0) {
+                                                                    this.label = 'Waktu habis';
+                                                                    if (window.Livewire) { $wire.$refresh(); }
+                                                                    return;
+                                                                }
+                                                                const m = Math.ceil(diff / 60000);
+                                                                this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
+                                                            }
+                                                        }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
+                                                            ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
+                                                        </span>
+                                                    @endif
+                                                @endif
+                                            @endif
+                                        </div>
+                                        <span class="text-sm font-extrabold whitespace-nowrap text-[#0098e7]">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                     </div>
 
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(255, 159, 67, 0.08); color:#ff8a00; border:1px solid rgba(255,159,67,0.12);">
-                                            @if($help->status === 'menunggu_mitra')
-                                                Menunggu Mitra
-                                            @else
-                                                {{ ucfirst(str_replace('_',' ', $help->status)) }}
-                                            @endif
+                                    <div class="flex items-center gap-1.5 mb-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                            Menunggu Mitra
                                         </span>
+                                        <span class="text-gray-300">•</span>
                                         <span class="text-xs text-gray-400">{{ optional($help->created_at)->diffForHumans() }}</span>
                                     </div>
 
-                                    <p class="text-xs text-gray-600 line-clamp-2 mb-3">{{ Str::limit($help->description, 100) }}</p>
-                                    @if($help->scheduled_at)
-                                        <div class="text-xs text-gray-500 mb-2">📅 {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d M Y, H:i') }}</div>
+                                    @if(!empty($help->partner_cancel_requested_at))
+                                        <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                                            <p class="font-semibold text-amber-900">⚠️ Rekan Jasa Berhalangan:</p>
+                                            <p class="italic text-[11px] text-amber-800">"{{ $help->partner_cancel_reason ?: 'Kendala darurat di jalan' }}"</p>
+                                            <p class="text-[10px] text-amber-700 mt-1 font-medium">⚡ Sistem otomatis mencari Rekan Jasa pengganti.</p>
+                                        </div>
                                     @endif
 
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
+                                    <p class="text-xs text-gray-600 line-clamp-2 mb-2 leading-relaxed">{{ Str::limit($help->description, 100) }}</p>
+                                    @php
+                                        $displayDate = $help->scheduled_at ?? $help->created_at;
+                                    @endphp
+                                    @if($displayDate)
+                                        <div class="text-xs text-gray-500 bg-gray-50/80 px-2.5 py-1 rounded-lg border border-gray-100 inline-block mb-3">📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
+                                    @endif
+
+                                    <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
+                                        <span class="text-xs text-gray-500 font-medium">📍 {{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
-                                        <div class="flex items-center gap-2">
-                                            <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md text-xs hover:bg-gray-200 transition">Detail</a>
-                                            <button type="button" wire:click.stop="editHelp({{ $help->id }})" class="px-3 py-1.5 bg-blue-500 text-white rounded-md text-xs hover:bg-blue-600 transition">Edit</button>
-                                            <button type="button" wire:click.stop="confirmDelete({{ $help->id }})" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-md text-xs hover:bg-red-100 transition">Batalkan</button>
+                                        <div class="flex items-center gap-1.5">
+                                            <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">Detail</a>
+                                            <button type="button" wire:click.stop="editHelp({{ $help->id }})" class="px-3 py-1.5 bg-[#0098e7] hover:bg-[#0086cc] text-white rounded-lg text-xs font-semibold transition shadow-2xs active:scale-95">Edit</button>
+                                            <button type="button" wire:click.stop="confirmDelete({{ $help->id }})" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-semibold transition border border-red-200/80 active:scale-95">Batalkan</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @elseif($statusFilter === 'diproses')
-                        {{-- Diproses: tampilkan semua bantuan dalam proses (query sudah filter) --}}
+                        {{-- Diproses Card --}}
                         <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100">
                             <div class="flex items-start gap-3">
                                 <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
@@ -197,7 +341,12 @@
 
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between gap-2 mb-1">
-                                        <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                            @if($help->isUrgent())
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                            @endif
+                                        </div>
                                         <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                     </div>
 
@@ -232,8 +381,11 @@
                                     @endif
 
                                     <p class="text-xs text-gray-600 line-clamp-2 mb-3">{{ Str::limit($help->description, 100) }}</p>
-                                    @if($help->scheduled_at)
-                                        <div class="text-xs text-gray-500 mb-2">📅 {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d M Y, H:i') }}</div>
+                                    @php
+                                        $displayDate = $help->scheduled_at ?? $help->created_at;
+                                    @endphp
+                                    @if($displayDate)
+                                        <div class="text-xs text-gray-500 mb-2">📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
                                     @endif
 
                                     <div class="flex items-center gap-3">
@@ -251,16 +403,16 @@
                                                 </div>
                                             @endif
 
-                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-9 h-9 rounded-xl text-white hover:shadow-md transition" style="background: linear-gradient(135deg, #0098e7 0%, #00b8d4 100%);" aria-label="Buka chat">
+                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0098e7] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" title="Buka Chat" aria-label="Buka Chat">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.8L3 20l1.2-4A7.963 7.963 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                 </svg>
                                             </a>
                                         </div>
                                     </div>
 
-                                    <div class="mt-3 flex items-center justify-end gap-2">
-                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-5 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition w-32 text-center">
+                                    <div class="mt-2.5 flex items-center justify-end gap-1.5 pt-2 border-t border-gray-100">
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">
                                             Detail
                                         </a>
                                     </div>
@@ -268,7 +420,7 @@
                             </div>
                         </div>
                     @elseif($statusFilter === 'waiting_customer_confirmation')
-                        {{-- Menunggu Konfirmasi: bantuan yang mitra sudah tandai selesai dan menunggu konfirmasi customer --}}
+                        {{-- Menunggu Konfirmasi Card --}}
                         <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100">
                             <div class="flex items-start gap-3">
                                 <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
@@ -283,20 +435,36 @@
 
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between gap-2 mb-1">
-                                        <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                            @if($help->isUrgent())
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                            @endif
+                                        </div>
                                         <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                     </div>
 
-                                    <div class="flex items-center gap-2 mb-2">
+                                    <div class="flex items-center gap-2 mb-2 flex-wrap">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(255, 159, 67, 0.08); color:#ff8a00; border:1px solid rgba(255,159,67,0.12);">
                                             Menunggu Konfirmasi Anda
                                         </span>
+                                        @php
+                                            $cDeadline = $help->getCustomerConfirmationDeadline();
+                                        @endphp
+                                        @if($cDeadline)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200" title="Batas waktu konfirmasi 24 jam">
+                                                ⏱️ Otomatis selesai {{ $cDeadline->diffForHumans() }}
+                                            </span>
+                                        @endif
                                         <span class="text-xs text-gray-400">{{ optional($help->service_completed_at)->diffForHumans() }}</span>
                                     </div>
 
                                     <p class="text-xs text-gray-600 line-clamp-2 mb-3">{{ Str::limit($help->description, 100) }}</p>
-                                    @if($help->scheduled_at)
-                                        <div class="text-xs text-gray-500 mb-2">📅 {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d M Y, H:i') }}</div>
+                                    @php
+                                        $displayDate = $help->scheduled_at ?? $help->created_at;
+                                    @endphp
+                                    @if($displayDate)
+                                        <div class="text-xs text-gray-500 mb-2">📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
                                     @endif
 
                                     <div class="flex items-center gap-3">
@@ -314,20 +482,20 @@
                                                 </div>
                                             @endif
 
-                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-white hover:shadow-md transition" style="background: linear-gradient(135deg, #0098e7 0%, #00b8d4 100%);" aria-label="Buka chat">
+                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0098e7] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" title="Buka Chat" aria-label="Buka Chat">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.8L3 20l1.2-4A7.963 7.963 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                 </svg>
                                             </a>
                                         </div>
                                     </div>
 
-                                    <div class="mt-3 flex items-center justify-end gap-2">
-                                        <button type="button" wire:click.stop="confirmCompletion({{ $help->id }})" class="px-5 py-2 bg-emerald-500 text-white rounded-lg text-sm font-semibold hover:bg-emerald-600 transition w-32">
+                                    <div class="mt-2.5 flex items-center justify-end gap-1.5 pt-2 border-t border-gray-100">
+                                        <button type="button" wire:click.stop="confirmCompletion({{ $help->id }})" class="inline-flex items-center justify-center px-3.5 h-8 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold transition active:scale-95 shadow-xs">
                                             Konfirmasi
                                         </button>
 
-                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-5 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition w-32 text-center">
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">
                                             Detail
                                         </a>
                                     </div>
@@ -335,7 +503,7 @@
                             </div>
                         </div>
                     @elseif($statusFilter === 'selesai')
-                        {{-- Completed (selesai) Card - History Style with Expandable Detail --}}
+                        {{-- Selesai Card with Expandable Detail --}}
                         @php
                             $hasRatedThis = \App\Models\Rating::hasRated($help->id, auth()->id(), 'customer_to_mitra');
                         @endphp
@@ -353,7 +521,12 @@
                                     </div>
 
                                     <div class="flex-1 min-w-0">
-                                        <h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
+                                            @if($help->isUrgent())
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                            @endif
+                                        </div>
                                         <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} • {{ optional($help->updated_at)->format('d M Y') }}</p>
                                     </div>
 
@@ -465,31 +638,59 @@
                                             </div>
                                         @endif
                                     @endif
+
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
+                                        <div class="flex-1"></div>
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                            Detail
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    @elseif($statusFilter === 'ditolak')
-                        {{-- Ditolak Card --}}
-                        <div class="bg-white rounded-xl p-3.5 shadow-sm border border-red-100">
+                    @elseif(in_array($statusFilter, ['ditolak', 'dibatalkan']))
+                        {{-- Dibatalkan & Ditolak Card --}}
+                        <div class="bg-white rounded-xl p-3.5 shadow-sm border border-gray-100 hover:shadow-md transition">
                             <div class="flex items-start gap-3">
-                                <div class="w-12 h-12 rounded-lg overflow-hidden bg-red-50 flex-shrink-0 flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                <div class="w-12 h-12 rounded-lg overflow-hidden {{ in_array($help->status, ['rejected', 'ditolak']) ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500' }} flex-shrink-0 flex items-center justify-center">
+                                    @if(in_array($help->status, ['rejected', 'ditolak']))
+                                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    @else
+                                        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                    @endif
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between gap-2">
-                                        <div>
-                                            <p class="font-semibold text-gray-900 text-sm">{{ $help->title }}</p>
+                                        <div class="min-w-0">
+                                            <p class="font-semibold text-gray-900 text-sm truncate">{{ $help->title }}</p>
                                             <p class="text-xs text-gray-400 mt-0.5">{{ optional($help->category)->name }} • {{ optional($help->city)->name }}</p>
                                         </div>
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-600 border border-red-100 whitespace-nowrap">Ditolak</span>
+                                        @if(in_array($help->status, ['rejected', 'ditolak']))
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-100 whitespace-nowrap">Ditolak Admin</span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-100 whitespace-nowrap">Dibatalkan</span>
+                                        @endif
                                     </div>
-                                    @if($help->admin_notes)
-                                    <div class="mt-2 bg-red-50 rounded-lg px-3 py-2">
-                                        <p class="text-xs font-semibold text-red-700 mb-0.5">Alasan Penolakan:</p>
-                                        <p class="text-xs text-red-800">{{ $help->admin_notes }}</p>
-                                    </div>
+
+                                    @if(in_array($help->status, ['rejected', 'ditolak']) && $help->admin_notes)
+                                        <div class="mt-2 bg-red-50 rounded-lg px-3 py-2 border border-red-100">
+                                            <p class="text-xs font-semibold text-red-700 mb-0.5">Alasan Penolakan Admin:</p>
+                                            <p class="text-xs text-red-800">{{ $help->admin_notes }}</p>
+                                        </div>
+                                    @elseif($help->customer_cancel_reason)
+                                        <div class="mt-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
+                                            <p class="text-xs font-semibold text-gray-700 mb-0.5">Alasan Pembatalan:</p>
+                                            <p class="text-xs text-gray-600">{{ $help->customer_cancel_reason }}</p>
+                                        </div>
                                     @endif
-                                    <p class="text-xs text-gray-400 mt-2">{{ optional($help->created_at)->diffForHumans() }}</p>
+
+                                    <div class="mt-2.5 flex items-center justify-between text-xs text-gray-400">
+                                        <span>{{ optional($help->created_at)->diffForHumans() }}</span>
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition">
+                                            Detail
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -509,7 +710,12 @@
 
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between gap-2 mb-1">
-                                        <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                            @if($help->isUrgent())
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                            @endif
+                                        </div>
                                         <span class="text-xs font-bold whitespace-nowrap text-red-600">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                     </div>
 
@@ -542,280 +748,37 @@
                                 </div>
                             </div>
                         </div>
-                    @else
-                        {{-- Tab "Semua": Render card based on actual help status --}}
-                        @if($help->status === 'menunggu_mitra')
-                            {{-- Menunggu Mitra Card --}}
-                            <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                                        @if($help->photo)
-                                            <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
-                                        @else
-                                            <div class="w-full h-full flex items-center justify-center text-lg">
-                                                {{ ['🩺', '🏠', '💡', '🔧', '🎯'][($loop->index) % 5] }}
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-start justify-between gap-2 mb-1">
-                                            <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
-                                            <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
-                                        </div>
-
-                                        <div class="flex items-center gap-2 mb-2">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(255, 159, 67, 0.08); color:#ff8a00; border:1px solid rgba(255,159,67,0.12);">
-                                                Menunggu Mitra
-                                            </span>
-                                            <span class="text-xs text-gray-400">{{ optional($help->created_at)->diffForHumans() }}</span>
-                                        </div>
-
-                                        <p class="text-xs text-gray-600 line-clamp-2 mb-3">{{ Str::limit($help->description, 100) }}</p>
-
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
-                                            <div class="flex-1"></div>
-                                            <div class="flex items-center gap-2">
-                                                <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md text-xs hover:bg-gray-200 transition">Detail</a>
-                                                <button type="button" wire:click.stop="editHelp({{ $help->id }})" class="px-3 py-1.5 bg-blue-500 text-white rounded-md text-xs hover:bg-blue-600 transition">Edit</button>
-                                                <button type="button" wire:click.stop="confirmDelete({{ $help->id }})" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-md text-xs hover:bg-red-100 transition">Batalkan</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @elseif($help->status === 'memperoleh_mitra')
-                            {{-- Diproses Card --}}
-                            <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                                        @if($help->photo)
-                                            <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
-                                        @else
-                                            <div class="w-full h-full flex items-center justify-center text-lg">
-                                                {{ ['🩺', '🏠', '💡', '🔧', '🎯'][($loop->index) % 5] }}
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-start justify-between gap-2 mb-1">
-                                            <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
-                                            <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
-                                        </div>
-
-                                        <div class="flex items-center gap-2 mb-2">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(56,189,248,0.08); color:#0284c7; border:1px solid rgba(3,105,161,0.08);">
-                                                Sedang Diproses
-                                            </span>
-                                            <span class="text-xs text-gray-400">{{ optional($help->created_at)->diffForHumans() }}</span>
-                                        </div>
-
-                                        <p class="text-xs text-gray-600 line-clamp-2 mb-3">{{ Str::limit($help->description, 100) }}</p>
-
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
-                                            <div class="flex-1"></div>
-                                            <div class="flex items-center gap-2">
-                                                @if($help->mitra)
-                                                    <div class="flex items-center gap-1.5">
-                                                        <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
-                                                            <svg class="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                                            </svg>
-                                                        </div>
-                                                        <span class="text-xs text-gray-700 font-medium">{{ $help->mitra->name }}</span>
-                                                    </div>
-                                                @endif
-
-                                                <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-9 h-9 rounded-xl text-white hover:shadow-md transition" style="background: linear-gradient(135deg, #0098e7 0%, #00b8d4 100%);" aria-label="Buka chat">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.8L3 20l1.2-4A7.963 7.963 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                        </div>
-
-                                        <div class="mt-3 flex items-center justify-end gap-2">
-                                            <button type="button" wire:click.stop="confirmCompletion({{ $help->id }})" class="px-5 py-2 bg-emerald-500 text-white rounded-lg text-sm font-semibold hover:bg-emerald-600 transition w-32">
-                                                Selesai
-                                            </button>
-
-                                            <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-5 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition w-32 text-center">
-                                                Detail
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @elseif($help->status === 'selesai')
-                            {{-- Selesai Card with Rating --}}
-                            <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                                        @if($help->photo)
-                                            <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
-                                        @else
-                                            <div class="w-full h-full flex items-center justify-center text-lg">
-                                                {{ ['🩺', '🏠', '💡', '🔧', '🎯'][($loop->index) % 5] }}
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-start justify-between gap-2 mb-1">
-                                            <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
-                                            <span class="text-xs font-bold whitespace-nowrap text-green-600">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
-                                        </div>
-
-                                        <div class="flex items-center gap-2 mb-2">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-                                                ✓ Selesai
-                                            </span>
-                                            <span class="text-xs text-gray-400">{{ optional($help->completed_at)->diffForHumans() ?? optional($help->created_at)->diffForHumans() }}</span>
-                                        </div>
-
-                                        <p class="text-xs text-gray-600 line-clamp-1 mb-2">{{ Str::limit($help->description, 100) }}</p>
-
-                                        @if($help->mitra)
-                                            <div class="flex items-center gap-1.5 mb-2">
-                                                <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
-                                                    <svg class="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                                    </svg>
-                                                </div>
-                                                <span class="text-xs text-gray-700 font-medium">{{ $help->mitra->name }}</span>
-                                            </div>
-                                        @endif
-
-                                        @php
-                                            $userRating = $help->rating ?? null;
-                                            $hasRated = $userRating && $userRating->rating > 0;
-                                        @endphp
-
-                                        @if($hasRated)
-                                            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
-                                                <div class="flex items-center gap-2 mb-1">
-                                                    <span class="text-sm font-semibold text-gray-700">Rating Anda:</span>
-                                                    <div class="flex items-center gap-1">
-                                                        @for($i = 1; $i <= 5; $i++)
-                                                            <svg class="w-5 h-5 {{ $i <= $userRating->rating ? 'text-yellow-400' : 'text-gray-300' }}" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                            </svg>
-                                                        @endfor
-                                                    </div>
-                                                </div>
-                                                @if($userRating->review)
-                                                    <p class="text-sm text-gray-600 italic">"{{ $userRating->review }}"</p>
-                                                @endif
-                                            </div>
-                                        @else
-                                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                                                <p class="text-sm font-semibold text-gray-700 mb-2">Beri Rating:</p>
-                                                <div class="flex items-center gap-2 mb-3">
-                                                    @for($i = 1; $i <= 5; $i++)
-                                                        <button type="button" wire:click="setRating({{ $help->id }}, {{ $i }})" class="focus:outline-none transition transform hover:scale-110">
-                                                            <svg class="w-6 h-6 {{ ($pendingHelpForRating === $help->id && $pendingRating >= $i) ? 'text-yellow-400' : 'text-gray-300' }}" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                            </svg>
-                                                        </button>
-                                                    @endfor
-                                                </div>
-
-                                                @if($pendingHelpForRating === $help->id && $pendingRating)
-                                                    <textarea wire:model.defer="ratingComment" rows="3" placeholder="Tulis ulasan Anda (opsional)" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-200 resize-none mb-2"></textarea>
-                                                    
-                                                    <div class="mb-3 bg-white/70 p-2 rounded-lg border border-blue-100">
-                                                        <label class="flex items-center gap-2 cursor-pointer select-none">
-                                                            <input type="checkbox" wire:model.defer="isAnonymous" class="w-3.5 h-3.5 text-blue-500 rounded border-gray-300">
-                                                            <span class="text-xs text-gray-700 font-medium">Beri ulasan sebagai Anonim (Sembunyikan nama)</span>
-                                                        </label>
-                                                    </div>
-
-                                                    <button type="button" wire:click="submitRating({{ $help->id }})" class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-semibold hover:bg-blue-600 transition">
-                                                        Kirim Rating
-                                                    </button>
-                                                @endif
-                                            </div>
-                                        @endif
-
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
-                                            <div class="flex-1"></div>
-                                            <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
-                                                Detail
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @elseif($help->status === 'komplain' || $help->status === 'disputed' || $help->complaint_resolution === 'refunded')
-                            {{-- Komplain / Refund Card --}}
-                            <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-red-100">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-red-50 flex-shrink-0 flex items-center justify-center">
-                                        @if($help->complaint_photo)
-                                            <img src="{{ asset('storage/' . $help->complaint_photo) }}" alt="Bukti Komplain" class="w-full h-full object-cover">
-                                        @elseif($help->photo)
-                                            <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
-                                        @else
-                                            <span class="text-xl">⚠️</span>
-                                        @endif
-                                    </div>
-
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-start justify-between gap-2 mb-1">
-                                            <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
-                                            <span class="text-xs font-bold whitespace-nowrap text-red-600">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
-                                        </div>
-
-                                        <div class="flex items-center gap-2 mb-2 flex-wrap">
-                                            @if($help->complaint_resolution === 'refunded')
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
-                                                    ✓ Refund Disetujui
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 animate-pulse">
-                                                    ⚠️ Dalam Mediasi Admin
-                                                </span>
-                                            @endif
-                                            <span class="text-xs text-gray-400">{{ optional($help->complaint_submitted_at ?? $help->updated_at)->diffForHumans() }}</span>
-                                        </div>
-
-                                        @if($help->complaint_reason)
-                                            <div class="bg-gray-50 p-2.5 rounded-lg text-xs text-gray-700 line-clamp-2 mb-2 border border-gray-100">
-                                                <span class="font-bold text-gray-800">Alasan Komplain:</span> {{ $help->complaint_reason }}
-                                            </div>
-                                        @endif
-
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
-                                            <div class="flex-1"></div>
-                                            <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition shadow-xs">
-                                                Detail Mediasi
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
                     @endif
                 @empty
-                    <div class="text-center py-10 bg-white rounded-xl shadow-sm">
-                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                        <p class="text-sm font-semibold text-gray-700">Belum ada permintaan</p>
-                        <p class="text-xs text-gray-500 mt-1">Buat permintaan baru dengan menekan tombol <span class="font-semibold">Tambah</span></p>
-                    </div>
+                    @if(!empty($search))
+                        <div class="text-center py-12 bg-white rounded-2xl border border-gray-100 p-6 shadow-xs">
+                            <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-blue-50 text-[#0098e7] flex items-center justify-center">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <p class="text-sm font-bold text-gray-800">Permintaan tidak ditemukan</p>
+                            <p class="text-xs text-gray-500 mt-1 max-w-xs mx-auto">Tidak ada hasil yang sesuai dengan kata kunci "<span class="font-semibold text-gray-700">{{ $search }}</span>"</p>
+                            <button type="button" wire:click="resetSearch" class="mt-3.5 inline-flex items-center gap-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition active:scale-95">
+                                Reset Pencarian
+                            </button>
+                        </div>
+                    @else
+                        <div class="text-center py-10 bg-white rounded-xl shadow-sm">
+                            <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <p class="text-sm font-semibold text-gray-700">Belum ada permintaan</p>
+                            <p class="text-xs text-gray-500 mt-1">Buat permintaan baru dengan menekan tombol <span class="font-semibold">Tambah</span></p>
+                        </div>
+                    @endif
                 @endforelse
                 </div>
 
                 <div class="mt-4">{{ $helps->links('vendor.pagination.custom') }}</div>
             </div>
         </div>
-    {{-- </div> --}}
+    </div>
 
     <!-- Helper: hide scrollbars for modals -->
     <style>
@@ -844,7 +807,23 @@
                     <!-- Title -->
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">
-                            
+                            <span class="flex items-center">
+                                <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                                Judul Bantuan
+                                <span class="text-red-500 ml-1">*</span>
+                            </span>
+                        </label>
+                        <input type="text" wire:model.defer="editTitle" placeholder="Contoh: Bantu Bersihkan Taman" class="w-full px-3.5 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 transition bg-white shadow-sm">
+                        @error('editTitle') 
+                            <span class="text-red-500 text-xs mt-1.5 block flex items-center">
+                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                                {{ $message }}
+                            </span>
+                        @enderror
                     </div> 
 
                     <!-- Location (Short Address) -->
@@ -855,7 +834,7 @@
                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                 </svg>
                                 Lokasi
-                                <span class="text-gray-400 text-xs ml-1">(Opsional)</span>
+                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <input type="text" wire:model.defer="editLocation" 
@@ -870,7 +849,7 @@
                         @error('editLocation') 
                             <span class="text-red-500 text-xs mt-1.5 block flex items-center">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                                 {{ $message }}
                             </span>
@@ -885,7 +864,7 @@
                                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                                 </svg>
                                 Alamat Lengkap
-                                <span class="text-gray-400 text-xs ml-1">(Opsional)</span>
+                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <textarea wire:model.defer="editFullAddress" rows="3"
@@ -900,7 +879,7 @@
                         @error('editFullAddress') 
                             <span class="text-red-500 text-xs mt-1.5 block flex items-center">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                                 {{ $message }}
                             </span>
@@ -915,7 +894,7 @@
                                     <path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5z" />
                                 </svg>
                                 Kota
-                                <span class="text-gray-400 text-xs ml-1">(Wajib)</span>
+                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <div>
@@ -939,7 +918,7 @@
                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                 </svg>
                                 Tandai Lokasi di Peta
-                                <span class="text-gray-400 text-xs ml-1">(Opsional)</span>
+                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <div id="edit-map" class="w-full h-48 rounded-xl border-2 border-gray-200 shadow-sm mb-2"></div>
@@ -987,7 +966,7 @@
                         @error('editDescription') 
                             <span class="text-red-500 text-xs mt-1.5 block flex items-center">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                                 {{ $message }}
                             </span>
@@ -1017,7 +996,7 @@
                         @error('editEquipmentProvided') 
                             <span class="text-red-500 text-xs mt-1.5 block flex items-center">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                                 {{ $message }}
                             </span>
@@ -1055,7 +1034,7 @@
                         @error('editPhoto') 
                             <span class="text-red-500 text-xs mt-1.5 block flex items-center">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                                 {{ $message }}
                             </span>
@@ -1101,7 +1080,7 @@
         </div>
     @endif
 
-    <!-- Detail Modal (Bottom Sheet Style - sama dengan Edit Modal) -->
+    <!-- Detail Modal (Bottom Sheet Style) -->
     @if($selectedHelpData)
         <div class="fixed inset-0 z-50 flex items-end justify-center" style="background: rgba(0,0,0,0.5);" wire:click="closeHelp">
             <div class="bg-white rounded-t-3xl w-full max-w-md shadow-2xl max-h-[85vh] overflow-y-auto hide-scrollbar" wire:click.stop>
@@ -1205,7 +1184,7 @@
     @endif
 
     <!-- Delete Confirmation Modal (Centered Modal Dialog) -->
-    @if($showDeleteConfirm)
+    @if($showDeleteConfirm ?? false)
         <div class="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity" wire:click="cancelDelete">
             <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-5 overflow-hidden animate-in fade-in zoom-in duration-200" wire:click.stop>
                 <div class="text-center mb-4">
@@ -1255,7 +1234,7 @@
         </div>
     @endif
 
-        {{-- Confirmation Modal for Completing Help --}}
+    {{-- Confirmation Modal for Completing Help --}}
     @if($confirmingHelpId)
         <div data-confirm-modal class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" wire:click="$set('confirmingHelpId', null)">
             <div class="bg-white rounded-lg shadow-md max-w-sm w-full p-5" wire:click.stop>
@@ -1289,10 +1268,8 @@
         let editMap = null;
         let editMarker = null;
 
-        // Initialize map when edit modal opens
         document.addEventListener('DOMContentLoaded', function() {
             window.addEventListener('open-edit', (event) => {
-                // Wait for modal to render
                 setTimeout(() => {
                     const detail = event.detail || event;
                     const lat = detail.latitude || detail[0]?.latitude;
@@ -1303,23 +1280,14 @@
         });
 
         function initEditMap(lat, lng) {
-            // Check if map container exists
             const mapContainer = document.getElementById('edit-map');
-            if (!mapContainer) {
-                console.log('Map container not found');
-                return;
-            }
+            if (!mapContainer) return;
 
-            // Default location (Ponorogo, Jawa Timur)
             const defaultLocation = [-7.8664, 111.4620];
-            
-            // Parse coordinates to numbers
             const parsedLat = lat ? parseFloat(lat) : null;
             const parsedLng = lng ? parseFloat(lng) : null;
-            
             const initialLocation = (parsedLat && parsedLng) ? [parsedLat, parsedLng] : defaultLocation;
 
-            // Destroy existing map if any
             if (editMap) {
                 try {
                     editMap.remove();
@@ -1330,58 +1298,40 @@
                 editMarker = null;
             }
 
-            // Initialize map
             try {
                 editMap = L.map('edit-map').setView(initialLocation, 13);
 
-                // Add OpenStreetMap tiles
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                     maxZoom: 19,
                 }).addTo(editMap);
 
-                // Add existing marker if coordinates exist
                 if (parsedLat && parsedLng) {
-                    editMarker = L.marker([parsedLat, parsedLng], {
-                        draggable: true
-                    }).addTo(editMap);
-
-                    // Update display
+                    editMarker = L.marker([parsedLat, parsedLng], { draggable: true }).addTo(editMap);
                     updateEditCoordinates(parsedLat, parsedLng);
-
-                    // Marker drag event
                     editMarker.on('dragend', function (event) {
                         const position = event.target.getLatLng();
                         updateEditCoordinates(position.lat, position.lng);
                     });
                 }
 
-                // Click event on map to place marker
                 editMap.on('click', function (e) {
                     const clickLat = e.latlng.lat;
                     const clickLng = e.latlng.lng;
 
-                    // Remove old marker if exists
                     if (editMarker) {
                         editMap.removeLayer(editMarker);
                     }
 
-                    // Add new marker
-                    editMarker = L.marker([clickLat, clickLng], {
-                        draggable: true
-                    }).addTo(editMap);
-
-                    // Update coordinates
+                    editMarker = L.marker([clickLat, clickLng], { draggable: true }).addTo(editMap);
                     updateEditCoordinates(clickLat, clickLng);
 
-                    // Marker drag event
                     editMarker.on('dragend', function (event) {
                         const position = event.target.getLatLng();
                         updateEditCoordinates(position.lat, position.lng);
                     });
                 });
 
-                // Try to get user's current location
                 if (navigator.geolocation && !parsedLat && !parsedLng) {
                     navigator.geolocation.getCurrentPosition(
                         (position) => {
@@ -1400,7 +1350,6 @@
 
         function updateEditCoordinates(lat, lng) {
             try {
-                // Ensure lat and lng are numbers
                 const numLat = parseFloat(lat);
                 const numLng = parseFloat(lng);
 
@@ -1409,7 +1358,6 @@
                     return;
                 }
 
-                // Update display
                 const display = document.getElementById('edit-coordinates-display');
                 if (display) {
                     display.classList.remove('hidden');
@@ -1420,7 +1368,6 @@
                     if (lngDisplay) lngDisplay.textContent = numLng.toFixed(6);
                 }
 
-                // Update Livewire properties
                 const latInput = document.getElementById('edit-latitude-input');
                 const lngInput = document.getElementById('edit-longitude-input');
                 
@@ -1439,14 +1386,13 @@
         }
     </script>
 
-    <!-- Detail Modal Map Script (read-only map and optional geocode fallback) -->
+    <!-- Detail Modal Map Script -->
     <script>
         let detailMap = null;
         let detailMarker = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             window.addEventListener('open-detail', (event) => {
-                // Wait for modal to render
                 setTimeout(() => {
                     const detail = event.detail || event;
                     const lat = detail.latitude || detail[0]?.latitude;
@@ -1461,21 +1407,16 @@
             const mapContainer = document.getElementById('detail-map');
             if (!mapContainer) return;
 
-            // Default location
             const defaultLocation = [-7.8664, 111.4620];
-
-            // Parse coordinates
             const parsedLat = lat ? parseFloat(lat) : null;
             const parsedLng = lng ? parseFloat(lng) : null;
 
-            // Remove any existing map
             if (detailMap) {
                 try { detailMap.remove(); } catch(e) { console.log('remove detail map error', e); }
                 detailMap = null;
                 detailMarker = null;
             }
 
-            // If no coords but address exists, try simple Nominatim geocode
             let center = defaultLocation;
             if (parsedLat && parsedLng) {
                 center = [parsedLat, parsedLng];
@@ -1499,7 +1440,6 @@
                     maxZoom: 19,
                 }).addTo(detailMap);
 
-                // Add marker if we have a meaningful center
                 if (center) {
                     detailMarker = L.marker(center).addTo(detailMap);
                     const popupText = address ? address : '{{ addslashes(optional(auth()->user())->name ?? '') }}';

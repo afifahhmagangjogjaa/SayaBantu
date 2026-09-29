@@ -64,20 +64,65 @@
                             </svg>
                             <span class="text-xs font-bold mt-0.5">Bantuan</span>
                         </a>
+                        @php
+                            $activeMitraJobs = 0;
+                            $unreadMitraChats = 0;
+                            if (auth()->check()) {
+                                try {
+                                    $activeMitraJobs = \App\Models\Help::where('mitra_id', auth()->id())
+                                        ->whereIn('status', [
+                                            'memperoleh_mitra',
+                                            'taken',
+                                            'partner_on_the_way',
+                                            'partner_arrived',
+                                            'in_progress',
+                                            'sedang_diproses',
+                                            'partner_cancel_requested',
+                                            'diproses_mitra',
+                                            'waiting_customer_confirmation'
+                                        ])->count();
+                                } catch (\Throwable $e) {}
+
+                                try {
+                                    $unreadMitraChats = \App\Models\Chat::where('mitra_id', auth()->id())
+                                        ->whereNull('read_at')
+                                        ->where('sender_type', 'customer')
+                                        ->count();
+                                } catch (\Throwable $e) {}
+                            }
+                        @endphp
+
                         <a href="{{ route('mitra.helps.processing') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.processing') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M3 5h18v2H3V5zm0 6h12v2H3v-2zm0 6h8v2H3v-2z" />
-                            </svg>
-                            <span class="text-xs font-bold mt-0.5">Diproses</span>
+                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.processing') || request()->routeIs('mitra.helps.completed') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                </svg>
+                                @if($activeMitraJobs > 0)
+                                    <span class="absolute bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center pointer-events-none">
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 ring-1.5 ring-white"></span>
+                                    </span>
+                                @endif
+                            </div>
+                            <span class="text-xs font-bold mt-0.5">Pekerjaan</span>
                         </a>
-                        <a href="{{ route('mitra.helps.completed') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.completed') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <span class="text-xs font-bold mt-0.5">Riwayat</span>
+
+                        <a href="{{ route('mitra.chat') }}"
+                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.chat*') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                @if($unreadMitraChats > 0)
+                                    <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5 items-center justify-center pointer-events-none">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 ring-1.5 ring-white"></span>
+                                    </span>
+                                @endif
+                            </div>
+                            <span class="text-xs font-bold mt-0.5">Chat</span>
                         </a>
                         <a href="{{ route('mitra.profile') }}"
                             class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.profile') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
@@ -95,6 +140,7 @@
 
     @livewireScripts
     @include('partials.help-modal')
+    @include('partials.ktp-rejected-modal')
 
     {{-- Realtime notifications poll component (invisible) --}}
     @livewire('mitra.realtime-notifications')
@@ -201,5 +247,7 @@
         }
     </script>
 </body>
+
+</html>
 
 </html>

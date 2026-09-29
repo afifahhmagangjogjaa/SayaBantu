@@ -156,11 +156,27 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     Route::get('/ajax/cities', [\App\Http\Controllers\Api\CityController::class, 'search'])->name('ajax.cities');
     Route::get('/check-account-status', function () {
         $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'logged_out',
+                'is_blocked' => false,
+                'is_inactive' => false,
+                'should_logout' => true,
+            ]);
+        }
+        $isBlocked = ($user->status === 'blocked');
+        $isInactive = ($user->status === 'inactive');
         return response()->json([
             'status' => $user->status,
-            'is_blocked' => $user->status === 'blocked',
+            'is_blocked' => $isBlocked,
+            'is_inactive' => $isInactive,
+            'should_logout' => ($isBlocked || $isInactive),
         ]);
     })->name('account.status.check');
+
+    // Halaman Tersendiri Detail Surat Peringatan (SP)
+    Route::get('/notifications/sanction/{id}', [\App\Http\Controllers\SanctionNotificationController::class, 'show'])->name('notifications.sanction');
+    Route::post('/notifications/sanction/{id}/acknowledge', [\App\Http\Controllers\SanctionNotificationController::class, 'acknowledge'])->name('notifications.sanction.acknowledge');
 
     // ========================================
     // CUSTOMER ROUTES (Customer/Penerima Bantuan)
@@ -181,21 +197,18 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
         // Transactions
         Route::get('/transactions', \App\Livewire\Customer\Transactions\Index::class)->name('transactions.index');
 
-        // Top Up Saldo Biasa
+        // Top Up Saldo
         Route::get('/topup', \App\Livewire\Customer\TopupRequest::class)->name('topup');
         Route::get('/top-up', \App\Livewire\Customer\TopupRequest::class);
         Route::get('/topup/request', \App\Livewire\Customer\TopupRequest::class)->name('topup.request');
         Route::get('/topup/history', \App\Livewire\Customer\TopupHistory::class)->name('topup.history');
-
-        // Top Up Saldo Instan (Midtrans)
-        Route::get('/topup/instant', \App\Livewire\Customer\Topup::class)->name('topup.instant');
-        Route::get('/topup/midtrans', \App\Livewire\Customer\Topup::class)->name('topup.midtrans');
+        Route::redirect('/topup/instant', '/customer/topup');
+        Route::redirect('/topup/midtrans', '/customer/topup');
 
         // Chat
         Route::get('/chat/{help?}', \App\Livewire\Customer\Chat::class)->name('chat');
 
-        // Ratings
-        Route::get('/ratings', \App\Http\Livewire\Customer\Ratings\Index::class)->name('ratings');
+
 
         // Help & Support
         Route::view('/help-support', 'customer.help-support')->name('help-support');
@@ -241,7 +254,6 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
             return response()->json([
                 'id' => $report->id,
                 'status' => $report->status,
-                'admin_notes' => $report->admin_notes,
                 'resolved_at' => $report->resolved_at?->toIso8601String(),
                 'updated_at' => $report->updated_at?->toIso8601String(),
             ]);
@@ -260,7 +272,7 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     Route::prefix('mitra')->name('mitra.')->middleware('mitra')->group(function () {
         Route::get('/dashboard', \App\Livewire\Mitra\Dashboard\Index::class)->name('dashboard');
         Route::get('/helps', \App\Livewire\Mitra\Helps\AllHelps::class)->name('helps.all');
-        Route::get('/helps/completed', \App\Livewire\Mitra\Helps\CompletedHelps::class)->name('helps.completed');
+        Route::get('/helps/completed', \App\Livewire\Mitra\Helps\ProcessingHelps::class)->name('helps.completed');
         Route::get('/helps/{id}/detail', \App\Livewire\Mitra\Helps\HelpDetail::class)->name('helps.detail');
         Route::get('/profile', \App\Livewire\Mitra\Profile\Index::class)->name('profile');
         Route::get('/profile/edit', \App\Livewire\Mitra\Profile\EditPage::class)->name('profile.edit');
@@ -277,7 +289,6 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
             return response()->json([
                 'id' => $report->id,
                 'status' => $report->status,
-                'admin_notes' => $report->admin_notes,
                 'resolved_at' => $report->resolved_at?->toIso8601String(),
                 'updated_at' => $report->updated_at?->toIso8601String(),
             ]);
@@ -518,6 +529,9 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
     
     Route::get('/helps/approved', \App\Livewire\SuperAdmin\HelpsApproved::class)->name('helps.approved');
     Route::get('/settings/help', \App\Livewire\SuperAdmin\Settings\HelpSettings::class)->name('settings.help');
+    Route::get('/settings/help/fee-pendapatan', \App\Livewire\SuperAdmin\Settings\FeePendapatan::class)->name('pengaturan.bantuan.fee-pendapatan');
+    Route::get('/settings/help/biaya-topup', \App\Livewire\SuperAdmin\Settings\BiayaTopupBank::class)->name('pengaturan.bantuan.biaya-topup');
+    Route::get('/settings/help/tarif-radius', \App\Livewire\SuperAdmin\Settings\TarifRadius::class)->name('pengaturan.bantuan.tarif-radius');
     Route::get('/settings/banners', \App\Livewire\SuperAdmin\Banners::class)->name('settings.banners');
     Route::view('/settings/transactions', 'superadmin.transactions')->name('settings.transactions');
     Route::get('/topup/approvals', \App\Livewire\SuperAdmin\TopupApproval::class)->name('topup.approvals');
@@ -553,6 +567,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/mitra/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('mitra.show');
     Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('users.show');
+    Route::post('/users/{user}/verify-ktp', [\App\Http\Controllers\Admin\AdminUserController::class, 'verifyKtp'])->name('users.verify-ktp');
+    Route::post('/users/{user}/reject-ktp', [\App\Http\Controllers\Admin\AdminUserController::class, 'rejectKtp'])->name('users.reject-ktp');
 
     Route::get('/ratings', [\App\Http\Controllers\Admin\AdminRatingController::class, 'index'])->name('ratings.index');
     Route::get('/ratings/user/{user}', [\App\Http\Controllers\Admin\AdminRatingController::class, 'userRatings'])->name('ratings.user');
@@ -575,25 +591,17 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('/partners/reports/{report}/add-note', [\App\Http\Controllers\Admin\PartnerReportController::class, 'addNote'])->name('partners.reports.add-note');
     Route::post('/partners/reports/{report}/resolve', [\App\Http\Controllers\Admin\PartnerReportController::class, 'resolve'])->name('partners.reports.resolve');
     Route::post('/partners/reports/{report}/reopen', [\App\Http\Controllers\Admin\PartnerReportController::class, 'reopen'])->name('partners.reports.reopen');
+    Route::post('/partners/reports/{report}/sanction', [\App\Http\Controllers\Admin\PartnerReportController::class, 'storeSanction'])->name('partners.reports.sanction');
 
     Route::get('/partners/blocked', [\App\Http\Controllers\Admin\BlockedPartnerController::class, 'index'])->name('partners.blocked');
     Route::post('/partners/blocked/{id}/toggle', [\App\Http\Controllers\Admin\BlockedPartnerController::class, 'toggle'])->name('partners.blocked.toggle');
     Route::post('/partners/toggle/{id}', [\App\Http\Controllers\Admin\BlockedPartnerController::class, 'toggle'])->name('partners.toggle');
+    Route::post('/partners/{id}/toggle-shadow-ban', [\App\Http\Controllers\Admin\BlockedPartnerController::class, 'toggleShadowBan'])->name('partners.toggle-shadow-ban');
 
     Route::get('/topup/approvals', \App\Livewire\Admin\TopupApproval::class)->name('topup.approvals');
+    Route::get('/notifications', \App\Livewire\Admin\NotificationsIndex::class)->name('notifications.index');
 });
 
-// ========================================
-// MIDTRANS PAYMENT ROUTES (Public - No Auth)
-// ========================================
-Route::prefix('topup')->name('topup.')->group(function () {
-    Route::get('/finish', [\App\Http\Controllers\TopupController::class, 'finish'])->name('finish');
-    Route::get('/unfinish', [\App\Http\Controllers\TopupController::class, 'unfinish'])->name('unfinish');
-    Route::get('/error', [\App\Http\Controllers\TopupController::class, 'error'])->name('error');
-    Route::get('/success', [\App\Http\Controllers\TopupController::class, 'success'])->name('success');
-    Route::post('/notification', [\App\Http\Controllers\TopupController::class, 'notification'])->name('notification');
-    Route::post('/client-callback', [\App\Http\Controllers\TopupController::class, 'clientCallback'])->name('client-callback');
-});
 
 // Public callback endpoint for withdraw disbursements
 Route::post('/gateway/callback', [\App\Http\Controllers\WithdrawController::class, 'gatewayCallback'])->name('gateway.callback');

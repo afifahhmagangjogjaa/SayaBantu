@@ -437,19 +437,21 @@
                                         </div>
                                     @endforeach
                                 </div>
-                                <button type="button" data-role="prev" data-target="customer"
-                                    class="absolute left-2.5 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow hover:bg-white opacity-0 group-hover:opacity-100 transition-all hover:scale-110 cursor-pointer z-20">
-                                    <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
-                                </button>
-                                <button type="button" data-role="next" data-target="customer"
-                                    class="absolute right-2.5 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow hover:bg-white opacity-0 group-hover:opacity-100 transition-all hover:scale-110 cursor-pointer z-20">
-                                    <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
-                                </button>
-                                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-                                    @foreach($customerBanners as $index => $b)
-                                        <div class="customer-dot w-2 h-2 rounded-full bg-white/60 transition-all duration-300" data-index="{{ $index }}"></div>
-                                    @endforeach
-                                </div>
+                                @if(count($customerBanners) > 1)
+                                    <button type="button" data-role="prev" data-target="customer"
+                                        class="absolute left-2.5 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow hover:bg-white opacity-75 group-hover:opacity-100 transition-all hover:scale-110 cursor-pointer z-20">
+                                        <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
+                                    </button>
+                                    <button type="button" data-role="next" data-target="customer"
+                                        class="absolute right-2.5 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow hover:bg-white opacity-75 group-hover:opacity-100 transition-all hover:scale-110 cursor-pointer z-20">
+                                        <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
+                                    </button>
+                                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                                        @foreach($customerBanners as $index => $b)
+                                            <div class="customer-dot w-2 h-2 rounded-full bg-white/60 transition-all duration-300" data-index="{{ $index }}"></div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         @else
                             <div class="h-full flex flex-col items-center justify-center text-center px-6">
@@ -486,19 +488,21 @@
                                         </div>
                                     @endforeach
                                 </div>
-                                <button type="button" data-role="prev" data-target="mitra"
-                                    class="absolute left-2.5 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow hover:bg-white opacity-0 group-hover:opacity-100 transition-all hover:scale-110 cursor-pointer z-20">
-                                    <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
-                                </button>
-                                <button type="button" data-role="next" data-target="mitra"
-                                    class="absolute right-2.5 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow hover:bg-white opacity-0 group-hover:opacity-100 transition-all hover:scale-110 cursor-pointer z-20">
-                                    <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
-                                </button>
-                                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-                                    @foreach($mitraBanners as $index => $b)
-                                        <div class="mitra-dot w-2 h-2 rounded-full bg-white/60 transition-all duration-300" data-index="{{ $index }}"></div>
-                                    @endforeach
-                                </div>
+                                @if(count($mitraBanners) > 1)
+                                    <button type="button" data-role="prev" data-target="mitra"
+                                        class="absolute left-2.5 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow hover:bg-white opacity-75 group-hover:opacity-100 transition-all hover:scale-110 cursor-pointer z-20">
+                                        <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
+                                    </button>
+                                    <button type="button" data-role="next" data-target="mitra"
+                                        class="absolute right-2.5 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow hover:bg-white opacity-75 group-hover:opacity-100 transition-all hover:scale-110 cursor-pointer z-20">
+                                        <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
+                                    </button>
+                                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                                        @foreach($mitraBanners as $index => $b)
+                                            <div class="mitra-dot w-2 h-2 rounded-full bg-white/60 transition-all duration-300" data-index="{{ $index }}"></div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         @else
                             <div class="h-full flex flex-col items-center justify-center text-center px-6">
@@ -655,6 +659,28 @@
                         }
                     };
                 }
+
+                // Touch swipe support in preview
+                let touchStartX = 0;
+                sliderEl.addEventListener('touchstart', function(e) {
+                    if (total <= 1) return;
+                    if (activeIntervals[prefix]) clearInterval(activeIntervals[prefix]);
+                    touchStartX = e.touches[0].clientX;
+                }, { passive: true });
+
+                sliderEl.addEventListener('touchend', function(e) {
+                    if (total <= 1) return;
+                    const diffX = touchStartX - e.changedTouches[0].clientX;
+                    if (diffX > 40) {
+                        next();
+                    } else if (diffX < -40) {
+                        prev();
+                    }
+                    if (activeIntervals[prefix]) {
+                        clearInterval(activeIntervals[prefix]);
+                        activeIntervals[prefix] = setInterval(next, 3500);
+                    }
+                }, { passive: true });
             }
 
             window.initBannerSliders = function () {

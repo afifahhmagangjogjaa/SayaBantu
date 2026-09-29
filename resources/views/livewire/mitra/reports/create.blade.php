@@ -346,14 +346,7 @@
                                 {{ $resRep->message }}
                             </div>
 
-                            @if(!empty($resRep->admin_notes))
-                                <div class="mt-2 p-3 {{ $isRej ? 'bg-red-50 border border-red-200' : 'bg-emerald-50 border border-emerald-200' }} rounded-xl text-xs">
-                                    <strong class="{{ $isRej ? 'text-red-950' : 'text-emerald-950' }} block mb-0.5">
-                                        {{ $isRej ? 'Alasan / Catatan Penolakan Admin:' : 'Catatan Tindakan Admin:' }}
-                                    </strong>
-                                    <p class="{{ $isRej ? 'text-red-900' : 'text-emerald-900' }} whitespace-pre-line">{{ $resRep->admin_notes }}</p>
-                                </div>
-                            @endif
+
                         </div>
                     @endforeach
                 </div>

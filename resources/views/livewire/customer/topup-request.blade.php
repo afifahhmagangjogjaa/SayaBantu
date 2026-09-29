@@ -1,4 +1,66 @@
 <div class="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-24">
+    @if($hasActivePending)
+        <!-- Header Sederhana saat Pending -->
+        <div class="px-5 pt-6 pb-6 rounded-b-3xl shadow-lg mb-6" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('customer.dashboard') }}" class="text-white hover:opacity-80 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </a>
+                    <h1 class="text-xl font-bold text-white">Top-Up Saldo</h1>
+                </div>
+                <a href="{{ route('customer.topup.history') }}" class="flex items-center gap-1 px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Riwayat</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Kotak Peringatan -->
+        <div class="px-5">
+            <div class="bg-white border border-amber-200 rounded-2xl shadow-sm p-6 text-center">
+                <div class="w-14 h-14 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 border border-amber-100">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-base font-bold text-gray-900 mb-1">Permintaan Top-Up Sedang Diproses</h3>
+                <p class="text-xs text-gray-500 max-w-sm mx-auto mb-4 leading-relaxed">
+                    Anda masih memiliki permintaan top-up yang menunggu persetujuan Admin. Harap tunggu hingga request sebelumnya disetujui atau ditolak sebelum membuat permintaan baru.
+                </p>
+
+                @if($pendingTransaction)
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3.5 max-w-sm mx-auto mb-5 text-left text-xs space-y-1.5">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Kode Request:</span>
+                            <span class="font-bold text-gray-900 font-mono">{{ $pendingTransaction->request_code ?? '#' . $pendingTransaction->id }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Nominal Transfer:</span>
+                            <span class="font-bold text-amber-700">Rp {{ number_format($pendingTransaction->total_payment ?: $pendingTransaction->amount, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Waktu Pengajuan:</span>
+                            <span class="text-gray-700">{{ $pendingTransaction->created_at->format('d M Y, H:i') }} WIB</span>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
+                    <a href="{{ route('customer.topup.history') }}" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
+                        Lihat Riwayat & Status
+                    </a>
+                    <a href="{{ route('customer.dashboard') }}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition">
+                        Kembali ke Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    @else
     <!-- Header -->
     <div class="bg-gradient-to-br from-primary-500 to-primary-600 px-5 pt-6 pb-8 rounded-b-3xl shadow-lg">
         <div class="flex items-center justify-between mb-4">
@@ -435,4 +497,5 @@
             </div>
         @endif
     </div>
+    @endif
 </div>

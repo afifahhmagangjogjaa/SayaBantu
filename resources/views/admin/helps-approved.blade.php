@@ -71,10 +71,25 @@
                             <tr class="hover:bg-gray-50/80 transition-colors {{ in_array($help->status, ['komplain', 'disputed']) ? 'bg-red-50/40' : '' }}">
                                 <td class="px-2.5 py-2.5 text-center text-xs text-gray-500 font-medium whitespace-nowrap">{{ $helps->firstItem() + $loop->index }}</td>
                                 <td class="px-2.5 py-2.5">
-                                    <div class="text-sm font-semibold text-gray-900 leading-tight">{{ $help->title }}</div>
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <div class="text-sm font-semibold text-gray-900 leading-tight">{{ $help->title }}</div>
+                                        @if($help->isUrgent())
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                        @endif
+                                    </div>
                                     <div class="text-[10px] text-gray-400 font-mono mt-0.5">ID: {{ $help->order_id ?? '#' . $help->id }}</div>
                                 </td>
-                                <td class="px-2.5 py-2.5 text-xs text-gray-700 whitespace-nowrap">{{ $help->customer->name ?? '-' }}</td>
+                                <td class="px-2.5 py-2.5 text-xs text-gray-700 whitespace-nowrap">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span>{{ $help->customer->name ?? '-' }}</span>
+                                        @if(!empty($help->customer->is_shadow_banned))
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200" title="Akun ini sedang dalam status Shadow Ban">👻 Shadow</span>
+                                        @endif
+                                        @if(($help->customer->status ?? '') === 'blocked')
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-700 border border-red-200" title="Akun ini sedang diblokir">⛔ Blokir</span>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td class="px-2.5 py-2.5 text-xs text-gray-600 whitespace-nowrap">{{ $help->city->name ?? '-' }}</td>
                                 <td class="px-2.5 py-2.5 text-xs text-gray-600 whitespace-nowrap">{{ $help->category->name ?? '-' }}</td>
                                 <td class="px-2.5 py-2.5 text-center whitespace-nowrap">
@@ -90,8 +105,10 @@
                                         <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200">Aktif</span>
                                     @elseif($help->status === 'selesai')
                                         <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">Selesai</span>
-                                    @elseif(in_array($help->status, ['rejected', 'dibatalkan']))
-                                        <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Ditolak / Batal</span>
+                                    @elseif($help->status === 'rejected')
+                                        <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Ditolak</span>
+                                    @elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
+                                        <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Dibatalkan</span>
                                     @else
                                         <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-gray-50 text-gray-700 border border-gray-200">{{ ucfirst(str_replace('_', ' ', $help->status)) }}</span>
                                     @endif

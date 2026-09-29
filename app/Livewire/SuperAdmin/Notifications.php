@@ -30,7 +30,7 @@ class Notifications extends Component
         $notification = $user->notifications()->find($notificationId);
         
         if ($notification) {
-            $notification->markAsRead();
+            $notification->update(['read_at' => now(), 'popped_at' => $notification->popped_at ?? now()]);
             $this->dispatch('notification-updated');
         }
     }
@@ -40,7 +40,7 @@ class Notifications extends Component
         $user = Auth::user();
         if (!$user) return;
 
-        $user->unreadNotifications->markAsRead();
+        $user->unreadNotifications()->update(['read_at' => now(), 'popped_at' => now()]);
         $this->dispatch('notification-updated');
     }
 

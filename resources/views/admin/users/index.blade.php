@@ -111,6 +111,7 @@
                                 <th class="px-4 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Terdaftar</th>
                                 <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">KTP</th>
                                 <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Rating</th>
+                                <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">SP</th>
                                 <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
                                 <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-28">Aksi</th>
                             </tr>
@@ -133,9 +134,16 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3.5 whitespace-nowrap">
-                                        <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">
-                                            {{ in_array($user->role, ['customer', 'kustomer']) ? 'Customer' : ucfirst(str_replace('_', ' ', $user->role)) }}
-                                        </span>
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                                                {{ in_array($user->role, ['customer', 'kustomer']) ? 'Customer' : ucfirst(str_replace('_', ' ', $user->role)) }}
+                                            </span>
+                                            @if($user->isShadowBanned())
+                                                <span class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200" title="Mitra dalam status Shadow Ban">
+                                                    👻 Shadow Banned
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3.5 text-xs text-gray-600 whitespace-nowrap">
                                         @if(!empty($user->city_name))
@@ -181,19 +189,44 @@
                                         @endif
                                     </td>
                                     <td class="px-4 py-3.5 text-center whitespace-nowrap">
-                                        @if ($user->status === 'blocked')
-                                            <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
-                                                Diblokir
-                                            </span>
-                                        @elseif ($user->status === 'inactive')
-                                            <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
-                                                Nonaktif
+                                        @php
+                                            $spLevel = (int) ($user->warning_level ?? 0);
+                                        @endphp
+                                        @if($spLevel > 0)
+                                            <span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full
+                                                {{ $spLevel >= 3
+                                                    ? 'bg-red-50 text-red-700 border border-red-200'
+                                                    : ($spLevel == 2
+                                                        ? 'bg-orange-50 text-orange-700 border border-orange-200'
+                                                        : 'bg-yellow-50 text-yellow-800 border border-yellow-200') }}">
+                                                SP {{ $spLevel }}
                                             </span>
                                         @else
-                                            <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">
-                                                Aktif
-                                            </span>
+                                            <span class="text-xs text-gray-400">-</span>
                                         @endif
+                                    </td>
+                                    <td class="px-4 py-3.5 text-center whitespace-nowrap">
+                                        <div class="inline-flex flex-col items-center gap-1">
+                                            @if ($user->status === 'blocked')
+                                                <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
+                                                    Diblokir
+                                                </span>
+                                            @elseif ($user->status === 'inactive')
+                                                <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
+                                                    Nonaktif
+                                                </span>
+                                            @else
+                                                <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">
+                                                    Aktif
+                                                </span>
+                                            @endif
+
+                                            @if($user->isMitra() && $user->isShadowBanned())
+                                                <span class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full border shadow-2xs" style="background-color: #f3e8ff; color: #6b21a8; border-color: #d8b4fe;" title="Mitra dalam status Shadow Ban">
+                                                    👻 Shadow Ban
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3.5 text-center whitespace-nowrap">
                                         <div class="inline-flex items-center justify-center gap-2 leading-none">

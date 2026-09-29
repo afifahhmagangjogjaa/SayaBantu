@@ -127,22 +127,149 @@ class AdminUserController extends Controller
         }
 
         // Load relations and counts
-        $user->load('city');
+        $user->load(['city', 'registration']);
         $user->loadCount(['helps', 'partnerReports']);
         $user->city_name = optional($user->city)->name ?? optional(City::find($user->city_id))->name;
 
         if ($user->isMitra()) {
             $user->ratings_count = $user->mitra_rating_count;
             $user->average_rating = $user->mitra_average_rating > 0 ? round($user->mitra_average_rating, 1) : null;
+            
+            // Ambil riwayat pembatalan mitra
+            $cancellations = \App\Models\PartnerActivity::where('user_id', $user->id)
+                ->where('activity_type', 'help_cancelled')
+                ->latest()
+                ->get();
+            $user->cancellations_count = $cancellations->count();
+            $user->recent_cancellations = $cancellations->take(5);
         } else {
             $user->ratings_count = $user->customer_rating_count;
             $user->average_rating = $user->customer_average_rating > 0 ? round($user->customer_average_rating, 1) : null;
+            $user->cancellations_count = 0;
+            $user->recent_cancellations = collect();
+        }
+
+        // Ambil riwayat SP dari log di admin_notes semua laporan yang melibatkan user ini
+        $spLogs = collect();
+        $reportsInvolvingUser = \App\Models\PartnerReport::where(function ($q) use ($user) {
+                $q->where('reported_user_id', $user->id)
+                  ->orWhere('reporter_id', $user->id);
+            })
+            ->whereNotNull('admin_notes')
+            ->where('admin_notes', '!=', '')
+            ->get(['id', 'admin_notes', 'title', 'updated_at']);
+
+        foreach ($reportsInvolvingUser as $rep) {
+            $lines = array_filter(
+                explode("\n", $rep->admin_notes),
+                fn($l) => trim($l) !== ''
+                    && (str_contains($l, 'memberikan sanksi') || str_contains($l, 'mencabut') || str_contains($l, 'Surat Peringatan'))
+                    && str_contains(strtolower($l), strtolower($user->name))
+            );
+            foreach ($lines as $line) {
+                $spLogs->push([
+                    'log'       => trim($line),
+                    'report_id' => $rep->id,
+                    'report_title' => $rep->title,
+                ]);
+            }
+        }
+
+        // Juga ambil dari notifikasi database (SanctionNotification) untuk user ini
+        $sanctionNotifs = $user->notifications()
+            ->where('type', \App\Notifications\SanctionNotification::class)
+            ->latest()
+            ->get();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return view('admin.users.partials.show', compact('user', 'spLogs', 'sanctionNotifs'));
+        }
+
+        return view('admin.users.show', compact('user', 'spLogs', 'sanctionNotifs'));
+    }
+
+    public function verifyKtp(Request $request, User $user)
+    {
+        $admin = auth()->user();
+
+        $cityIds = City::where('admin_id', $admin->id)
+            ->pluck('id')
+            ->merge($admin->managedCities()->pluck('cities.id'))
+            ->push($admin->city_id)
+            ->filter()
+            ->unique();
+
+        if ($cityIds->isNotEmpty() && ! $cityIds->contains($user->city_id)) {
+            abort(403, 'Akses tidak diizinkan untuk pengguna kota lain.');
+        }
+
+        $user->verified = true;
+        if ($user->status !== 'blocked') {
+            $user->status = 'active';
+        }
+        $user->save();
+
+        // Update matching registration if exists
+        $reg = \App\Models\Registration::where('email', $user->email)->first();
+        if ($reg) {
+            $reg->update(['status' => 'approved']);
+        }
+
+        try {
+            $user->notify(new \App\Notifications\KtpVerificationStatusNotification('approved'));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP approved: ' . $e->getMessage());
         }
 
         if ($request->ajax() || $request->wantsJson()) {
-            return view('admin.users.partials.show', compact('user'));
+            return response()->json([
+                'success' => true,
+                'message' => "KTP pengguna {$user->name} berhasil disetujui (Terverifikasi)!"
+            ]);
         }
 
-        return view('admin.users.show', compact('user'));
+        return back()->with('success', "KTP pengguna {$user->name} berhasil disetujui (Terverifikasi)!");
+    }
+
+    public function rejectKtp(Request $request, User $user)
+    {
+        $admin = auth()->user();
+
+        $cityIds = City::where('admin_id', $admin->id)
+            ->pluck('id')
+            ->merge($admin->managedCities()->pluck('cities.id'))
+            ->push($admin->city_id)
+            ->filter()
+            ->unique();
+
+        if ($cityIds->isNotEmpty() && ! $cityIds->contains($user->city_id)) {
+            abort(403, 'Akses tidak diizinkan untuk pengguna kota lain.');
+        }
+
+        $reason = $request->input('reason', 'Dokumen KTP tidak sesuai atau tidak jelas.');
+
+        $user->verified = false;
+        $user->save();
+
+        // Update matching registration if exists
+        $reg = \App\Models\Registration::where('email', $user->email)->first();
+        if ($reg) {
+            $reg->update(['status' => 'rejected', 'rejection_reason' => $reason]);
+        }
+
+        try {
+            $user->notify(new \App\Notifications\KtpVerificationStatusNotification('rejected', $reason));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP rejected: ' . $e->getMessage());
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Verifikasi KTP pengguna {$user->name} telah ditolak."
+            ]);
+        }
+
+        return back()->with('success', "Verifikasi KTP pengguna {$user->name} telah ditolak.");
     }
 }

@@ -42,6 +42,8 @@ class TopupRequest extends Component
     public $transactionId;
     public $availableBanks = [];
     public $qrisEnabled = false;
+    public $hasActivePending = false;
+    public $pendingTransaction = null;
 
     protected $rules = [
         'amount' => 'required|numeric|min:10000|max:10000000',
@@ -69,6 +71,11 @@ class TopupRequest extends Component
             session()->flash('error', $user->getCannotTopupReason());
             return redirect()->route('customer.dashboard');
         }
+
+        // ==========================================
+        // CEK APAKAH ADA REQUEST YANG MASIH PENDING
+        // ==========================================
+        $this->checkActivePending();
         
         // Load from session if exists
         $sessionData = session('topup_form_data');
@@ -96,14 +103,11 @@ class TopupRequest extends Component
 
     protected function loadPaymentSettings()
     {
-        // Prefer settings stored in AppSetting under 'topup_payment_methods'
         $raw = AppSetting::get('topup_payment_methods', '{}');
         $methods = json_decode((string) $raw, true) ?: [];
 
-        // QRIS settings (optional)
         $this->qrisEnabled = $methods['qris']['enabled'] ?? true;
 
-        // Banks: ensure fallback defaults if none configured
         $defaultBanks = [
             ['code' => 'bca', 'name' => 'BCA', 'account_number' => '1234567890', 'account_name' => 'PT sayabantu', 'enabled' => true],
             ['code' => 'mandiri', 'name' => 'Mandiri', 'account_number' => '0987654321', 'account_name' => 'PT sayabantu', 'enabled' => true],
@@ -113,7 +117,6 @@ class TopupRequest extends Component
 
         $banks = $methods['banks'] ?? $defaultBanks;
 
-        // Normalize banks to include a `value` used as paymentMethod identifier (e.g. bank_bca)
         $this->availableBanks = collect($banks)
             ->filter(fn($bank) => $bank['enabled'] ?? false)
             ->map(fn($bank) => array_merge($bank, ['value' => 'bank_' . ($bank['code'] ?? '')]))
@@ -138,7 +141,6 @@ class TopupRequest extends Component
 
         $amount = floatval($this->amount);
 
-        // Load settings from database
         $tier1_limit = (int) AppSetting::get('topup_tier1_limit', 50000);
         $tier1_fee = (int) AppSetting::get('topup_tier1_fee', 9000);
         $tier2_limit = (int) AppSetting::get('topup_tier2_limit', 100000);
@@ -146,7 +148,6 @@ class TopupRequest extends Component
         $tier3_percentage = (float) AppSetting::get('topup_tier3_percentage', 3);
         $tier3_max = (int) AppSetting::get('topup_tier3_max', 15000);
 
-        // Logika biaya admin berdasarkan tier
         if ($amount < $tier1_limit) {
             $this->adminFee = $tier1_fee;
         } elseif ($amount < $tier2_limit) {
@@ -157,7 +158,6 @@ class TopupRequest extends Component
         }
 
         $this->totalPayment = $amount + $this->adminFee;
-        // generate or refresh unique code for this total payment
         $this->ensureUniqueSuffix();
         $this->saveFormData();
     }
@@ -200,12 +200,35 @@ class TopupRequest extends Component
         session()->flash('success', 'Data form berhasil direset');
     }
 
+    public function checkActivePending()
+    {
+        $user = auth()->user();
+        if ($user) {
+            $this->pendingTransaction = BalanceTransaction::where('user_id', $user->id)
+                ->where('type', 'topup')
+                ->where('status', 'waiting_approval')
+                ->latest()
+                ->first();
+
+            $this->hasActivePending = !is_null($this->pendingTransaction);
+        } else {
+            $this->pendingTransaction = null;
+            $this->hasActivePending = false;
+        }
+    }
+
     public function nextStep()
     {
         $user = auth()->user();
         if ($user && !$user->canTopup()) {
             session()->flash('error', $user->getCannotTopupReason());
             return redirect()->route('customer.dashboard');
+        }
+
+        $this->checkActivePending();
+        if ($this->hasActivePending) {
+            session()->flash('error', 'Anda masih memiliki permintaan top-up yang menunggu persetujuan admin.');
+            return;
         }
 
         if ($this->currentStep == 1) {
@@ -239,6 +262,20 @@ class TopupRequest extends Component
             session()->flash('error', $user->getCannotTopupReason());
             return redirect()->route('customer.dashboard');
         }
+
+        // ==========================================
+        // DOUBLE CHECK SAAT SUBMIT (MENGHINDARI BYPASS)
+        // ==========================================
+        $hasPending = BalanceTransaction::where('user_id', $user->id)
+            ->where('type', 'topup')
+            ->where('status', 'waiting_approval')
+            ->exists();
+
+        if ($hasPending) {
+            session()->flash('error', 'Anda masih memiliki permintaan top-up yang menunggu persetujuan admin.');
+            return redirect()->route('customer.topup.history');
+        }
+
         // Validate step 3
         $this->validate([
             'paymentMethod' => 'required',
@@ -250,7 +287,6 @@ class TopupRequest extends Component
             'proofOfPayment.max' => 'Ukuran file maksimal 2MB',
         ]);
 
-        // Verify selected payment method exists
         $allowed = array_merge(
             $this->qrisEnabled ? ['qris'] : [],
             array_map(fn($b) => $b['value'], $this->availableBanks)
@@ -262,16 +298,12 @@ class TopupRequest extends Component
         }
 
         try {
-            // Upload proof of payment
             $proofPath = $this->proofOfPayment->store('proof-of-payment', 'public');
 
-            // Generate request code
             $this->requestCode = $this->generateRequestCode();
 
-            // Ensure unique suffix exists before creating transaction
             $this->ensureUniqueSuffix();
 
-            // Create transaction (store total_payment as uniqueTotal so admin can verify exact transfer)
             $transaction = BalanceTransaction::create([
                 'user_id' => auth()->id(),
                 'amount' => $this->amount,
@@ -286,31 +318,26 @@ class TopupRequest extends Component
                 'payment_method' => $this->paymentMethod,
                 'proof_of_payment' => $proofPath,
                 'request_code' => $this->requestCode,
-                // store unique code in description so admins can quickly see it (no schema change required)
                 'customer_notes' => ($this->customerNotes ? $this->customerNotes . ' | ' : '') . 'UniqueCode:' . ($this->uniqueCode ?? '000'),
                 'expired_at' => now()->addHours(24),
             ]);
 
             $this->transactionId = $transaction->id;
 
-            // Send notification to customer safely
             try {
                 auth()->user()->notify(new TopupRequestSubmitted($transaction));
             } catch (\Throwable $e) {
                 \Log::warning('Gagal kirim notifikasi user: ' . $e->getMessage());
             }
 
-            // Send notification to admin safely
             try {
                 $this->notifyAdmins($transaction);
             } catch (\Throwable $e) {
                 \Log::warning('Gagal kirim notifikasi admin: ' . $e->getMessage());
             }
 
-            // Broadcast event to admin approval page (global event)
             $this->dispatch('topupRequestCreated');
 
-            // Clear session data after successful submission
             session()->forget('topup_form_data');
 
             session()->flash('success', 'Request top-up berhasil dikirim! Kode request: ' . $this->requestCode);
@@ -339,11 +366,6 @@ class TopupRequest extends Component
         return "TPU-{$date}-" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * Ensure a 3-digit unique suffix exists and compute uniqueTotal.
-     * The uniqueTotal is calculated from the nearest lower thousand plus the 3-digit code.
-     * If that produces a value lower than the calculated totalPayment, bump the base by 1000.
-     */
     protected function ensureUniqueSuffix()
     {
         if (!$this->totalPayment) {
@@ -353,18 +375,15 @@ class TopupRequest extends Component
         }
 
         $total = (int) round($this->totalPayment);
+        $base = intdiv($total, 1000) * 1000;
 
-        $base = intdiv($total, 1000) * 1000; // nearest lower thousand
-
-        // If we already have a uniqueCode and base matches, verify uniqueTotal still valid
         if ($this->uniqueCode) {
             $existingBase = intdiv((int) $this->uniqueTotal, 1000) * 1000;
             if ($existingBase === $base && (int) $this->uniqueTotal >= $total) {
-                return; // still valid
+                return;
             }
         }
 
-        // Generate a random 3-digit code
         try {
             $code = random_int(1, 999);
         } catch (\Exception $e) {
@@ -375,7 +394,6 @@ class TopupRequest extends Component
         $uniqueTotal = $base + $code;
 
         if ($uniqueTotal < $total) {
-            // bump base by 1k to ensure uniqueTotal >= total
             $base += 1000;
             $uniqueTotal = $base + $code;
         }
@@ -403,17 +421,9 @@ class TopupRequest extends Component
 
     protected function notifyAdmins($transaction)
     {
-        // Get admin users based on customer's city
         $customerCity = auth()->user()->city_id;
+        $cityAdmins = User::getAdminsForCity($customerCity);
 
-        $cityAdmins = User::where('role', 'admin')
-            ->where('status', 'active')
-            ->when($customerCity, function ($query, $cityId) {
-                $query->where('city_id', $cityId);
-            })
-            ->get();
-
-        // Always notify super admins
         $superAdmins = User::where('role', 'super_admin')
             ->where('status', 'active')
             ->get();
@@ -427,6 +437,8 @@ class TopupRequest extends Component
 
     public function render()
     {
+        $this->checkActivePending();
+
         return view('livewire.customer.topup-request');
     }
 }

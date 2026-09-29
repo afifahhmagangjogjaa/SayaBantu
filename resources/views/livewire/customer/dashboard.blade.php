@@ -61,17 +61,6 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('customer.chat') }}" class="relative bg-white/10 backdrop-blur-sm p-2 rounded-lg hover:bg-white/20 transition text-white">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-5 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1l-4 4z" />
-                        </svg>
-                        @if(!empty($unreadChatCount) && $unreadChatCount > 0)
-                            <span class="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                            </span>
-                        @endif
-                    </a>
                     @include('components.notification-icon', ['route' => route('customer.notifications.index'), 'class' => 'bg-white/10 backdrop-blur-sm p-2 rounded-lg hover:bg-white/20 transition'])
                 </div>
             </div>
@@ -264,32 +253,77 @@
         @php
             $customerBanners = json_decode((string) \App\Models\AppSetting::get('banner_customer', '[]'), true) ?: [];
         @endphp
+
         @if(!empty($customerBanners) && count($customerBanners))
             <div class="mb-5">
-                <div class="rounded-xl overflow-hidden shadow-md">
-                    <div class="relative h-36 overflow-hidden">
-                        <div class="flex h-full will-change-transform customer-banner-slides"
-                            style="transition: transform 700ms cubic-bezier(.2,.9,.2,1);">
+                <div x-data="bannerSlider({{ count($customerBanners) }})"
+                    @touchstart="touchStart($event)"
+                    @touchmove="touchMove($event)"
+                    @touchend="touchEnd($event)"
+                    @mousedown="mouseDown($event)"
+                    @mousemove="mouseMove($event)"
+                    @mouseup="mouseUp($event)"
+                    @mouseleave="mouseLeave($event)"
+                    @mouseenter="stopAutoPlay()"
+                    class="relative rounded-2xl overflow-hidden shadow-md select-none group touch-pan-y {{ count($customerBanners) > 1 ? 'cursor-grab active:cursor-grabbing' : '' }} bg-gray-100">
+
+                    <!-- Slides Track -->
+                    <div class="relative h-36 sm:h-40 overflow-hidden">
+                        <div class="flex h-full will-change-transform"
+                            :style="'transform: translateX(calc(-' + (current * 100) + '% + ' + dragOffset + 'px)); transition: ' + (isDragging ? 'none' : 'transform 500ms cubic-bezier(0.25, 1, 0.5, 1)')">
                             @foreach($customerBanners as $b)
-                                <div class="flex-shrink-0 w-full h-full">
-                                    <img src="{{ asset('storage/' . $b) }}" alt="Banner" class="w-full h-full object-cover" />
+                                <div class="flex-shrink-0 w-full h-full select-none">
+                                    <img src="{{ asset('storage/' . $b) }}"
+                                        alt="Banner Customer"
+                                        draggable="false"
+                                        class="w-full h-full object-cover pointer-events-none select-none" />
                                 </div>
                             @endforeach
                         </div>
                     </div>
-                </div>
-            </div>
-        @else
-            <div class="mb-5">
-                <div id="promo-banner" class="rounded-xl overflow-hidden shadow-md">
-                    <div class="relative h-36 overflow-hidden" style="background: linear-gradient(to right, #0098e7, #0077cc);">
-                        <div id="promo-track" class="flex h-full transition-transform duration-700 ease-in-out"></div>
-                    </div>
-                </div>
-                <div id="promo-dots" class="flex justify-center mt-3 gap-2">
-                    <button data-dot="0" class="w-2 h-2 rounded-full transition-all" style="background: #0098e7;"></button>
-                    <button data-dot="1" class="w-2 h-2 rounded-full bg-gray-300 transition-all"></button>
-                    <button data-dot="2" class="w-2 h-2 rounded-full bg-gray-300 transition-all"></button>
+
+                    @if(count($customerBanners) > 1)
+                        <!-- Tombol Panah Kiri (Prev) -->
+                        <button type="button"
+                            @click.stop="prev()"
+                            @mousedown.stop
+                            @touchstart.stop
+                            class="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-90 text-white flex items-center justify-center shadow-lg backdrop-blur-sm transition-all duration-200 cursor-pointer select-none"
+                            title="Banner Sebelumnya"
+                            aria-label="Banner Sebelumnya">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 -translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        <!-- Tombol Panah Kanan (Next) -->
+                        <button type="button"
+                            @click.stop="next()"
+                            @mousedown.stop
+                            @touchstart.stop
+                            class="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-90 text-white flex items-center justify-center shadow-lg backdrop-blur-sm transition-all duration-200 cursor-pointer select-none"
+                            title="Banner Selanjutnya"
+                            aria-label="Banner Selanjutnya">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+
+                        <!-- Indikator Dots -->
+                        <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20 select-none">
+                            @foreach($customerBanners as $i => $b)
+                                <button type="button"
+                                    @click.stop="goTo({{ $i }})"
+                                    @mousedown.stop
+                                    @touchstart.stop
+                                    :class="current === {{ $i }} ? 'w-5 bg-white shadow-md' : 'w-2 bg-white/60 hover:bg-white/90'"
+                                    class="h-2 rounded-full transition-all duration-300 cursor-pointer"
+                                    title="Slide {{ $i + 1 }}"
+                                    aria-label="Slide {{ $i + 1 }}">
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -333,7 +367,40 @@
 
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between gap-2 mb-1">
-                                        <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                            @if($help->isUrgent())
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                @if($help->auto_cancel_at && in_array($help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra']))
+                                                    @php
+                                                        $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
+                                                        $minsLeft = (int) ceil($secsLeft / 60);
+                                                    @endphp
+                                                    @if($secsLeft > 0)
+                                                        <span x-data="{
+                                                            target: new Date('{{ $help->auto_cancel_at->toIso8601String() }}').getTime(),
+                                                            label: '{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}',
+                                                            init() {
+                                                                this.update();
+                                                                setInterval(() => this.update(), 5000);
+                                                            },
+                                                            update() {
+                                                                const diff = this.target - Date.now();
+                                                                if (diff <= 0) {
+                                                                    this.label = 'Waktu habis';
+                                                                    if (window.Livewire) { $wire.$refresh(); }
+                                                                    return;
+                                                                }
+                                                                const m = Math.ceil(diff / 60000);
+                                                                this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
+                                                            }
+                                                        }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
+                                                            ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
+                                                        </span>
+                                                    @endif
+                                                @endif
+                                            @endif
+                                        </div>
                                         <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                     </div>
                                     <div class="mb-1.5 flex items-center gap-1.5 flex-wrap">
@@ -352,8 +419,11 @@
                                         @endif
                                     </div>
                                     <p class="text-xs text-gray-600 line-clamp-1 mb-1.5">{{ $help->description }}</p>
-                                    @if($help->scheduled_at)
-                                        <div class="text-xs text-gray-500 mb-1">📅 {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d M Y, H:i') }}</div>
+                                    @php
+                                        $displayDate = $help->scheduled_at ?? $help->created_at;
+                                    @endphp
+                                    @if($displayDate)
+                                        <div class="text-xs text-gray-500 mb-1">📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
                                     @endif
                                     <div class="flex items-center gap-3">
                                         <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
@@ -410,7 +480,12 @@
                             </div>
                         @endif
 
-                        <h2 class="text-xl font-bold text-gray-900 mb-2">{{ data_get($selectedHelpData, 'title') }}</h2>
+                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                            <h2 class="text-xl font-bold text-gray-900">{{ data_get($selectedHelpData, 'title') }}</h2>
+                            @if(data_get($selectedHelpData, 'is_urgent') || data_get($selectedHelpData, 'help_type') === 'urgent')
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                            @endif
+                        </div>
                         
                         <div class="flex items-center justify-between mb-4 pb-4 border-b">
                             <div>
@@ -507,130 +582,143 @@
     </div>
 </div>
 
-@if(empty($customerBanners) || !count($customerBanners))
-    <script>
-        (function () {
-            const banners = [
-                { title: 'Promo Spesial', desc: 'Dapatkan diskon layanan untuk bantuan pertama Anda.', bgCss: 'linear-gradient(135deg,#6366f1,#4f46e5)' },
-                { title: 'Gratis Ongkir', desc: 'Pengiriman gratis untuk bantuan di kota yang sama.', bgCss: 'linear-gradient(135deg,#10b981,#059669)' },
-                { title: 'Dapatkan Badge', desc: 'Selesaikan 5 bantuan dan dapatkan badge Mitra Aktif.', bgCss: 'linear-gradient(135deg,#f59e0b,#f97316)' }
-            ];
-
-            const track = document.getElementById('promo-track');
-            const dotsContainer = document.getElementById('promo-dots');
-            const dots = dotsContainer ? Array.from(dotsContainer.querySelectorAll('button')) : [];
-            let idx = 0;
-            let timer = null;
-
-            // build slides (create DOM nodes and use inline background to avoid Tailwind purge issues)
-            if (track) {
-                track.innerHTML = '';
-                const frag = document.createDocumentFragment();
-                banners.forEach(b => {
-                    const slide = document.createElement('div');
-                    slide.className = 'w-full flex-shrink-0 p-6 flex items-center justify-center text-white';
-                    slide.style.background = b.bgCss;
-                    const inner = document.createElement('div');
-                    inner.className = 'text-center';
-                    const title = document.createElement('div');
-                    title.className = 'font-extrabold text-xl mb-1 tracking-tight';
-                    title.textContent = b.title;
-                    const desc = document.createElement('div');
-                    desc.className = 'text-sm opacity-90 font-medium';
-                    desc.textContent = b.desc;
-                    inner.appendChild(title);
-                    inner.appendChild(desc);
-                    slide.appendChild(inner);
-                    frag.appendChild(slide);
-                });
-                track.appendChild(frag);
-            }
-
-            function update() {
-                if (track) {
-                    const percent = (idx * 100) / banners.length;
-                    track.style.transform = `translateX(${-percent}%)`;
-                }
-                if (dots.length) {
-                    dots.forEach((d, k) => {
-                        d.classList.toggle('bg-primary-600', k === idx);
-                        d.classList.toggle('bg-gray-300', k !== idx);
-                    });
-                }
-            }
-
-            function go(i) {
-                idx = (i + banners.length) % banners.length;
-                update();
-            }
-
-            function resetTimer() {
-                if (timer) clearInterval(timer);
-                timer = setInterval(() => go(idx + 1), 4200);
-            }
-
-            // dot clicks
-            if (dotsContainer) {
-                dotsContainer.addEventListener('click', function (e) {
-                    const dot = e.target.closest('button[data-dot]');
-                    if (!dot) return;
-                    const i = parseInt(dot.dataset.dot);
-                    go(i);
-                    resetTimer();
-                });
-            }
-
-            // init
-            if (track) {
-                // ensure track has width for transform to work correctly
-                track.style.width = `${banners.length * 100}%`;
-                Array.from(track.children).forEach(child => child.style.width = `${100 / banners.length}%`);
-                update();
-                resetTimer();
-            }
-        })();
-    </script>
-@endif
-
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        function initBannerSlider(wrapperSelector) {
-            const wrapper = document.querySelector(wrapperSelector);
-            if (!wrapper) return;
-            const container = wrapper.parentElement; // expected visible container
-            const slides = Array.from(wrapper.children || []);
-            if (!slides.length || slides.length <= 1) return;
+    if (typeof window.bannerSlider !== 'function') {
+        window.bannerSlider = function (totalSlides = 1, autoPlayMs = 4000) {
+            return {
+                current: 0,
+                total: totalSlides,
+                timer: null,
+                startX: 0,
+                startY: 0,
+                dragOffset: 0,
+                isDragging: false,
+                isSwipingHorizontal: false,
 
-            function setup() {
-                const cw = container.clientWidth || container.getBoundingClientRect().width;
-                wrapper.style.width = (cw * slides.length) + 'px';
-                wrapper.style.display = 'flex';
-                wrapper.style.transition = 'transform 700ms cubic-bezier(.2,.9,.2,1)';
-                slides.forEach(s => {
-                    s.style.width = cw + 'px';
-                    s.style.flex = '0 0 auto';
-                });
-            }
+                init() {
+                    if (this.total > 1) {
+                        this.startAutoPlay();
+                    }
+                },
 
-            let idx = 0;
-            let timer = null;
+                next() {
+                    if (this.total <= 1) return;
+                    this.current = (this.current + 1) % this.total;
+                    this.resetAutoPlay();
+                },
 
-            function go(i) {
-                idx = (i + slides.length) % slides.length;
-                const shift = -(idx * (container.clientWidth || container.getBoundingClientRect().width));
-                wrapper.style.transform = 'translateX(' + shift + 'px)';
-            }
+                prev() {
+                    if (this.total <= 1) return;
+                    this.current = (this.current - 1 + this.total) % this.total;
+                    this.resetAutoPlay();
+                },
 
-            setup();
-            window.addEventListener('resize', setup);
+                goTo(idx) {
+                    this.current = idx;
+                    this.resetAutoPlay();
+                },
 
-            timer = setInterval(function () { go(idx + 1); }, 3500);
+                startAutoPlay() {
+                    if (this.total <= 1) return;
+                    this.stopAutoPlay();
+                    this.timer = setInterval(() => {
+                        this.next();
+                    }, autoPlayMs);
+                },
 
-            container.addEventListener('mouseenter', function () { if (timer) clearInterval(timer); });
-            container.addEventListener('mouseleave', function () { if (timer) clearInterval(timer); timer = setInterval(function () { go(idx + 1); }, 3500); });
-        }
+                stopAutoPlay() {
+                    if (this.timer) {
+                        clearInterval(this.timer);
+                        this.timer = null;
+                    }
+                },
 
-        try { initBannerSlider('.customer-banner-slides'); } catch (e) { console.warn('customer slider init', e); }
-        try { initBannerSlider('.mitra-banner-slides'); } catch (e) { /* ignore */ }
-    });
+                resetAutoPlay() {
+                    this.stopAutoPlay();
+                    if (this.total > 1) {
+                        this.startAutoPlay();
+                    }
+                },
+
+                touchStart(e) {
+                    if (this.total <= 1) return;
+                    this.stopAutoPlay();
+                    const touch = e.touches ? e.touches[0] : e;
+                    this.startX = touch.clientX;
+                    this.startY = touch.clientY;
+                    this.dragOffset = 0;
+                    this.isDragging = true;
+                    this.isSwipingHorizontal = false;
+                },
+
+                touchMove(e) {
+                    if (!this.isDragging || this.total <= 1) return;
+                    const touch = e.touches ? e.touches[0] : e;
+                    const diffX = touch.clientX - this.startX;
+                    const diffY = touch.clientY - this.startY;
+
+                    if (!this.isSwipingHorizontal) {
+                        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8) {
+                            this.isSwipingHorizontal = true;
+                        }
+                    }
+
+                    if (this.isSwipingHorizontal) {
+                        if (e.cancelable) e.preventDefault();
+                        this.dragOffset = diffX;
+                    }
+                },
+
+                touchEnd() {
+                    if (!this.isDragging || this.total <= 1) return;
+                    this.isDragging = false;
+                    const threshold = 40;
+                    if (this.dragOffset < -threshold) {
+                        this.next();
+                    } else if (this.dragOffset > threshold) {
+                        this.prev();
+                    }
+                    this.dragOffset = 0;
+                    this.isSwipingHorizontal = false;
+                    this.startAutoPlay();
+                },
+
+                mouseDown(e) {
+                    if (this.total <= 1 || e.button !== 0) return;
+                    this.stopAutoPlay();
+                    this.startX = e.clientX;
+                    this.startY = e.clientY;
+                    this.dragOffset = 0;
+                    this.isDragging = true;
+                },
+
+                mouseMove(e) {
+                    if (!this.isDragging || this.total <= 1) return;
+                    const diffX = e.clientX - this.startX;
+                    this.dragOffset = diffX;
+                },
+
+                mouseUp() {
+                    if (!this.isDragging || this.total <= 1) return;
+                    this.isDragging = false;
+                    const threshold = 40;
+                    if (this.dragOffset < -threshold) {
+                        this.next();
+                    } else if (this.dragOffset > threshold) {
+                        this.prev();
+                    }
+                    this.dragOffset = 0;
+                    this.startAutoPlay();
+                },
+
+                mouseLeave() {
+                    if (this.isDragging) {
+                        this.mouseUp();
+                    } else {
+                        this.startAutoPlay();
+                    }
+                }
+            };
+        };
+    }
 </script>

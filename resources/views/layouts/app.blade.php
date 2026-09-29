@@ -268,53 +268,72 @@
                     <div class="max-w-md mx-auto flex items-center justify-around px-4 py-2.5">
                         <a href="{{ route('customer.dashboard') }}"
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.dashboard') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
                             <span class="nav-label text-xs font-bold mt-0.5">Beranda</span>
                         </a>
 
                         <a href="{{ route('customer.helps.index') }}"
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.helps.*') && !request()->routeIs('customer.helps.create') && !request()->routeIs('customer.helps.history') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                             </svg>
-                            <span class="nav-label text-xs font-bold mt-0.5">Bantuan</span>
+                            <span class="nav-label text-xs font-bold mt-0.5">Aktivitas</span>
                         </a>
 
                         <a href="{{ route('customer.helps.create') }}"
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.helps.create') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 4a1 1 0 011 1v6h6a1 1 0 110 2h-6v6a1 1 0 11-2 0v-6H5a1 1 0 110-2h6V5a1 1 0 011-1z" />
+                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.helps.create') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             <span class="nav-label text-xs font-bold mt-0.5">Buat</span>
                         </a>
 
-                        <a href="{{ route('customer.helps.history') }}"
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.helps.history') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                            </svg>
-                            <span class="nav-label text-xs font-bold mt-0.5">Riwayat</span>
+                        @php
+                            $unreadCustomerChats = 0;
+                            if (auth()->check()) {
+                                try {
+                                    $unreadCustomerChats = \App\Models\Chat::where('customer_id', auth()->id())
+                                        ->whereNull('read_at')
+                                        ->where('sender_type', 'mitra')
+                                        ->count();
+                                } catch (\Throwable $e) {}
+                            }
+                        @endphp
+                        <a href="{{ route('customer.chat') }}"
+                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.chat*') || request()->routeIs('chat.*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                @if($unreadCustomerChats > 0)
+                                    <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5 items-center justify-center pointer-events-none">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 ring-1.5 ring-white"></span>
+                                    </span>
+                                @endif
+                            </div>
+                            <span class="nav-label text-xs font-bold mt-0.5">Chat</span>
                         </a>
 
                         @php
                             $u = auth()->user();
-                            $hasDocs = $u && (!empty($u->ktp_photo) || !empty($u->ktp_path)) && !empty($u->selfie_photo);
                             $needsProfileAttention = $u && (
-                                !$hasDocs || 
                                 !$u->verified || 
                                 !empty($u->getMissingBiodataFields()) || 
                                 !$u->hasVerifiedEmail()
                             );
                         @endphp
                         <a href="{{ route('profile') }}"
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('profile.*') || request()->routeIs('profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
+                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('profile.*') || request()->routeIs('profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <div class="relative inline-flex items-center justify-center">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                                 @if($needsProfileAttention)
                                     <span class="absolute bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center pointer-events-none">
@@ -323,7 +342,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <span class="nav-label text-xs font-bold mt-0.5">Profil</span>
+                            <span class="nav-label text-xs font-bold mt-0.5">Akun</span>
                         </a>
                     </div>
                 </nav>
@@ -344,25 +363,68 @@
                 if (!container) { console.warn('customer-global-notification-inner not found'); return; }
                 container.innerHTML = '';
 
+                const isRejected = (type === 'error' || String(title).toLowerCase().includes('ditolak'));
                 const wrap = document.createElement('div');
-                wrap.className = 'bg-white rounded-xl shadow-xl border border-gray-100 p-3 max-w-md mx-3 pointer-events-auto transition transform duration-300';
-                wrap.style.boxShadow = '0 10px 30px rgba(2,6,23,0.08)';
+                wrap.className = isRejected
+                    ? 'bg-white rounded-2xl shadow-2xl border-2 border-red-500/20 p-4 max-w-md mx-3 pointer-events-auto transition transform duration-300 ring-1 ring-red-500/10'
+                    : 'bg-white rounded-xl shadow-xl border border-gray-100 p-3 max-w-md mx-3 pointer-events-auto transition transform duration-300';
+                wrap.style.boxShadow = '0 10px 30px rgba(2,6,23,0.12)';
 
-                // Text-only body (no icons)
-                const body = document.createElement('div');
-                body.className = 'min-w-0';
-                const titleEl = document.createElement('div');
-                titleEl.className = 'text-sm font-semibold text-gray-900';
-                titleEl.innerText = String(title || 'Notifikasi');
+                if (isRejected) {
+                    wrap.innerHTML = `
+                        <div class="flex items-start gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-red-100 border border-red-200 flex items-center justify-center text-red-600 flex-shrink-0 shadow-xs">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-1 mb-0.5">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs font-bold text-gray-900">${escapeHtml(title || 'Bantuan Ditolak Admin')}</span>
+                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-red-100 text-red-700">Ditolak</span>
+                                    </div>
+                                    <button type="button" class="btn-close text-gray-400 hover:text-gray-600 p-1 -mr-1 -mt-1 rounded-lg transition cursor-pointer text-xs" title="Tutup">&times;</button>
+                                </div>
+                                <p class="text-xs text-gray-600 leading-snug">${escapeHtml(message || '')}</p>
+                                <div class="mt-2.5 flex items-center justify-end gap-2">
+                                    <button type="button" class="btn-detail px-3 py-1.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm cursor-pointer transition">
+                                        Lihat Detail Pembatalan &rarr;
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    const closeBtn = wrap.querySelector('.btn-close');
+                    if (closeBtn) {
+                        closeBtn.onclick = function(e) {
+                            e.stopPropagation();
+                            container.innerHTML = '';
+                        };
+                    }
+                    const btn = wrap.querySelector('.btn-detail');
+                    if (btn) {
+                        btn.onclick = function(e) {
+                            e.stopPropagation();
+                            if (url && url !== '#') window.location.href = url;
+                            container.innerHTML = '';
+                        };
+                    }
+                } else {
+                    // Text-only body (no icons)
+                    const body = document.createElement('div');
+                    body.className = 'min-w-0';
+                    const titleEl = document.createElement('div');
+                    titleEl.className = 'text-sm font-semibold text-gray-900';
+                    titleEl.innerText = String(title || 'Notifikasi');
 
-                const msgEl = document.createElement('div');
-                msgEl.className = 'text-xs text-gray-600 mt-0.5';
-                msgEl.innerText = String(message || '');
+                    const msgEl = document.createElement('div');
+                    msgEl.className = 'text-xs text-gray-600 mt-0.5';
+                    msgEl.innerText = String(message || '');
 
-                body.appendChild(titleEl);
-                if ((message || '').toString().trim() !== '') body.appendChild(msgEl);
+                    body.appendChild(titleEl);
+                    if ((message || '').toString().trim() !== '') body.appendChild(msgEl);
 
-                wrap.appendChild(body);
+                    wrap.appendChild(body);
+                }
 
                 wrap.addEventListener('click', function (ev) {
                     ev.preventDefault();
@@ -379,8 +441,8 @@
                     window.playNotifChime();
                 }
 
-                // If it's an error or warning, keep slightly longer by default
-                const effectiveTimeout = (type === 'error' || type === 'warning' || type === 'danger') ? Math.max(timeout, 8000) : timeout;
+                // If it's a rejection notification, keep for 20s so user can read and click detail
+                const effectiveTimeout = isRejected ? 20000 : ((type === 'error' || type === 'warning' || type === 'danger') ? Math.max(timeout, 8000) : timeout);
                 setTimeout(() => { container.innerHTML = ''; }, effectiveTimeout);
             } catch (err) { console.error('showCustomerNotification error', err); }
         }
@@ -510,65 +572,61 @@
                 };
 
                 const helpId = read(normalized, ['helpId','help_id','id']);
-                const helpTitle = read(normalized, ['helpTitle','help_title','title']);
+                const helpTitle = read(normalized, ['helpTitle','help_title']);
                 const mitraName = read(normalized, ['mitraName','mitra_name','mitra']) || 'Mitra';
+                const notifTitle = read(normalized, ['notifTitle','notif_title','notification_title']) || (normalized.title && normalized.title !== helpTitle ? normalized.title : null);
 
                 const status = read(normalized, ['newStatus','new_status','status','state']) || '';
                 const payloadMessage = read(normalized, ['message','msg','text']) || null;
 
-                const url = helpId ? customerHelpDetailTemplate.replace('REPLACE_ID', helpId) : '#';
+                const url = (normalized.url && normalized.url !== '#') ? normalized.url : (helpId ? customerHelpDetailTemplate.replace('REPLACE_ID', helpId) : '#');
 
                 // Build fallback based on status
                 let fallbackMessage = 'Status bantuan diperbarui';
+                let defaultTitle = '🔔 Update Status';
+                let type = 'info';
+
                 if (status) {
                     const s = String(status).toLowerCase();
                     if (s.includes('partner_on_the_way') || s.includes('on_the_way') || s.includes('perjalanan')) {
-                        fallbackMessage = helpTitle ? `${mitraName} sedang menuju lokasi untuk bantuan '${helpTitle}'.` : `${mitraName} sedang menuju lokasi bantuan Anda.`;
+                        type = 'on_the_way';
+                        defaultTitle = '🚗 Mitra Dalam Perjalanan';
+                        fallbackMessage = `${mitraName} sedang menuju lokasi Anda.`;
                     } else if (s.includes('partner_arrived') || s.includes('arrived') || s.includes('sampai')) {
-                        fallbackMessage = helpTitle ? `${mitraName} telah tiba untuk bantuan '${helpTitle}'.` : `${mitraName} telah tiba di lokasi Anda.`;
-                    } else if (s.includes('in_progress')) {
-                        fallbackMessage = helpTitle ? `${mitraName} telah memulai pekerjaan untuk bantuan '${helpTitle}'.` : `${mitraName} telah memulai pekerjaan.`;
+                        type = 'arrived';
+                        defaultTitle = '📍 Mitra Telah Tiba di Lokasi';
+                        fallbackMessage = `${mitraName} telah tiba di lokasi Anda.`;
+                    } else if (s.includes('in_progress') || s.includes('sedang_diproses')) {
+                        type = 'in_progress';
+                        defaultTitle = '⚙️ Pekerjaan Dimulai';
+                        fallbackMessage = `${mitraName} telah memulai pekerjaan.`;
                     } else if (s.includes('waiting_customer_confirmation')) {
-                        fallbackMessage = helpTitle ? `${mitraName} selesai mengerjakan bantuan '${helpTitle}'. Silakan konfirmasi.` : `${mitraName} telah selesai. Silakan konfirmasi pesanan Anda.`;
+                        type = 'confirmation';
+                        defaultTitle = '✋ Menunggu Konfirmasi Anda';
+                        fallbackMessage = `${mitraName} selesai mengerjakan bantuan '${helpTitle || ''}'. Silakan konfirmasi.`;
                     } else if (s.includes('rejected') || s.includes('ditolak')) {
+                        type = 'error';
+                        defaultTitle = '❌ Bantuan Ditolak Admin';
                         fallbackMessage = helpTitle ? `Permintaan bantuan '${helpTitle}' ditolak oleh admin.` : 'Permintaan bantuan Anda ditolak oleh admin.';
                     } else if (s.includes('selesai') || s.includes('completed')) {
+                        type = 'completed';
+                        defaultTitle = '🎉 Bantuan Selesai!';
                         fallbackMessage = helpTitle ? `Bantuan '${helpTitle}' telah selesai.` : 'Bantuan telah selesai.';
+                    } else if (s.includes('partner_cancelled_direct') || s.includes('cancelled_direct')) {
+                        type = 'warning';
+                        defaultTitle = '🔄 Rekan Jasa Berhalangan Hadir';
+                        fallbackMessage = `Rekan Jasa ${mitraName} berhalangan hadir. Sistem sedang mencarikan Rekan Jasa pengganti untuk Anda.`;
                     } else if (s.includes('diambil') || s.includes('taken')) {
+                        type = 'taken';
+                        defaultTitle = '✅ Bantuan Diambil!';
                         fallbackMessage = helpTitle ? `${mitraName} telah mengambil bantuan '${helpTitle}'.` : `${mitraName} telah mengambil bantuan Anda.`;
                     }
                 }
 
+                const title = notifTitle || defaultTitle;
                 const message = payloadMessage || fallbackMessage;
 
-                // Determine type and title
-                let type = 'info';
-                let title = '🔔 Update Status';
-                const sLower = String(status).toLowerCase();
-                if (sLower.includes('rejected') || sLower.includes('ditolak')) {
-                    type = 'error';
-                    title = helpTitle ? `Ditolak: ${helpTitle}` : '❌ Bantuan Ditolak Admin';
-                } else if (sLower.includes('selesai') || sLower.includes('completed')) {
-                    type = 'completed';
-                    title = helpTitle ? `Selesai: ${helpTitle}` : 'Bantuan Selesai!';
-                } else if (sLower.includes('waiting_customer_confirmation')) {
-                    type = 'confirmation';
-                    title = helpTitle ? `Konfirmasi: ${helpTitle}` : '✋ Konfirmasi Pesanan';
-                } else if (sLower.includes('in_progress')) {
-                    type = 'in_progress';
-                    title = helpTitle ? `Dikerjakan: ${helpTitle}` : '⚙️ Pekerjaan Dimulai';
-                } else if (sLower.includes('partner_arrived') || sLower.includes('arrived')) {
-                    type = 'arrived';
-                    title = helpTitle ? `Tiba: ${helpTitle}` : '📍 Mitra Sudah Sampai!';
-                } else if (sLower.includes('perjalanan') || sLower.includes('on_the_way') || sLower.includes('partner_on_the_way')) {
-                    type = 'on_the_way';
-                    title = helpTitle ? `Dalam Perjalanan: ${helpTitle}` : '🚗 Mitra Dalam Perjalanan';
-                } else if (sLower.includes('diambil') || sLower.includes('taken')) {
-                    type = 'taken';
-                    title = helpTitle ? `Diambil: ${helpTitle}` : '✅ Bantuan Diambil!';
-                }
-
-                console.log('help-status-update parsed:', { helpId, helpTitle, mitraName, status, message, type, title });
+                console.log('help-status-update parsed:', { helpId, helpTitle, mitraName, status, message, type, title, url });
 
                 showCustomerNotification({ title, message, url, type, timeout: 7000 });
             } catch (err) { console.error('help-status-update handler error', err); }
@@ -587,76 +645,6 @@
                     type: d.type || 'info'
                 });
             } catch (err) { console.error('customer-toast handler error', err); }
-        });
-    </script>
-    <script>
-        // Listen for Livewire dispatch to open Midtrans Snap
-        window.addEventListener('openMidtransSnap', function (e) {
-            try {
-                var token = e.detail?.snapToken || e.detail?.detail?.snapToken || e.detail;
-                if (!token && e?.detail?.snapToken) token = e.detail.snapToken;
-
-                if (!token) {
-                    console.warn('openMidtransSnap called without snap token', e);
-                    return;
-                }
-
-                if (typeof snap === 'undefined' || !snap.pay) {
-                    console.warn('Midtrans snap.js not loaded. Cannot open snap.pay.');
-                    return;
-                }
-
-                snap.pay(token, {
-                    onSuccess: function (result) {
-                        console.info('Snap success callback', result);
-                        // send a quick client callback to server so we can update status immediately
-                        fetch("{{ route('topup.client-callback') }}", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: JSON.stringify({ order_id: result.order_id, result: result })
-                        }).then(function (resp) {
-                            return resp.json();
-                        }).then(function (json) {
-                            console.info('Client callback response', json);
-                            // Optionally reload or notify Livewire to refresh
-                            if (window.Livewire) {
-                                try { window.Livewire.emit('balance-updated'); } catch (e) { }
-                            }
-
-                            // Redirect user to success page (include order_id)
-                            try {
-                                var successUrl = "{{ route('topup.success') }}" + '?order_id=' + encodeURIComponent(result.order_id);
-                                // small delay to give server a moment to process queued job
-                                setTimeout(function () {
-                                    window.location.href = successUrl;
-                                }, 800);
-                            } catch (e) {
-                                console.warn('Failed to redirect to success page', e);
-                            }
-                        }).catch(function (err) {
-                            console.warn('Client callback failed', err);
-                            // still redirect to success page as fallback
-                            try {
-                                window.location.href = "{{ route('topup.success') }}" + '?order_id=' + encodeURIComponent(result.order_id);
-                            } catch (e) { }
-                        });
-                    },
-                    onPending: function (result) {
-                        console.info('Snap pending callback', result);
-                    },
-                    onError: function (result) {
-                        console.error('Snap error callback', result);
-                    },
-                    onClose: function () {
-                        console.info('Snap widget closed by user');
-                    }
-                });
-            } catch (err) {
-                console.error('Failed to open Midtrans snap', err);
-            }
         });
     </script>
     <script>
@@ -711,17 +699,28 @@
         }
     </script>
 
-    <!-- Modal Notifikasi Akun Diblokir -->
-    <div id="blocked-account-modal" class="{{ (auth()->check() && auth()->user()->status === 'blocked') ? '' : 'hidden' }}" style="{{ (auth()->check() && auth()->user()->status === 'blocked') ? 'display: flex !important;' : '' }} position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999999; align-items: center; justify-content: center; padding: 1rem;">
+    <!-- Modal Notifikasi Verifikasi KTP / Identitas Ditolak -->
+    @include('partials.ktp-rejected-modal')
+
+    <!-- Modal Notifikasi Akun Diblokir / Dinonaktifkan -->
+    @php
+        $isCustomerAccountDisabled = auth()->check() && in_array(auth()->user()->status, ['blocked', 'inactive']);
+        $isCustomerInactive = auth()->check() && auth()->user()->status === 'inactive';
+    @endphp
+    <div id="blocked-account-modal" class="{{ $isCustomerAccountDisabled ? '' : 'hidden' }}" style="{{ $isCustomerAccountDisabled ? 'display: flex !important;' : '' }} position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999999; align-items: center; justify-content: center; padding: 1rem;">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-gray-100 transform animate-bounce-in">
             <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                 </svg>
             </div>
-            <h3 class="text-lg font-extrabold text-gray-900 mb-2">Akun Anda Telah Diblokir</h3>
-            <p class="text-xs text-gray-600 mb-6 leading-relaxed">
-                Akses akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan informasi lebih lanjut.
+            <h3 id="blocked-account-title" class="text-lg font-extrabold text-gray-900 mb-2">
+                {{ $isCustomerInactive ? 'Akun Anda Dinonaktifkan' : 'Akun Anda Telah Diblokir' }}
+            </h3>
+            <p id="blocked-account-message" class="text-xs text-gray-600 mb-6 leading-relaxed">
+                {{ $isCustomerInactive 
+                    ? 'Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan bantuan.' 
+                    : 'Akses akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan informasi lebih lanjut.' }}
             </p>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -736,11 +735,38 @@
     </div>
 
     <script>
-        function triggerCustomerBlockedModal() {
+        function triggerCustomerBlockedModal(isInactive = null) {
             const modal = document.getElementById('blocked-account-modal');
-            if (modal) {
+            if (!modal) return;
+
+            const updateTexts = (inactive) => {
+                const title = document.getElementById('blocked-account-title');
+                const msg = document.getElementById('blocked-account-message');
+                if (inactive) {
+                    if (title) title.innerText = 'Akun Anda Dinonaktifkan';
+                    if (msg) msg.innerText = 'Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan bantuan.';
+                } else {
+                    if (title) title.innerText = 'Akun Anda Telah Diblokir';
+                    if (msg) msg.innerText = 'Akses akun Anda telah diblokir oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan informasi lebih lanjut.';
+                }
                 modal.classList.remove('hidden');
                 modal.style.display = 'flex';
+            };
+
+            if (isInactive === true || isInactive === false) {
+                updateTexts(isInactive);
+            } else {
+                fetch("{{ route('account.status.check') }}", {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const inactive = !!(data && (data.status === 'inactive' || data.is_inactive));
+                    updateTexts(inactive);
+                })
+                .catch(() => {
+                    updateTexts(false);
+                });
             }
         }
 
@@ -753,15 +779,16 @@
                 }
             })
             .then(res => {
-                if (res.status === 403) {
-                    triggerCustomerBlockedModal();
-                    return;
+                if (res.status === 401) {
+                    window.location.href = "{{ route('login') }}";
+                    return null;
                 }
                 return res.json();
             })
             .then(data => {
-                if (data && (data.is_blocked || data.status === 'blocked')) {
-                    triggerCustomerBlockedModal();
+                if (data && (data.should_logout || data.is_blocked || data.is_inactive || data.status === 'blocked' || data.status === 'inactive')) {
+                    const isInactive = (data.status === 'inactive' || data.is_inactive);
+                    triggerCustomerBlockedModal(isInactive);
                 }
             })
             .catch(() => {});
@@ -769,8 +796,8 @@
 
         // Check immediately on load, on focus, on click, and every 2.5 seconds
         document.addEventListener('DOMContentLoaded', () => {
-            @if(auth()->check() && auth()->user()->status === 'blocked')
-                triggerCustomerBlockedModal();
+            @if(auth()->check() && in_array(auth()->user()->status, ['blocked', 'inactive']))
+                triggerCustomerBlockedModal({{ auth()->user()->status === 'inactive' ? 'true' : 'false' }});
             @else
                 checkCustomerAccountStatus();
             @endif
@@ -786,9 +813,18 @@
         document.addEventListener('livewire:init', () => {
             if (typeof Livewire !== 'undefined' && Livewire.hook) {
                 Livewire.hook('request', ({ fail }) => {
-                    fail(({ status }) => {
+                    fail(({ status, content }) => {
                         if (status === 403 || status === 401) {
-                            triggerCustomerBlockedModal();
+                            let isInactive = null;
+                            try {
+                                if (content) {
+                                    const parsed = typeof content === 'string' ? JSON.parse(content) : content;
+                                    if (parsed && (parsed.status || parsed.is_inactive !== undefined)) {
+                                        isInactive = !!(parsed.status === 'inactive' || parsed.is_inactive);
+                                    }
+                                }
+                            } catch(e) {}
+                            triggerCustomerBlockedModal(isInactive);
                         }
                     });
                 });

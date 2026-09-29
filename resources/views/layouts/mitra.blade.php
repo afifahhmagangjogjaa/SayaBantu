@@ -284,26 +284,70 @@
                             </svg>
                             <span class="text-xs font-bold mt-0.5">Cari</span>
                         </a>
+                        @php
+                            $activeMitraJobs = 0;
+                            $unreadMitraChats = 0;
+                            if (auth()->check()) {
+                                try {
+                                    $activeMitraJobs = \App\Models\Help::where('mitra_id', auth()->id())
+                                        ->whereIn('status', [
+                                            'memperoleh_mitra',
+                                            'taken',
+                                            'partner_on_the_way',
+                                            'partner_arrived',
+                                            'in_progress',
+                                            'sedang_diproses',
+                                            'partner_cancel_requested',
+                                            'diproses_mitra',
+                                            'waiting_customer_confirmation'
+                                        ])->count();
+                                } catch (\Throwable $e) {}
+
+                                try {
+                                    $unreadMitraChats = \App\Models\Chat::where('mitra_id', auth()->id())
+                                        ->whereNull('read_at')
+                                        ->where('sender_type', 'customer')
+                                        ->count();
+                                } catch (\Throwable $e) {}
+                            }
+                        @endphp
+
                         <a href="{{ route('mitra.helps.processing') }}"
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.processing') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M3 5h18v2H3V5zm0 6h12v2H3v-2zm0 6h8v2H3v-2z" />
-                            </svg>
-                            <span class="text-xs font-bold mt-0.5">Diproses</span>
+                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.processing') || request()->routeIs('mitra.helps.completed') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                </svg>
+                                @if($activeMitraJobs > 0)
+                                    <span class="absolute bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center pointer-events-none">
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 ring-1.5 ring-white"></span>
+                                    </span>
+                                @endif
+                            </div>
+                            <span class="text-xs font-bold mt-0.5">Pekerjaan</span>
                         </a>
-                        <a href="{{ route('mitra.helps.completed') }}"
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.completed') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <span class="text-xs font-bold mt-0.5">Riwayat</span>
+
+                        <a href="{{ route('mitra.chat') }}"
+                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.chat*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                @if($unreadMitraChats > 0)
+                                    <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5 items-center justify-center pointer-events-none">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 ring-1.5 ring-white"></span>
+                                    </span>
+                                @endif
+                            </div>
+                            <span class="text-xs font-bold mt-0.5">Chat</span>
                         </a>
+
                         @php
                             $u = auth()->user();
-                            $hasDocs = $u && (!empty($u->ktp_photo) || !empty($u->ktp_path)) && !empty($u->selfie_photo);
                             $needsMitraAttention = $u && (
-                                !$hasDocs || 
                                 !$u->verified || 
                                 !empty($u->getMissingBiodataFields()) || 
                                 !$u->hasVerifiedEmail()
@@ -416,18 +460,28 @@
         window.triggerMitraNotification = function (payload) { showMitraNotification(payload || {}); }
     </script>
 
-    <!-- Modal Notifikasi Akun Diblokir -->
-    <div id="blocked-account-modal" class="{{ (auth()->check() && auth()->user()->status === 'blocked') ? '' : 'hidden' }}" style="{{ (auth()->check() && auth()->user()->status === 'blocked') ? 'display: flex !important;' : '' }} position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999999; align-items: center; justify-content: center; padding: 1rem;">
+    <!-- Modal Notifikasi Verifikasi KTP / Identitas Ditolak -->
+    @include('partials.ktp-rejected-modal')
+
+    <!-- Modal Notifikasi Akun Diblokir / Dinonaktifkan -->
+    @php
+        $isMitraAccountDisabled = auth()->check() && in_array(auth()->user()->status, ['blocked', 'inactive']);
+        $isMitraInactive = auth()->check() && auth()->user()->status === 'inactive';
+    @endphp
+    <div id="blocked-account-modal" class="{{ $isMitraAccountDisabled ? '' : 'hidden' }}" style="{{ $isMitraAccountDisabled ? 'display: flex !important;' : '' }} position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999999; align-items: center; justify-content: center; padding: 1rem;">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-gray-100 transform animate-bounce-in">
             <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                 </svg>
             </div>
-            <h3 class="text-lg font-extrabold text-gray-900 m
-            b-2">Akun Anda Telah Diblokir</h3>
-            <p class="text-xs text-gray-600 mb-6 leading-relaxed">
-                Akses akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan informasi lebih lanjut.
+            <h3 id="blocked-account-title" class="text-lg font-extrabold text-gray-900 mb-2">
+                {{ $isMitraInactive ? 'Akun Anda Dinonaktifkan' : 'Akun Anda Telah Diblokir' }}
+            </h3>
+            <p id="blocked-account-message" class="text-xs text-gray-600 mb-6 leading-relaxed">
+                {{ $isMitraInactive 
+                    ? 'Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan bantuan.' 
+                    : 'Akses akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan informasi lebih lanjut.' }}
             </p>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -442,11 +496,38 @@
     </div>
 
     <script>
-        function triggerBlockedModal() {
+        function triggerBlockedModal(isInactive = null) {
             const modal = document.getElementById('blocked-account-modal');
-            if (modal) {
+            if (!modal) return;
+
+            const updateTexts = (inactive) => {
+                const title = document.getElementById('blocked-account-title');
+                const msg = document.getElementById('blocked-account-message');
+                if (inactive) {
+                    if (title) title.innerText = 'Akun Anda Dinonaktifkan';
+                    if (msg) msg.innerText = 'Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan bantuan.';
+                } else {
+                    if (title) title.innerText = 'Akun Anda Telah Diblokir';
+                    if (msg) msg.innerText = 'Akses akun Anda telah diblokir oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan informasi lebih lanjut.';
+                }
                 modal.classList.remove('hidden');
                 modal.style.display = 'flex';
+            };
+
+            if (isInactive === true || isInactive === false) {
+                updateTexts(isInactive);
+            } else {
+                fetch("{{ route('account.status.check') }}", {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const inactive = !!(data && (data.status === 'inactive' || data.is_inactive));
+                    updateTexts(inactive);
+                })
+                .catch(() => {
+                    updateTexts(false);
+                });
             }
         }
 
@@ -459,15 +540,16 @@
                 }
             })
             .then(res => {
-                if (res.status === 403) {
-                    triggerBlockedModal();
-                    return;
+                if (res.status === 401) {
+                    window.location.href = "{{ route('login') }}";
+                    return null;
                 }
                 return res.json();
             })
             .then(data => {
-                if (data && (data.is_blocked || data.status === 'blocked')) {
-                    triggerBlockedModal();
+                if (data && (data.should_logout || data.is_blocked || data.is_inactive || data.status === 'blocked' || data.status === 'inactive')) {
+                    const isInactive = (data.status === 'inactive' || data.is_inactive);
+                    triggerBlockedModal(isInactive);
                 }
             })
             .catch(() => {});
@@ -475,8 +557,8 @@
 
         // Check immediately on load, on focus, on click, and every 2.5 seconds
         document.addEventListener('DOMContentLoaded', () => {
-            @if(auth()->check() && auth()->user()->status === 'blocked')
-                triggerBlockedModal();
+            @if(auth()->check() && in_array(auth()->user()->status, ['blocked', 'inactive']))
+                triggerBlockedModal({{ auth()->user()->status === 'inactive' ? 'true' : 'false' }});
             @else
                 checkAccountStatus();
             @endif
@@ -492,9 +574,18 @@
         document.addEventListener('livewire:init', () => {
             if (typeof Livewire !== 'undefined' && Livewire.hook) {
                 Livewire.hook('request', ({ fail }) => {
-                    fail(({ status }) => {
+                    fail(({ status, content }) => {
                         if (status === 403 || status === 401) {
-                            triggerBlockedModal();
+                            let isInactive = null;
+                            try {
+                                if (content) {
+                                    const parsed = typeof content === 'string' ? JSON.parse(content) : content;
+                                    if (parsed && (parsed.status || parsed.is_inactive !== undefined)) {
+                                        isInactive = !!(parsed.status === 'inactive' || parsed.is_inactive);
+                                    }
+                                }
+                            } catch(e) {}
+                            triggerBlockedModal(isInactive);
                         }
                     });
                 });

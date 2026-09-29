@@ -55,6 +55,12 @@ class Verifications extends Component
             $reg->update(['status' => 'approved']);
         }
 
+        try {
+            $user->notify(new \App\Notifications\KtpVerificationStatusNotification('approved'));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP approved: ' . $e->getMessage());
+        }
+
         session()->flash('message', 'User berhasil diverifikasi.');
     }
 
@@ -73,6 +79,12 @@ class Verifications extends Component
         $reg = \App\Models\Registration::where('email', $user->email)->first();
         if ($reg) {
             $reg->update(['status' => 'rejected']);
+        }
+
+        try {
+            $user->notify(new \App\Notifications\KtpVerificationStatusNotification('rejected'));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP rejected: ' . $e->getMessage());
         }
 
         session()->flash('message', 'Verifikasi ditolak.');

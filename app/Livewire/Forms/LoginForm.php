@@ -75,14 +75,23 @@ class LoginForm extends Form
             // ignore lookup errors
         }
 
-        // Only block non-privileged users who are pending or inactive
-        if (!$isPrivileged && ($user->status === 'pending' || $user->status === 'inactive')) {
+        // Only block non-privileged users who are pending
+        if (!$isPrivileged && $user->status === 'pending') {
             Auth::logout();
             throw ValidationException::withMessages([
                 'form.email' => 'Akun Anda masih menunggu verifikasi dari admin. Silakan tunggu hingga akun Anda disetujui.',
             ]);
         }
 
+        // Block inactive users
+        if ($user->status === 'inactive') {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'form.email' => 'Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service untuk informasi lebih lanjut.',
+            ]);
+        }
+
+        // Block blocked users
         if ($user->status === 'blocked') {
             Auth::logout();
             throw ValidationException::withMessages([

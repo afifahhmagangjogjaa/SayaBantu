@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\Registration;
 use App\Models\City;
+use App\Models\User;
 
 class Verification extends Component
 {
@@ -20,11 +21,20 @@ class Verification extends Component
     public $existing_ktp;
     public $existing_selfie;
 
+    public $rejection_reason = null;
+    public $is_rejected = false;
+
     public function mount()
     {
         $user = Auth::user();
         $this->existing_ktp = $user->ktp_photo;
         $this->existing_selfie = $user->selfie_photo;
+
+        $reg = Registration::where('email', $user->email)->first();
+        if ($reg && $reg->status === 'rejected') {
+            $this->is_rejected = true;
+            $this->rejection_reason = $reg->rejection_reason ?: 'Dokumen tidak memenuhi persyaratan verifikasi.';
+        }
     }
 
     public function save()
@@ -64,30 +74,48 @@ class Verification extends Component
             $changes++;
         }
 
-        if ($changes > 0) {
-            $user->save();
+        if ($changes > 0 || ($user->ktp_photo && $user->selfie_photo)) {
+            if ($changes > 0) {
+                $user->save();
+            }
 
             // Sinkronkan ke tabel registrations agar muncul di admin verifikasi KTP
             $this->syncToRegistrations($user);
 
-            session()->flash('message', 'Data verifikasi berhasil diperbarui.');
+            // Kirim notifikasi ke Admin Kota terkait
+            try {
+                $cityId = $user->city_id;
+                if (!$cityId && !empty($user->city)) {
+                    $cityId = City::where('name', 'like', '%' . trim($user->city) . '%')->value('id');
+                    if ($cityId) {
+                        $user->city_id = $cityId;
+                        $user->save();
+                    }
+                }
+                if ($cityId) {
+                    $cityAdmins = User::getAdminsForCity($cityId);
+                    if ($cityAdmins->isNotEmpty()) {
+                        \Illuminate\Support\Facades\Notification::send($cityAdmins, new \App\Notifications\NewKtpVerificationNotification($user));
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP baru ke admin kota: ' . $e->getMessage());
+            }
+
+            // Kirim notifikasi ke user bahwa KTP sedang ditinjau
+            try {
+                $user->notify(new \App\Notifications\KtpVerificationPromptNotification());
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Gagal kirim notif status KTP ke user: ' . $e->getMessage());
+            }
+
+            session()->flash('message', 'Data verifikasi berhasil diperbarui dan dikirim ke Admin.');
             
             if (Auth::user()->role === 'mitra') {
                 return $this->redirectRoute('mitra.profile', navigate: true);
             }
             return $this->redirectRoute('profile', navigate: true);
         } else {
-            // Jika kedua file sudah terunggah sebelumnya, dan user tidak memilih file baru
-            if ($user->ktp_photo && $user->selfie_photo) {
-                // Pastikan tetap tersinkron jika belum pernah dibuat di registrations
-                $this->syncToRegistrations($user);
-
-                if (Auth::user()->role === 'mitra') {
-                    return $this->redirectRoute('mitra.profile', navigate: true);
-                }
-                return $this->redirectRoute('profile', navigate: true);
-            }
-
             session()->flash('error', 'Pilih minimal satu file (KTP atau Selfie) yang ingin diunggah sebelum menyimpan.');
         }
     }
@@ -122,6 +150,7 @@ class Verification extends Component
                 'city_id'          => $user->city_id     ?? $existing->city_id,
                 'city'             => $cityName          ?? $existing->city,
                 'status'           => 'pending_verification',
+                'rejection_reason' => null,
             ]);
         } else {
             Registration::create([

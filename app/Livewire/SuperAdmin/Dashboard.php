@@ -99,13 +99,13 @@ class Dashboard extends Component
             'total_admins' => User::whereIn('role', ['admin', 'super_admin'])->count(),
             'total_cities' => City::count(),
             'total_categories' => Category::count(),
-            'pending_helps' => Help::where('status', 'pending')->count(),
-            'active_helps' => Help::where('status', 'active')->count(),
+            'pending_helps' => Help::whereIn('status', ['menunggu_mitra', 'mencari_mitra', 'menunggu_pembayaran'])->count(),
+            'active_helps'  => Help::whereIn('status', ['taken', 'memperoleh_mitra', 'partner_on_the_way', 'partner_arrived', 'in_progress', 'sedang_diproses', 'waiting_customer_confirmation'])->count(),
         ];
 
         // Recent items for quick view
         $recentUsers = User::orderByDesc('created_at')->limit(6)->get(['id', 'name', 'email', 'role', 'created_at']);
-        $recentHelps = Help::with('user')->orderByDesc('created_at')->limit(6)->get(['id', 'title', 'status', 'created_at', 'user_id']);
+        $recentHelps = Help::with('user')->orderByDesc('created_at')->limit(6)->get(['id', 'title', 'status', 'created_at', 'user_id', 'help_type']);
 
         return view('superadmin.dashboard', compact('stats', 'recentUsers', 'recentHelps'));
     }

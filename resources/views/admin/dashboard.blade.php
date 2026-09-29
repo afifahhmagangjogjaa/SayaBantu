@@ -99,7 +99,7 @@
                     </div>
                     <div>
                         <div class="text-xs text-gray-500">Total Bantuan</div>
-                        <div class="text-lg font-bold text-gray-900">{{ number_format($totalHelps) }}</div>
+                        <div class="text-lg font-medium text-gray-900">{{ number_format($totalHelps) }}</div>
                     </div>
                 </div>
 
@@ -114,7 +114,7 @@
                     </div>
                     <div>
                         <div class="text-xs text-gray-500">Pending</div>
-                        <div class="text-lg font-bold text-yellow-600">{{ number_format($pendingHelps) }}</div>
+                        <div class="text-lg font-medium text-yellow-600">{{ number_format($pendingHelps) }}</div>
                     </div>
                 </div>
 
@@ -128,7 +128,7 @@
                     </div>
                     <div>
                         <div class="text-xs text-gray-500">Aktif</div>
-                        <div class="text-lg font-bold text-green-600">{{ number_format($activeHelps) }}</div>
+                        <div class="text-lg font-medium text-green-600">{{ number_format($activeHelps) }}</div>
                     </div>
                 </div>
 
@@ -142,7 +142,7 @@
                     </div>
                     <div>
                         <div class="text-xs text-gray-500">Selesai</div>
-                        <div class="text-lg font-bold text-gray-900">{{ number_format($completedHelps) }}</div>
+                        <div class="text-lg font-medium text-gray-900">{{ number_format($completedHelps) }}</div>
                     </div>
                 </div>
 
@@ -157,7 +157,7 @@
                     </div>
                     <div>
                         <div class="text-xs text-gray-500">KTP Pending</div>
-                        <div class="text-lg font-bold text-orange-600">{{ number_format($pendingVerifications) }}</div>
+                        <div class="text-lg font-medium text-orange-600">{{ number_format($pendingVerifications) }}</div>
                     </div>
                 </div>
 
@@ -171,7 +171,7 @@
                     </div>
                     <div>
                         <div class="text-xs text-gray-500">Mitra Terverifikasi</div>
-                        <div class="text-lg font-bold text-teal-600">{{ number_format($verifiedMitras) }}</div>
+                        <div class="text-lg font-medium text-teal-600">{{ number_format($verifiedMitras) }}</div>
                     </div>
                 </div>
             </div>
@@ -189,7 +189,7 @@
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="text-lg font-bold text-gray-900 mb-1">
+                                    <h3 class="text-lg font-medium text-gray-900 mb-1">
                                         {{ $pendingTopups }} Request Top-Up Menunggu Approval
                                     </h3>
                                     <p class="text-sm text-gray-600">
@@ -211,7 +211,7 @@
             <div class="mb-6">
                 <div class="w-full bg-white rounded-2xl shadow p-6">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-gray-800">Aktivitas Terakhir</h2>
+                        <h2 class="text-lg font-medium text-gray-800">Aktivitas Terakhir</h2>
                         <div class="text-xs text-gray-500">Update otomatis</div>
                     </div>
 
@@ -230,7 +230,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6 mb-6">
                 <div class="lg:col-span-3 bg-white rounded-2xl shadow p-6">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Permintaan Bantuan Terbaru</h3>
+                        <h3 class="text-lg font-medium text-gray-800">Permintaan Bantuan Terbaru</h3>
                         <a href="{{ route('admin.helps') }}" class="text-sm text-primary-600">Lihat semua</a>
                     </div>
 
@@ -251,7 +251,14 @@
                                     @foreach($latestHelps as $help)
                                         <tr class="align-top">
                                             <td class="py-3 text-center text-gray-500 font-medium">{{ $loop->iteration }}</td>
-                                            <td class="py-3 text-gray-800">{{ $help->order_id ?? $help->id }}</td>
+                                            <td class="py-3 text-gray-800">
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    <span>{{ $help->order_id ?? $help->id }}</span>
+                                                    @if($help->isUrgent())
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                    @endif
+                                                </div>
+                                            </td>
                                             <td class="py-3 text-gray-600">{{ optional($help->user)->name ?? '-' }}</td>
                                             <td class="py-3"><span
                                                     class="px-2 py-1 text-xs rounded {{ $help->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : ($help->status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700') }}">{{ ucfirst($help->status) }}</span>

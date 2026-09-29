@@ -109,18 +109,25 @@
                     <p class="mt-1 text-gray-800 text-sm whitespace-pre-line leading-relaxed">{{ $report->message }}</p>
                 </div>
 
-                @if(!empty($report->admin_notes))
-                    <div class="mt-4 p-4 {{ $isRejected ? 'bg-red-50 border border-red-200' : 'bg-emerald-50 border border-emerald-200' }} rounded-xl">
-                        <p class="text-xs font-bold {{ $isRejected ? 'text-red-800' : 'text-emerald-800' }} uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                            @if($isRejected)
-                                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                Alasan / Catatan dari Admin:
-                            @else
-                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                Catatan Tindakan dari Admin:
-                            @endif
+                @if($isResolved)
+                    <div class="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+                        <p class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Hasil Penanganan:
                         </p>
-                        <p class="text-sm {{ $isRejected ? 'text-red-900' : 'text-emerald-900' }} whitespace-pre-line">{{ $report->admin_notes }}</p>
+                        <p class="text-sm text-emerald-900 leading-relaxed">
+                            Laporan aduan Anda telah berhasil ditindaklanjuti dan diselesaikan oleh tim Admin sesuai kebijakan layanan SayaBantu. Terima kasih telah membantu menjaga keamanan dan kenyamanan bersama.
+                        </p>
+                    </div>
+                @elseif($isRejected)
+                    <div class="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                        <p class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m4 0h.01M12 20a8 8 0 100-16 8 8 0 000 16z"/></svg>
+                            Hasil Penanganan:
+                        </p>
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            Laporan aduan Anda telah ditinjau dan dinyatakan ditutup oleh tim Admin.
+                        </p>
                     </div>
                 @endif
 
@@ -182,12 +189,6 @@
                                     <strong class="text-gray-900 block mb-0.5">Keluhan:</strong>
                                     {{ $oRep->message }}
                                 </div>
-                                @if(!empty($oRep->admin_notes))
-                                    <div class="mt-2 p-2.5 bg-emerald-50 rounded-xl text-xs text-emerald-900 border border-emerald-200">
-                                        <strong class="text-emerald-950 block mb-0.5">Catatan Tindakan Admin:</strong>
-                                        {{ $oRep->admin_notes }}
-                                    </div>
-                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -199,7 +200,6 @@
     <script>
         (function() {
             let currentStatus = @json($report->status);
-            let currentNotes = @json($report->admin_notes);
             let checkUrl = "{{ route('customer.reports.status-check', $report->id) }}";
 
             function checkReportStatus() {
@@ -209,7 +209,7 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data && data.status) {
-                        if (data.status !== currentStatus || data.admin_notes !== currentNotes) {
+                        if (data.status !== currentStatus) {
                             window.location.reload();
                         }
                     }

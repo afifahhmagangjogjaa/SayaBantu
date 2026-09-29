@@ -49,30 +49,73 @@
         </div>
     @endif
 
+    {{-- Banner Pembatalan (Jika dibatalkan) --}}
+    @if(in_array($help->status, ['dibatalkan', 'cancelled']) || $help->customer_cancel_reason || $help->partner_cancel_reason)
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 flex items-start gap-3 shadow-xs">
+            <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold shrink-0">
+                ⚠️
+            </div>
+            <div class="flex-1 space-y-1">
+                <span class="font-bold text-sm text-amber-900 block">Riwayat Pembatalan Pesanan</span>
+                @if($help->customer_cancel_reason)
+                    <div class="bg-white p-2.5 rounded-xl border border-amber-100 mt-1">
+                        <span class="font-semibold text-gray-800">Dibatalkan oleh Customer:</span>
+                        <p class="italic text-gray-700 mt-0.5">"{{ $help->customer_cancel_reason }}"</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Waktu: {{ optional($help->cancelled_at)->format('d M Y, H:i') ?? '-' }}</p>
+                    </div>
+                @endif
+                @if($help->partner_cancel_reason)
+                    <div class="bg-white p-2.5 rounded-xl border border-amber-100 mt-1">
+                        <span class="font-semibold text-gray-800">Dibatalkan oleh Mitra:</span>
+                        <p class="italic text-gray-700 mt-0.5">"{{ $help->partner_cancel_reason }}"</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Waktu: {{ optional($help->partner_cancel_requested_at)->format('d M Y, H:i') ?? '-' }}</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {{-- Main Info --}}
         <div class="lg:col-span-2 space-y-5">
             <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                 <div class="flex items-start justify-between gap-4 mb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900">{{ $help->title }}</h2>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-xl font-bold text-gray-900">{{ $help->title }}</h2>
+                            @if($help->isUrgent())
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider">⚡ Urgent</span>
+                            @endif
+                        </div>
                         <p class="text-xs text-gray-400 font-mono mt-1">ID: {{ $help->order_id ?? '#' . $help->id }}</p>
                     </div>
-                    <div>
+                    <div class="flex items-center gap-2 flex-wrap justify-end">
                         @if(in_array($help->status, ['komplain', 'disputed']))
                             <span class="px-3 py-1 inline-flex text-xs font-bold rounded-full bg-red-100 text-red-700 border border-red-300 animate-pulse">⚠️ Komplain / Mediasi</span>
                         @elseif($help->status === 'pending')
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-orange-50 text-orange-700 border border-orange-200">Menunggu Persetujuan</span>
+                            <button type="button" wire:click="openDecisionModal('reject_help')"
+                                class="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                Tolak Bantuan
+                            </button>
                         @elseif($help->status === 'waiting_customer_confirmation')
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-orange-50 text-orange-700 border border-orange-200">Menunggu Konfirmasi Customer</span>
                         @elseif($help->status === 'menunggu_mitra')
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">Menunggu Mitra</span>
+                            <button type="button" wire:click="openDecisionModal('reject_help')"
+                                class="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                Tolak Bantuan
+                            </button>
                         @elseif(in_array($help->status, ['partner_on_the_way', 'taken', 'in_progress', 'sedang_diproses']))
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200">Aktif / Berlangsung</span>
                         @elseif($help->status === 'selesai')
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">Selesai</span>
-                        @elseif(in_array($help->status, ['rejected', 'dibatalkan']))
-                            <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Ditolak / Dibatalkan</span>
+                        @elseif($help->status === 'rejected')
+                            <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Ditolak</span>
+                        @elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
+                            <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Dibatalkan</span>
                         @else
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">{{ ucfirst(str_replace('_', ' ', $help->status)) }}</span>
                         @endif
@@ -117,8 +160,14 @@
                         <p class="font-medium text-gray-800">{{ $help->created_at->format('d M Y, H:i') }}</p>
                     </div>
                     <div>
+                        <p class="text-xs text-gray-500 mb-0.5">Tipe Layanan</p>
+                        <p class="font-bold {{ $help->isUrgent() ? 'text-red-600' : 'text-blue-600' }}">
+                            {{ $help->isUrgent() ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}
+                        </p>
+                    </div>
+                    <div>
                         <p class="text-xs text-gray-500 mb-0.5">Dijadwalkan</p>
-                        <p class="font-medium text-gray-800">{{ $help->scheduled_at ? \Carbon\Carbon::parse($help->scheduled_at)->format('d M Y, H:i') : 'Segera' }}</p>
+                        <p class="font-medium {{ $help->isUrgent() ? 'text-red-600 font-semibold' : 'text-gray-800' }}">{{ $help->scheduled_at ? \Carbon\Carbon::parse($help->scheduled_at)->format('d M Y, H:i') : 'Segera' }}</p>
                     </div>
                 </div>
             </div>
@@ -214,18 +263,45 @@
             @endif
 
             {{-- Customer --}}
-            <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Customer</h3>
+            <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Customer / Pemohon</h3>
+                    @if($help->customer)
+                        @if($help->customer->status === 'blocked')
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-700 border border-red-200">⛔ Diblokir</span>
+                        @elseif($help->customer->is_shadow_banned)
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-200">👻 Shadow Ban</span>
+                        @else
+                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Aktif</span>
+                        @endif
+                    @endif
+                </div>
                 @if($help->customer)
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold text-sm flex-shrink-0">
                             {{ strtoupper(substr($help->customer->name, 0, 1)) }}
                         </div>
-                        <div>
-                            <p class="font-semibold text-gray-900 text-sm">{{ $help->customer->name }}</p>
-                            <p class="text-xs text-gray-500">{{ $help->customer->email }}</p>
+                        <div class="min-w-0 flex-1">
+                            <p class="font-semibold text-gray-900 text-sm truncate">{{ $help->customer->name }}</p>
+                            <p class="text-xs text-gray-500 truncate">{{ $help->customer->email }}</p>
                             <p class="text-xs text-gray-400">{{ $help->customer->phone ?? '-' }}</p>
                         </div>
+                    </div>
+
+                    {{-- Quick Action Moderasi --}}
+                    <div class="pt-3 border-t border-gray-100 flex items-center gap-2">
+                        <button type="button" wire:click="toggleShadowBan({{ $help->customer->id }})"
+                            wire:confirm="{{ $help->customer->is_shadow_banned ? 'Apakah Anda yakin ingin membebaskan ' . $help->customer->name . ' dari Shadow Ban?' : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada ' . $help->customer->name . '? Permintaan bantuan berikutnya akan disembunyikan secara senyap dari mitra.' }}"
+                            class="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition cursor-pointer {{ $help->customer->is_shadow_banned ? 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100' }}">
+                            <span>👻</span>
+                            <span>{{ $help->customer->is_shadow_banned ? 'Lepas Shadow' : 'Shadow Ban' }}</span>
+                        </button>
+                        <button type="button" wire:click="toggleBlockUser({{ $help->customer->id }})"
+                            wire:confirm="{{ $help->customer->status === 'blocked' ? 'Apakah Anda yakin ingin membuka blokir akun ' . $help->customer->name . '?' : 'Apakah Anda yakin ingin memblokir akun ' . $help->customer->name . '? Pengguna tidak dapat login lagi.' }}"
+                            class="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition cursor-pointer {{ $help->customer->status === 'blocked' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' }}">
+                            <span>⛔</span>
+                            <span>{{ $help->customer->status === 'blocked' ? 'Buka Blokir' : 'Blokir Akun' }}</span>
+                        </button>
                     </div>
                 @else
                     <p class="text-sm text-gray-400">-</p>
@@ -233,18 +309,45 @@
             </div>
 
             {{-- Mitra --}}
-            <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Mitra</h3>
+            <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Mitra / Pelaksana</h3>
+                    @if($help->mitra)
+                        @if($help->mitra->status === 'blocked')
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-700 border border-red-200">⛔ Diblokir</span>
+                        @elseif($help->mitra->is_shadow_banned)
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-200">👻 Shadow Ban</span>
+                        @else
+                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Aktif</span>
+                        @endif
+                    @endif
+                </div>
                 @if($help->mitra)
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
                             {{ strtoupper(substr($help->mitra->name, 0, 1)) }}
                         </div>
-                        <div>
-                            <p class="font-semibold text-gray-900 text-sm">{{ $help->mitra->name }}</p>
-                            <p class="text-xs text-gray-500">{{ $help->mitra->email }}</p>
+                        <div class="min-w-0 flex-1">
+                            <p class="font-semibold text-gray-900 text-sm truncate">{{ $help->mitra->name }}</p>
+                            <p class="text-xs text-gray-500 truncate">{{ $help->mitra->email }}</p>
                             <p class="text-xs text-gray-400">{{ $help->mitra->phone ?? '-' }}</p>
                         </div>
+                    </div>
+
+                    {{-- Quick Action Moderasi Mitra --}}
+                    <div class="pt-3 border-t border-gray-100 flex items-center gap-2">
+                        <button type="button" wire:click="toggleShadowBan({{ $help->mitra->id }})"
+                            wire:confirm="{{ $help->mitra->is_shadow_banned ? 'Apakah Anda yakin ingin membebaskan ' . $help->mitra->name . ' dari Shadow Ban?' : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada mitra ' . $help->mitra->name . '? Mitra tidak akan menerima pesanan baru.' }}"
+                            class="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition cursor-pointer {{ $help->mitra->is_shadow_banned ? 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100' }}">
+                            <span>👻</span>
+                            <span>{{ $help->mitra->is_shadow_banned ? 'Lepas Shadow' : 'Shadow Ban' }}</span>
+                        </button>
+                        <button type="button" wire:click="toggleBlockUser({{ $help->mitra->id }})"
+                            wire:confirm="{{ $help->mitra->status === 'blocked' ? 'Apakah Anda yakin ingin membuka blokir mitra ' . $help->mitra->name . '?' : 'Apakah Anda yakin ingin memblokir akun mitra ' . $help->mitra->name . '?' }}"
+                            class="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition cursor-pointer {{ $help->mitra->status === 'blocked' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' }}">
+                            <span>⛔</span>
+                            <span>{{ $help->mitra->status === 'blocked' ? 'Buka Blokir' : 'Blokir Akun' }}</span>
+                        </button>
                     </div>
                 @else
                     <p class="text-sm text-gray-400 italic">Belum ada mitra</p>
@@ -287,16 +390,22 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
             <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
                 {{-- Modal Header --}}
-                <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between {{ $decisionType === 'refund' ? 'bg-red-50' : 'bg-emerald-50' }}">
+                <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between {{ $decisionType === 'refund' || $decisionType === 'reject_help' ? 'bg-red-50' : 'bg-emerald-50' }}">
                     <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-full {{ $decisionType === 'refund' ? 'bg-red-500 text-white' : 'bg-emerald-600 text-white' }} flex items-center justify-center font-bold text-sm">
-                            {{ $decisionType === 'refund' ? '💸' : '✅' }}
+                        <div class="w-8 h-8 rounded-full {{ $decisionType === 'refund' || $decisionType === 'reject_help' ? 'bg-red-500 text-white' : 'bg-emerald-600 text-white' }} flex items-center justify-center font-bold text-sm">
+                            {{ $decisionType === 'refund' ? '💸' : ($decisionType === 'reject_help' ? '✕' : '✅') }}
                         </div>
                         <div>
                             <h3 class="text-sm font-bold text-gray-900">
-                                {{ $decisionType === 'refund' ? 'Konfirmasi Refund ke Customer' : 'Konfirmasi Tolak Komplain & Cairkan ke Mitra' }}
+                                @if($decisionType === 'refund')
+                                    Konfirmasi Refund ke Customer
+                                @elseif($decisionType === 'reject_help')
+                                    Konfirmasi Tolak Permintaan Bantuan
+                                @else
+                                    Konfirmasi Tolak Komplain & Cairkan ke Mitra
+                                @endif
                             </h3>
-                            <p class="text-[11px] text-gray-500">Putusan mediasi oleh Admin</p>
+                            <p class="text-[11px] text-gray-500">Putusan moderasi oleh Admin</p>
                         </div>
                     </div>
                     <button type="button" wire:click="closeDecisionModal" class="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-700 transition text-xs">✕</button>
@@ -304,9 +413,11 @@
 
                 {{-- Modal Body --}}
                 <form wire:submit.prevent="processDecision" class="p-5 space-y-4">
-                    <div class="p-3 {{ $decisionType === 'refund' ? 'bg-red-50 text-red-800 border-red-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200' }} border rounded-xl text-xs leading-relaxed">
+                    <div class="p-3 {{ $decisionType === 'refund' || $decisionType === 'reject_help' ? 'bg-red-50 text-red-800 border-red-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200' }} border rounded-xl text-xs leading-relaxed">
                         @if($decisionType === 'refund')
                             <strong>Perhatian:</strong> Saldo sebesar <strong>Rp {{ number_format($help->amount + ($help->admin_fee ?? 0), 0, ',', '.') }}</strong> akan dikembalikan ke dompet customer. Status pesanan akan diubah menjadi <em>Dibatalkan</em>.
+                        @elseif($decisionType === 'reject_help')
+                            <strong>Perhatian:</strong> Permintaan bantuan <strong>"{{ $help->title }}"</strong> akan ditolak. Saldo sebesar <strong>Rp {{ number_format($help->amount + ($help->admin_fee ?? 0), 0, ',', '.') }}</strong> akan otomatis dikembalikan 100% ke dompet customer.
                         @else
                             <strong>Perhatian:</strong> Dana sebesar <strong>Rp {{ number_format($help->amount, 0, ',', '.') }}</strong> akan langsung dicairkan ke dompet saldo mitra. Status pesanan akan diubah menjadi <em>Selesai</em>.
                         @endif
@@ -314,9 +425,9 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-800 mb-1">
-                            Catatan Keputusan Admin (Opsional)
+                            {{ $decisionType === 'reject_help' ? 'Alasan Penolakan (Akan Dilihat Customer)' : 'Catatan Keputusan Admin (Opsional)' }}
                         </label>
-                        <textarea wire:model="admin_notes" rows="3" placeholder="Masukkan alasan keputusan atau catatan mediasi untuk arsip..."
+                        <textarea wire:model="admin_notes" rows="3" placeholder="{{ $decisionType === 'reject_help' ? 'Contoh: Permintaan tidak sesuai ketentuan layanan atau informasi lokasi tidak jelas...' : 'Masukkan alasan keputusan atau catatan mediasi untuk arsip...' }}"
                             class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white transition"></textarea>
                     </div>
 
@@ -325,8 +436,8 @@
                             Batal
                         </button>
                         <button type="submit" wire:loading.attr="disabled"
-                            class="px-5 py-2 {{ $decisionType === 'refund' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer flex items-center gap-1.5">
-                            <span wire:loading.remove wire:target="processDecision">Eksekusi Keputusan</span>
+                            class="px-5 py-2 {{ $decisionType === 'refund' || $decisionType === 'reject_help' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer flex items-center gap-1.5">
+                            <span wire:loading.remove wire:target="processDecision">{{ $decisionType === 'reject_help' ? 'Tolak Bantuan' : 'Eksekusi Keputusan' }}</span>
                             <span wire:loading wire:target="processDecision" class="inline-flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                                 Memproses...

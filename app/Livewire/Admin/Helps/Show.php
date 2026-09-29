@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Helps;
 
 use Livewire\Component;
 use App\Models\Help;
+use App\Models\User;
 
 class Show extends Component
 {
@@ -22,6 +23,33 @@ class Show extends Component
     public function loadHelp()
     {
         $this->help = Help::with(['customer', 'mitra', 'category', 'city'])->findOrFail($this->helpId);
+    }
+
+    public function toggleShadowBan($userId)
+    {
+        $user = User::findOrFail($userId);
+        $user->is_shadow_banned = !((bool) $user->is_shadow_banned);
+        $user->shadow_banned_at = $user->is_shadow_banned ? now() : null;
+        $user->save();
+
+        $this->loadHelp();
+        $label = $user->is_shadow_banned 
+            ? "👻 Shadow Ban berhasil diaktifkan untuk {$user->name}. Permintaan berikutnya akan disembunyikan secara senyap."
+            : "✅ Shadow Ban berhasil dinonaktifkan untuk {$user->name}.";
+        session()->flash('message', $label);
+    }
+
+    public function toggleBlockUser($userId)
+    {
+        $user = User::findOrFail($userId);
+        $user->status = ($user->status === 'blocked') ? 'active' : 'blocked';
+        $user->save();
+
+        $this->loadHelp();
+        $label = $user->status === 'blocked' 
+            ? "⛔ Pengguna {$user->name} berhasil diblokir."
+            : "✅ Blokir pengguna {$user->name} berhasil dibuka.";
+        session()->flash('message', $label);
     }
 
     public function approveHelp()
@@ -58,7 +86,27 @@ class Show extends Component
             $this->approveRefund();
         } elseif ($this->decisionType === 'reject_complaint') {
             $this->rejectComplaint();
+        } elseif ($this->decisionType === 'reject_help') {
+            $this->confirmRejectHelp();
         }
+    }
+
+    public function confirmRejectHelp()
+    {
+        if (in_array($this->help->status, ['selesai', 'completed', 'dibatalkan', 'cancelled', 'rejected'])) {
+            session()->flash('error', 'Bantuan tidak dapat ditolak karena sudah selesai atau dibatalkan.');
+            $this->closeDecisionModal();
+            return;
+        }
+
+        $this->help->update([
+            'status' => 'rejected',
+            'admin_notes' => $this->admin_notes ?: 'Permintaan bantuan ditolak oleh admin kota.',
+        ]);
+
+        $this->showDecisionModal = false;
+        $this->loadHelp();
+        session()->flash('message', 'Bantuan telah berhasil ditolak dan saldo dikembalikan ke customer.');
     }
 
     public function approveRefund()

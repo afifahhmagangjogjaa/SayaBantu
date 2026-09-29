@@ -17,7 +17,15 @@
                             <h1 class="text-lg font-bold">Chat</h1>
                             <p class="text-xs text-white/90 mt-0.5">Percakapan antara Anda dan mitra</p>
                         </div>
-                        <div class="w-8"></div>
+                        @if(($totalUnreadCount ?? 0) > 0)
+                            <button wire:click="markAllAsRead" title="Tandai semua pesan sudah dibaca" class="p-1.5 bg-white/15 hover:bg-white/25 rounded-lg transition text-white flex items-center gap-1 text-xs">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </button>
+                        @else
+                            <div class="w-8"></div>
+                        @endif
                     </div>
                 @else
                     <div class="flex items-center justify-between gap-2 text-white mb-2">
@@ -88,31 +96,57 @@
                     <div class="space-y-3 overflow-y-auto hide-scrollbar">
                         @if($conversations && $conversations->count() > 0)
                             @foreach($conversations as $conversation)
+                                @php
+                                    $hasUnread = ($conversation->unread_messages_count ?? 0) > 0;
+                                    $latestMsg = $conversation->chatMessages->first();
+                                    $timeText = $latestMsg?->created_at ? $latestMsg->created_at->format('H:i') : optional($conversation->updated_at)->format('H:i');
+                                @endphp
                                 <button wire:click="selectHelp({{ $conversation->id }})"
                                     class="w-full px-3 py-3 rounded-xl hover:shadow-md transition text-left {{ $selected_help_id === $conversation->id ? 'bg-primary-50 border border-primary-200' : 'bg-white border border-gray-100' }}">
                                     <div class="flex items-start gap-3">
                                         <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center text-lg">
                                             @if(optional($conversation->mitra)->profile_photo)
                                                 <img src="{{ asset('storage/' . optional($conversation->mitra)->profile_photo) }}" alt="Mitra" class="w-full h-full object-cover">
+                                            @elseif(optional($conversation->mitra)->selfie_photo)
+                                                <img src="{{ asset('storage/' . optional($conversation->mitra)->selfie_photo) }}" alt="Mitra" class="w-full h-full object-cover">
                                             @else
-                                                {{ strtoupper(substr($conversation->mitra->name ?? 'M', 0, 1)) }}
+                                                <span class="font-bold text-gray-700">{{ strtoupper(substr(optional($conversation->mitra)->name ?? 'M', 0, 1)) }}</span>
                                             @endif
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <div class="flex items-center justify-between">
-                                                <span class="font-bold text-gray-900 text-sm truncate">{{ optional($conversation->mitra)->name ?? 'Mitra' }}</span>
-                                                <span class="text-xs text-gray-400">{{ optional($conversation->chatMessages->first())->created_at ? optional($conversation->chatMessages->first())->created_at->format('H:i') : '' }}</span>
+                                            <div class="flex items-start justify-between gap-2 mb-1">
+                                                <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ optional($conversation->mitra)->name ?? 'Mitra' }}</h3>
+                                                <div class="flex items-center gap-1.5 flex-shrink-0">
+                                                    @if(in_array($conversation->status, ['selesai', 'completed']))
+                                                        <span class="text-[10px] bg-green-100 text-green-700 font-semibold px-2 py-0.5 rounded-full">Selesai</span>
+                                                    @elseif(in_array($conversation->status, ['batal', 'cancelled', 'dibatalkan', 'cancel_accepted']))
+                                                        <span class="text-[10px] bg-red-100 text-red-700 font-semibold px-2 py-0.5 rounded-full">Batal</span>
+                                                    @elseif(in_array($conversation->status, ['komplain', 'disputed']))
+                                                        <span class="text-[10px] bg-red-100 text-red-700 font-semibold px-2 py-0.5 rounded-full">Komplain</span>
+                                                    @elseif(in_array($conversation->status, ['partner_cancel_requested', 'cancel_requested']))
+                                                        <span class="text-[10px] bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">Pengajuan Batal</span>
+                                                    @else
+                                                        <span class="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Aktif</span>
+                                                    @endif
+                                                    <span class="text-xs text-gray-400">{{ $timeText }}</span>
+                                                    @if($hasUnread)
+                                                        <div class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                                    @endif
+                                                </div>
                                             </div>
-                                            <p class="text-xs text-gray-600 truncate mt-0.5">{{ Str::limit($conversation->title ?? $conversation->description, 40) }}</p>
-                                            <p class="text-xs text-gray-400 truncate mt-0.5">{{ optional($conversation->chatMessages->first())->message ?? 'Mulai percakapan...' }}</p>
+                                            <p class="text-xs {{ $hasUnread ? 'text-gray-900 font-medium' : 'text-gray-500' }} line-clamp-1">
+                                                {{ $latestMsg?->message ?? 'Mulai percakapan...' }}
+                                            </p>
                                         </div>
-
-                                        @if(optional($conversation->chatMessages->first())->sender_type === 'mitra' && !optional($conversation->chatMessages->first())->read_at)
-                                            <div class="ml-2 w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
-                                        @endif
                                     </div>
                                 </button>
                             @endforeach
+
+                            @if(method_exists($conversations, 'hasPages') && $conversations->hasPages())
+                                <div class="pt-2 pb-4">
+                                    {{ $conversations->links() }}
+                                </div>
+                            @endif
                         @else
                             <div class="text-center py-16">
                                 <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -16,9 +16,12 @@ class Users extends Component
 
     public $search = '';
     public $roleFilter = '';
+    public $spFilter = '';
     public $perPage = 10;
     public $selectedUser = null;
+    public $selectedUserSpHistory = [];
     public $userId = null;
+    public $pageType = 'users';
 
     // form fields
     public $name;
@@ -197,10 +200,15 @@ class Users extends Component
     {
         if (request()->routeIs('superadmin.customers*')) {
             $this->roleFilter = 'customer';
+            $this->pageType = 'customers';
         } elseif (request()->routeIs('superadmin.mitra*')) {
             $this->roleFilter = 'mitra';
+            $this->pageType = 'mitra';
         } elseif (request()->routeIs('superadmin.admin-users*')) {
             $this->roleFilter = 'admin';
+            $this->pageType = 'admin';
+        } else {
+            $this->pageType = 'users';
         }
     }
 
@@ -210,6 +218,10 @@ class Users extends Component
     }
 
     public function updatedRoleFilter()
+    {
+        $this->resetPage();
+    }
+    public function updatedSpFilter()
     {
         $this->resetPage();
     }
@@ -226,6 +238,58 @@ class Users extends Component
             session()->flash('error', 'User not found');
             return;
         }
+
+        // Muat riwayat SP dari notifikasi database (SanctionNotification)
+        $spHistory = [];
+        try {
+            $notifs = $user->notifications()
+                ->where('type', \App\Notifications\SanctionNotification::class)
+                ->latest()
+                ->get();
+
+            foreach ($notifs as $notif) {
+                $data = $notif->data ?? [];
+                $lvl  = (int) ($data['warning_level'] ?? 0);
+                $spHistory[] = [
+                    'level'  => $lvl,
+                    'reason' => $data['reason'] ?? null,
+                    'date'   => \Carbon\Carbon::parse($notif->created_at)->translatedFormat('d M Y, H:i'),
+                    'type'   => $lvl === 0 ? 'reset' : 'sanction',
+                ];
+            }
+
+            // Fallback: jika tidak ada notifikasi, ambil dari log admin_notes laporan
+            if (empty($spHistory)) {
+                $reports = \App\Models\PartnerReport::where(function ($q) use ($user) {
+                        $q->where('reported_user_id', $user->id)
+                          ->orWhere('reporter_id', $user->id);
+                    })
+                    ->whereNotNull('admin_notes')
+                    ->where('admin_notes', '!=', '')
+                    ->get(['id', 'admin_notes', 'title']);
+
+                foreach ($reports as $rep) {
+                    $lines = array_filter(
+                        explode("\n", $rep->admin_notes),
+                        fn($l) => trim($l) !== ''
+                            && (str_contains($l, 'memberikan sanksi') || str_contains($l, 'mencabut') || str_contains($l, 'Surat Peringatan'))
+                            && str_contains(strtolower($l), strtolower($user->name))
+                    );
+                    foreach ($lines as $line) {
+                        $spHistory[] = [
+                            'level'  => null,
+                            'reason' => null,
+                            'log'    => trim($line),
+                            'type'   => 'log',
+                        ];
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            $spHistory = [];
+        }
+
+        $this->selectedUserSpHistory = $spHistory;
         $this->selectedUser = $user;
         $this->showViewModal = true;
     }
@@ -376,6 +440,25 @@ class Users extends Component
 
         $statusLabel = $newStatus === 'active' ? 'diaktifkan' : 'dinonaktifkan';
         session()->flash('message', "Status {$user->name} berhasil {$statusLabel}.");
+    }
+
+    public function toggleShadowBan($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            session()->flash('error', 'User tidak ditemukan');
+            return;
+        }
+
+        $user->is_shadow_banned = !((bool) $user->is_shadow_banned);
+        $user->save();
+
+        if ($this->selectedUser && $this->selectedUser->id == $id) {
+            $this->selectedUser->refresh();
+        }
+
+        $statusLabel = $user->is_shadow_banned ? 'di-Shadow Ban (pesanan disembunyikan)' : 'dilepas dari Shadow Ban';
+        session()->flash('message', "User {$user->name} berhasil {$statusLabel}.");
     }
 
     public function saveUser()
@@ -552,6 +635,7 @@ class Users extends Component
                     if ($reg) {
                         $reg->update(['status' => $this->verified ? 'approved' : 'rejected']);
                     }
+                    $user->notify(new \App\Notifications\KtpVerificationStatusNotification($this->verified ? 'approved' : 'rejected'));
                 }
             } catch (\Exception $e) {
                 // ignore error to not break the save
@@ -635,6 +719,12 @@ class Users extends Component
 
     public function render()
     {
+        if ($this->pageType === 'customers') {
+            $this->roleFilter = 'customer';
+        } elseif ($this->pageType === 'mitra') {
+            $this->roleFilter = 'mitra';
+        }
+
         $users = User::with(['city', 'managedCities'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
@@ -652,6 +742,13 @@ class Users extends Component
             }, function ($query) {
                 // default: show only mitra, kustomer, and customer
                 $query->whereIn('role', ['mitra', 'kustomer', 'customer']);
+            })
+            ->when($this->spFilter !== '' && $this->spFilter !== null, function ($query) {
+                if ($this->spFilter === 'has_sp') {
+                    $query->where('warning_level', '>', 0);
+                } else {
+                    $query->where('warning_level', (int) $this->spFilter);
+                }
             })
             ->latest()
             ->paginate($this->perPage);

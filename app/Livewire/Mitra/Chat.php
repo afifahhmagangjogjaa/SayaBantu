@@ -50,24 +50,36 @@ class Chat extends Component
     {
         $query = Help::where('mitra_id', Auth::id());
 
-        // Search by customer name or help description
-        if ($this->search) {
-            $query->where(function ($q) {
-                $q->whereHas('user', function ($userQuery) {
-                    $userQuery->where('name', 'like', '%' . $this->search . '%');
-                })
-                    ->orWhere('description', 'like', '%' . $this->search . '%');
+        // Search by customer name, title, description, or location
+        if (!empty($this->search)) {
+            $keyword = trim($this->search);
+            $query->where(function ($q) use ($keyword) {
+                $q->where('helps.title', 'like', '%' . $keyword . '%')
+                    ->orWhere('helps.description', 'like', '%' . $keyword . '%')
+                    ->orWhere('helps.location', 'like', '%' . $keyword . '%')
+                    ->orWhereHas('user', function ($userQuery) use ($keyword) {
+                        $userQuery->where('name', 'like', '%' . $keyword . '%');
+                    });
             });
         }
 
-        return $query->with([
-            // 'avatar' column doesn't exist; load the user's selfie_photo instead
-            'user:id,name,selfie_photo',
-            'chatMessages' => function ($q) {
-                $q->latest()->limit(1);
-            }
-        ])
-            ->latest('updated_at')
+        return $query->select('helps.*')
+            ->selectSub(function ($q) {
+                $q->from('chats')
+                    ->whereColumn('chats.help_id', 'helps.id')
+                    ->where('chats.sender_type', 'customer')
+                    ->whereNull('chats.read_at')
+                    ->selectRaw('count(*)');
+            }, 'unread_messages_count')
+            ->with([
+                // 'avatar' column doesn't exist; load the user's selfie_photo instead
+                'user:id,name,selfie_photo',
+                'chatMessages' => function ($q) {
+                    $q->latest()->limit(1);
+                }
+            ])
+            ->orderByDesc('unread_messages_count')
+            ->orderByRaw('COALESCE((SELECT MAX(created_at) FROM chats WHERE chats.help_id = helps.id), helps.updated_at) DESC')
             ->paginate(20);
     }
 
@@ -117,6 +129,8 @@ class Chat extends Component
             'message' => $this->message,
             'sender_type' => 'mitra',
         ]);
+
+        $help->touch();
 
         $this->message = '';
         // Dispatch message-sent with helpId so listeners can link to the conversation

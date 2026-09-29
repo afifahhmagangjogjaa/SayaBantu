@@ -122,6 +122,7 @@ class GpsSimulator extends Component
         }
 
         // Set lokasi awal di database dan ubah status ke partner_on_the_way
+        $oldStatus = $help->status;
         $this->locationService->setInitialLocation($help, $this->currentLat, $this->currentLng);
         $help->update([
             'status' => 'partner_on_the_way',
@@ -131,11 +132,19 @@ class GpsSimulator extends Component
             'partner_current_lng' => $this->currentLng,
         ]);
 
+        if ($oldStatus !== 'partner_on_the_way' && $help->user) {
+            try {
+                $help->user->notify(new \App\Notifications\HelpStatusNotification($help, $oldStatus, 'partner_on_the_way', $help->mitra));
+            } catch (\Throwable $e) {
+                Log::warning('GPS Simulator: Gagal notif partner_on_the_way: ' . $e->getMessage());
+            }
+        }
+
         $this->isSimulating = true;
         $this->dispatch('simulation-started');
         $this->dispatch('status-changed', [
             'helpId' => $this->helpId,
-            'oldStatus' => $help->status,
+            'oldStatus' => $oldStatus,
             'newStatus' => 'partner_on_the_way'
         ]);
         
@@ -212,6 +221,7 @@ class GpsSimulator extends Component
             );
             
             if ($isArrived) {
+                $oldStatus = $help->status;
                 $help->update([
                     'status' => 'partner_arrived',
                     'partner_arrived_at' => now(),
@@ -219,9 +229,17 @@ class GpsSimulator extends Component
                     'partner_current_lng' => $this->currentLng,
                 ]);
 
+                if ($oldStatus !== 'partner_arrived' && $help->user) {
+                    try {
+                        $help->user->notify(new \App\Notifications\HelpStatusNotification($help, $oldStatus, 'partner_arrived', $help->mitra));
+                    } catch (\Throwable $e) {
+                        Log::warning('GPS Simulator: Gagal notif partner_arrived: ' . $e->getMessage());
+                    }
+                }
+
                 $this->dispatch('status-changed', [
                     'helpId' => $this->helpId,
-                    'oldStatus' => $help->status,
+                    'oldStatus' => $oldStatus,
                     'newStatus' => 'partner_arrived'
                 ]);
             } elseif (isset($result['status_changed']) && $result['status_changed']) {
@@ -269,18 +287,27 @@ class GpsSimulator extends Component
             $this->currentLng
         );
         
+        $oldStatus = $help->status;
         $help->update([
             'status' => 'partner_arrived',
             'partner_arrived_at' => now(),
             'partner_current_lat' => $this->currentLat,
             'partner_current_lng' => $this->currentLng,
         ]);
+
+        if ($oldStatus !== 'partner_arrived' && $help->user) {
+            try {
+                $help->user->notify(new \App\Notifications\HelpStatusNotification($help, $oldStatus, 'partner_arrived', $help->mitra));
+            } catch (\Throwable $e) {
+                Log::warning('GPS Simulator: Gagal notif partner_arrived teleport: ' . $e->getMessage());
+            }
+        }
         
         $this->stopSimulation();
 
         $this->dispatch('status-changed', [
             'helpId' => $this->helpId,
-            'oldStatus' => $help->status,
+            'oldStatus' => $oldStatus,
             'newStatus' => 'partner_arrived'
         ]);
     }

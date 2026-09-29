@@ -70,42 +70,118 @@
             <!-- Home Banner -->
             @php
                 $homeBanners = json_decode((string) \App\Models\AppSetting::get('banner_home', '[]'), true) ?: [];
+                $defaultHomePromos = [
+                    [
+                        'title' => 'Selamat Datang di sayabantu',
+                        'desc' => 'Platform gotong royong terpercaya untuk saling membantu sesama.',
+                        'bg' => 'linear-gradient(135deg, #0284c7, #0369a1)',
+                        'tag' => 'sayabantu'
+                    ],
+                    [
+                        'title' => 'Bantuan Cepat & Terverifikasi',
+                        'desc' => 'Dapatkan pendampingan dari mitra terdekat yang siap membantu kapan saja.',
+                        'bg' => 'linear-gradient(135deg, #0d9488, #0f766e)',
+                        'tag' => 'Mitra Siaga'
+                    ],
+                    [
+                        'title' => 'Aman, Transparan & Terpercaya',
+                        'desc' => 'Setiap proses bantuan terpantau dengan standar keamanan tinggi.',
+                        'bg' => 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                        'tag' => 'Terpercaya'
+                    ]
+                ];
+                $hasCustomHomeBanners = !empty($homeBanners) && count($homeBanners);
+                $homeBannerCount = $hasCustomHomeBanners ? count($homeBanners) : count($defaultHomePromos);
             @endphp
-            @if(!empty($homeBanners) && count($homeBanners))
-                <div class="px-5 mt-4">
-                    <div class="rounded-xl overflow-hidden shadow-md">
-                        <div class="relative h-36 overflow-hidden">
-                            <div class="flex h-full will-change-transform home-banner-slides" style="transition: transform 700ms cubic-bezier(.2,.9,.2,1);">
+
+            <div class="px-5 mt-4">
+                <div x-data="bannerSlider({{ $homeBannerCount }})"
+                    @touchstart="touchStart($event)"
+                    @touchmove="touchMove($event)"
+                    @touchend="touchEnd($event)"
+                    @mousedown="mouseDown($event)"
+                    @mousemove="mouseMove($event)"
+                    @mouseup="mouseUp($event)"
+                    @mouseleave="mouseLeave($event)"
+                    @mouseenter="stopAutoPlay()"
+                    class="relative rounded-2xl overflow-hidden shadow-md select-none group touch-pan-y cursor-grab active:cursor-grabbing bg-gray-100">
+
+                    <!-- Slides Track -->
+                    <div class="relative h-36 sm:h-40 overflow-hidden">
+                        <div class="flex h-full will-change-transform"
+                            :style="'transform: translateX(calc(-' + (current * 100) + '% + ' + dragOffset + 'px)); transition: ' + (isDragging ? 'none' : 'transform 500ms cubic-bezier(0.25, 1, 0.5, 1)')">
+                            @if($hasCustomHomeBanners)
                                 @foreach($homeBanners as $b)
-                                    <div class="flex-shrink-0 w-full h-full">
-                                        <img src="{{ asset('storage/' . $b) }}" alt="Banner" class="w-full h-full object-cover" />
+                                    <div class="flex-shrink-0 w-full h-full select-none">
+                                        <img src="{{ asset('storage/' . $b) }}"
+                                            alt="Banner Beranda"
+                                            draggable="false"
+                                            class="w-full h-full object-cover pointer-events-none select-none" />
                                     </div>
                                 @endforeach
-                            </div>
+                            @else
+                                @foreach($defaultHomePromos as $promo)
+                                    <div class="flex-shrink-0 w-full h-full p-5 flex flex-col justify-center text-white relative select-none"
+                                        style="background: {{ $promo['bg'] }};">
+                                        <span class="inline-block self-start text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full mb-1.5 border border-white/20">
+                                            {{ $promo['tag'] }}
+                                        </span>
+                                        <h3 class="font-extrabold text-lg sm:text-xl tracking-tight leading-snug drop-shadow-sm">
+                                            {{ $promo['title'] }}
+                                        </h3>
+                                        <p class="text-xs sm:text-sm text-white/90 font-normal mt-1 line-clamp-2 max-w-[85%]">
+                                            {{ $promo['desc'] }}
+                                        </p>
+                                    </div>
+                                @endforeach
+                            @endif
                         </div>
                     </div>
-                    @if(count($homeBanners) > 1)
-                        <div class="flex justify-center mt-2.5 gap-1.5 home-dots">
-                            @foreach($homeBanners as $idx => $b)
-                                <div class="home-dot w-2 h-2 rounded-full {{ $idx === 0 ? 'bg-primary-500 w-5' : 'bg-gray-300' }} transition-all duration-300"></div>
-                            @endforeach
+
+                    @if($homeBannerCount > 1)
+                        <!-- Tombol Panah Kiri (Prev) -->
+                        <button type="button"
+                            @click.stop="prev()"
+                            @mousedown.stop
+                            @touchstart.stop
+                            class="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-90 text-white flex items-center justify-center shadow-lg backdrop-blur-sm transition-all duration-200 cursor-pointer select-none"
+                            title="Banner Sebelumnya"
+                            aria-label="Banner Sebelumnya">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 -translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        <!-- Tombol Panah Kanan (Next) -->
+                        <button type="button"
+                            @click.stop="next()"
+                            @mousedown.stop
+                            @touchstart.stop
+                            class="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-90 text-white flex items-center justify-center shadow-lg backdrop-blur-sm transition-all duration-200 cursor-pointer select-none"
+                            title="Banner Selanjutnya"
+                            aria-label="Banner Selanjutnya">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+
+                        <!-- Indikator Dots -->
+                        <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20 select-none">
+                            @for($i = 0; $i < $homeBannerCount; $i++)
+                                <button type="button"
+                                    @click.stop="goTo({{ $i }})"
+                                    @mousedown.stop
+                                    @touchstart.stop
+                                    :class="current === {{ $i }} ? 'w-5 bg-white shadow-md' : 'w-2 bg-white/60 hover:bg-white/90'"
+                                    class="h-2 rounded-full transition-all duration-300 cursor-pointer"
+                                    title="Slide {{ $i + 1 }}"
+                                    aria-label="Slide {{ $i + 1 }}">
+                                </button>
+                            @endfor
                         </div>
                     @endif
                 </div>
-            @else
-                <div class="px-5 mt-4">
-                    <div id="promo-banner" class="rounded-xl overflow-hidden shadow-md">
-                        <div class="relative h-36 overflow-hidden" style="background: linear-gradient(to right, #0098e7, #0077cc);">
-                            <div id="promo-track" class="flex h-full transition-transform duration-700 ease-in-out"></div>
-                        </div>
-                    </div>
-                    <div id="promo-dots" class="flex justify-center mt-3 gap-2 px-5">
-                        <button data-dot="0" class="w-2 h-2 rounded-full transition-all" style="background: #0098e7;"></button>
-                        <button data-dot="1" class="w-2 h-2 rounded-full bg-gray-300 transition-all"></button>
-                        <button data-dot="2" class="w-2 h-2 rounded-full bg-gray-300 transition-all"></button>
-                    </div>
-                </div>
-            @endif
+            </div>
 
             <br>
 
@@ -247,6 +323,147 @@
         @endif
 
     </div>
+
+    <script>
+        if (typeof window.bannerSlider !== 'function') {
+            window.bannerSlider = function (totalSlides = 1, autoPlayMs = 4000) {
+                return {
+                    current: 0,
+                    total: totalSlides,
+                    timer: null,
+                    startX: 0,
+                    startY: 0,
+                    dragOffset: 0,
+                    isDragging: false,
+                    isSwipingHorizontal: false,
+
+                    init() {
+                        if (this.total > 1) {
+                            this.startAutoPlay();
+                        }
+                    },
+
+                    next() {
+                        if (this.total <= 1) return;
+                        this.current = (this.current + 1) % this.total;
+                        this.resetAutoPlay();
+                    },
+
+                    prev() {
+                        if (this.total <= 1) return;
+                        this.current = (this.current - 1 + this.total) % this.total;
+                        this.resetAutoPlay();
+                    },
+
+                    goTo(idx) {
+                        this.current = idx;
+                        this.resetAutoPlay();
+                    },
+
+                    startAutoPlay() {
+                        if (this.total <= 1) return;
+                        this.stopAutoPlay();
+                        this.timer = setInterval(() => {
+                            this.next();
+                        }, autoPlayMs);
+                    },
+
+                    stopAutoPlay() {
+                        if (this.timer) {
+                            clearInterval(this.timer);
+                            this.timer = null;
+                        }
+                    },
+
+                    resetAutoPlay() {
+                        this.stopAutoPlay();
+                        if (this.total > 1) {
+                            this.startAutoPlay();
+                        }
+                    },
+
+                    touchStart(e) {
+                        if (this.total <= 1) return;
+                        this.stopAutoPlay();
+                        const touch = e.touches ? e.touches[0] : e;
+                        this.startX = touch.clientX;
+                        this.startY = touch.clientY;
+                        this.dragOffset = 0;
+                        this.isDragging = true;
+                        this.isSwipingHorizontal = false;
+                    },
+
+                    touchMove(e) {
+                        if (!this.isDragging || this.total <= 1) return;
+                        const touch = e.touches ? e.touches[0] : e;
+                        const diffX = touch.clientX - this.startX;
+                        const diffY = touch.clientY - this.startY;
+
+                        if (!this.isSwipingHorizontal) {
+                            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8) {
+                                this.isSwipingHorizontal = true;
+                            }
+                        }
+
+                        if (this.isSwipingHorizontal) {
+                            if (e.cancelable) e.preventDefault();
+                            this.dragOffset = diffX;
+                        }
+                    },
+
+                    touchEnd() {
+                        if (!this.isDragging || this.total <= 1) return;
+                        this.isDragging = false;
+                        const threshold = 40;
+                        if (this.dragOffset < -threshold) {
+                            this.next();
+                        } else if (this.dragOffset > threshold) {
+                            this.prev();
+                        }
+                        this.dragOffset = 0;
+                        this.isSwipingHorizontal = false;
+                        this.startAutoPlay();
+                    },
+
+                    mouseDown(e) {
+                        if (this.total <= 1 || e.button !== 0) return;
+                        this.stopAutoPlay();
+                        this.startX = e.clientX;
+                        this.startY = e.clientY;
+                        this.dragOffset = 0;
+                        this.isDragging = true;
+                    },
+
+                    mouseMove(e) {
+                        if (!this.isDragging || this.total <= 1) return;
+                        const diffX = e.clientX - this.startX;
+                        this.dragOffset = diffX;
+                    },
+
+                    mouseUp() {
+                        if (!this.isDragging || this.total <= 1) return;
+                        this.isDragging = false;
+                        const threshold = 40;
+                        if (this.dragOffset < -threshold) {
+                            this.next();
+                        } else if (this.dragOffset > threshold) {
+                            this.prev();
+                        }
+                        this.dragOffset = 0;
+                        this.startAutoPlay();
+                    },
+
+                    mouseLeave() {
+                        if (this.isDragging) {
+                            this.mouseUp();
+                        } else {
+                            this.startAutoPlay();
+                        }
+                    }
+                };
+            };
+        }
+    </script>
 </body>
 
 </html>

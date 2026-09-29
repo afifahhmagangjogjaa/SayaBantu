@@ -80,7 +80,7 @@ class TopupApproval extends Component
 
     public function deleteHistoryByPeriod()
     {
-        $query = BalanceTransaction::where('type', 'topup')
+        $query = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->whereYear('created_at', (int) $this->deleteYear);
 
@@ -113,7 +113,7 @@ class TopupApproval extends Component
 
     public function deleteAllHistory()
     {
-        $count = BalanceTransaction::where('type', 'topup')
+        $count = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->delete();
 
@@ -242,7 +242,7 @@ class TopupApproval extends Component
     public function render()
     {
         // 1. Pending Table Query
-        $pendingQuery = BalanceTransaction::where('type', 'topup')
+        $pendingQuery = BalanceTransaction::topupRequests()
             ->where('status', 'waiting_approval')
             ->with(['user', 'user.city']);
 
@@ -260,11 +260,11 @@ class TopupApproval extends Component
             });
         }
 
-        $pendingRequests = $pendingQuery->orderBy('created_at', 'asc')
+        $pendingRequests = $pendingQuery->orderBy('created_at', 'desc')
             ->paginate($this->perPagePending, ['*'], 'pendingPage');
 
         // 2. History Table Query
-        $historyQuery = BalanceTransaction::where('type', 'topup')
+        $historyQuery = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->with(['user', 'user.city']);
 
@@ -290,39 +290,39 @@ class TopupApproval extends Component
             ->paginate($this->perPageHistory, ['*'], 'historyPage');
 
         // Counters
-        $totalPendingCount = BalanceTransaction::where('type', 'topup')
+        $totalPendingCount = BalanceTransaction::topupRequests()
             ->where('status', 'waiting_approval')
             ->count();
 
-        $totalCompletedCount = BalanceTransaction::where('type', 'topup')
+        $totalCompletedCount = BalanceTransaction::topupRequests()
             ->where('status', 'completed')
             ->count();
 
-        $totalRejectedCount = BalanceTransaction::where('type', 'topup')
+        $totalRejectedCount = BalanceTransaction::topupRequests()
             ->where('status', 'rejected')
             ->count();
 
-        $totalHistoryCount = BalanceTransaction::where('type', 'topup')
+        $totalHistoryCount = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->count();
             
-        $approvedToday = BalanceTransaction::where('type', 'topup')
+        $approvedToday = BalanceTransaction::topupRequests()
             ->where('status', 'completed')
             ->whereNotNull('approved_by')
             ->whereDate('approved_at', now()->toDateString())
             ->count();
             
-        $totalPendingAmount = BalanceTransaction::where('type', 'topup')
+        $totalPendingAmount = BalanceTransaction::topupRequests()
             ->where('status', 'waiting_approval')
             ->sum('amount');
             
-        $totalApprovedAmountToday = BalanceTransaction::where('type', 'topup')
+        $totalApprovedAmountToday = BalanceTransaction::topupRequests()
             ->where('status', 'completed')
             ->whereNotNull('approved_by')
             ->whereDate('approved_at', now()->toDateString())
             ->sum('amount');
 
-        $availableYears = BalanceTransaction::where('type', 'topup')
+        $availableYears = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->selectRaw('YEAR(created_at) as year')
             ->distinct()

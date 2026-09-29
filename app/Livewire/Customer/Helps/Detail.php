@@ -14,6 +14,8 @@ class Detail extends Component
     public $help;
     public $helpId;
     public $showCancelConfirm = false;
+    public $selectedCancelReason = '';
+    public $customCancelReason = '';
     public $showMapModal = false;
     public $showRatingForm = false;
     public $rating = 0;
@@ -51,6 +53,23 @@ class Detail extends Component
             abort(403, 'Unauthorized access');
         }
 
+        // Auto-cancel if urgent help is expired
+        if ($this->help->help_type === 'urgent' && $this->help->status === 'menunggu_mitra' && !$this->help->mitra_id && $this->help->auto_cancel_at && now()->gte($this->help->auto_cancel_at)) {
+            $this->help->update([
+                'status' => 'dibatalkan',
+                'cancelled_by' => 'system',
+                'customer_cancel_reason' => 'Otomatis dibatalkan sistem karena batas waktu tunggu pencarian mitra telah habis.',
+                'cancelled_at' => now(),
+            ]);
+            $this->help->refresh();
+        }
+
+        // Auto-confirm jika status waiting_customer_confirmation sudah melewati 24 jam
+        if ($this->help->status === 'waiting_customer_confirmation' && $this->help->isCustomerConfirmationExpired()) {
+            $this->help->autoConfirmIfExpired();
+            $this->help->refresh();
+        }
+
         // Dispatch event untuk update tracking data
         if ($this->showMapModal && in_array($this->help->status, ['taken', 'partner_on_the_way', 'partner_arrived'])) {
             $customerLat = !empty($this->help->latitude) ? (float)$this->help->latitude : -6.2088;
@@ -85,6 +104,9 @@ class Detail extends Component
 
     public function confirmCancel()
     {
+        $this->selectedCancelReason = '';
+        $this->customCancelReason = '';
+        $this->resetErrorBag();
         $this->showCancelConfirm = true;
     }
 
@@ -150,9 +172,52 @@ class Detail extends Component
         session()->flash('success', 'Permintaan pembatalan ditolak. Silakan lanjutkan pekerjaan.');
     }
 
+    public function getAvailableCancelReasonsProperty(): array
+    {
+        if ($this->help->mitra_id) {
+            return [
+                'Rekan Jasa tidak kunjung berangkat / tidak bergerak',
+                'Rekan Jasa tidak membalas chat / tidak bisa dihubungi',
+                'Waktu kedatangan Rekan Jasa terlalu lama',
+                'Rekan Jasa meminta pesanan dibatalkan',
+                'Lainnya',
+            ];
+        }
+
+        return [
+            'Terlalu lama menunggu Rekan Jasa ditemukan',
+            'Ingin mengubah rincian bantuan / jadwal',
+            'Sudah tidak membutuhkan bantuan lagi',
+            'Lainnya',
+        ];
+    }
+
     public function cancelHelp()
     {
         try {
+            // Proteksi pembatalan (wajib memenuhi syarat canCustomerCancel)
+            if (!$this->canCustomerCancel) {
+                session()->flash('error', 'Pesanan sedang ditangani oleh Rekan Jasa dan belum dapat dibatalkan.');
+                $this->showCancelConfirm = false;
+                return;
+            }
+
+            // Validasi alasan pembatalan
+            if (empty($this->selectedCancelReason)) {
+                $this->addError('selectedCancelReason', 'Silakan pilih salah satu alasan pembatalan.');
+                return;
+            }
+
+            $finalReason = $this->selectedCancelReason;
+            if ($this->selectedCancelReason === 'Lainnya') {
+                $customText = trim($this->customCancelReason);
+                if (empty($customText)) {
+                    $this->addError('customCancelReason', 'Silakan tuliskan alasan pembatalan Anda.');
+                    return;
+                }
+                $finalReason = $customText;
+            }
+
             // Allow cancel if status is before completion/in-progress
             $cancellableStatuses = [
                 'menunggu_pembayaran', 
@@ -174,6 +239,9 @@ class Detail extends Component
 
             $this->help->update([
                 'status' => 'dibatalkan',
+                'customer_cancel_reason' => $finalReason,
+                'cancelled_by' => 'customer',
+                'cancelled_at' => now(),
             ]);
 
             // Log activity
@@ -182,6 +250,7 @@ class Detail extends Component
                 'user_id' => auth()->id(),
                 'mitra_id' => $assignedMitra?->id,
                 'previous_status' => $prevStatus,
+                'reason' => $finalReason,
             ]);
 
             session()->flash('success', 'Permintaan bantuan berhasil dibatalkan. Saldo pembayaran telah dikembalikan ke dompet Anda.');
@@ -198,8 +267,67 @@ class Detail extends Component
     public function closeModal()
     {
         $this->showCancelConfirm = false;
+        $this->selectedCancelReason = '';
+        $this->customCancelReason = '';
+        $this->resetErrorBag();
     }
 
+    // Computed property untuk mengecek apakah customer berhak membatalkan pesanan
+    public function getCanCustomerCancelProperty()
+    {
+        // 1. Jika pesanan sudah selesai, dibatalkan, atau sedang aktif dikerjakan, TIDAK BISA dibatalkan lagi
+        if (in_array($this->help->status, ['selesai', 'completed', 'dibatalkan', 'cancelled', 'in_progress', 'sedang_diproses', 'waiting_customer_confirmation'])) {
+            return false;
+        }
+
+        // 2. Jika belum ada mitra / status masih mencari / menunggu mitra / menunggu pembayaran, BISA dibatalkan kapan saja
+        if (!$this->help->mitra_id && in_array($this->help->status, ['menunggu_mitra', 'mencari_mitra', 'menunggu_pembayaran'])) {
+            return true;
+        }
+
+        // 3. Mitra sudah mengambil pesanan (status: memperoleh_mitra, taken, partner_on_the_way, partner_arrived)
+        // Aturan: Begitu diambil mitra, mau mitra sudah jalan atau belum, tombol pembatalan hanya muncul setelah 30 menit sejak diambil mitra (taken_at)
+        if ($this->help->mitra_id || in_array($this->help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived'])) {
+            $maxWaitMinutes = 30; // Tepat 30 menit sejak pesanan diambil mitra
+            $takenTime = $this->help->taken_at 
+                ? \Carbon\Carbon::parse($this->help->taken_at) 
+                : ($this->help->mitra_assigned_at 
+                    ? \Carbon\Carbon::parse($this->help->mitra_assigned_at) 
+                    : ($this->help->updated_at ? \Carbon\Carbon::parse($this->help->updated_at) : null));
+
+            if ($takenTime) {
+                return $takenTime->diffInSeconds(now()) >= ($maxWaitMinutes * 60);
+            }
+            return false;
+        }
+
+        return false;
+    }
+
+    // Pesan keterangan dinamis pembatas pembatalan untuk tampilan customer
+    public function getCancelRestrictionMessageProperty(): string
+    {
+        if ($this->canCustomerCancel) {
+            return '';
+        }
+
+        if ($this->help->mitra_id || in_array($this->help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived'])) {
+            $maxWaitMinutes = 30;
+            $takenTime = $this->help->taken_at 
+                ? \Carbon\Carbon::parse($this->help->taken_at) 
+                : ($this->help->mitra_assigned_at 
+                    ? \Carbon\Carbon::parse($this->help->mitra_assigned_at) 
+                    : ($this->help->updated_at ? \Carbon\Carbon::parse($this->help->updated_at) : null));
+            
+            $diffMinutes = $takenTime ? $takenTime->diffInMinutes(now()) : 0;
+            $remaining = (int) max(1, ceil($maxWaitMinutes - $diffMinutes));
+
+            return "Tombol batalkan pesanan akan muncul setelah 30 menit sejak bantuan diambil oleh Rekan Jasa (tersisa {$remaining} menit lagi).";
+        }
+
+        return 'Pesanan sedang ditangani oleh Rekan Jasa.';
+    }
+    
     public function showTrackingMap()
     {
         // Reload help data to get latest coordinates
@@ -342,16 +470,7 @@ class Detail extends Component
         // 2. Notifikasi ke Admin Kota yang mengelola kota bantuan ini
         try {
             $cityId = $this->help->city_id;
-            $cityAdmins = \App\Models\User::where('role', 'admin')
-                ->where('status', 'active')
-                ->where(function ($query) use ($cityId) {
-                    if ($cityId) {
-                        $query->whereHas('managedCities', function ($q) use ($cityId) {
-                            $q->where('cities.id', $cityId);
-                        })->orWhere('city_id', $cityId);
-                    }
-                })
-                ->get();
+            $cityAdmins = \App\Models\User::getAdminsForCity($cityId);
 
             // 3. Notifikasi ke seluruh Super Admin
             $superAdmins = \App\Models\User::where('role', 'super_admin')
@@ -381,21 +500,61 @@ class Detail extends Component
             return;
         }
 
-        $this->help->update([
-            'status' => 'selesai',
-            'completed_at' => now(),
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () {
+            // 1. Update status bantuan menjadi selesai
+            // HelpObserver secara otomatis mencairkan dana ke mitra dan mencatat riwayat transaksi
+            $this->help->update([
+                'status' => 'selesai',
+                'completed_at' => now(),
+            ]);
 
-        if ($this->help->mitra_id) {
-            $mitra = \App\Models\User::find($this->help->mitra_id);
-            if ($mitra) {
-                $mitra->notify(new \App\Notifications\HelpStatusNotification($this->help, 'waiting_customer_confirmation', 'selesai', $mitra));
+            // 2. Safety fallback: Jika belum dicairkan oleh HelpObserver
+            if ($this->help->mitra_id) {
+                $already = \App\Models\BalanceTransaction::where('user_id', $this->help->mitra_id)
+                    ->where(function ($q) {
+                        $q->where('reference_id', $this->help->id)
+                          ->orWhere(function ($sq) {
+                              if (!empty($this->help->order_id)) {
+                                  $sq->where('order_id', $this->help->order_id);
+                              }
+                          })
+                          ->orWhere('description', 'like', 'Pendapatan Bantuan #' . $this->help->id . '%')
+                          ->orWhere('description', 'like', 'Auto-confirm Bantuan #' . $this->help->id . '%');
+                    })
+                    ->exists();
+
+                if (!$already) {
+                    $payoutAmount = $this->help->getMitraPayoutAmount();
+
+                    if ($payoutAmount > 0) {
+                        $mitraBalance = \App\Models\UserBalance::firstOrCreate(
+                            ['user_id' => $this->help->mitra_id],
+                            ['balance' => 0]
+                        );
+
+                        $feeText = ($this->help->mitra_fee_amount > 0)
+                            ? " (Potongan Platform {$this->help->mitra_fee_percent}%: Rp " . number_format($this->help->mitra_fee_amount, 0, ',', '.') . ")"
+                            : "";
+
+                        $mitraBalance->addBalance($payoutAmount, "Pendapatan Bantuan #{$this->help->id}" . $feeText, $this->help->id);
+                    }
+                }
+
+                // Notifikasi ke mitra
+                $mitra = \App\Models\User::find($this->help->mitra_id);
+                if ($mitra) {
+                    try {
+                        $mitra->notify(new \App\Notifications\HelpStatusNotification($this->help, 'waiting_customer_confirmation', 'selesai', $mitra));
+                    } catch (\Exception $e) {
+                        Log::warning('Gagal kirim notifikasi selesai ke mitra: ' . $e->getMessage());
+                    }
+                }
             }
-        }
+        });
 
         $this->loadHelp();
 
-        session()->flash('success', 'Pesanan telah dikonfirmasi selesai!');
+        session()->flash('success', 'Pesanan telah dikonfirmasi selesai dan saldo telah dicairkan ke rekan jasa!');
     }
 
     public function handleStatusChanged($data)

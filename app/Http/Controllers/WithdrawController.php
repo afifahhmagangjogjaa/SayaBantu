@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\WithdrawRequest;
+use App\Models\BalanceTransaction;
 use App\Models\User;
 use App\Notifications\NewWithdrawRequest;
 use App\Services\PaymentGatewayService;
@@ -147,10 +148,7 @@ class WithdrawController extends Controller
             try {
                 $superAdmins = User::where('role', 'super_admin')->where('status', 'active')->get();
                 $mitraCityId = $user->city_id ?? $withdraw->user?->city_id;
-                $cityAdmins = User::where('role', 'admin')
-                    ->where('status', 'active')
-                    ->when($mitraCityId, fn($q) => $q->where('city_id', $mitraCityId))
-                    ->get();
+                $cityAdmins = User::getAdminsForCity($mitraCityId);
 
                 $recipients = $superAdmins->merge($cityAdmins)->unique('id');
 
@@ -169,12 +167,47 @@ class WithdrawController extends Controller
         }
     }
 
-    /** Show withdraw history for user */
+    /** Show transaction & withdraw history for user */
     public function withdrawHistory(Request $request)
     {
         $user = $request->user();
-        $history = WithdrawRequest::where('user_id', $user->id)->orderByDesc('created_at')->paginate(20);
-        return view('livewire.mitra.withdraw.history', ['history' => $history, 'user' => $user]);
+        $activeTab = $request->query('tab', 'income');
+
+        $incomeHistory = BalanceTransaction::where('user_id', $user->id)
+            ->where(function ($q) {
+                $q->where('type', 'topup')
+                  ->orWhere('description', 'like', 'Pendapatan Bantuan%');
+            })
+            ->where('status', 'completed')
+            ->with(['help'])
+            ->orderByDesc('created_at')
+            ->paginate(15, ['*'], 'income_page');
+
+        $withdrawHistory = WithdrawRequest::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->paginate(15, ['*'], 'withdraw_page');
+
+        $totalIncome = (float) BalanceTransaction::where('user_id', $user->id)
+            ->where(function ($q) {
+                $q->where('type', 'topup')
+                  ->orWhere('description', 'like', 'Pendapatan Bantuan%');
+            })
+            ->where('status', 'completed')
+            ->sum('amount');
+
+        $totalWithdrawn = (float) WithdrawRequest::where('user_id', $user->id)
+            ->whereIn('status', ['success', 'approved'])
+            ->sum('amount');
+
+        return view('livewire.mitra.withdraw.history', [
+            'incomeHistory' => $incomeHistory,
+            'withdrawHistory' => $withdrawHistory,
+            'history' => $withdrawHistory, // backward compatibility
+            'activeTab' => $activeTab,
+            'totalIncome' => $totalIncome,
+            'totalWithdrawn' => $totalWithdrawn,
+            'user' => $user,
+        ]);
     }
 
     /** Show success page for a completed withdraw (Mitra) */

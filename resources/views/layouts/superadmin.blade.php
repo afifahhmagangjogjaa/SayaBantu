@@ -32,7 +32,19 @@
         ],
         'superadmin.settings.help' => [
             'title' => 'Pengaturan Bantuan',
-            'subtitle' => 'Kelola nominal minimal dan biaya admin untuk sistem bantuan'
+            'subtitle' => 'Kelola nominal minimal, radius mitra, dan biaya platform'
+        ],
+        'superadmin.pengaturan.bantuan.fee-pendapatan' => [
+            'title' => 'Fee & Pendapatan Platform',
+            'subtitle' => 'Grafik perolehan pendapatan, breakdown sumber fee, dan pengaturan bagi hasil'
+        ],
+        'superadmin.pengaturan.bantuan.biaya-topup' => [
+            'title' => 'Biaya Admin Top-Up & Bank',
+            'subtitle' => 'Atur biaya admin top-up bertingkat dan daftar rekening bank penerima'
+        ],
+        'superadmin.pengaturan.bantuan.tarif-radius' => [
+            'title' => 'Tarif & Radius Bantuan',
+            'subtitle' => 'Nominal minimal bantuan standar & urgent, serta batas jangkauan mitra'
         ],
         'superadmin.settings.banners' => [
             'title' => 'Pengaturan Banner',
@@ -84,9 +96,9 @@
         } elseif (request()->routeIs('superadmin.admin*')) {
             $detectedTitle = 'Manajemen Admin';
             $detectedSubtitle = 'Kelola admin dalam sistem';
-        } elseif (request()->routeIs('superadmin.settings.help*')) {
+        } elseif (request()->routeIs('superadmin.settings.help*') || request()->routeIs('superadmin.pengaturan.bantuan*')) {
             $detectedTitle = 'Pengaturan Bantuan';
-            $detectedSubtitle = 'Kelola nominal minimal dan biaya admin untuk sistem bantuan';
+            $detectedSubtitle = 'Kelola nominal minimal, radius mitra, dan biaya platform';
         } elseif (request()->routeIs('superadmin.settings.banners*')) {
             $detectedTitle = 'Pengaturan Banner';
             $detectedSubtitle = 'Kelola banner yang tampil di dashboard Customer, Mitra, dan halaman Beranda';
@@ -118,6 +130,25 @@
     <title>{{ $pageTitle }} - sayabantu</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    <style>
+        [x-cloak] { display: none !important; }
+
+        /* Seluruh elemen bold, semibold, dan heading di panel Super Admin diubah ke font-medium (500) */
+        .font-bold,
+        .font-semibold,
+        .font-extrabold,
+        .font-black,
+        strong,
+        b,
+        h1, h2, h3, h4, h5, h6,
+        [style*="font-weight: 700"],
+        [style*="font-weight: 600"],
+        [style*="font-weight: 800"],
+        [style*="font-weight: bold"],
+        [style*="font-weight:bold"] {
+            font-weight: 500 !important;
+        }
+    </style>
 </head>
 
 <body class="antialiased" x-data="{ showLogoutModal: false }" @open-logout-modal.window="showLogoutModal = true">
@@ -140,7 +171,7 @@
                 </a>
 
                 <div class="mt-6 mb-2">
-                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Manajemen Data</p>
+                    <p class="px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Manajemen Data</p>
                 </div>
 
                 <a href="{{ route('superadmin.admin.users') }}"
@@ -205,14 +236,52 @@
                     Rating & Ulasan
                 </a>
 
-                <a href="{{ route('superadmin.settings.help') }}"
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.settings.help*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition">
-                    <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    Pengaturan Bantuan
-                </a>
+                @php
+                    $isHelpSettingsActive = request()->routeIs('superadmin.settings.help*') || request()->routeIs('superadmin.pengaturan.bantuan*');
+                @endphp
+                <div x-data="{ open: {{ $isHelpSettingsActive ? 'true' : 'false' }} }" class="mb-2">
+                    <button type="button" @click="open = !open"
+                        class="w-[calc(100%-1.5rem)] flex items-center mx-3 px-3 py-2.5 text-sm font-medium leading-tight rounded-lg transition {{ $isHelpSettingsActive ? 'text-primary-700 bg-primary-50 font-medium' : 'text-gray-700 hover:bg-gray-100' }}">
+                        <svg class="w-5 h-5 mr-4 flex-shrink-0 {{ $isHelpSettingsActive ? 'text-primary-600' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span class="whitespace-nowrap">Pengaturan Bantuan</span>
+                    </button>
+
+                    <div x-show="open" x-cloak class="mt-1 space-y-1 pl-9 pr-3">
+                        <a href="{{ route('superadmin.pengaturan.bantuan.fee-pendapatan') }}"
+                            class="group flex items-center px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('superadmin.pengaturan.bantuan.fee-pendapatan') ? 'text-primary-700 bg-primary-100/90 font-medium' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' }}">
+                            <span class="w-4 h-4 mr-3 flex items-center justify-center flex-shrink-0 {{ request()->routeIs('superadmin.pengaturan.bantuan.fee-pendapatan') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </span>
+                            <span class="whitespace-nowrap">Fee & Pendapatan</span>
+                        </a>
+
+                        <a href="{{ route('superadmin.pengaturan.bantuan.biaya-topup') }}"
+                            class="group flex items-center px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('superadmin.pengaturan.bantuan.biaya-topup') ? 'text-primary-700 bg-primary-100/90 font-medium' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' }}">
+                            <span class="w-4 h-4 mr-3 flex items-center justify-center flex-shrink-0 {{ request()->routeIs('superadmin.pengaturan.bantuan.biaya-topup') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                            </span>
+                            <span class="whitespace-nowrap">Biaya Top-Up & Bank</span>
+                        </a>
+
+                        <a href="{{ route('superadmin.pengaturan.bantuan.tarif-radius') }}"
+                            class="group flex items-center px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('superadmin.pengaturan.bantuan.tarif-radius') ? 'text-primary-700 bg-primary-100/90 font-medium' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' }}">
+                            <span class="w-4 h-4 mr-3 flex items-center justify-center flex-shrink-0 {{ request()->routeIs('superadmin.pengaturan.bantuan.tarif-radius') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </span>
+                            <span class="whitespace-nowrap">Tarif & Radius</span>
+                        </a>
+                    </div>
+                </div>
 
                 <a href="{{ route('superadmin.settings.banners') }}"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.settings.banners*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition">
@@ -224,7 +293,7 @@
                 </a>
 
                  <div class="mt-6 mb-2">
-                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Keuangan</p>
+                    <p class="px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Keuangan</p>
                 </div>
 
                 <a href="{{ route('superadmin.transactions.log') }}"
@@ -274,11 +343,11 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <div
-                            class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-semibold">
+                            class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-medium">
                             {{ substr(auth()->user()->name, 0, 1) }}
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
+                            <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>
                             <p class="text-xs text-gray-500">Super Admin</p>
                         </div>
                     </div>
@@ -304,8 +373,8 @@
                     <div class="flex items-center justify-between">
                         <!-- Page Title & Subtitle -->
                         <div>
-                            <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight" style="font-weight: 800; letter-spacing: -0.025em;">{{ $pageTitle }}</h2>
-                            <p class="text-sm sm:text-base text-gray-600 mt-1 font-medium">
+                            <h2 class="text-lg sm:text-xl font-medium text-gray-900">{{ $pageTitle }}</h2>
+                            <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
                                 {{ $pageSubtitle }}
                             </p>
                         </div>
@@ -313,7 +382,7 @@
                         <!-- Right Side Actions -->
                         <div class="flex items-center space-x-3 sm:space-x-4">
                             <!-- Hari dan Tanggal Badge -->
-                            <div class="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100 h-9 px-3.5 rounded-xl border border-gray-200 shadow-2xs transition">
+                            <div class="hidden sm:flex items-center gap-2 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 h-9 px-3.5 rounded-xl border border-gray-200 shadow-2xs transition">
                                 <svg class="w-4 h-4 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
@@ -326,10 +395,10 @@
                             <!-- User Profile -->
                             <div class="flex items-center space-x-3 border-l border-gray-200 pl-3 sm:pl-4">
                                 <div class="text-right hidden sm:block">
-                                    <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>
                                     <p class="text-xs text-gray-500">Super Admin</p>
                                 </div>
-                                <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-semibold shadow-xs">
+                                <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-medium shadow-xs">
                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                 </div>
                             </div>
@@ -358,7 +427,7 @@
         role="dialog" 
         aria-modal="true">
         
-        <!-- Background overlay -->
+        <!-- Backdrop with Blur -->
         <div 
             x-show="showLogoutModal"
             x-transition:enter="ease-out duration-300"
@@ -367,12 +436,12 @@
             x-transition:leave="ease-in duration-200"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+            class="fixed inset-0 bg-gray-900/60 backdrop-blur-xs transition-opacity"
             @click="showLogoutModal = false">
         </div>
 
         <!-- Modal panel -->
-        <div class="flex min-h-full items-center justify-center p-4">
+        <div class="flex min-h-full items-center justify-center p-4 text-center">
             <div 
                 x-show="showLogoutModal"
                 x-transition:enter="ease-out duration-300"
@@ -381,55 +450,56 @@
                 x-transition:leave="ease-in duration-200"
                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                class="relative transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all sm:w-full sm:max-w-lg"
+                class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all w-full max-w-sm border border-gray-100"
                 @click.stop>
                 
-                <div class="bg-white px-6 pt-6 pb-4">
+                <!-- Close Button (Top Right) -->
+                <button 
+                    type="button" 
+                    @click="showLogoutModal = false"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-full transition cursor-pointer"
+                    title="Tutup">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <div class="p-6 sm:p-7 text-center">
                     <!-- Icon -->
-                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-                        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 shadow-xs mb-4">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                     </div>
                     
                     <!-- Content -->
-                    <div class="mt-4 text-center">
-                        <h3 class="text-2xl font-bold text-gray-900" id="modal-title">
-                            Konfirmasi Logout
-                        </h3>
-                        <div class="mt-3">
-                            <p class="text-base text-gray-600">
-                                Apakah Anda yakin ingin keluar dari panel Super Admin?
-                            </p>
-                            <p class="text-sm text-gray-500 mt-2">
-                                Anda harus login kembali untuk mengakses panel ini.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Actions -->
-                <div class="bg-gray-50 px-6 py-4 flex flex-col-reverse sm:flex-row gap-3 sm:gap-3">
-                    <button 
-                        type="button"
-                        @click="showLogoutModal = false"
-                        class="flex-1 inline-flex justify-center items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-base font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Batal
-                    </button>
-                    <form method="POST" action="{{ route('logout') }}" class="flex-1">
-                        @csrf
+                    <h3 class="text-lg font-bold text-gray-900" id="modal-title" style="font-weight: 700 !important;">
+                        Konfirmasi Logout
+                    </h3>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-2 leading-relaxed">
+                        Apakah Anda yakin ingin keluar dari panel Super Admin? Anda harus login kembali untuk mengakses panel ini.
+                    </p>
+
+                    <!-- Actions -->
+                    <div class="mt-6 flex items-center gap-3">
                         <button 
-                            type="submit"
-                            class="w-full inline-flex justify-center items-center rounded-xl bg-red-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-red-700 transition">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                            Ya, Logout
+                            type="button"
+                            @click="showLogoutModal = false"
+                            class="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-medium transition shadow-2xs cursor-pointer">
+                            Batal
                         </button>
-                    </form>
+                        <form method="POST" action="{{ route('logout') }}" class="flex-1 m-0">
+                            @csrf
+                            <button 
+                                type="submit"
+                                class="w-full inline-flex justify-center items-center gap-1.5 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition shadow-xs hover:shadow-md cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Ya, Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

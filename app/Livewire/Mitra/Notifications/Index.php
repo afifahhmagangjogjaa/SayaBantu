@@ -49,12 +49,25 @@ class Index extends Component
     {
         if (empty($this->selected)) return;
 
-        DatabaseNotification::whereIn('id', $this->selected)
+        $notifications = DatabaseNotification::whereIn('id', $this->selected)
             ->where('notifiable_id', auth()->id())
-            ->delete();
+            ->get();
+
+        $deletedCount = 0;
+        foreach ($notifications as $n) {
+            $type = $n->data['type'] ?? '';
+            if ($type !== 'sanction_warning' && !str_contains($type, 'sanction')) {
+                $n->delete();
+                $deletedCount++;
+            }
+        }
 
         $this->selected = [];
-        session()->flash('message', 'Notifikasi terpilih telah dihapus');
+        if ($deletedCount < $notifications->count()) {
+            session()->flash('message', 'Notifikasi berhasil dihapus (Surat Peringatan tidak dapat dihapus).');
+        } else {
+            session()->flash('message', 'Notifikasi terpilih telah dihapus');
+        }
     }
 
     public function markAsRead($notificationId)
@@ -85,12 +98,21 @@ class Index extends Component
     {
         $notification = DatabaseNotification::find($notificationId);
         if ($notification && $notification->notifiable_id === auth()->id()) {
+            $type = $notification->data['type'] ?? '';
+            if ($type === 'sanction_warning' || str_contains($type, 'sanction')) {
+                session()->flash('error', 'Surat Peringatan adalah sanksi resmi dan tidak dapat dihapus.');
+                return;
+            }
             $notification->delete();
         }
     }
 
     public function render()
     {
+        if (auth()->check()) {
+            \App\Services\KtpVerificationNoticeService::ensurePromptNotification(auth()->user());
+        }
+
         $query = auth()->user()->notifications();
 
         if ($this->filter === 'unread') {

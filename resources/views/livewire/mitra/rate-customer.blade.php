@@ -16,13 +16,10 @@
         @if($help && !$alreadyRated && in_array($help->status, ['completed', 'selesai']))
             <div class="mt-4 pt-3 border-t">
                 <div class="flex items-center justify-between mb-1">
-                    <h4 class="font-semibold text-sm">Beri Penilaian untuk Customer</h4>
-                    <span class="px-2 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-full">Internal Super Admin</span>
+                    <h4 class="font-semibold text-sm">Beri Rating dan Ulasan untuk Customer</h4>
                 </div>
-                <p class="text-[11px] text-gray-500 mb-3">Customer tidak dapat melihat rating ini (khusus monitoring admin).</p>
                 <form wire:submit.prevent="submitRating">
                     <div class="mb-4">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Rating</label>
                         <div class="flex gap-2">
                             @for($i = 1; $i <= 5; $i++)
                                 <button type="button" wire:click="setRating({{ $i }})" class="focus:outline-none">
@@ -36,7 +33,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Ulasan (Opsional)</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Ulasan</label>
                         <textarea wire:model="review" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg"></textarea>
                         @error('review') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>

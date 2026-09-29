@@ -1,4 +1,11 @@
-<x-app-layout>
+@php
+    $isMitra = auth()->check() && auth()->user()->role === 'mitra';
+    $layoutComponent = $isMitra ? 'mitra-layout' : 'app-layout';
+    $notificationRoute = $isMitra ? route('mitra.notifications.index') : route('customer.notifications.index');
+    $backRoute = $isMitra ? route('mitra.profile') : route('profile');
+@endphp
+
+<x-dynamic-component :component="$layoutComponent">
     <x-slot name="title">Kelengkapan Data Diri</x-slot>
 
     <div class="min-h-screen bg-gray-50 pb-40">
@@ -10,12 +17,12 @@
             
             <div class="relative max-w-md mx-auto px-6 pt-4 pb-6">
                 <div class="flex items-center justify-between mb-6">
-                    <a href="javascript:history.back()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition">
+                    <a href="{{ $backRoute }}" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
                     </a>
-                    <a href="{{ route('customer.notifications.index') }}" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition">
+                    <a href="{{ $notificationRoute }}" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -23,7 +30,7 @@
                     </a>
                 </div>
                 
-                <h1 class="text-2xl font-bold text-white mb-2">Data Diri</h1>
+                <h1 class="text-2xl font-bold text-white mb-2">Verifikasi Identitas</h1>
                 <p class="text-sm text-white/90">Lengkapi data KTP dan Selfie Anda</p>
             </div>
 
@@ -45,4 +52,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-dynamic-component>

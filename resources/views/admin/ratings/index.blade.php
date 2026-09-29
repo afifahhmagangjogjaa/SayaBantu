@@ -172,8 +172,15 @@
             // Shadow Ban AJAX toggle
             if (shadowBanBtn) {
                 shadowBanBtn.addEventListener('click', function(){
-                    var url = this.getAttribute('data-url');
                     var btn = this;
+                    var userName = btn.getAttribute('data-user-name') || 'pengguna ini';
+                    var isBanned = btn.getAttribute('data-is-banned') === '1';
+                    var confirmMsg = isBanned 
+                        ? 'Apakah Anda yakin ingin melepaskan status Shadow Ban untuk ' + userName + '?' 
+                        : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada ' + userName + '? Pengguna tidak akan menerima/melihat pesanan baru secara senyap.';
+                    if (!confirm(confirmMsg)) return;
+
+                    var url = btn.getAttribute('data-url');
                     var btnText = btn.querySelector('#shadow-ban-btn-text');
                     btn.disabled = true;
                     btn.classList.add('opacity-70');
@@ -190,6 +197,7 @@
                         btn.disabled = false;
                         btn.classList.remove('opacity-70');
                         if (data && data.success) {
+                            btn.setAttribute('data-is-banned', data.is_shadow_banned ? '1' : '0');
                             if (data.is_shadow_banned) {
                                 btn.style.backgroundColor = '#7e22ce';
                                 btn.style.color = '#ffffff';

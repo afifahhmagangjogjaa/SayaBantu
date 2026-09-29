@@ -41,8 +41,8 @@ class TopupHistory extends Component
 
     public function render()
     {
-        $query = BalanceTransaction::where('user_id', auth()->id())
-            ->where('type', 'topup')
+        $query = BalanceTransaction::topupRequests()
+            ->where('user_id', auth()->id())
             ->with(['approvedBy']);
 
         if ($this->filterStatus !== 'all') {

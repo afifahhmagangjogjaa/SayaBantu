@@ -1,4 +1,17 @@
-<div class="min-h-screen bg-white">
+<div class="min-h-screen bg-white"
+    x-data
+    x-init="
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                p => {
+                    $wire.setCoordinates(p.coords.latitude, p.coords.longitude);
+                },
+                err => { console.log('Geolocation init info:', err.message); },
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        }
+    "
+>
     <style>
         :root{
             --brand-500: #0ea5a4;
@@ -115,10 +128,10 @@
                     <!-- Sleek Custom Dropdown Filter -->
                     <div class="relative inline-flex items-center">
                         <select wire:model.live="sortBy" 
-                            onchange="if(this.value === 'nearby' && navigator.geolocation){ navigator.geolocation.getCurrentPosition(p => { @this.setCoordinates(p.coords.latitude, p.coords.longitude); }); }" 
+                            x-on:change="if($event.target.value === 'nearby' && navigator.geolocation){ navigator.geolocation.getCurrentPosition(p => { $wire.setCoordinates(p.coords.latitude, p.coords.longitude); }); }" 
                             class="appearance-none pl-3.5 pr-8 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-semibold text-gray-700 shadow-2xs hover:border-[#0098e7]/60 focus:border-[#0098e7] focus:ring-2 focus:ring-blue-100 outline-none transition cursor-pointer">
                             <option value="latest">✨ Terbaru</option>
-                            <option value="nearby">📍 Terdekat</option>
+                            <option value="nearby">📍 Terdekat (Maks. {{ (int) ($maxRadius ?? 10) }} km)</option>
                             <option value="price_high">💰 Harga Tertinggi</option>
                             <option value="price_low">🏷️ Harga Terendah</option>
                             <option value="oldest">⏳ Terlama</option>
@@ -132,6 +145,63 @@
                 </div>
             </div> 
             <div class="space-y-4">
+                {{-- Flash Messages --}}
+                @if (session()->has('error') || session()->has('message') || session()->has('success'))
+                    <div>
+                        @if (session()->has('error'))
+                            <div class="bg-red-50 border border-red-200 text-red-800 rounded-xl p-3.5 text-xs flex items-start gap-2.5 shadow-2xs">
+                                <svg class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div class="flex-1 font-medium leading-relaxed">{{ session('error') }}</div>
+                            </div>
+                        @endif
+                        @if (session()->has('success') || session()->has('message'))
+                            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-3.5 text-xs flex items-start gap-2.5 shadow-2xs">
+                                <svg class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <div class="flex-1 font-medium leading-relaxed">{{ session('success') ?? session('message') }}</div>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
+                {{-- KTP Verification Warning Banner --}}
+                @auth
+                    @if(!auth()->user()->verified)
+                        @php
+                            $hasKtpUploaded = !empty(auth()->user()->ktp_photo);
+                        @endphp
+                        <div class="rounded-2xl p-3.5 text-xs flex items-center justify-between gap-3 bg-white"
+                             style="border: 1.5px solid {{ $hasKtpUploaded ? '#3b82f6' : '#f59e0b' }}; box-shadow: 0 4px 14px {{ $hasKtpUploaded ? 'rgba(59, 130, 246, 0.12)' : 'rgba(245, 158, 11, 0.12)' }};">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div style="background: linear-gradient(135deg, {{ $hasKtpUploaded ? '#3b82f6 0%, #1d4ed8 100%' : '#f59e0b 0%, #d97706 100%' }}); width: 38px; height: 38px; min-width: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.35);">
+                                    <svg style="width: 18px; height: 18px; color: #ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-bold text-gray-900 text-xs flex items-center gap-1.5 flex-wrap">
+                                        <span>{{ $hasKtpUploaded ? 'Verifikasi KTP Sedang Diproses' : 'Verifikasi KTP Diperlukan' }}</span>
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold {{ $hasKtpUploaded ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-amber-100 text-amber-900 border border-amber-200' }}">
+                                            {{ $hasKtpUploaded ? 'Menunggu Admin' : 'Wajib' }}
+                                        </span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-600 truncate mt-0.5">
+                                        {{ $hasKtpUploaded ? 'Dokumen KTP Anda sedang ditinjau. Anda dapat mengambil order setelah disetujui.' : 'Unggah KTP & Selfie terlebih dahulu untuk dapat mengambil pesanan bantuan.' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <a href="{{ route('profile.settings.verification') }}"
+                               class="flex-shrink-0 font-bold px-3 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 shadow-xs"
+                               style="background: linear-gradient(135deg, #0098e7, #0077cc); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
+                                {{ $hasKtpUploaded ? 'Cek Status' : 'Verifikasi' }}
+                            </a>
+                        </div>
+                    @endif
+                @endauth
+
                 @if(!empty($needsCity))
                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
                         <div class="font-semibold">Atur kota Anda terlebih dahulu</div>
@@ -159,7 +229,11 @@
 
                 {{-- List based on filter --}}
                 @forelse($helps as $help)
-                    <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100">
+                    @php
+                        $isUrgent = $help->isUrgent();
+                        $isCancelledByMe = auth()->check() && $help->wasCancelledByMitra(auth()->id());
+                    @endphp
+                    <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100 {{ $isCancelledByMe ? 'border-l-4 border-l-amber-500 bg-amber-50/20' : ($isUrgent ? 'border-l-4 border-l-red-500' : '') }}">
                         <div class="flex items-start gap-3">
                             <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                                 @if($help->photo)
@@ -173,7 +247,43 @@
 
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-start justify-between gap-2 mb-1">
-                                    <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                    <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+                                        <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                        @if($isUrgent)
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                            @if($help->auto_cancel_at && $help->status === 'menunggu_mitra')
+                                                @php
+                                                    $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
+                                                    $minsLeft = (int) ceil($secsLeft / 60);
+                                                @endphp
+                                                @if($secsLeft > 0)
+                                                    <span x-data="{
+                                                        target: new Date('{{ $help->auto_cancel_at->toIso8601String() }}').getTime(),
+                                                        label: '{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}',
+                                                        init() {
+                                                            this.update();
+                                                            setInterval(() => this.update(), 5000);
+                                                        },
+                                                        update() {
+                                                            const diff = this.target - Date.now();
+                                                            if (diff <= 0) {
+                                                                this.label = 'Waktu habis';
+                                                                if (window.Livewire) { $wire.$refresh(); }
+                                                                return;
+                                                            }
+                                                            const m = Math.ceil(diff / 60000);
+                                                            this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
+                                                        }
+                                                    }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
+                                                        ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
+                                                    </span>
+                                                @endif
+                                            @endif
+                                        @endif
+                                        @if($isCancelledByMe)
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">⚠️ Pernah Dibatalkan</span>
+                                        @endif
+                                    </div>
                                     <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                 </div>
 
@@ -192,24 +302,54 @@
 
                                 <p class="text-xs text-gray-600 line-clamp-2 mb-3">{{ Str::limit($help->description, 100) }}</p>
 
-                                @if($help->scheduled_at)
-                                    <div class="text-xs text-gray-500 mb-2">📅 {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d M Y, H:i') }}</div>
+                                @php
+                                    $schedDate = $help->scheduled_at ?? $help->created_at;
+                                @endphp
+                                @if($schedDate)
+                                    <div class="text-xs {{ $isUrgent ? 'text-red-600 font-semibold' : 'text-gray-500' }} mb-2">
+                                        {{ $isUrgent ? '⚡ ' : '📅 ' }}{{ \Carbon\Carbon::parse($schedDate)->translatedFormat('d M Y, H:i') }}
+                                    </div>
                                 @endif
 
-                                <div class="flex items-center justify-between gap-3">
-                                    <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
-                                    <div class="flex items-center gap-2">
-                                            @php 
-                                                $schedLabel = $help->scheduled_at ? \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d M Y, H:i') : '' ;
-                                                $catLabel = $help->category ? ($help->category->icon . ' ' . $help->category->name) : '📦 Lainnya';
-                                            @endphp
-                                            @if(is_null($help->mitra_id))
-                                                <button type="button" onclick="showHelpPreview({{ $help->id }}, '{{ addslashes($help->title) }}', {{ $help->amount }}, '{{ addslashes($schedLabel) }}', '{{ addslashes($catLabel) }}')" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md text-xs hover:bg-gray-200 transition">Lihat</button>
-                                                <button type="button" onclick="showHelpPreview({{ $help->id }}, '{{ addslashes($help->title) }}', {{ $help->amount }}, '{{ addslashes($schedLabel) }}', '{{ addslashes($catLabel) }}')" class="px-3 py-1.5 bg-blue-500 text-white rounded-md text-xs hover:bg-blue-600 transition">Ambil</button>
-                                            @else
-                                            <span class="px-3 py-1.5 bg-gray-50 text-gray-400 rounded-md text-xs">Diambil</span>
-                                        @endif
+                                <!-- Lokasi & Radius Jarak -->
+                                <div class="flex items-center gap-1.5 text-xs text-gray-500 mb-3 flex-wrap">
+                                    <span class="inline-flex items-center gap-1 font-medium text-gray-700 whitespace-nowrap">
+                                        <span>📍</span>
+                                        <span>{{ $help->city->name ?? '-' }}</span>
+                                    </span>
+                                    @if(isset($help->distance))
+                                        <span class="text-gray-300">•</span>
+                                        <span class="inline-flex items-center font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap text-[11px]">
+                                            {{ number_format($help->distance, 1) }} km dari Anda
+                                        </span>
+                                    @endif
+                                </div>
+
+                                @if($isCancelledByMe)
+                                    <div class="mb-3 p-2 bg-amber-50 border border-amber-200/80 rounded-lg text-amber-800 text-[11px] flex items-center gap-1.5 font-medium leading-tight">
+                                        <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                        <span>Anda tidak bisa mengambil bantuan ini karena sudah pernah dibatalkan</span>
                                     </div>
+                                @endif
+                                
+                                <!-- Tombol Aksi -->
+                                <div class="flex items-center justify-end gap-2 pt-2.5 border-t border-gray-100">
+                                    @php 
+                                        $schedLabel = $schedDate ? \Carbon\Carbon::parse($schedDate)->translatedFormat('d M Y, H:i') : '-' ;
+                                        $catLabel = $help->category ? ($help->category->icon . ' ' . $help->category->name) : '📦 Lainnya';
+                                        $cityLabel = $help->city->name ?? '-';
+                                        $distLabel = isset($help->distance) ? number_format($help->distance, 1) . ' km' : '';
+                                    @endphp
+                                    @if(is_null($help->mitra_id))
+                                        <button type="button" onclick="showHelpPreview({{ $help->id }}, '{{ addslashes($help->title) }}', {{ $help->amount }}, '{{ addslashes($schedLabel) }}', '{{ addslashes($catLabel) }}', {{ $isUrgent ? 'true' : 'false' }}, '{{ addslashes($cityLabel) }}', '{{ addslashes($distLabel) }}', {{ $isCancelledByMe ? 'true' : 'false' }})" class="px-3.5 py-1.5 bg-gray-100 text-gray-700 font-medium rounded-lg text-xs hover:bg-gray-200 transition">Lihat</button>
+                                        @if($isCancelledByMe)
+                                            <button type="button" disabled class="px-3.5 py-1.5 bg-gray-100 text-gray-400 font-medium rounded-lg text-xs cursor-not-allowed">Pernah Dibatalkan</button>
+                                        @else
+                                            <button type="button" onclick="showHelpPreview({{ $help->id }}, '{{ addslashes($help->title) }}', {{ $help->amount }}, '{{ addslashes($schedLabel) }}', '{{ addslashes($catLabel) }}', {{ $isUrgent ? 'true' : 'false' }}, '{{ addslashes($cityLabel) }}', '{{ addslashes($distLabel) }}', false)" class="px-3.5 py-1.5 bg-blue-500 text-white font-medium rounded-lg text-xs hover:bg-blue-600 transition shadow-xs">Ambil</button>
+                                        @endif
+                                    @else
+                                        <span class="px-3 py-1.5 bg-gray-50 text-gray-400 rounded-md text-xs">Diambil</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -220,10 +360,15 @@
                         <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
-                        <p class="text-sm font-semibold text-gray-700">{{ $search ? 'Tidak ada bantuan ditemukan' : 'Belum ada bantuan tersedia' }}</p>
+                        <p class="text-sm font-semibold text-gray-700">{{ $search ? 'Tidak ada bantuan ditemukan' : 'Belum ada bantuan dalam radius ' . (int) ($maxRadius ?? 10) . ' km' }}</p>
                         <p class="text-xs text-gray-500 mt-1">
-                            {{ $search ? 'Coba cari dengan kata kunci lain' : 'Cek kembali nanti untuk bantuan baru' }}
+                            {{ $search ? 'Coba cari dengan kata kunci lain' : 'Cek kembali nanti untuk bantuan baru di sekitar Anda' }}
                         </p>
+                        @if(!empty($search))
+                            <button type="button" wire:click="$set('search', '')" class="inline-flex items-center gap-1.5 mt-3.5 px-3.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition shadow-2xs">
+                                Reset Pencarian
+                            </button>
+                        @endif
                     </div>
                 @endforelse
 
@@ -255,6 +400,11 @@
 
             <!-- Modal Content -->
             <div class="p-5 pb-6">
+                <div id="previewUrgentBadge" class="hidden mb-3 p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold flex items-center gap-1.5">
+                    <span class="text-sm">⚡</span>
+                    <span>BANTUAN MENDESAK (URGENT) — Mohon segera ditindaklanjuti.</span>
+                </div>
+
                 <div class="mb-4">
                     <p class="text-xs text-gray-600 font-semibold mb-1">Judul Bantuan</p>
                     <p id="previewTitle" class="text-base font-bold text-gray-900">-</p>
@@ -277,6 +427,15 @@
                     <div id="previewScheduled" class="text-sm text-gray-700">-</div>
                 </div>
 
+                <div class="mb-4">
+                    <p class="text-xs text-gray-600 font-semibold mb-1">Lokasi & Jarak</p>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 flex-wrap">
+                        <span id="previewCity" class="inline-flex items-center gap-1 font-medium whitespace-nowrap">📍 -</span>
+                        <span id="previewDistanceDot" class="text-gray-300 hidden">•</span>
+                        <span id="previewDistance" class="hidden font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full text-xs whitespace-nowrap"></span>
+                    </div>
+                </div>
+
                 <!-- Notice -->
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                     <p class="text-xs font-semibold text-blue-800 mb-1">Informasi Terbatas</p>
@@ -295,7 +454,7 @@
                             <span>Biodata Belum Lengkap</span>
                         </p>
                         <p class="text-[11px] text-red-700 leading-relaxed">
-                            Harap lengkapi data profil dan dokumen KTP Anda terlebih dahulu sebelum dapat mengambil bantuan.
+                            Harap lengkapi biodata profil Anda terlebih dahulu sebelum dapat mengambil bantuan.
                         </p>
                     </div>
                 @elseif(auth()->check() && !auth()->user()->verified)
@@ -319,9 +478,21 @@
                         </p>
                     </div>
                 @endif
+                <div id="previewCancelledByMeAlert" class="hidden mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                    <p class="font-bold flex items-center gap-1.5 mb-1">
+                        <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>Bantuan Pernah Dibatalkan</span>
+                    </p>
+                    <p class="text-[11px] text-amber-700 leading-relaxed">
+                        Anda tidak bisa mengambil bantuan ini karena sudah pernah dibatalkan.
+                    </p>
+                </div>
                 <div class="flex gap-3">
                     <button type="button" onclick="closePreviewModal()" class="flex-1 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl font-bold hover:bg-gray-200 transition">
                         Batal
+                    </button>
+                    <button type="button" id="previewCancelledTakeBtn" disabled class="hidden flex-1 bg-gray-200 text-gray-400 px-4 py-2.5 rounded-xl font-bold cursor-not-allowed text-xs">
+                        Tidak Dapat Diambil
                     </button>
                     @if(auth()->check() && !auth()->user()->isProfileComplete())
                         <a href="{{ route('mitra.profile.edit') }}" class="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
@@ -348,8 +519,29 @@
     <script>
         let currentHelpId = null;
 
-        function showHelpPreview(helpId, title, amount, scheduled, category) {
+        function showHelpPreview(helpId, title, amount, scheduled, category, isUrgent = false, city = '', distance = '', isCancelledByMe = false) {
             currentHelpId = helpId;
+            const urgentBadge = document.getElementById('previewUrgentBadge');
+            if (urgentBadge) {
+                if (isUrgent) {
+                    urgentBadge.classList.remove('hidden');
+                } else {
+                    urgentBadge.classList.add('hidden');
+                }
+            }
+            
+            const cancelledAlert = document.getElementById('previewCancelledByMeAlert');
+            const cancelledBtn = document.getElementById('previewCancelledTakeBtn');
+            const takeBtn = document.getElementById('previewTakeBtn');
+            if (isCancelledByMe) {
+                if (cancelledAlert) cancelledAlert.classList.remove('hidden');
+                if (cancelledBtn) cancelledBtn.classList.remove('hidden');
+                if (takeBtn) takeBtn.classList.add('hidden');
+            } else {
+                if (cancelledAlert) cancelledAlert.classList.add('hidden');
+                if (cancelledBtn) cancelledBtn.classList.add('hidden');
+                if (takeBtn) takeBtn.classList.remove('hidden');
+            }
             document.getElementById('previewTitle').textContent = title;
             document.getElementById('previewCategory').textContent = category || '📦 Lainnya';
             document.getElementById('previewAmount').textContent = '💰 Rp ' + amount.toLocaleString('id-ID');
@@ -366,6 +558,24 @@
                         }).catch(() => { schedEl.textContent = '-'; });
                 }
             }
+
+            const cityEl = document.getElementById('previewCity');
+            const distEl = document.getElementById('previewDistance');
+            const distDot = document.getElementById('previewDistanceDot');
+            if (cityEl) {
+                cityEl.textContent = city ? ('📍 ' + city) : '📍 -';
+            }
+            if (distEl) {
+                if (distance && distance.trim() !== '') {
+                    distEl.textContent = distance + ' dari Anda';
+                    distEl.classList.remove('hidden');
+                    if (distDot) distDot.classList.remove('hidden');
+                } else {
+                    distEl.classList.add('hidden');
+                    if (distDot) distDot.classList.add('hidden');
+                }
+            }
+
             document.getElementById('helpPreviewModal').classList.remove('hidden');
         }
 

@@ -125,6 +125,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'selfie_photo',
         'profile_photo',
         'notification_settings',
+        'warning_level',
+        'is_banned',
     ];
 
     /**
@@ -152,7 +154,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'shadow_banned_at' => 'datetime',
             'date_of_birth' => 'date',
             'notification_settings' => 'array',
+            'warning_level' => 'integer',
+            'is_banned' => 'boolean',
         ];
+    }
+
+    public function isBanned(): bool
+    {
+        return (bool) ($this->is_banned ?? false) || $this->status === 'blocked';
     }
 
     public function isShadowBanned(): bool
@@ -182,9 +191,24 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // Relationships
+    public function partnerActivities()
+    {
+        return $this->hasMany(PartnerActivity::class);
+    }
+
+    public function cancellationsCount(): int
+    {
+        return $this->partnerActivities()->where('activity_type', 'help_cancelled')->count();
+    }
+
     public function city()
     {
         return $this->belongsTo(City::class);
+    }
+
+    public function registration()
+    {
+        return $this->hasOne(Registration::class, 'email', 'email');
     }
 
     // Cities managed by this admin (many-to-many)
@@ -215,6 +239,35 @@ class User extends Authenticatable implements MustVerifyEmail
             ->unique()
             ->values()
             ->toArray();
+    }
+
+    /**
+     * Get all active admins managing a specific city.
+     *
+     * @param int|null $cityId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function getAdminsForCity(?int $cityId)
+    {
+        if (!$cityId) {
+            return collect();
+        }
+
+        $directAdminId = City::where('id', $cityId)->value('admin_id');
+
+        return static::where('role', 'admin')
+            ->where('status', 'active')
+            ->where(function ($query) use ($cityId, $directAdminId) {
+                $query->where('city_id', $cityId)
+                      ->orWhereHas('managedCities', function ($q) use ($cityId) {
+                          $q->where('cities.id', $cityId);
+                      });
+
+                if ($directAdminId) {
+                    $query->orWhere('id', $directAdminId);
+                }
+            })
+            ->get();
     }
 
     public function helps()
@@ -604,48 +657,20 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getMissingProfileFields(): array
     {
-        $missing = [];
+        // 1. Ambil semua field biodata teks dasar
+        $missing = $this->getMissingBiodataFields();
 
-        if (empty(trim((string) $this->name))) {
-            $missing['name'] = 'Nama Lengkap';
-        }
+        // 2. Foto KTP & Selfie HANYA ditagih jika akun BELUM diverifikasi.
+        // Jika akun SUDAH berstatus verified == true (sudah diverifikasi oleh Admin/Super Admin),
+        // maka kewajiban upload file foto KTP & Selfie otomatis diabaikan.
+        if (!$this->verified) {
+            if (empty($this->ktp_photo) && empty($this->ktp_path)) {
+                $missing['ktp_photo'] = 'Foto KTP';
+            }
 
-        $cleanNik = preg_replace('/[^0-9]/', '', (string) $this->nik);
-        if (empty($cleanNik) || strlen($cleanNik) !== 16) {
-            $missing['nik'] = 'NIK (16 Digit Angka)';
-        }
-
-        $cleanPhone = preg_replace('/[^0-9]/', '', (string) $this->phone);
-        if (empty($cleanPhone) || strlen($cleanPhone) < 10 || strlen($cleanPhone) > 13) {
-            $missing['phone'] = 'No. HP (10-13 Digit Angka)';
-        }
-
-        if (empty($this->city_id)) {
-            $missing['city_id'] = 'Kota Domisili';
-        }
-
-        if (empty(trim((string) $this->address))) {
-            $missing['address'] = 'Alamat Lengkap';
-        }
-
-        if (empty($this->religion)) {
-            $missing['religion'] = 'Agama';
-        }
-
-        if (empty($this->marital_status)) {
-            $missing['marital_status'] = 'Status Pernikahan';
-        }
-
-        if (empty(trim((string) $this->occupation))) {
-            $missing['occupation'] = 'Pekerjaan';
-        }
-
-        if (empty($this->ktp_photo) && empty($this->ktp_path)) {
-            $missing['ktp_photo'] = 'Foto KTP';
-        }
-
-        if (empty($this->selfie_photo)) {
-            $missing['selfie_photo'] = 'Foto Selfie (Wajah & KTP)';
+            if (empty($this->selfie_photo)) {
+                $missing['selfie_photo'] = 'Foto Selfie (Wajah & KTP)';
+            }
         }
 
         return $missing;
@@ -693,5 +718,45 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $missing;
+    }
+
+    /**
+     * Get accessible URL for KTP photo
+     */
+    public function getKtpUrlAttribute(): ?string
+    {
+        $path = $this->ktp_photo ?? $this->ktp_path;
+        if (!$path && $this->relationLoaded('registration') && $this->registration) {
+            $path = $this->registration->ktp_photo_path;
+        } elseif (!$path) {
+            $reg = \App\Models\Registration::where('email', $this->email)->first();
+            if ($reg) {
+                $path = $reg->ktp_photo_path;
+            }
+        }
+        if ($path) {
+            return asset('storage/' . ltrim($path, '/'));
+        }
+        return null;
+    }
+
+    /**
+     * Get accessible URL for Selfie photo
+     */
+    public function getSelfieUrlAttribute(): ?string
+    {
+        $path = $this->selfie_photo;
+        if (!$path && $this->relationLoaded('registration') && $this->registration) {
+            $path = $this->registration->selfie_photo_path;
+        } elseif (!$path) {
+            $reg = \App\Models\Registration::where('email', $this->email)->first();
+            if ($reg) {
+                $path = $reg->selfie_photo_path;
+            }
+        }
+        if ($path) {
+            return asset('storage/' . ltrim($path, '/'));
+        }
+        return null;
     }
 }

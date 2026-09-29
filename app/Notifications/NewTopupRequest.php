@@ -66,6 +66,8 @@ class NewTopupRequest extends Notification
             'request_code' => $this->transaction->request_code,
             'customer_name' => $this->transaction->user->name,
             'customer_id' => $this->transaction->user_id,
+            'user_id' => $this->transaction->user_id,
+            'city_id' => $this->transaction->user?->city_id,
             'amount' => $this->transaction->amount,
             'total_payment' => $this->transaction->total_payment,
             'message' => 'Request top-up baru dari ' . $this->transaction->user->name . ' sebesar Rp ' . number_format($this->transaction->amount, 0, ',', '.'),

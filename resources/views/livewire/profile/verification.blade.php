@@ -8,6 +8,26 @@
         </div>
     @endif
 
+    @if ($is_rejected && $rejection_reason)
+        <div class="mb-5 p-4 rounded-xl border border-red-200 bg-red-50 text-red-800 text-sm shadow-sm">
+            <div class="flex items-center gap-2 font-bold text-red-900 mb-1">
+                <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Verifikasi Identitas Sebelumnya Ditolak</span>
+            </div>
+            <div class="pl-7">
+                <p class="font-semibold text-red-900 text-xs">Alasan Penolakan Admin:</p>
+                <div class="bg-white/90 border border-red-200 rounded-lg p-2.5 my-1.5 text-xs text-red-800 font-medium leading-relaxed">
+                    {{ $rejection_reason }}
+                </div>
+                <p class="text-[11px] text-red-700">
+                    Silakan unggah ulang foto KTP atau Selfie yang sesuai dengan catatan di atas, lalu klik tombol <strong>Simpan Data</strong> untuk mengajukan verifikasi kembali.
+                </p>
+            </div>
+        </div>
+    @endif
+
     <form wire:submit="save" class="space-y-6">
         <!-- KTP Upload -->
         <div>
@@ -79,7 +99,7 @@
             @error('selfie_photo') <span class="text-sm text-red-600 mt-1 block">{{ $message }}</span> @enderror
         </div>
 
-        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-[#0098e7] to-[#0060b0] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0098e7] transition" wire:loading.attr="disabled">
+        <button type="submit" onclick="sessionStorage.removeItem('dismissed_ktp_rejected_modal');" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-[#0098e7] to-[#0060b0] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0098e7] transition" wire:loading.attr="disabled">
             <span wire:loading.remove wire:target="save">Simpan Data</span>
             <span wire:loading wire:target="save">Menyimpan...</span>
         </button>

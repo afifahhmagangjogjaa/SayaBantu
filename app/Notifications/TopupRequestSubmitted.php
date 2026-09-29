@@ -58,11 +58,13 @@ class TopupRequestSubmitted extends Notification
     {
         return [
             'type' => 'topup_request_submitted',
+            'title' => '⏳ Request Top-Up Terkirim',
             'transaction_id' => $this->transaction->id,
             'request_code' => $this->transaction->request_code,
             'amount' => $this->transaction->amount,
             'total_payment' => $this->transaction->total_payment,
             'message' => 'Request top-up saldo Anda telah diterima dan menunggu verifikasi Super Admin.',
+            'url' => route('customer.topup.history'),
         ];
     }
 }

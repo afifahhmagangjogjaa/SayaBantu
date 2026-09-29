@@ -30,10 +30,12 @@ class RatingObserver
                 'user_agent' => $ua,
             ]);
 
-            // Notify the user who received the rating
-            $ratee = $rating->ratee ?? ($rating->type === 'customer_to_mitra' ? $rating->mitra : $rating->user);
-            if ($ratee) {
-                $ratee->notify(new \App\Notifications\RatingReceivedNotification($rating));
+            // Notifikasi rating HANYA dikirimkan ke mitra (customer tidak menerima notifikasi rating)
+            if ($rating->type === 'customer_to_mitra') {
+                $ratee = $rating->ratee ?? $rating->mitra;
+                if ($ratee && $ratee->role === 'mitra') {
+                    $ratee->notify(new \App\Notifications\RatingReceivedNotification($rating));
+                }
             }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('RatingObserver error', ['error' => $e->getMessage()]);

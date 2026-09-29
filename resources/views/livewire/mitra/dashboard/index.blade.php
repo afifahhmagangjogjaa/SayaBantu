@@ -1,4 +1,17 @@
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100"
+    x-data
+    x-init="
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                p => {
+                    $wire.setCoordinates(p.coords.latitude, p.coords.longitude);
+                },
+                err => {},
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        }
+    "
+>
     <style>
         :root{
             --brand-500: #0ea5a4;
@@ -61,17 +74,6 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('mitra.chat') }}" class="relative bg-white/10 backdrop-blur-sm p-2 rounded-lg hover:bg-white/20 transition text-white">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-5 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1l-4 4z" />
-                        </svg>
-                        @if(!empty($unreadChatCount) && $unreadChatCount > 0)
-                            <span class="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                            </span>
-                        @endif
-                    </a>
                     @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'bg-white/10 backdrop-blur-sm p-2 rounded-lg hover:bg-white/20 transition'])
                 </div>
             </div>
@@ -192,6 +194,28 @@
             $needsEmail = $dashUser && !$dashUser->hasVerifiedEmail();
         @endphp
 
+        {{-- Flash Messages --}}
+        @if (session()->has('error') || session()->has('message') || session()->has('success'))
+            <div class="mb-4">
+                @if (session()->has('error'))
+                    <div class="bg-red-50 border border-red-200 text-red-800 rounded-xl p-3.5 text-xs flex items-start gap-2.5 shadow-2xs">
+                        <svg class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="flex-1 font-medium leading-relaxed">{{ session('error') }}</div>
+                    </div>
+                @endif
+                @if (session()->has('success') || session()->has('message'))
+                    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-3.5 text-xs flex items-start gap-2.5 shadow-2xs">
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <div class="flex-1 font-medium leading-relaxed">{{ session('success') ?? session('message') }}</div>
+                    </div>
+                @endif
+            </div>
+        @endif
+
         @if($needsBiodata)
             {{-- 1. LENGKAPI BIODATA DULU --}}
             <div class="rounded-2xl p-3.5 text-xs mb-5 flex items-center justify-between gap-3 bg-white"
@@ -280,32 +304,77 @@
         @php
             $mitraBanners = json_decode((string) \App\Models\AppSetting::get('banner_mitra', '[]'), true) ?: [];
         @endphp
+
         @if(!empty($mitraBanners) && count($mitraBanners))
             <div class="mb-5">
-                <div class="rounded-xl overflow-hidden shadow-md">
-                    <div class="relative h-36 overflow-hidden">
-                        <div class="flex h-full will-change-transform mitra-banner-slides"
-                            style="transition: transform 700ms cubic-bezier(.2,.9,.2,1);">
+                <div x-data="bannerSlider({{ count($mitraBanners) }})"
+                    @touchstart="touchStart($event)"
+                    @touchmove="touchMove($event)"
+                    @touchend="touchEnd($event)"
+                    @mousedown="mouseDown($event)"
+                    @mousemove="mouseMove($event)"
+                    @mouseup="mouseUp($event)"
+                    @mouseleave="mouseLeave($event)"
+                    @mouseenter="stopAutoPlay()"
+                    class="relative rounded-2xl overflow-hidden shadow-md select-none group touch-pan-y {{ count($mitraBanners) > 1 ? 'cursor-grab active:cursor-grabbing' : '' }} bg-gray-100">
+
+                    <!-- Slides Track -->
+                    <div class="relative h-36 sm:h-40 overflow-hidden">
+                        <div class="flex h-full will-change-transform"
+                            :style="'transform: translateX(calc(-' + (current * 100) + '% + ' + dragOffset + 'px)); transition: ' + (isDragging ? 'none' : 'transform 500ms cubic-bezier(0.25, 1, 0.5, 1)')">
                             @foreach($mitraBanners as $b)
-                                <div class="flex-shrink-0 w-full h-full">
-                                    <img src="{{ asset('storage/' . $b) }}" alt="Banner" class="w-full h-full object-cover" />
+                                <div class="flex-shrink-0 w-full h-full select-none">
+                                    <img src="{{ asset('storage/' . $b) }}"
+                                        alt="Banner Mitra"
+                                        draggable="false"
+                                        class="w-full h-full object-cover pointer-events-none select-none" />
                                 </div>
                             @endforeach
                         </div>
                     </div>
-                </div>
-            </div>
-        @else
-            <div class="mb-5">
-                <div id="promo-banner" class="rounded-xl overflow-hidden shadow-md">
-                    <div class="relative h-36 overflow-hidden" style="background: linear-gradient(to right, #0098e7, #0077cc);">
-                        <div id="promo-track" class="flex h-full transition-transform duration-700 ease-in-out"></div>
-                    </div>
-                </div>
-                <div id="promo-dots" class="flex justify-center mt-3 gap-2">
-                    <button data-dot="0" class="w-2 h-2 rounded-full transition-all" style="background: #0098e7;"></button>
-                    <button data-dot="1" class="w-2 h-2 rounded-full bg-gray-300 transition-all"></button>
-                    <button data-dot="2" class="w-2 h-2 rounded-full bg-gray-300 transition-all"></button>
+
+                    @if(count($mitraBanners) > 1)
+                        <!-- Tombol Panah Kiri (Prev) -->
+                        <button type="button"
+                            @click.stop="prev()"
+                            @mousedown.stop
+                            @touchstart.stop
+                            class="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-90 text-white flex items-center justify-center shadow-lg backdrop-blur-sm transition-all duration-200 cursor-pointer select-none"
+                            title="Banner Sebelumnya"
+                            aria-label="Banner Sebelumnya">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 -translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        <!-- Tombol Panah Kanan (Next) -->
+                        <button type="button"
+                            @click.stop="next()"
+                            @mousedown.stop
+                            @touchstart.stop
+                            class="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-90 text-white flex items-center justify-center shadow-lg backdrop-blur-sm transition-all duration-200 cursor-pointer select-none"
+                            title="Banner Selanjutnya"
+                            aria-label="Banner Selanjutnya">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+
+                        <!-- Indikator Dots -->
+                        <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20 select-none">
+                            @foreach($mitraBanners as $i => $b)
+                                <button type="button"
+                                    @click.stop="goTo({{ $i }})"
+                                    @mousedown.stop
+                                    @touchstart.stop
+                                    :class="current === {{ $i }} ? 'w-5 bg-white shadow-md' : 'w-2 bg-white/60 hover:bg-white/90'"
+                                    class="h-2 rounded-full transition-all duration-300 cursor-pointer"
+                                    title="Slide {{ $i + 1 }}"
+                                    aria-label="Slide {{ $i + 1 }}">
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -313,7 +382,10 @@
         <!-- Bantuan Tersedia Section -->
         <div class="mb-5">
             <div class="flex items-center justify-between mb-3">
-                <h2 class="text-base font-bold text-gray-900">Bantuan Tersedia</h2>
+                <div class="flex items-center gap-2">
+                    <h2 class="text-base font-bold text-gray-900">Bantuan Tersedia</h2>
+                    <span class="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">Maks. {{ (int) ($maxRadius ?? 10) }} km</span>
+                </div>
                 <a href="{{ route('mitra.helps.all') }}" class="text-xs font-semibold" style="color: #0098e7;">Lihat Semua →</a>
             </div>
 
@@ -334,11 +406,16 @@
 
                 @forelse($recommendedHelps as $help)
                     @php 
-                        $schedLabel = $help->scheduled_at ? \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d M Y, H:i') : '' ;
+                        $schedDate = $help->scheduled_at ?? $help->created_at;
+                        $schedLabel = $schedDate ? \Carbon\Carbon::parse($schedDate)->translatedFormat('d M Y, H:i') : '-' ;
                         $catLabel = $help->category ? ($help->category->icon . ' ' . $help->category->name) : '📦 Lainnya';
+                        $isUrgent = $help->isUrgent();
+                        $cityLabel = $help->city->name ?? '-';
+                        $distLabel = isset($help->distance) ? number_format($help->distance, 1) . ' km' : '';
+                        $isCancelledByMe = auth()->check() && $help->wasCancelledByMitra(auth()->id());
                     @endphp
-                    <button type="button" onclick="showHelpPreview({{ $help->id }}, '{{ addslashes($help->title) }}', {{ $help->amount }}, '{{ addslashes($schedLabel) }}', '{{ addslashes($catLabel) }}')"
-                        class="block w-full text-left bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all">
+                    <button type="button" onclick="showHelpPreview({{ $help->id }}, '{{ addslashes($help->title) }}', {{ $help->amount }}, '{{ addslashes($schedLabel) }}', '{{ addslashes($catLabel) }}', {{ $isUrgent ? 'true' : 'false' }}, '{{ addslashes($cityLabel) }}', '{{ addslashes($distLabel) }}', {{ $isCancelledByMe ? 'true' : 'false' }})"
+                        class="block w-full text-left bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all {{ $isCancelledByMe ? 'border-l-4 border-l-amber-500 bg-amber-50/20' : ($isUrgent ? 'border-l-4 border-l-red-500' : '') }}">
                         <div class="flex items-start gap-3">
                             <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                                 @if($help->photo)
@@ -350,19 +427,74 @@
                                 @endif
                             </div>
 
-                                <div class="flex-1 min-w-0">
+                            <div class="flex-1 min-w-0">
                                 <div class="flex items-start justify-between gap-2 mb-1">
-                                    <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                    <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+                                        <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                        @if($isUrgent)
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                            @if($help->auto_cancel_at && $help->status === 'menunggu_mitra')
+                                                @php
+                                                    $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
+                                                    $minsLeft = (int) ceil($secsLeft / 60);
+                                                @endphp
+                                                @if($secsLeft > 0)
+                                                    <span x-data="{
+                                                        target: new Date('{{ $help->auto_cancel_at->toIso8601String() }}').getTime(),
+                                                        label: '{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}',
+                                                        init() {
+                                                            this.update();
+                                                            setInterval(() => this.update(), 5000);
+                                                        },
+                                                        update() {
+                                                            const diff = this.target - Date.now();
+                                                            if (diff <= 0) {
+                                                                this.label = 'Waktu habis';
+                                                                if (window.Livewire) { $wire.$refresh(); }
+                                                                return;
+                                                            }
+                                                            const m = Math.ceil(diff / 60000);
+                                                            this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
+                                                        }
+                                                    }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
+                                                        ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
+                                                    </span>
+                                                @endif
+                                            @endif
+                                        @endif
+                                        @if($isCancelledByMe)
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">⚠️ Pernah Dibatalkan</span>
+                                        @endif
+                                    </div>
                                     <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                 </div>
                                 <p class="text-xs text-gray-600 line-clamp-1 mb-1.5">{{ Str::limit($help->description, 60) }}</p>
-                                @if($help->scheduled_at)
-                                    <div class="text-xs text-gray-500 mb-1">📅 {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d M Y, H:i') }}</div>
+                                @if($schedDate)
+                                    <div class="text-xs {{ $isUrgent ? 'text-red-600 font-semibold' : 'text-gray-500' }} mb-1">
+                                        {{ $isUrgent ? '⚡ ' : '📅 ' }}{{ \Carbon\Carbon::parse($schedDate)->translatedFormat('d M Y, H:i') }}
+                                    </div>
                                 @endif
-                                <div class="flex items-center gap-3">
-                                    <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
-                                    <span class="text-xs text-gray-400">{{ $help->created_at->diffForHumans() }}</span>
+                                <div class="flex items-center gap-1.5 text-xs text-gray-500 flex-wrap">
+                                    <span class="inline-flex items-center gap-1 font-medium text-gray-700 whitespace-nowrap">
+                                        <span>📍</span>
+                                        <span>{{ $help->city->name ?? '-' }}</span>
+                                    </span>
+                                    @if(isset($help->distance))
+                                        <span class="text-gray-300">•</span>
+                                        <span class="inline-flex items-center font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap text-[11px]">
+                                            {{ number_format($help->distance, 1) }} km dari Anda
+                                        </span>
+                                    @endif
+                                    <span class="text-gray-300">•</span>
+                                    <span class="text-gray-400 whitespace-nowrap">{{ $help->created_at->diffForHumans() }}</span>
                                 </div>
+
+                                @if($isCancelledByMe)
+                                    <div class="mt-2.5 p-2 bg-amber-50 border border-amber-200/80 rounded-lg text-amber-800 text-[11px] flex items-center gap-1.5 font-medium leading-tight">
+                                        <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                        <span>Anda tidak bisa mengambil bantuan ini karena sudah pernah dibatalkan</span>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </button>
@@ -371,8 +503,8 @@
                         <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
-                        <p class="text-sm font-semibold text-gray-700">Belum ada bantuan tersedia</p>
-                        <p class="text-xs text-gray-500 mt-1">Cek kembali nanti untuk bantuan baru</p>
+                        <p class="text-sm font-semibold text-gray-700">Belum ada bantuan dalam radius {{ (int) ($maxRadius ?? 10) }} km</p>
+                        <p class="text-xs text-gray-500 mt-1">Kami akan menampilkan bantuan saat ada permintaan baru di sekitar Anda</p>
                     </div>
                 @endforelse
             </div>
@@ -380,132 +512,145 @@
     </div>
 
 
-    @if(empty($mitraBanners) || !count($mitraBanners))
-        <script>
-            (function () {
-                const banners = [
-                    { title: 'Promo Spesial', desc: 'Dapatkan bonus saldo dan insentif khusus.', bgCss: 'linear-gradient(135deg,#6366f1,#4f46e5)' },
-                    { title: 'Insentif Mitra', desc: 'Selesaikan lebih banyak bantuan, dapatkan insentif.', bgCss: 'linear-gradient(135deg,#10b981,#059669)' },
-                    { title: 'Badge Aktif', desc: 'Selesaikan 5 bantuan dan dapatkan badge Mitra Aktif.', bgCss: 'linear-gradient(135deg,#f59e0b,#f97316)' }
-                ];
-
-                const track = document.getElementById('promo-track');
-                const dotsContainer = document.getElementById('promo-dots');
-                const dots = dotsContainer ? Array.from(dotsContainer.querySelectorAll('button')) : [];
-                let idx = 0;
-                let timer = null;
-
-                // build slides (create DOM nodes and use inline background to avoid Tailwind purge issues)
-                if (track) {
-                    track.innerHTML = '';
-                    const frag = document.createDocumentFragment();
-                    banners.forEach(b => {
-                        const slide = document.createElement('div');
-                        slide.className = 'w-full flex-shrink-0 p-6 flex items-center justify-center text-white';
-                        slide.style.background = b.bgCss;
-                        const inner = document.createElement('div');
-                        inner.className = 'text-center';
-                        const title = document.createElement('div');
-                        title.className = 'font-extrabold text-xl mb-1 tracking-tight';
-                        title.textContent = b.title;
-                        const desc = document.createElement('div');
-                        desc.className = 'text-sm opacity-90 font-medium';
-                        desc.textContent = b.desc;
-                        inner.appendChild(title);
-                        inner.appendChild(desc);
-                        slide.appendChild(inner);
-                        frag.appendChild(slide);
-                    });
-                    track.appendChild(frag);
-                }
-
-                function update() {
-                    if (track) {
-                        const percent = (idx * 100) / banners.length;
-                        track.style.transform = `translateX(${-percent}%)`;
-                    }
-                    if (dots.length) {
-                        dots.forEach((d, k) => {
-                            d.classList.toggle('bg-primary-600', k === idx);
-                            d.classList.toggle('bg-gray-300', k !== idx);
-                        });
-                    }
-                }
-
-                function go(i) {
-                    idx = (i + banners.length) % banners.length;
-                    update();
-                }
-
-                function resetTimer() {
-                    if (timer) clearInterval(timer);
-                    timer = setInterval(() => go(idx + 1), 4200);
-                }
-
-                // dot clicks
-                if (dotsContainer) {
-                    dotsContainer.addEventListener('click', function (e) {
-                        const dot = e.target.closest('button[data-dot]');
-                        if (!dot) return;
-                        const i = parseInt(dot.dataset.dot);
-                        go(i);
-                        resetTimer();
-                    });
-                }
-
-                // init
-                if (track) {
-                    // ensure track has width for transform to work correctly
-                    track.style.width = `${banners.length * 100}%`;
-                    Array.from(track.children).forEach(child => child.style.width = `${100 / banners.length}%`);
-                    update();
-                    resetTimer();
-                }
-            })();
-        </script>
-    @endif
-
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            function initBannerSlider(wrapperSelector) {
-                const wrapper = document.querySelector(wrapperSelector);
-                if (!wrapper) return;
-                const container = wrapper.parentElement; // expected visible container
-                const slides = Array.from(wrapper.children || []);
-                if (!slides.length || slides.length <= 1) return;
+        if (typeof window.bannerSlider !== 'function') {
+            window.bannerSlider = function (totalSlides = 1, autoPlayMs = 4000) {
+                return {
+                    current: 0,
+                    total: totalSlides,
+                    timer: null,
+                    startX: 0,
+                    startY: 0,
+                    dragOffset: 0,
+                    isDragging: false,
+                    isSwipingHorizontal: false,
 
-                function setup() {
-                    const cw = container.clientWidth || container.getBoundingClientRect().width;
-                    wrapper.style.width = (cw * slides.length) + 'px';
-                    wrapper.style.display = 'flex';
-                    wrapper.style.transition = 'transform 700ms cubic-bezier(.2,.9,.2,1)';
-                    slides.forEach(s => {
-                        s.style.width = cw + 'px';
-                        s.style.flex = '0 0 auto';
-                    });
-                }
+                    init() {
+                        if (this.total > 1) {
+                            this.startAutoPlay();
+                        }
+                    },
 
-                let idx = 0;
-                let timer = null;
+                    next() {
+                        if (this.total <= 1) return;
+                        this.current = (this.current + 1) % this.total;
+                        this.resetAutoPlay();
+                    },
 
-                function go(i) {
-                    idx = (i + slides.length) % slides.length;
-                    const shift = -(idx * (container.clientWidth || container.getBoundingClientRect().width));
-                    wrapper.style.transform = 'translateX(' + shift + 'px)';
-                }
+                    prev() {
+                        if (this.total <= 1) return;
+                        this.current = (this.current - 1 + this.total) % this.total;
+                        this.resetAutoPlay();
+                    },
 
-                setup();
-                window.addEventListener('resize', setup);
+                    goTo(idx) {
+                        this.current = idx;
+                        this.resetAutoPlay();
+                    },
 
-                timer = setInterval(function () { go(idx + 1); }, 3500);
+                    startAutoPlay() {
+                        if (this.total <= 1) return;
+                        this.stopAutoPlay();
+                        this.timer = setInterval(() => {
+                            this.next();
+                        }, autoPlayMs);
+                    },
 
-                container.addEventListener('mouseenter', function () { if (timer) clearInterval(timer); });
-                container.addEventListener('mouseleave', function () { if (timer) clearInterval(timer); timer = setInterval(function () { go(idx + 1); }, 3500); });
-            }
+                    stopAutoPlay() {
+                        if (this.timer) {
+                            clearInterval(this.timer);
+                            this.timer = null;
+                        }
+                    },
 
-            try { initBannerSlider('.mitra-banner-slides'); } catch (e) { console.warn('mitra slider init', e); }
-            try { initBannerSlider('.customer-banner-slides'); } catch (e) { /* ignore */ }
-        });
+                    resetAutoPlay() {
+                        this.stopAutoPlay();
+                        if (this.total > 1) {
+                            this.startAutoPlay();
+                        }
+                    },
+
+                    touchStart(e) {
+                        if (this.total <= 1) return;
+                        this.stopAutoPlay();
+                        const touch = e.touches ? e.touches[0] : e;
+                        this.startX = touch.clientX;
+                        this.startY = touch.clientY;
+                        this.dragOffset = 0;
+                        this.isDragging = true;
+                        this.isSwipingHorizontal = false;
+                    },
+
+                    touchMove(e) {
+                        if (!this.isDragging || this.total <= 1) return;
+                        const touch = e.touches ? e.touches[0] : e;
+                        const diffX = touch.clientX - this.startX;
+                        const diffY = touch.clientY - this.startY;
+
+                        if (!this.isSwipingHorizontal) {
+                            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8) {
+                                this.isSwipingHorizontal = true;
+                            }
+                        }
+
+                        if (this.isSwipingHorizontal) {
+                            if (e.cancelable) e.preventDefault();
+                            this.dragOffset = diffX;
+                        }
+                    },
+
+                    touchEnd() {
+                        if (!this.isDragging || this.total <= 1) return;
+                        this.isDragging = false;
+                        const threshold = 40;
+                        if (this.dragOffset < -threshold) {
+                            this.next();
+                        } else if (this.dragOffset > threshold) {
+                            this.prev();
+                        }
+                        this.dragOffset = 0;
+                        this.isSwipingHorizontal = false;
+                        this.startAutoPlay();
+                    },
+
+                    mouseDown(e) {
+                        if (this.total <= 1 || e.button !== 0) return;
+                        this.stopAutoPlay();
+                        this.startX = e.clientX;
+                        this.startY = e.clientY;
+                        this.dragOffset = 0;
+                        this.isDragging = true;
+                    },
+
+                    mouseMove(e) {
+                        if (!this.isDragging || this.total <= 1) return;
+                        const diffX = e.clientX - this.startX;
+                        this.dragOffset = diffX;
+                    },
+
+                    mouseUp() {
+                        if (!this.isDragging || this.total <= 1) return;
+                        this.isDragging = false;
+                        const threshold = 40;
+                        if (this.dragOffset < -threshold) {
+                            this.next();
+                        } else if (this.dragOffset > threshold) {
+                            this.prev();
+                        }
+                        this.dragOffset = 0;
+                        this.startAutoPlay();
+                    },
+
+                    mouseLeave() {
+                        if (this.isDragging) {
+                            this.mouseUp();
+                        } else {
+                            this.startAutoPlay();
+                        }
+                    }
+                };
+            };
+        }
     </script>
 
     <!-- Modal Preview Bantuan (Bottom Sheet Style) -->
@@ -525,6 +670,11 @@
 
             <!-- Modal Content -->
             <div class="p-5 pb-6">
+                <div id="previewUrgentBadge" class="hidden mb-3 p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold flex items-center gap-1.5">
+                    <span class="text-sm">⚡</span>
+                    <span>BANTUAN MENDESAK (URGENT) — Mohon segera ditindaklanjuti.</span>
+                </div>
+
                 <div class="mb-4">
                     <p class="text-xs text-gray-600 font-semibold mb-1">Judul Bantuan</p>
                     <p id="previewTitle" class="text-base font-bold text-gray-900">-</p>
@@ -547,6 +697,15 @@
                     <div id="previewScheduled" class="text-sm text-gray-700">-</div>
                 </div>
 
+                <div class="mb-4">
+                    <p class="text-xs text-gray-600 font-semibold mb-1">Lokasi & Jarak</p>
+                    <div class="flex items-center gap-2 text-sm text-gray-700 flex-wrap">
+                        <span id="previewCity" class="inline-flex items-center gap-1 font-medium whitespace-nowrap">📍 -</span>
+                        <span id="previewDistanceDot" class="text-gray-300 hidden">•</span>
+                        <span id="previewDistance" class="hidden font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full text-xs whitespace-nowrap"></span>
+                    </div>
+                </div>
+
                 <!-- Notice -->
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                     <p class="text-xs font-semibold text-blue-800 mb-1">🔒 Informasi Terbatas</p>
@@ -565,7 +724,7 @@
                             <span>Biodata Belum Lengkap</span>
                         </p>
                         <p class="text-[11px] text-red-700 leading-relaxed">
-                            Harap lengkapi data profil dan dokumen KTP Anda terlebih dahulu sebelum dapat mengambil bantuan.
+                            Harap lengkapi biodata profil Anda terlebih dahulu sebelum dapat mengambil bantuan.
                         </p>
                     </div>
                 @elseif(auth()->check() && !auth()->user()->verified)
@@ -589,9 +748,21 @@
                         </p>
                     </div>
                 @endif
+                <div id="previewCancelledByMeAlert" class="hidden mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                    <p class="font-bold flex items-center gap-1.5 mb-1">
+                        <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>Bantuan Pernah Dibatalkan</span>
+                    </p>
+                    <p class="text-[11px] text-amber-700 leading-relaxed">
+                        Anda tidak bisa mengambil bantuan ini karena sudah pernah dibatalkan.
+                    </p>
+                </div>
                 <div class="flex gap-3">
                     <button type="button" onclick="closePreviewModal()" class="flex-1 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl font-bold hover:bg-gray-200 transition">
                         Batal
+                    </button>
+                    <button type="button" id="previewCancelledTakeBtn" disabled class="hidden flex-1 bg-gray-200 text-gray-400 px-4 py-2.5 rounded-xl font-bold cursor-not-allowed text-xs">
+                        Tidak Dapat Diambil
                     </button>
                     @if(auth()->check() && !auth()->user()->isProfileComplete())
                         <a href="{{ route('mitra.profile.edit') }}" class="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
@@ -618,8 +789,29 @@
     <script>
         let currentHelpId = null;
 
-        function showHelpPreview(helpId, title, amount, scheduled, category) {
+        function showHelpPreview(helpId, title, amount, scheduled, category, isUrgent = false, city = '', distance = '', isCancelledByMe = false) {
             currentHelpId = helpId;
+            const urgentBadge = document.getElementById('previewUrgentBadge');
+            if (urgentBadge) {
+                if (isUrgent) {
+                    urgentBadge.classList.remove('hidden');
+                } else {
+                    urgentBadge.classList.add('hidden');
+                }
+            }
+            
+            const cancelledAlert = document.getElementById('previewCancelledByMeAlert');
+            const cancelledBtn = document.getElementById('previewCancelledTakeBtn');
+            const takeBtn = document.getElementById('previewTakeBtn');
+            if (isCancelledByMe) {
+                if (cancelledAlert) cancelledAlert.classList.remove('hidden');
+                if (cancelledBtn) cancelledBtn.classList.remove('hidden');
+                if (takeBtn) takeBtn.classList.add('hidden');
+            } else {
+                if (cancelledAlert) cancelledAlert.classList.add('hidden');
+                if (cancelledBtn) cancelledBtn.classList.add('hidden');
+                if (takeBtn) takeBtn.classList.remove('hidden');
+            }
             document.getElementById('previewTitle').textContent = title;
             document.getElementById('previewCategory').textContent = category || '📦 Lainnya';
             document.getElementById('previewAmount').textContent = '💰 Rp ' + amount.toLocaleString('id-ID');
@@ -636,6 +828,24 @@
                         }).catch(() => { schedEl.textContent = '-'; });
                 }
             }
+
+            const cityEl = document.getElementById('previewCity');
+            const distEl = document.getElementById('previewDistance');
+            const distDot = document.getElementById('previewDistanceDot');
+            if (cityEl) {
+                cityEl.textContent = city ? ('📍 ' + city) : '📍 -';
+            }
+            if (distEl) {
+                if (distance && distance.trim() !== '') {
+                    distEl.textContent = distance + ' dari Anda';
+                    distEl.classList.remove('hidden');
+                    if (distDot) distDot.classList.remove('hidden');
+                } else {
+                    distEl.classList.add('hidden');
+                    if (distDot) distDot.classList.add('hidden');
+                }
+            }
+
             document.getElementById('helpPreviewModal').classList.remove('hidden');
         }
 

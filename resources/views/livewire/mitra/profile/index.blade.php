@@ -85,6 +85,17 @@
                             <span>Menunggu Verifikasi KTP</span>
                         </div>
                     @endif
+
+                    @if($user && $user->warning_level >= 2)
+                        <div class="block mt-2">
+                            <div class="inline-flex items-center gap-1.5 bg-red-600 text-white px-3.5 py-1.5 rounded-full shadow-md border border-red-400 font-bold text-xs">
+                                <svg class="w-3.5 h-3.5 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <span>Surat Peringatan {{ $user->warning_level }} / 3</span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -162,43 +173,78 @@
                 $isVerified = (bool) optional($user)->verified;
             @endphp
 
-            {{-- 1. INFO VERIFIKASI KTP / DOKUMEN (DI ATAS LENGKAPI PROFIL) --}}
-            @if(!$hasDocs)
-                {{-- Belum Upload Foto KTP & Selfie --}}
-                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
-                    <div class="rounded-xl shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #ffffff; width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                        </svg>
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div class="flex items-center gap-2">
-                            <div class="font-bold text-amber-950 text-sm">Belum Upload KTP & Selfie</div>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200 text-amber-900">Wajib</span>
+            {{-- PERINGATAN KERAS SURAT PERINGATAN (HANYA MUNCUL DI PROFIL JIKA SUDAH TINGKAT 2 KE ATAS) --}}
+            @if($user && $user->warning_level >= 2)
+                <div class="bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-300 rounded-2xl p-4 text-xs text-red-900 shadow-md mb-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-700 text-white flex items-center justify-center shrink-0 shadow-sm">
+                            <svg class="w-5 h-5 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
                         </div>
-                        <div class="mt-1 text-amber-800 leading-relaxed">
-                            Upload foto KTP dan foto selfie Anda untuk verifikasi identitas agar dapat menjalankan pekerjaan bantuan.
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <div class="font-bold text-red-950 text-sm">Surat Peringatan {{ $user->warning_level }}</div>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-red-600 text-white shadow-xs">
+                                    Peringatan Keras
+                                </span>
+                            </div>
+                            @if(!empty($user->warning_reason))
+                                <div class="mt-2 p-2.5 bg-white/95 rounded-xl border border-red-200 text-red-900">
+                                    <div class="text-[10px] font-bold text-red-700 uppercase tracking-wider">Alasan Sanksi Admin:</div>
+                                    <div class="text-xs font-semibold mt-0.5">{{ $user->warning_reason }}</div>
+                                    @if($user->warning_applied_at)
+                                        <div class="text-[10px] text-gray-400 mt-1">Diberikan pada: {{ \Carbon\Carbon::parse($user->warning_applied_at)->translatedFormat('d F Y, H:i') }} WIB</div>
+                                    @endif
+                                </div>
+                            @endif
+                            <p class="mt-2 text-[11px] text-red-700 leading-snug font-medium">
+                                ⚠️ <strong>PERHATIAN KRITIS:</strong> Akun Mitra Anda kini berstatus Surat Peringatan 2. Jika Anda melakukan 1 pelanggaran lagi hingga mencapai <strong>Surat Peringatan 3</strong>, akun Mitra Anda akan <strong>otomatis dinonaktifkan/diblokir permanen dari sistem</strong>.
+                            </p>
                         </div>
-                        <a href="{{ route('profile.settings.verification') }}" class="inline-flex items-center gap-1.5 font-bold text-white bg-amber-600 hover:bg-amber-700 px-3.5 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-xs">
-                            <span>Upload KTP & Selfie Sekarang</span>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                        </a>
                     </div>
                 </div>
-            @elseif(!$isVerified)
-                {{-- Sudah Upload KTP & Selfie, Menunggu Verifikasi Admin --}}
-                <div class="bg-blue-50/95 border border-blue-200 rounded-2xl p-4 text-xs text-blue-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
-                    <div class="rounded-xl bg-blue-100 text-blue-600 text-lg shadow-2xs" style="width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                        ⏳
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="font-bold text-blue-950 text-sm">Menunggu Verifikasi KTP</span>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">Dalam Proses</span>
+            @endif
+
+            {{-- 1. INFO VERIFIKASI KTP / DOKUMEN (HANYA JIKA BELUM TERVERIFIKASI) --}}
+            @if(!$isVerified)
+                @if(!$hasDocs)
+                    {{-- Belum Upload Foto KTP & Selfie --}}
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
+                        <div class="rounded-xl shadow-sm" style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #ffffff; width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                            <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                            </svg>
                         </div>
-                        <p class="text-xs text-blue-800 leading-relaxed">Foto KTP dan data pendaftaran Anda telah berhasil dikirim. Akun Mitra Anda sedang dalam proses peninjauan & verifikasi oleh Admin Kota.</p>
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="flex items-center gap-2">
+                                <div class="font-bold text-amber-950 text-sm">Belum Upload KTP & Selfie</div>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200 text-amber-900">Wajib</span>
+                            </div>
+                            <div class="mt-1 text-amber-800 leading-relaxed">
+                                Upload foto KTP dan foto selfie Anda untuk verifikasi identitas agar dapat menjalankan pekerjaan bantuan.
+                            </div>
+                            <a href="{{ route('profile.settings.verification') }}" class="inline-flex items-center gap-1.5 font-bold text-white bg-amber-600 hover:bg-amber-700 px-3.5 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-xs">
+                                <span>Upload KTP & Selfie Sekarang</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @else
+                    {{-- Sudah Upload KTP & Selfie, Menunggu Verifikasi Admin --}}
+                    <div class="bg-blue-50/95 border border-blue-200 rounded-2xl p-4 text-xs text-blue-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
+                        <div class="rounded-xl bg-blue-100 text-blue-600 text-lg shadow-2xs" style="width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                            ⏳
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-bold text-blue-950 text-sm">Menunggu Verifikasi KTP</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">Dalam Proses</span>
+                            </div>
+                            <p class="text-xs text-blue-800 leading-relaxed">Foto KTP dan data pendaftaran Anda telah berhasil dikirim. Akun Mitra Anda sedang dalam proses peninjauan & verifikasi oleh Admin Kota.</p>
+                        </div>
+                    </div>
+                @endif
             @endif
 
             {{-- 2. INFO LENGKAPI PROFIL / BIODATA --}}

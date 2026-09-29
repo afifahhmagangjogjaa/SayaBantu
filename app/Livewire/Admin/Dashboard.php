@@ -12,6 +12,11 @@ class Dashboard extends Component
 {
     public function render()
     {
+        try {
+            Help::cancelExpiredUrgentHelps();
+            Help::autoConfirmExpiredCustomerHelps();
+        } catch (\Throwable $e) {}
+
         // If current user is an admin, scope metrics to their assigned city
         if (auth()->user() && auth()->user()->role === 'admin') {
             $cityIds = auth()->user()->getAdminCityIds();
@@ -35,7 +40,7 @@ class Dashboard extends Component
                                 ->count() : User::where('role', 'mitra')->where('verified', true)->count();
             
             // Pending topup approvals (filtered by city)
-            $pendingTopups = \App\Models\BalanceTransaction::where('type', 'topup')
+            $pendingTopups = \App\Models\BalanceTransaction::topupRequests()
                 ->where('status', 'waiting_approval')
                 ->when(!empty($cityIds), function ($q) use ($cityIds) {
                     $q->whereHas('user', function ($sq) use ($cityIds) {
@@ -52,7 +57,7 @@ class Dashboard extends Component
             $verifiedMitras = User::where('role', 'mitra')->where('verified', true)->count();
             
             // Pending topup approvals (all cities for super admin)
-            $pendingTopups = \App\Models\BalanceTransaction::where('type', 'topup')
+            $pendingTopups = \App\Models\BalanceTransaction::topupRequests()
                 ->where('status', 'waiting_approval')
                 ->count();
         }

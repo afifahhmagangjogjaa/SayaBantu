@@ -260,8 +260,175 @@
                             @enderror
                         </div>
 
-                        <!-- Amount -->
+                        <!-- Jenis Bantuan (Urgent vs Terjadwal) -->
                         <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5">
+                                <span class="flex items-center">
+                                    <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                                    </svg>
+                                    Jenis Bantuan
+                                    <span class="text-red-500 ml-1">*</span>
+                                </span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <!-- Option 1: Urgent -->
+                                <label class="relative flex flex-col p-3 rounded-xl border-2 cursor-pointer transition-all {{ $help_type === 'urgent' ? 'border-red-500 bg-red-50/50 shadow-sm' : 'border-gray-200 hover:border-gray-300 bg-white' }}">
+                                    <input type="radio" wire:model.live="help_type" value="urgent" class="sr-only">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-sm">⚡</span>
+                                            <span class="text-xs font-bold {{ $help_type === 'urgent' ? 'text-red-600' : 'text-gray-800' }}">Mendesak / Urgent</span>
+                                        </div>
+                                        <div class="w-4 h-4 rounded-full border flex items-center justify-center {{ $help_type === 'urgent' ? 'border-red-500 bg-red-500' : 'border-gray-300' }}">
+                                            @if($help_type === 'urgent')
+                                                <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 leading-tight">Min. komisi Rp {{ number_format(\App\Models\AppSetting::get('default_urgent_nominal', 50000), 0, ',', '.') }}, pelaksanaan hari ini atau besok.</p>
+                                </label>
+
+                                <!-- Option 2: Terjadwal -->
+                                <label class="relative flex flex-col p-3 rounded-xl border-2 cursor-pointer transition-all {{ $help_type === 'scheduled' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-gray-200 hover:border-gray-300 bg-white' }}">
+                                    <input type="radio" wire:model.live="help_type" value="scheduled" class="sr-only">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-sm">📅</span>
+                                            <span class="text-xs font-bold {{ $help_type === 'scheduled' ? 'text-blue-600' : 'text-gray-800' }}">Terjadwal</span>
+                                        </div>
+                                        <div class="w-4 h-4 rounded-full border flex items-center justify-center {{ $help_type === 'scheduled' ? 'border-blue-500 bg-blue-500' : 'border-gray-300' }}">
+                                            @if($help_type === 'scheduled')
+                                                <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 leading-tight">Bebas pilih tanggal kapan saja, min. komisi standar.</p>
+                                </label>
+                            </div>
+
+                            @if($help_type === 'urgent')
+                                <div class="mt-3 p-3.5 rounded-xl border border-red-200 bg-red-50/50 transition-all">
+                                    <label class="block text-xs font-bold text-gray-800 mb-1">
+                                        <span class="flex items-center gap-1.5">
+                                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Batas Waktu Tunggu Mitra (Auto-Batal)
+                                            <span class="text-red-500">*</span>
+                                        </span>
+                                    </label>
+                                    <p class="text-[11px] text-gray-600 mb-2.5 leading-relaxed">
+                                        Pilih berapa lama sistem mencari mitra sebelum permintaan otomatis dibatalkan dan <strong>saldo 100% dikembalikan</strong>:
+                                    </p>
+                                    <div class="grid grid-cols-3 gap-2 mb-2.5">
+                                        @foreach([30, 45, 60] as $mins)
+                                            <button type="button" 
+                                                wire:click="$set('auto_cancel_minutes', {{ $mins }})"
+                                                class="py-2 px-2 text-xs rounded-lg border font-semibold transition-all text-center {{ (int)$auto_cancel_minutes === $mins ? 'bg-red-500 border-red-500 text-white shadow-xs font-bold' : 'bg-white border-gray-200 text-gray-700 hover:border-red-300' }}">
+                                                {{ $mins }} Menit
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] text-gray-600 font-medium">Atau durasi lain:</span>
+                                        <div class="flex items-center gap-1">
+                                            <input type="number" wire:model.live="auto_cancel_minutes" min="30" max="180" step="5"
+                                                class="w-20 px-2.5 py-1 text-xs text-center font-bold rounded-lg border border-gray-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white">
+                                            <span class="text-xs text-gray-600">Menit</span>
+                                        </div>
+                                    </div>
+                                    @error('auto_cancel_minutes')
+                                        <span class="text-red-500 text-xs mt-1.5 block flex items-center">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Jadwal Pelaksanaan Bantuan -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5">
+                                <span class="flex items-center">
+                                    <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 000 2h8a1 1 0 100-2H6zM4 6a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                                    </svg>
+                                    Jadwal Pelaksanaan Bantuan
+                                    <span class="text-red-500 ml-1">*</span>
+                                </span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-medium text-gray-600 mb-1">Tanggal <span class="text-red-500">*</span></label>
+                                    <input type="date" wire:model.live="scheduled_date" min="{{ date('Y-m-d') }}" max="{{ $help_type === 'urgent' ? date('Y-m-d', strtotime('+1 day')) : date('Y-12-31') }}" onkeydown="return false" onclick="this.showPicker()"
+                                        class="w-full px-3 py-2 text-sm rounded-lg border @error('scheduled_date') border-red-400 bg-red-50/30 @else border-gray-300 bg-white @enderror focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                                    @error('scheduled_date')
+                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-gray-600 mb-1">Jam <span class="text-red-500">*</span></label>
+                                    <input type="time" wire:model.live="scheduled_time" onclick="this.showPicker()"
+                                        class="w-full px-3 py-2 text-sm rounded-lg border @error('scheduled_time') border-red-400 bg-red-50/30 @else border-gray-300 bg-white @enderror focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                                    @error('scheduled_time')
+                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            @if($help_type === 'urgent')
+                                <p class="text-xs text-red-600 mt-1.5 flex items-center gap-1 font-medium">
+                                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                    </svg>
+                                    Bantuan Urgent hanya untuk hari ini atau besok. Jam pelaksanaan minimal 15 menit setelah waktu sekarang.
+                                </p>
+                            @else
+                                <p class="text-xs text-gray-500 mt-1.5">Tentukan tanggal dan jam pelaksanaan bantuan. Jika memilih hari ini, jam tidak boleh sebelum waktu sekarang. Untuk tanggal besok dan seterusnya, bebas memilih jam berapa saja.</p>
+                            @endif
+                        </div>
+
+                        <!-- Amount -->
+                        <div x-data="{
+                            helpType: @entangle('help_type').live,
+                            amount: @entangle('amount').live,
+                            urgentMin: {{ (int) \App\Models\AppSetting::get('default_urgent_nominal', 50000) }},
+                            standardMin: {{ (int) \App\Models\AppSetting::get('min_help_nominal', 10000) }},
+                            max: {{ (int) \App\Models\AppSetting::get('max_help_nominal', 10000000) }},
+                            clientError: '',
+                            get currentMin() {
+                                return this.helpType === 'urgent' ? this.urgentMin : this.standardMin;
+                            },
+                            validate(v) {
+                                if (v === '' || v === null || v === undefined) {
+                                    this.clientError = '';
+                                    return;
+                                }
+                                let val = parseInt(v) || 0;
+                                let min = this.currentMin;
+                                if (val < min) {
+                                    this.clientError = this.helpType === 'urgent'
+                                        ? 'Nominal minimal untuk bantuan urgent adalah Rp ' + Number(min).toLocaleString('id-ID')
+                                        : 'Nominal minimal Rp ' + Number(min).toLocaleString('id-ID');
+                                } else if (val > this.max) {
+                                    this.clientError = 'Nominal maksimal Rp ' + Number(this.max).toLocaleString('id-ID');
+                                } else {
+                                    this.clientError = '';
+                                }
+                            }
+                        }"
+                        x-init="
+                            validate(amount);
+                            $watch('helpType', (val) => {
+                                validate(amount);
+                            });
+                            $watch('amount', (val) => {
+                                validate(val);
+                            });
+                        ">
                             <label class="block text-xs font-bold text-gray-700 mb-1.5">
                                 <span class="flex items-center">
                                     <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
@@ -276,35 +443,74 @@
                                 <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold text-sm">Rp</span>
                                 <input type="text"
                                     wire:ignore
-                                    x-data
                                     x-init="
-                                        $el.value = $wire.amount ? Number($wire.amount).toLocaleString('id-ID') : '';
+                                        $el.value = amount ? Number(amount).toLocaleString('id-ID') : '';
+                                        $watch('amount', (val) => {
+                                            let currentRaw = $el.value.replace(/\./g, '').replace(/\D/g, '');
+                                            let newRaw = (val !== null && val !== undefined && val !== '') ? String(val) : '';
+                                            if (currentRaw !== newRaw) {
+                                                $el.value = newRaw ? Number(newRaw).toLocaleString('id-ID') : '';
+                                            }
+                                        });
                                     "
                                     x-on:input="
                                         let raw = $el.value.replace(/\./g, '').replace(/\D/g, '');
-                                        let max = {{ $maxNominal ?? 10000000 }};
                                         if (parseInt(raw) > max) raw = String(max);
                                         $el.value = raw ? raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
-                                        $wire.set('amount', parseInt(raw) || 0);
+                                        let parsed = raw === '' ? '' : (parseInt(raw) || 0);
+                                        amount = parsed;
+                                        validate(parsed);
                                     "
                                     inputmode="numeric"
-                                    class="w-full pl-12 pr-4 py-3 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition bg-white"
+                                    :class="clientError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'"
+                                    class="w-full pl-12 pr-4 py-3 text-sm rounded-lg border transition bg-white"
                                     placeholder="0">
                             </div>
                             <p class="text-xs text-gray-500 mt-1.5 flex items-center">
                                 <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
-                                Minimal Rp {{ number_format($minNominal ?? 10000, 0, ',', '.') }} - Maksimal Rp {{ number_format($maxNominal ?? 10000000, 0, ',', '.') }}
+                                <span x-show="helpType !== 'urgent'">
+                                    Minimal Rp {{ number_format(\App\Models\AppSetting::get('min_help_nominal', 10000), 0, ',', '.') }} - Maksimal Rp {{ number_format(\App\Models\AppSetting::get('max_help_nominal', 10000000), 0, ',', '.') }}
+                                </span>
+                                <span x-show="helpType === 'urgent'" style="display: none;">
+                                    Minimal <strong class="text-red-600 font-bold">Rp {{ number_format(\App\Models\AppSetting::get('default_urgent_nominal', 50000), 0, ',', '.') }}</strong> (Bantuan Urgent) - Maksimal Rp {{ number_format(\App\Models\AppSetting::get('max_help_nominal', 10000000), 0, ',', '.') }}
+                                </span>
                             </p>
-                            @error('amount')
-                                <span class="text-red-500 text-xs mt-1.5 block flex items-center">
-                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+
+                            @php
+                                $feCustFeePercent = (float) \App\Models\AppSetting::get('customer_service_fee_percent', 10);
+                            @endphp
+                            <div x-show="amount && parseInt(amount) >= currentMin" class="mt-3 p-3.5 bg-blue-50/70 border border-blue-100 rounded-xl space-y-1.5 text-xs">
+                                <div class="flex justify-between items-center text-gray-600">
+                                    <span>Biaya Layanan ({{ $feCustFeePercent }}%):</span>
+                                    <span class="font-medium text-gray-800" x-text="'Rp ' + Math.round((parseInt(amount) || 0) * {{ $feCustFeePercent }} / 100).toLocaleString('id-ID')"></span>
+                                </div>
+                                <div class="flex justify-between items-center pt-1.5 border-t border-blue-200/80 font-medium text-blue-900">
+                                    <span>Estimasi Total yang Dibayar:</span>
+                                    <span class="text-sm font-bold text-blue-700" x-text="'Rp ' + Math.round((parseInt(amount) || 0) * (1 + {{ $feCustFeePercent }} / 100)).toLocaleString('id-ID')"></span>
+                                </div>
+                            </div>
+
+                            <!-- Real-time Warning / Error -->
+                            <div x-show="clientError" style="display: none;">
+                                <span class="text-red-500 text-xs mt-1.5 flex items-center">
+                                    <svg class="w-3.5 h-3.5 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
-                                    {{ $message }}
+                                    <span x-text="clientError"></span>
                                 </span>
-                            @enderror
+                            </div>
+                            <div x-show="!clientError">
+                                @error('amount')
+                                    <span class="text-red-500 text-xs mt-1.5 flex items-center">
+                                        <svg class="w-3.5 h-3.5 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
                         </div>
 
                         <!-- City (Updated with explicit data-lat and data-lng) -->
@@ -422,38 +628,6 @@
                                     {{ $message }}
                                 </span>
                             @enderror
-                        </div>
-
-                        <!-- Jadwal Pelaksanaan Bantuan -->
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">
-                                <span class="flex items-center">
-                                    <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M6 2a1 1 0 000 2h8a1 1 0 100-2H6zM4 6a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" clip-rule="evenodd" />
-                                    </svg>
-                                    Jadwal Pelaksanaan Bantuan
-                                    <span class="text-red-500 ml-1">*</span>
-                                </span>
-                            </label>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-[11px] font-medium text-gray-600 mb-1">Tanggal <span class="text-red-500">*</span></label>
-                                    <input type="date" wire:model.live="scheduled_date" min="{{ date('Y-m-d') }}" max="{{ date('Y-12-31') }}" onkeydown="return false" onclick="this.showPicker()"
-                                        class="w-full px-3 py-2 text-sm rounded-lg border @error('scheduled_date') border-red-400 bg-red-50/30 @else border-gray-300 bg-white @enderror focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
-                                    @error('scheduled_date')
-                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-medium text-gray-600 mb-1">Jam <span class="text-red-500">*</span></label>
-                                    <input type="time" wire:model.live="scheduled_time" onclick="this.showPicker()"
-                                        class="w-full px-3 py-2 text-sm rounded-lg border @error('scheduled_time') border-red-400 bg-red-50/30 @else border-gray-300 bg-white @enderror focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
-                                    @error('scheduled_time')
-                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1.5">Tentukan tanggal dan jam pelaksanaan bantuan. Jika memilih hari ini, jam tidak boleh sebelum waktu sekarang. Untuk tanggal besok dan seterusnya, bebas memilih jam berapa saja.</p>
                         </div>
 
                         <!-- Tandai Lokasi di Peta -->
@@ -627,15 +801,42 @@
                             @enderror
                         </div>
 
+                        <!-- Error Summary Box -->
+                        @if($errors->any())
+                            <div class="mt-4 p-4 bg-red-50 border-2 border-red-300 rounded-xl text-red-700 text-xs shadow-sm">
+                                <div class="font-bold flex items-center gap-1.5 mb-2 text-red-800 text-sm">
+                                    <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                    <span>Mohon periksa data yang belum lengkap:</span>
+                                </div>
+                                <ul class="list-disc list-inside space-y-1 text-xs text-red-600 pl-1">
+                                    @foreach($errors->all() as $err)
+                                        <li>{{ $err }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <!-- Submit Button -->
-                        <div class="flex gap-3 pt-6">
+                        <div class="flex gap-3 pt-4">
                             <a href="{{ route('dashboard') }}"
-                                class="flex-1 inline-flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-5 py-3 text-sm rounded-lg font-semibold hover:bg-gray-50 transition">
+                                class="flex-1 inline-flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-5 py-3 text-sm rounded-lg font-semibold hover:bg-gray-50 transition text-center">
                                 Batal
                             </a>
-                            <button type="submit" wire:loading.attr="disabled"
-                                class="flex-1 inline-flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-3 text-sm rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span wire:loading.remove wire:target="save">Kirim Permintaan</span>
+                            <button type="button"
+                                wire:click="prepareConfirm"
+                                wire:loading.attr="disabled"
+                                wire:target="prepareConfirm"
+                                class="flex-1 inline-flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-3 text-sm rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg active:scale-[0.99] cursor-pointer">
+                                <span wire:loading.remove wire:target="prepareConfirm">Kirim Permintaan</span>
+                                <span wire:loading wire:target="prepareConfirm" class="inline-flex items-center gap-2">
+                                    <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Memproses...
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -895,210 +1096,262 @@
                         </div>
                     </div>
 
-                    <!-- Input Nominal Top Up -->
-                    <div>
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-                            <label style="font-weight: 700; color: #334155; font-size: 12px;">Nominal Transfer <span style="color: #ef4444;">*</span></label>
-                            @if($topupDeficit > 0)
-                                <button type="button" wire:click="setTopupQuickAmount({{ (int)(ceil($topupDeficit / 1000) * 1000) }})"
-                                    style="font-size: 10px; font-weight: 700; color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; padding: 2px 7px; border-radius: 6px; cursor: pointer;">
-                                    ⚡ Pas Kurangnya (Rp {{ number_format(ceil($topupDeficit / 1000) * 1000, 0, ',', '.') }})
-                                </button>
-                            @endif
-                        </div>
-                        <div style="display: flex; align-items: center; border-radius: 10px; border: 1.5px solid #cbd5e1; overflow: hidden; background: #ffffff;">
-                            <span style="padding: 8px 12px; background: #f8fafc; border-right: 1px solid #e2e8f0; font-size: 13px; font-weight: 800; color: #64748b; user-select: none;">Rp</span>
-                            <input type="text"
-                                wire:ignore
-                                x-data
-                                x-init="
-                                    $el.value = $wire.topupAmount ? Number($wire.topupAmount).toLocaleString('id-ID') : '';
-                                    $wire.on('topup-amount-updated', (val) => {
-                                        $el.value = val ? Number(val).toLocaleString('id-ID') : '';
-                                    });
-                                "
-                                x-on:input="
-                                    let raw = $el.value.replace(/\./g, '').replace(/\D/g, '');
-                                    $el.value = raw ? raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
-                                    $wire.set('topupAmount', parseInt(raw) || 0);
-                                "
-                                inputmode="numeric"
-                                style="width: 100%; padding: 8px 10px; font-size: 14px; font-weight: 800; color: #0f172a; border: none; outline: none; background: transparent;"
-                                placeholder="10.000">
-                        </div>
-                        @error('topupAmount') <span style="font-size: 11px; color: #dc2626; margin-top: 4px; display: block;">{{ $message }}</span> @enderror
-                        
-                        <!-- Quick Buttons -->
-                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 6px;">
-                            <button type="button" wire:click="setTopupQuickAmount(20000)"
-                                style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 20000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 20000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 20000 ? '#0369a1' : '#475569' }}; cursor: pointer;">20K</button>
-                            <button type="button" wire:click="setTopupQuickAmount(50000)"
-                                style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 50000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 50000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 50000 ? '#0369a1' : '#475569' }}; cursor: pointer;">50K</button>
-                            <button type="button" wire:click="setTopupQuickAmount(100000)"
-                                style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 100000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 100000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 100000 ? '#0369a1' : '#475569' }}; cursor: pointer;">100K</button>
-                            <button type="button" wire:click="setTopupQuickAmount(200000)"
-                                style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 200000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 200000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 200000 ? '#0369a1' : '#475569' }}; cursor: pointer;">200K</button>
-                            <button type="button" wire:click="setTopupQuickAmount(500000)"
-                                style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 500000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 500000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 500000 ? '#0369a1' : '#475569' }}; cursor: pointer;">500K</button>
-                        </div>
-
-                        {{-- Ringkasan Biaya Admin --}}
-                        @if($topupAmount > 0)
-                        <div style="margin-top: 8px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569;">
-                                <span>Nominal Top-Up</span>
-                                <span style="font-weight: 600;">Rp {{ number_format($topupAmount, 0, ',', '.') }}</span>
+                    @if($hasActivePendingTopup && $activePendingTopup)
+                        <!-- Card Peringatan Pending Topup -->
+                        <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 16px; padding: 18px 16px; text-align: center;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: #fef3c7; border: 1px solid #fde68a; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #d97706;">
+                                <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
                             </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569;">
-                                <span>Biaya Admin</span>
-                                <span style="font-weight: 600; color: #dc2626;">+ Rp {{ number_format($topupAdminFee, 0, ',', '.') }}</span>
-                            </div>
-                            <div style="border-top: 1px dashed #93c5fd; padding-top: 5px; display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-size: 12px; font-weight: 800; color: #0369a1;">Total Transfer</span>
-                                <span style="font-size: 14px; font-weight: 900; color: #0369a1;">Rp {{ number_format($topupTotalTransfer, 0, ',', '.') }}</span>
-                            </div>
-                        </div>
-                        @endif
-                    </div>
-
-                    <!-- Pilihan Tab Metode Pembayaran -->
-                    <div>
-                        <label style="display: block; font-weight: 700; color: #334155; font-size: 12px; margin-bottom: 6px;">Metode Pembayaran <span style="color: #ef4444;">*</span></label>
-                        
-                        <!-- Segmented Switcher -->
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 3px; background: #f1f5f9; border-radius: 10px; margin-bottom: 10px;">
-                            @if($qrisEnabled)
-                                <button type="button" wire:click="selectTopupMethod('qris')"
-                                    style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ $topupMethod === 'qris' ? '#ffffff' : 'transparent' }}; color: {{ $topupMethod === 'qris' ? '#0284c7' : '#64748b' }}; box-shadow: {{ $topupMethod === 'qris' ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
-                                    📱 QRIS E-Wallet
-                                </button>
-                            @endif
-                            <button type="button" wire:click="selectTopupMethod('{{ $availableBanks[0]['value'] ?? 'bank_bca' }}')"
-                                style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ str_starts_with($topupMethod, 'bank_') ? '#ffffff' : 'transparent' }}; color: {{ str_starts_with($topupMethod, 'bank_') ? '#0284c7' : '#64748b' }}; box-shadow: {{ str_starts_with($topupMethod, 'bank_') ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
-                                🏦 Transfer Bank
-                            </button>
-                        </div>
-
-                        <!-- Konten QRIS -->
-                        @if($topupMethod === 'qris')
-                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px; text-align: center;">
-                                <p style="font-size: 11px; font-weight: 700; color: #1e293b; margin: 0 0 6px 0;">Scan QRIS (Semua E-Wallet / Bank)</p>
-                                @if(file_exists(public_path('images/payment/qris.png')))
-                                    <div style="background: #ffffff; padding: 6px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-block; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 6px;">
-                                        <img src="{{ asset('images/payment/qris.png') }}" 
-                                            alt="QRIS QR Code" 
-                                            style="width: 130px; height: 130px; margin: auto; object-fit: contain; display: block;">
-                                    </div>
-                                @else
-                                    <div style="width: 130px; height: 130px; margin: auto; border: 2px dashed #cbd5e1; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #ffffff; margin-bottom: 6px;">
-                                        <p style="font-size: 11px; color: #94a3b8; margin: 0;">QRIS Code</p>
-                                    </div>
-                                @endif
-                                <p style="font-size: 10px; color: #64748b; margin: 0;">GoPay, OVO, DANA, LinkAja, ShopeePay, BCA, Mandiri, dll</p>
-                            </div>
-                        @endif
-
-                        <!-- Konten Transfer Bank -->
-                        @if(str_starts_with($topupMethod, 'bank_'))
-                            <div style="display: flex; flex-direction: column; gap: 6px;">
-                                @foreach($availableBanks as $bank)
-                                    <div wire:click="selectTopupMethod('{{ $bank['value'] }}')"
-                                        style="border: 2px solid {{ $topupMethod === $bank['value'] ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupMethod === $bank['value'] ? '#f0f9ff' : '#ffffff' }}; border-radius: 12px; padding: 8px 10px; cursor: pointer; transition: all 0.2s;">
-                                        <div style="display: flex; align-items: center; gap: 10px;">
-                                            <div style="width: 36px; height: 36px; background: #ffffff; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; font-size: 10px; font-weight: 900; color: #1e293b; flex-shrink: 0;">
-                                                {{ strtoupper($bank['code']) }}
-                                            </div>
-                                            <div style="flex: 1; min-width: 0;">
-                                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                                    <span style="font-weight: 800; color: #0f172a; font-size: 12px;">{{ $bank['name'] }}</span>
-                                                    <button type="button" 
-                                                        onclick="event.stopPropagation(); navigator.clipboard.writeText('{{ $bank['account_number'] }}'); alert('Nomor rekening {{ $bank['name'] }} ({{ $bank['account_number'] }}) berhasil disalin!');"
-                                                        style="padding: 2px 6px; font-size: 10px; font-weight: 700; background: #e2e8f0; color: #0369a1; border-radius: 4px; border: none; cursor: pointer;">
-                                                        📋 Salin
-                                                    </button>
-                                                </div>
-                                                <p style="font-family: monospace; font-size: 12px; font-weight: 800; color: #1e293b; margin: 1px 0 0 0;">{{ $bank['account_number'] }}</p>
-                                                <p style="font-size: 10px; color: #64748b; margin: 0;">a.n. {{ $bank['account_name'] }}</p>
-                                            </div>
-                                            @if($topupMethod === $bank['value'])
-                                                <svg style="width: 18px; height: 18px; color: #0284c7; flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
-                                                </svg>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-                        @error('topupMethod') <span style="font-size: 11px; color: #dc2626; margin-top: 4px; display: block;">{{ $message }}</span> @enderror
-                    </div>
-
-                    <!-- Upload Bukti Transfer -->
-                    <div>
-                        <label style="display: block; font-weight: 700; color: #334155; font-size: 12px; margin-bottom: 6px;">Upload Bukti Transfer <span style="color: #ef4444;">*</span></label>
-                        
-                        @if ($topupReceipt)
-                            <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; background: #f8fafc; padding: 8px; text-align: center;">
-                                <img src="{{ $topupReceipt->temporaryUrl() }}" style="max-height: 100px; margin: auto; border-radius: 6px; object-fit: contain; display: block;">
-                                <button type="button" wire:click="$set('topupReceipt', null)" 
-                                    style="position: absolute; top: 8px; right: 8px; background: #dc2626; color: #ffffff; padding: 4px; border-radius: 9999px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                                    <svg style="width: 12px; height: 12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                                <p style="font-size: 11px; color: #16a34a; font-weight: 700; margin: 4px 0 0 0;">✓ Bukti transfer siap dikirim</p>
-                            </div>
-                        @else
-                            <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 64px; border: 2px dashed #cbd5e1; border-radius: 12px; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <svg style="width: 18px; height: 18px; color: #94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    <span style="font-size: 12px; font-weight: 700; color: #334155;">Pilih Bukti Transfer</span>
-                                    <span style="font-size: 10px; color: #94a3b8;">(Maks 2MB)</span>
+                            <h4 style="font-size: 14px; font-weight: 800; color: #92400e; margin: 0 0 4px;">Top-Up Sedang Diproses Admin</h4>
+                            <p style="font-size: 11px; color: #b45309; line-height: 1.4; margin: 0 0 14px;">
+                                Anda masih memiliki permintaan top-up yang menunggu verifikasi admin. Saldo akan otomatis bertambah setelah disetujui, lalu Anda dapat melanjutkan pesanan bantuan ini.
+                            </p>
+                            
+                            <div style="background: #ffffff; border: 1px solid #fef08a; border-radius: 12px; padding: 12px; text-align: left; font-size: 11px; display: flex; flex-direction: column; gap: 6px;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #64748b;">Kode Request:</span>
+                                    <span style="font-weight: 800; font-family: monospace; color: #0f172a;">{{ $activePendingTopup->request_code ?? '#' . $activePendingTopup->id }}</span>
                                 </div>
-                                <input type="file" wire:model="topupReceipt" accept="image/*" style="display: none;">
-                            </label>
-                        @endif
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #64748b;">Nominal Transfer:</span>
+                                    <span style="font-weight: 800; color: #d97706;">Rp {{ number_format($activePendingTopup->total_payment ?: $activePendingTopup->amount, 0, ',', '.') }}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #64748b;">Waktu Pengajuan:</span>
+                                    <span style="color: #334155;">{{ $activePendingTopup->created_at->format('d M Y, H:i') }} WIB</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 2px;">
+                                    <span style="color: #64748b;">Status:</span>
+                                    <span style="background: #fef3c7; color: #b45309; padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 800;">Menunggu Verifikasi</span>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <!-- Input Nominal Top Up -->
+                        <div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label style="font-weight: 700; color: #334155; font-size: 12px;">Nominal Transfer <span style="color: #ef4444;">*</span></label>
+                                @if($topupDeficit > 0)
+                                    <button type="button" wire:click="setTopupQuickAmount({{ (int)(ceil($topupDeficit / 1000) * 1000) }})"
+                                        style="font-size: 10px; font-weight: 700; color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; padding: 2px 7px; border-radius: 6px; cursor: pointer;">
+                                        ⚡ Pas Kurangnya (Rp {{ number_format(ceil($topupDeficit / 1000) * 1000, 0, ',', '.') }})
+                                    </button>
+                                @endif
+                            </div>
+                            <div style="display: flex; align-items: center; border-radius: 10px; border: 1.5px solid #cbd5e1; overflow: hidden; background: #ffffff;">
+                                <span style="padding: 8px 12px; background: #f8fafc; border-right: 1px solid #e2e8f0; font-size: 13px; font-weight: 800; color: #64748b; user-select: none;">Rp</span>
+                                <input type="text"
+                                    wire:ignore
+                                    x-data
+                                    x-init="
+                                        $el.value = $wire.topupAmount ? Number($wire.topupAmount).toLocaleString('id-ID') : '';
+                                        $wire.on('topup-amount-updated', (val) => {
+                                            $el.value = val ? Number(val).toLocaleString('id-ID') : '';
+                                        });
+                                    "
+                                    x-on:input="
+                                        let raw = $el.value.replace(/\./g, '').replace(/\D/g, '');
+                                        $el.value = raw ? raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+                                        $wire.set('topupAmount', parseInt(raw) || 0);
+                                    "
+                                    inputmode="numeric"
+                                    style="width: 100%; padding: 8px 10px; font-size: 14px; font-weight: 800; color: #0f172a; border: none; outline: none; background: transparent;"
+                                    placeholder="10.000">
+                            </div>
+                            @error('topupAmount') <span style="font-size: 11px; color: #dc2626; margin-top: 4px; display: block;">{{ $message }}</span> @enderror
+                            
+                            <!-- Quick Buttons -->
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 6px;">
+                                <button type="button" wire:click="setTopupQuickAmount(20000)"
+                                    style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 20000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 20000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 20000 ? '#0369a1' : '#475569' }}; cursor: pointer;">20K</button>
+                                <button type="button" wire:click="setTopupQuickAmount(50000)"
+                                    style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 50000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 50000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 50000 ? '#0369a1' : '#475569' }}; cursor: pointer;">50K</button>
+                                <button type="button" wire:click="setTopupQuickAmount(100000)"
+                                    style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 100000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 100000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 100000 ? '#0369a1' : '#475569' }}; cursor: pointer;">100K</button>
+                                <button type="button" wire:click="setTopupQuickAmount(200000)"
+                                    style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 200000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 200000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 200000 ? '#0369a1' : '#475569' }}; cursor: pointer;">200K</button>
+                                <button type="button" wire:click="setTopupQuickAmount(500000)"
+                                    style="padding: 6px 0; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1px solid {{ $topupAmount == 500000 ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupAmount == 500000 ? '#f0f9ff' : '#ffffff' }}; color: {{ $topupAmount == 500000 ? '#0369a1' : '#475569' }}; cursor: pointer;">500K</button>
+                            </div>
 
-                        @error('topupReceipt')
-                            <span style="font-size: 11px; color: #dc2626; margin-top: 4px; display: block;">{{ $message }}</span>
-                        @enderror
-                    </div>
+                            {{-- Ringkasan Biaya Admin --}}
+                            @if($topupAmount > 0)
+                            <div style="margin-top: 8px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569;">
+                                    <span>Nominal Top-Up</span>
+                                    <span style="font-weight: 600;">Rp {{ number_format($topupAmount, 0, ',', '.') }}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569;">
+                                    <span>Biaya Admin</span>
+                                    <span style="font-weight: 600; color: #dc2626;">+ Rp {{ number_format($topupAdminFee, 0, ',', '.') }}</span>
+                                </div>
+                                <div style="border-top: 1px dashed #93c5fd; padding-top: 5px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 12px; font-weight: 800; color: #0369a1;">Total Transfer</span>
+                                    <span style="font-size: 14px; font-weight: 900; color: #0369a1;">Rp {{ number_format($topupTotalTransfer, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
 
-                    <!-- Catatan -->
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 8px 10px; font-size: 11px; color: #166534; display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 12px;">💡</span>
-                        <p style="margin: 0; line-height: 1.3;">Saldo otomatis diverifikasi & masuk ke akun Anda setelah admin mengecek bukti.</p>
-                    </div>
+                        <!-- Pilihan Tab Metode Pembayaran -->
+                        <div>
+                            <label style="display: block; font-weight: 700; color: #334155; font-size: 12px; margin-bottom: 6px;">Metode Pembayaran <span style="color: #ef4444;">*</span></label>
+                            
+                            <!-- Segmented Switcher -->
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 3px; background: #f1f5f9; border-radius: 10px; margin-bottom: 10px;">
+                                @if($qrisEnabled)
+                                    <button type="button" wire:click="selectTopupMethod('qris')"
+                                        style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ $topupMethod === 'qris' ? '#ffffff' : 'transparent' }}; color: {{ $topupMethod === 'qris' ? '#0284c7' : '#64748b' }}; box-shadow: {{ $topupMethod === 'qris' ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
+                                        📱 QRIS E-Wallet
+                                    </button>
+                                @endif
+                                <button type="button" wire:click="selectTopupMethod('{{ $availableBanks[0]['value'] ?? 'bank_bca' }}')"
+                                    style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ str_starts_with($topupMethod, 'bank_') ? '#ffffff' : 'transparent' }}; color: {{ str_starts_with($topupMethod, 'bank_') ? '#0284c7' : '#64748b' }}; box-shadow: {{ str_starts_with($topupMethod, 'bank_') ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
+                                    🏦 Transfer Bank
+                                </button>
+                            </div>
+
+                            <!-- Konten QRIS -->
+                            @if($topupMethod === 'qris')
+                                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px; text-align: center;">
+                                    <p style="font-size: 11px; font-weight: 700; color: #1e293b; margin: 0 0 6px 0;">Scan QRIS (Semua E-Wallet / Bank)</p>
+                                    @if(file_exists(public_path('images/payment/qris.png')))
+                                        <div style="background: #ffffff; padding: 6px; border-radius: 10px; border: 1px solid #e2e8f0; display: inline-block; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 6px;">
+                                            <img src="{{ asset('images/payment/qris.png') }}" 
+                                                alt="QRIS QR Code" 
+                                                style="width: 130px; height: 130px; margin: auto; object-fit: contain; display: block;">
+                                        </div>
+                                    @else
+                                        <div style="width: 130px; height: 130px; margin: auto; border: 2px dashed #cbd5e1; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #ffffff; margin-bottom: 6px;">
+                                            <p style="font-size: 11px; color: #94a3b8; margin: 0;">QRIS Code</p>
+                                        </div>
+                                    @endif
+                                    <p style="font-size: 10px; color: #64748b; margin: 0;">GoPay, OVO, DANA, LinkAja, ShopeePay, BCA, Mandiri, dll</p>
+                                </div>
+                            @endif
+
+                            <!-- Konten Transfer Bank -->
+                            @if(str_starts_with($topupMethod, 'bank_'))
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    @foreach($availableBanks as $bank)
+                                        <div wire:click="selectTopupMethod('{{ $bank['value'] }}')"
+                                            style="border: 2px solid {{ $topupMethod === $bank['value'] ? '#0284c7' : '#e2e8f0' }}; background: {{ $topupMethod === $bank['value'] ? '#f0f9ff' : '#ffffff' }}; border-radius: 12px; padding: 8px 10px; cursor: pointer; transition: all 0.2s;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 36px; height: 36px; background: #ffffff; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; font-size: 10px; font-weight: 900; color: #1e293b; flex-shrink: 0;">
+                                                    {{ strtoupper($bank['code']) }}
+                                                </div>
+                                                <div style="flex: 1; min-width: 0;">
+                                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                        <span style="font-weight: 800; color: #0f172a; font-size: 12px;">{{ $bank['name'] }}</span>
+                                                        <button type="button" 
+                                                            onclick="event.stopPropagation(); navigator.clipboard.writeText('{{ $bank['account_number'] }}'); alert('Nomor rekening {{ $bank['name'] }} ({{ $bank['account_number'] }}) berhasil disalin!');"
+                                                            style="padding: 2px 6px; font-size: 10px; font-weight: 700; background: #e2e8f0; color: #0369a1; border-radius: 4px; border: none; cursor: pointer;">
+                                                            📋 Salin
+                                                        </button>
+                                                    </div>
+                                                    <p style="font-family: monospace; font-size: 12px; font-weight: 800; color: #1e293b; margin: 1px 0 0 0;">{{ $bank['account_number'] }}</p>
+                                                    <p style="font-size: 10px; color: #64748b; margin: 0;">a.n. {{ $bank['account_name'] }}</p>
+                                                </div>
+                                                @if($topupMethod === $bank['value'])
+                                                    <svg style="width: 18px; height: 18px; color: #0284c7; flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                                    </svg>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                            @error('topupMethod') <span style="font-size: 11px; color: #dc2626; margin-top: 4px; display: block;">{{ $message }}</span> @enderror
+                        </div>
+
+                        <!-- Upload Bukti Transfer -->
+                        <div>
+                            <label style="display: block; font-weight: 700; color: #334155; font-size: 12px; margin-bottom: 6px;">Upload Bukti Transfer <span style="color: #ef4444;">*</span></label>
+                            
+                            @if ($topupReceipt)
+                                <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; background: #f8fafc; padding: 8px; text-align: center;">
+                                    <img src="{{ $topupReceipt->temporaryUrl() }}" style="max-height: 100px; margin: auto; border-radius: 6px; object-fit: contain; display: block;">
+                                    <button type="button" wire:click="$set('topupReceipt', null)" 
+                                        style="position: absolute; top: 8px; right: 8px; background: #dc2626; color: #ffffff; padding: 4px; border-radius: 9999px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                        <svg style="width: 12px; height: 12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                    <p style="font-size: 11px; color: #16a34a; font-weight: 700; margin: 4px 0 0 0;">✓ Bukti transfer siap dikirim</p>
+                                </div>
+                            @else
+                                <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 64px; border: 2px dashed #cbd5e1; border-radius: 12px; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <svg style="width: 18px; height: 18px; color: #94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <span style="font-size: 12px; font-weight: 700; color: #334155;">Pilih Bukti Transfer</span>
+                                        <span style="font-size: 10px; color: #94a3b8;">(Maks 2MB)</span>
+                                    </div>
+                                    <input type="file" wire:model="topupReceipt" accept="image/*" style="display: none;">
+                                </label>
+                            @endif
+
+                            @error('topupReceipt')
+                                <span style="font-size: 11px; color: #dc2626; margin-top: 4px; display: block;">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <!-- Catatan -->
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 8px 10px; font-size: 11px; color: #166534; display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 12px;">💡</span>
+                            <p style="margin: 0; line-height: 1.3;">Saldo otomatis diverifikasi & masuk ke akun Anda setelah admin mengecek bukti.</p>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Footer Action Buttons (Proporsional & Seimbang) -->
                 <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
-                    <button wire:click="closeInsufficientModal" type="button"
-                        style="flex: 1; height: 44px; border-radius: 12px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #475569; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
-                        onmouseover="this.style.background='#f1f5f9';"
-                        onmouseout="this.style.background='#ffffff';">
-                        Batal
-                    </button>
-                    <button wire:click="processDirectTopup" type="button" wire:loading.attr="disabled" wire:target="processDirectTopup"
-                        style="flex: 2; height: 44px; border-radius: 12px; border: none; background: linear-gradient(135deg, #0098e7, #0077cc); color: #ffffff; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0, 152, 231, 0.35); transition: opacity 0.2s;"
-                        onmouseover="this.style.opacity='0.95';"
-                        onmouseout="this.style.opacity='1';">
-                        <span wire:loading.remove wire:target="processDirectTopup" style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span>Kirim Bukti</span>
+                    @if($hasActivePendingTopup && $activePendingTopup)
+                        <button wire:click="closeInsufficientModal" type="button"
+                            style="flex: 1; height: 44px; border-radius: 12px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #475569; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                            onmouseover="this.style.background='#f1f5f9';"
+                            onmouseout="this.style.background='#ffffff';">
+                            Tutup
+                        </button>
+                        <a href="{{ route('customer.topup.history') }}"
+                            style="flex: 2; height: 44px; border-radius: 12px; text-decoration: none; background: #d97706; color: #ffffff; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35); transition: opacity 0.2s;"
+                            onmouseover="this.style.opacity='0.95';"
+                            onmouseout="this.style.opacity='1';">
+                            <span>Lihat Riwayat Top-Up</span>
                             <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
-                        </span>
-                        <span wire:loading.flex wire:target="processDirectTopup" style="display: none; align-items: center; gap: 6px;">
-                            <svg class="animate-spin" style="width: 16px; height: 16px; color: #ffffff;" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                            <span>Mengirim...</span>
-                        </span>
-                    </button>
+                        </a>
+                    @else
+                        <button wire:click="closeInsufficientModal" type="button"
+                            style="flex: 1; height: 44px; border-radius: 12px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #475569; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                            onmouseover="this.style.background='#f1f5f9';"
+                            onmouseout="this.style.background='#ffffff';">
+                            Batal
+                        </button>
+                        <button wire:click="processDirectTopup" type="button" wire:loading.attr="disabled" wire:target="processDirectTopup"
+                            style="flex: 2; height: 44px; border-radius: 12px; border: none; background: linear-gradient(135deg, #0098e7, #0077cc); color: #ffffff; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0, 152, 231, 0.35); transition: opacity 0.2s;"
+                            onmouseover="this.style.opacity='0.95';"
+                            onmouseout="this.style.opacity='1';">
+                            <span wire:loading.remove wire:target="processDirectTopup" style="display: inline-flex; align-items: center; gap: 6px;">
+                                <span>Kirim Bukti</span>
+                                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </span>
+                            <span wire:loading.flex wire:target="processDirectTopup" style="display: none; align-items: center; gap: 6px;">
+                                <svg class="animate-spin" style="width: 16px; height: 16px; color: #ffffff;" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                                <span>Mengirim...</span>
+                            </span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -1134,13 +1387,27 @@
                         </div>
                         <div class="space-y-2.5">
                             <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Nominal Bantuan</span>
+                                <span class="text-sm text-gray-600">Jenis Bantuan</span>
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-full {{ ($confirmHelpType ?? $help_type) === 'urgent' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
+                                    {{ ($confirmHelpType ?? $help_type) === 'urgent' ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Nominal Pokok Bantuan</span>
                                 <span class="text-sm font-semibold text-gray-900">Rp {{ number_format($confirmAmount ?? 0, 0, ',', '.') }}</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Biaya Admin</span>
-                                <span class="text-sm font-semibold text-gray-900">Rp {{ number_format($confirmAdminFee ?? 0, 0, ',', '.') }}</span>
+                                <span class="text-sm text-gray-600">Biaya Layanan ({{ $confirmCustomerFeePercent }}%)</span>
+                                <span class="text-sm font-semibold text-gray-900">Rp {{ number_format($confirmCustomerFee ?? 0, 0, ',', '.') }}</span>
                             </div>
+                            @if (($confirmHelpType ?? $help_type) === 'urgent')
+                                <div class="flex justify-between items-center pt-2 border-t border-blue-100">
+                                    <span class="text-sm text-gray-600">Batas Waktu Tunggu Mitra</span>
+                                    <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">
+                                        ⏳ {{ $confirmAutoCancelMinutes ?? $auto_cancel_minutes }} Menit
+                                    </span>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
@@ -1175,6 +1442,9 @@
                             </svg>
                             <p class="text-xs text-amber-900 leading-relaxed">
                                 Dengan menekan <strong>Konfirmasi</strong>, Anda menyetujui bahwa saldo akan dipotong sesuai total pembayaran di atas.
+                                @if (($confirmHelpType ?? $help_type) === 'urgent')
+                                    <br><span class="inline-block mt-1">Jika belum ada mitra dalam <strong>{{ $confirmAutoCancelMinutes ?? $auto_cancel_minutes }} menit</strong>, permintaan akan otomatis dibatalkan dan <strong>saldo 100% dikembalikan</strong> ke dompet Anda.</span>
+                                @endif
                             </p>
                         </div>
                     </div>

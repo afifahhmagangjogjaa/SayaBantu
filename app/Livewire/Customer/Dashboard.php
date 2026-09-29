@@ -54,6 +54,8 @@ class Dashboard extends Component
             'city_name' => $help->city?->name,
             'category_name' => $help->category?->name,
             'category_icon' => $help->category?->icon,
+            'help_type' => $help->help_type,
+            'is_urgent' => $help->isUrgent(),
             'created_at_human' => $help->created_at?->diffForHumans(),
         ];
     }
@@ -67,6 +69,11 @@ class Dashboard extends Component
     public function render()
     {
         $user = auth()->user();
+
+        try {
+            Help::cancelExpiredUrgentHelps();
+            Help::autoConfirmExpiredCustomerHelps();
+        } catch (\Throwable $e) {}
 
         $stats = [];
 

@@ -4,37 +4,58 @@ namespace App\Livewire\Mitra\Helps;
 
 use App\Models\Help;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.mitra')]
 class ProcessingHelps extends Component
 {
-    public $helps = [];
+    use WithPagination;
+
+    public $tab = 'diproses'; // 'diproses' | 'selesai' | 'dibatalkan'
+    public $search = '';
+
+    protected $queryString = [
+        'tab' => ['except' => 'diproses'],
+    ];
+
+    public $processingStatuses = [
+        'memperoleh_mitra',
+        'taken',
+        'partner_on_the_way',
+        'partner_arrived',
+        'in_progress',
+        'sedang_diproses',
+        'partner_cancel_requested',
+        'diproses_mitra',
+        'waiting_customer_confirmation'
+    ];
 
     public function mount()
     {
-        $this->loadHelps();
+        if (request()->routeIs('mitra.helps.completed')) {
+            $this->tab = 'selesai';
+        } elseif (request()->has('tab') && in_array(request('tab'), ['diproses', 'selesai', 'dibatalkan'])) {
+            $this->tab = request('tab');
+        }
+    }
+
+    public function switchTab($tab)
+    {
+        if (in_array($tab, ['diproses', 'selesai', 'dibatalkan'])) {
+            $this->tab = $tab;
+            $this->resetPage();
+        }
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
     }
 
     public function loadHelps()
     {
-        // Include all processing statuses including new GPS tracking statuses
-        $statuses = [
-            'memperoleh_mitra',
-            'taken',
-            'partner_on_the_way',
-            'partner_arrived',
-            'in_progress',
-            'sedang_diproses',
-            'partner_cancel_requested',
-            'diproses_mitra',
-            'waiting_customer_confirmation'
-        ];
-
-        $this->helps = Help::where('mitra_id', auth()->id())
-            ->whereIn('status', $statuses)
-            ->orderByDesc('taken_at')
-            ->get();
+        // Handled dynamically in render()
     }
 
     public function completeHelp($helpId)
@@ -45,7 +66,6 @@ class ProcessingHelps extends Component
             return;
         }
 
-        // Set to waiting_customer_confirmation instead of marking complete immediately
         $help->update([
             'status' => 'waiting_customer_confirmation',
         ]);
@@ -56,11 +76,71 @@ class ProcessingHelps extends Component
 
         $this->dispatch('help-completed');
         session()->flash('success', 'Menunggu konfirmasi dari customer');
-        $this->loadHelps();
     }
 
     public function render()
     {
-        return view('livewire.mitra.helps.processing-helps');
+        $user = auth()->user();
+
+        try {
+            Help::autoConfirmExpiredCustomerHelps();
+        } catch (\Throwable $e) {}
+
+        $query = Help::where('mitra_id', $user->id)
+            ->with(['user', 'city', 'category', 'rating']);
+
+        if ($this->tab === 'diproses') {
+            $query->whereIn('status', $this->processingStatuses)
+                ->orderByDesc('taken_at');
+        } elseif ($this->tab === 'selesai') {
+            $query->where('status', 'selesai')
+                ->latest('service_completed_at');
+        } elseif ($this->tab === 'dibatalkan') {
+            $query->whereIn('status', ['dibatalkan', 'rejected', 'cancelled'])
+                ->latest();
+        }
+
+        if (!empty($this->search)) {
+            $keyword = trim($this->search);
+            $query->where(function ($q) use ($keyword) {
+                $q->where('helps.title', 'like', '%' . $keyword . '%')
+                    ->orWhere('helps.description', 'like', '%' . $keyword . '%')
+                    ->orWhere('helps.location', 'like', '%' . $keyword . '%')
+                    ->orWhere('helps.full_address', 'like', '%' . $keyword . '%')
+                    ->orWhereHas('user', function ($u) use ($keyword) {
+                        $u->where('name', 'like', '%' . $keyword . '%')
+                            ->orWhere('phone', 'like', '%' . $keyword . '%');
+                    })
+                    ->orWhereHas('city', function ($c) use ($keyword) {
+                        $c->where('name', 'like', '%' . $keyword . '%');
+                    })
+                    ->orWhereHas('category', function ($cat) use ($keyword) {
+                        $cat->where('name', 'like', '%' . $keyword . '%');
+                    });
+            });
+        }
+
+        $helps = $query->paginate(10);
+
+        $processingCount = Help::where('mitra_id', $user->id)
+            ->whereIn('status', $this->processingStatuses)
+            ->count();
+
+        $completedCount = Help::where('mitra_id', $user->id)
+            ->where('status', 'selesai')
+            ->count();
+
+        $cancelledCount = Help::where('mitra_id', $user->id)
+            ->whereIn('status', ['dibatalkan', 'rejected', 'cancelled'])
+            ->count();
+
+        return view('livewire.mitra.helps.processing-helps', [
+            'helps' => $helps,
+            'tab' => $this->tab,
+            'search' => $this->search,
+            'processingCount' => $processingCount,
+            'completedCount' => $completedCount,
+            'cancelledCount' => $cancelledCount,
+        ]);
     }
 }

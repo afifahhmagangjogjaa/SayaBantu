@@ -17,7 +17,7 @@ class Index extends Component
     public function mount()
     {
         // Ratings given to customer by mitra are strictly internal and visible only to Super Admin.
-        return redirect()->route('profile.show');
+        return redirect()->route('profile');
     }
 
     public function render()

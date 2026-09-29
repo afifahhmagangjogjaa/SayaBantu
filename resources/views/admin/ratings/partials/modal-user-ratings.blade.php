@@ -41,6 +41,8 @@
                 <!-- Tombol Shadow Ban -->
                 <button type="button" id="admin-toggle-shadow-ban-btn"
                     data-url="{{ route('admin.ratings.toggle-shadow-ban', $user->id) }}"
+                    data-user-name="{{ $user->name }}"
+                    data-is-banned="{{ $user->isShadowBanned() ? '1' : '0' }}"
                     style="{{ $user->isShadowBanned() ? 'background-color: #7e22ce; color: #ffffff; border-color: #6b21a8;' : 'background-color: #ffffff; color: #374151; border-color: #d1d5db;' }}"
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition border shadow-2xs cursor-pointer hover:opacity-90"
                     title="{{ $user->isShadowBanned() ? 'Klik untuk melepaskan Shadow Ban' : 'Aktifkan Shadow Ban (order/bantuan tidak akan masuk/tampil)' }}">
