@@ -151,7 +151,7 @@
                 </table>
             </div>
 
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <div class="px-6 py-4 bg-white border-t border-gray-200">
                 {{ $verifications->links() }}
             </div>
         </div>

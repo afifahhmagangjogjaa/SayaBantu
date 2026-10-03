@@ -70,6 +70,10 @@
             'title' => 'Rating & Ulasan',
             'subtitle' => 'Rekap performa dan riwayat ulasan pengguna'
         ],
+        'admin.password' => [
+            'title' => 'Profil & Keamanan',
+            'subtitle' => 'Kelola informasi profil dan perbarui kata sandi akun Admin'
+        ],
     ];
 
     $detectedTitle = $routeMeta[$currentRoute]['title'] ?? null;
@@ -100,6 +104,9 @@
         } elseif (request()->routeIs('admin.helps*')) {
             $detectedTitle = 'Manajemen Bantuan';
             $detectedSubtitle = 'Daftar permintaan bantuan layanan';
+        } elseif (request()->routeIs('admin.password*')) {
+            $detectedTitle = 'Profil & Keamanan';
+            $detectedSubtitle = 'Kelola informasi profil dan perbarui kata sandi akun Admin';
         }
     }
 
@@ -194,13 +201,39 @@
                     Aktivitas Mitra
                 </a>
 
+                @php
+                    $pendingReportsQuery = \App\Models\PartnerReport::where('status', 'pending');
+                    if (auth()->check() && auth()->user()->role === 'admin') {
+                        $adminCityIds = auth()->user()->getAdminCityIds();
+                        if (!empty($adminCityIds)) {
+                            $pendingReportsQuery->where(function($q) use ($adminCityIds) {
+                                $q->whereHas('reportedHelp', function($hq) use ($adminCityIds) {
+                                    $hq->whereIn('city_id', $adminCityIds);
+                                })->orWhereHas('reporter', function($rq) use ($adminCityIds) {
+                                    $rq->whereIn('city_id', $adminCityIds);
+                                })->orWhereHas('reportedUser', function($uq) use ($adminCityIds) {
+                                    $uq->whereIn('city_id', $adminCityIds);
+                                });
+                            });
+                        }
+                    }
+                    $pendingReportsCount = $pendingReportsQuery->count();
+                @endphp
+
                 <a href="{{ route('admin.partners.report') }}"
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.partners.report') || request()->routeIs('admin.partners.reports.*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Manajemen Laporan Aduan
+                    class="flex items-center justify-between mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.partners.report') || request()->routeIs('admin.partners.reports.*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Manajemen Laporan Aduan</span>
+                    </div>
+                    @if($pendingReportsCount > 0)
+                        <span class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full shadow-sm animate-pulse">
+                            {{ $pendingReportsCount > 99 ? '99+' : $pendingReportsCount }}
+                        </span>
+                    @endif
                 </a>
 
                 <a href="{{ route('admin.partners.blocked') }}"
@@ -253,20 +286,20 @@
 
             <div class="w-64 p-4 border-t border-gray-200 bg-white">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div
-                            class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-medium">
-                            {{ substr(auth()->user()->name, 0, 1) }}
+                    <a href="{{ route('admin.password') }}" class="flex items-center group flex-1 min-w-0 mr-2 p-1.5 -ml-1.5 rounded-xl hover:bg-gray-50 transition cursor-pointer" title="Kelola Profil & Ubah Password">
+                        <div style="background-color: #0077cc; color: #ffffff;"
+                            class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition flex-shrink-0 shadow-xs">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>
-                            <p class="text-xs text-gray-500">Admin</p>
+                        <div class="ml-3 min-w-0">
+                            <p class="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition truncate">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-gray-500 truncate">Admin</p>
                         </div>
-                    </div>
+                    </a>
                     <button 
                         @click="$dispatch('open-logout-modal')" 
                         type="button" 
-                        class="text-gray-400 hover:text-red-600 transition" 
+                        class="text-gray-400 hover:text-red-600 transition p-1.5 rounded-lg hover:bg-gray-50 flex-shrink-0 cursor-pointer" 
                         title="Logout">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -316,15 +349,19 @@
                             <!-- Notifications -->
                             <livewire:admin.notifications />
 
-                            <!-- User Profile -->
-                            <div class="flex items-center space-x-3 border-l border-gray-200 pl-3 sm:pl-4">
-                                <div class="text-right hidden sm:block">
-                                    <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name ?? 'Admin' }}</p>
-                                    <p class="text-xs text-gray-500">Admin {{ auth()->user()->city->name ?? '' }}</p>
-                                </div>
-                                <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-medium shadow-xs">
-                                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
-                                </div>
+                            <!-- User Profile Link -->
+                            <div class="flex items-center border-l border-gray-200 pl-3 sm:pl-4">
+                                <a href="{{ route('admin.password') }}" 
+                                   class="flex items-center space-x-2.5 group cursor-pointer focus:outline-none" 
+                                   title="Profil Admin & Keamanan">
+                                    <div class="text-right hidden sm:block">
+                                        <p class="text-sm font-medium text-gray-900 group-hover:text-primary-600 transition">{{ auth()->user()->name ?? 'Admin' }}</p>
+                                        <p class="text-xs text-gray-500">Admin {{ auth()->user()->city->name ?? '' }}</p>
+                                    </div>
+                                    <div style="background-color: #0077cc; color: #ffffff;" class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-xs transition group-hover:ring-2 group-hover:ring-primary-500">
+                                        {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                                    </div>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -411,7 +448,7 @@
                             class="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-medium transition shadow-2xs cursor-pointer">
                             Batal
                         </button>
-                        <form method="POST" action="{{ route('logout') }}" class="flex-1 m-0">
+                        <form method="POST" action="{{ route('admin.logout') }}" class="flex-1 m-0">
                             @csrf
                             <button 
                                 type="submit"
@@ -430,8 +467,146 @@
 
     @stack('modals')
 
+    <!-- Modal Notifikasi Akun Admin Diblokir / Dinonaktifkan -->
+    @php
+        $isAdminAccountDisabled = auth()->check() && in_array(auth()->user()->status, ['blocked', 'inactive']);
+        $isAdminInactive = auth()->check() && auth()->user()->status === 'inactive';
+    @endphp
+    <div id="admin-blocked-account-modal" class="{{ $isAdminAccountDisabled ? '' : 'hidden' }}" style="{{ $isAdminAccountDisabled ? 'display: flex !important;' : '' }} position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999999; align-items: center; justify-content: center; padding: 1rem;">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-gray-100 transform transition-all animate-bounce-in">
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+            </div>
+            <h3 id="admin-blocked-account-title" class="text-lg font-bold text-gray-900 mb-2">
+                {{ $isAdminInactive ? 'Akun Admin Dinonaktifkan' : 'Akun Admin Telah Diblokir' }}
+            </h3>
+            <p id="admin-blocked-account-message" class="text-xs sm:text-sm text-gray-600 mb-6 leading-relaxed">
+                {{ $isAdminInactive 
+                    ? 'Akun Admin Anda telah dinonaktifkan oleh Super Admin. Anda tidak dapat melanjutkan aktivitas di panel admin. Silakan klik tombol di bawah untuk keluar.' 
+                    : 'Akses akun Admin Anda telah diblokir oleh Super Admin. Silakan hubungi Super Admin untuk informasi lebih lanjut.' }}
+            </p>
+            <a href="{{ route('admin.logout') }}" 
+               onclick="this.style.pointerEvents='none'; this.innerHTML='<span>Mengeluarkan...</span>';"
+               class="w-full py-3.5 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-semibold rounded-xl text-sm shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2 cursor-pointer text-center">
+                <span>OK, Keluar</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+
     @livewireScripts
     @stack('scripts')
+    <script>
+        let adminBlockedModalShown = false;
+
+        function triggerAdminBlockedModal(isInactive = null) {
+            const modal = document.getElementById('admin-blocked-account-modal');
+            if (!modal) return;
+
+            adminBlockedModalShown = true;
+
+            const updateTexts = (inactive) => {
+                const title = document.getElementById('admin-blocked-account-title');
+                const msg = document.getElementById('admin-blocked-account-message');
+                if (inactive) {
+                    if (title) title.innerText = 'Akun Admin Dinonaktifkan';
+                    if (msg) msg.innerText = 'Akun Admin Anda telah dinonaktifkan oleh Super Admin. Anda tidak dapat melanjutkan aktivitas di panel admin. Silakan klik tombol di bawah untuk keluar.';
+                } else {
+                    if (title) title.innerText = 'Akun Admin Telah Diblokir';
+                    if (msg) msg.innerText = 'Akses akun Admin Anda telah diblokir oleh Super Admin. Silakan hubungi Super Admin untuk informasi lebih lanjut.';
+                }
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+            };
+
+            if (isInactive === true || isInactive === false) {
+                updateTexts(isInactive);
+            } else {
+                fetch("{{ route('account.status.check') }}", {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => {
+                    if (res.status === 401 || res.status === 403) {
+                        return { should_logout: true, is_inactive: true };
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    const inactive = !!(data && (data.status === 'inactive' || data.is_inactive));
+                    updateTexts(inactive);
+                })
+                .catch(() => {
+                    updateTexts(true);
+                });
+            }
+        }
+
+        function checkAdminAccountStatus() {
+            if (adminBlockedModalShown) return;
+            fetch("{{ route('account.status.check') }}", {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => {
+                if (res.status === 401 || res.status === 403) {
+                    triggerAdminBlockedModal(true);
+                    return null;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data && (data.should_logout || data.is_blocked || data.is_inactive || data.status === 'blocked' || data.status === 'inactive')) {
+                    const isInactive = (data.status === 'inactive' || data.is_inactive);
+                    triggerAdminBlockedModal(isInactive);
+                }
+            })
+            .catch(() => {});
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            @if(auth()->check() && in_array(auth()->user()->status, ['blocked', 'inactive']))
+                triggerAdminBlockedModal({{ auth()->user()->status === 'inactive' ? 'true' : 'false' }});
+            @else
+                checkAdminAccountStatus();
+            @endif
+        });
+
+        // Periodic check every 2.5s and on window focus/tab change
+        setInterval(checkAdminAccountStatus, 2500);
+        window.addEventListener('focus', checkAdminAccountStatus);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) checkAdminAccountStatus();
+        });
+
+        // Intercept Livewire errors (401 / 403)
+        document.addEventListener('livewire:init', () => {
+            if (typeof Livewire !== 'undefined' && Livewire.hook) {
+                Livewire.hook('request', ({ fail }) => {
+                    fail(({ status, content, preventDefault }) => {
+                        if (status === 403 || status === 401) {
+                            if (typeof preventDefault === 'function') preventDefault();
+                            let isInactive = true;
+                            try {
+                                if (content) {
+                                    const parsed = typeof content === 'string' ? JSON.parse(content) : content;
+                                    if (parsed && (parsed.status || parsed.is_inactive !== undefined)) {
+                                        isInactive = !!(parsed.status === 'inactive' || parsed.is_inactive);
+                                    }
+                                }
+                            } catch(e) {}
+                            triggerAdminBlockedModal(isInactive);
+                        }
+                    });
+                });
+            }
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 1. Sync Sidebar Header Height to match Navbar perfectly
@@ -465,6 +640,18 @@
                     sessionStorage.setItem('admin_sidebar_scroll', sidebarNav.scrollTop);
                 }, { passive: true });
             }
+        });
+
+        // Cegah popup browser "This page has expired" saat sesi habis
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('request', ({ fail }) => {
+                fail(({ status, preventDefault }) => {
+                    if (status === 419) {
+                        preventDefault();
+                        window.location.reload();
+                    }
+                });
+            });
         });
     </script>
 </body>

@@ -137,7 +137,7 @@
             </div>
 
             @if ($users->hasPages())
-                <div class="bg-gray-50 px-4 py-3 border-t border-gray-100 flex justify-center">
+                <div class="bg-white px-4 py-3 border-t border-gray-100 flex justify-center">
                     {{ $users->links() }}
                 </div>
             @endif

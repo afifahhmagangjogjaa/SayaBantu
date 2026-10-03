@@ -65,8 +65,8 @@ class Notifications extends Component
 
                 // 4. Via report_id
                 if (!empty($data['report_id'])) {
-                    $report = \App\Models\PartnerReport::find($data['report_id']);
-                    $repCity = $report?->reporter?->city_id ?? $report?->reportedUser?->city_id;
+                    $report = \App\Models\PartnerReport::with(['reporter', 'reportedUser', 'reportedHelp'])->find($data['report_id']);
+                    $repCity = $report?->reportedHelp?->city_id ?? $report?->reporter?->city_id ?? $report?->reportedUser?->city_id;
                     return $repCity && in_array((int)$repCity, $adminCityIds);
                 }
 
@@ -134,6 +134,7 @@ class Notifications extends Component
         // Tandai notifikasi yang dipop-upkan sebagai sudah pernah muncul (popped_at = now())
         if ($unreads->isNotEmpty()) {
             DatabaseNotification::whereIn('id', $unreads->pluck('id'))->update(['popped_at' => now()]);
+            $this->dispatch('admin-new-notifications', notifs: $this->recentUnread);
         }
     }
 

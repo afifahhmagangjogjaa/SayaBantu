@@ -14,6 +14,7 @@ class Detail extends Component
     public $help;
     public $helpId;
     public $showCancelConfirm = false;
+    public $showReassignConfirm = false;
     public $selectedCancelReason = '';
     public $customCancelReason = '';
     public $showMapModal = false;
@@ -29,13 +30,18 @@ class Detail extends Component
 
     protected $listeners = [
         'refreshHelp' => '$refresh',
-        'status-changed' => 'handleStatusChanged'
+        'status-changed' => 'handleStatusChanged',
+        'open-cancel-modal' => 'confirmCancel',
     ];
 
     public function mount($id)
     {
         $this->helpId = $id;
         $this->loadHelp();
+
+        if (request()->query('action') === 'cancel') {
+            $this->confirmCancel();
+        }
     }
 
     public function loadHelp()
@@ -51,6 +57,11 @@ class Detail extends Component
         // Check authorization
         if ($this->help->user_id !== auth()->id()) {
             abort(403, 'Unauthorized access');
+        }
+
+        // Tandai peringatan rekan jasa belum berangkat sebagai sudah dilihat sehingga tidak muncul lagi di halaman mana pun
+        if ($this->help && $this->help->mitra_id) {
+            session()->put('idle_alert_ack_' . $this->help->id . '_' . $this->help->mitra_id, true);
         }
 
         // Auto-cancel if urgent help is expired
@@ -267,38 +278,81 @@ class Detail extends Component
     public function closeModal()
     {
         $this->showCancelConfirm = false;
+        $this->showReassignConfirm = false;
         $this->selectedCancelReason = '';
         $this->customCancelReason = '';
         $this->resetErrorBag();
     }
 
+    public function confirmReassign()
+    {
+        $this->showReassignConfirm = true;
+    }
+
+    public function closeReassignModal()
+    {
+        $this->showReassignConfirm = false;
+    }
+
+    public function reassignPartner()
+    {
+        try {
+            if (!$this->canCustomerCancel) {
+                session()->flash('error', 'Pesanan sedang ditangani dan belum dapat dialihkan.');
+                $this->showReassignConfirm = false;
+                return;
+            }
+
+            if (!$this->help->mitra_id) {
+                session()->flash('error', 'Pesanan belum memiliki rekan jasa.');
+                $this->showReassignConfirm = false;
+                return;
+            }
+
+            $reason = ($this->help->status === 'partner_on_the_way')
+                ? 'Customer mencari rekan jasa lain karena keterlambatan keberangkatan (>30 menit)'
+                : 'Customer mencari rekan jasa lain karena belum ada tanda keberangkatan';
+
+            $success = $this->help->reassignToNewPartner($reason);
+
+            if ($success) {
+                session()->flash('success', 'Rekan Jasa berhasil diganti! Sistem sedang mencarikan Rekan Jasa baru untuk pesanan Anda.');
+                $this->showReassignConfirm = false;
+                $this->loadHelp();
+            } else {
+                session()->flash('error', 'Gagal mengalihkan rekan jasa.');
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error reassigning partner: ' . $e->getMessage());
+            session()->flash('error', 'Terjadi kesalahan saat mengalihkan rekan jasa.');
+        }
+    }
+
     // Computed property untuk mengecek apakah customer berhak membatalkan pesanan
     public function getCanCustomerCancelProperty()
     {
-        // 1. Jika pesanan sudah selesai, dibatalkan, atau sedang aktif dikerjakan, TIDAK BISA dibatalkan lagi
-        if (in_array($this->help->status, ['selesai', 'completed', 'dibatalkan', 'cancelled', 'in_progress', 'sedang_diproses', 'waiting_customer_confirmation'])) {
+        // 1. Jika pesanan sudah selesai, dibatalkan, sedang aktif dikerjakan, atau rekan jasa sudah tiba di lokasi: TIDAK BISA dibatalkan
+        if (in_array($this->help->status, [
+            'selesai', 
+            'completed', 
+            'dibatalkan', 
+            'cancelled', 
+            'in_progress', 
+            'sedang_diproses', 
+            'partner_arrived', 
+            'waiting_customer_confirmation'
+        ]) || !empty($this->help->partner_arrived_at)) {
             return false;
         }
 
-        // 2. Jika belum ada mitra / status masih mencari / menunggu mitra / menunggu pembayaran, BISA dibatalkan kapan saja
+        // 2. Jika belum ada mitra / status masih mencari / menunggu mitra / menunggu pembayaran: BISA dibatalkan kapan saja
         if (!$this->help->mitra_id && in_array($this->help->status, ['menunggu_mitra', 'mencari_mitra', 'menunggu_pembayaran'])) {
             return true;
         }
 
-        // 3. Mitra sudah mengambil pesanan (status: memperoleh_mitra, taken, partner_on_the_way, partner_arrived)
-        // Aturan: Begitu diambil mitra, mau mitra sudah jalan atau belum, tombol pembatalan hanya muncul setelah 30 menit sejak diambil mitra (taken_at)
-        if ($this->help->mitra_id || in_array($this->help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived'])) {
-            $maxWaitMinutes = 30; // Tepat 30 menit sejak pesanan diambil mitra
-            $takenTime = $this->help->taken_at 
-                ? \Carbon\Carbon::parse($this->help->taken_at) 
-                : ($this->help->mitra_assigned_at 
-                    ? \Carbon\Carbon::parse($this->help->mitra_assigned_at) 
-                    : ($this->help->updated_at ? \Carbon\Carbon::parse($this->help->updated_at) : null));
-
-            if ($takenTime) {
-                return $takenTime->diffInSeconds(now()) >= ($maxWaitMinutes * 60);
-            }
-            return false;
+        // 3. Mitra sudah mengambil pesanan: Tombol pengalihan/pembatalan terbuka jika mitra terlambat berangkat >= 30 menit (dan tetap terbuka sampai tiba di lokasi)
+        if ($this->help->mitra_id || in_array($this->help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way'])) {
+            return $this->help->canCustomerCancelDueToDelay();
         }
 
         return false;
@@ -311,18 +365,44 @@ class Detail extends Component
             return '';
         }
 
-        if ($this->help->mitra_id || in_array($this->help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived'])) {
+        // Jika mitra sudah tiba di lokasi
+        if (in_array($this->help->status, ['partner_arrived']) || !empty($this->help->partner_arrived_at)) {
+            return 'Rekan Jasa sudah tiba di lokasi Anda. Pesanan tidak dapat dialihkan atau dibatalkan.';
+        }
+
+        // Jika mitra sedang mengerjakan atau selesai
+        if (in_array($this->help->status, ['in_progress', 'sedang_diproses', 'waiting_customer_confirmation', 'selesai', 'completed'])) {
+            return 'Pesanan sedang dikerjakan atau sudah selesai.';
+        }
+
+        // Jika mitra sedang menuju lokasi dan berangkat tepat waktu (< 30 menit)
+        if ($this->help->status === 'partner_on_the_way') {
+            return 'Rekan Jasa sedang dalam perjalanan menuju lokasi Anda (berangkat tepat waktu).';
+        }
+
+        if ($this->help->mitra_id || in_array($this->help->status, ['memperoleh_mitra', 'taken'])) {
+            if ($this->help->isScheduled() && $this->help->scheduled_at) {
+                $scheduledAt = \Carbon\Carbon::parse($this->help->scheduled_at);
+                $journeyAvailableAt = $this->help->partnerJourneyAvailableAt() ?? $scheduledAt->copy()->subHour();
+
+                // Jika belum masuk jam persiapan/keberangkatan (H-1 jam sebelum jadwal)
+                if (now()->lt($journeyAvailableAt)) {
+                    return "Pesanan dijadwalkan pada " . $scheduledAt->format('d M Y, H:i') . ". Rekan Jasa akan mulai bersiap dan berangkat menjelang waktu jadwal (mulai pukul " . $journeyAvailableAt->format('H:i') . ").";
+                }
+
+                // Jika tombol sudah nyala, hitung sisa menit dari toleransi 30 menit
+                $effectiveStartTime = $this->help->getExpectedJourneyStartTime() ?? $journeyAvailableAt;
+                $diffMinutes = (int) $effectiveStartTime->diffInMinutes(now());
+                $remaining = max(1, 30 - $diffMinutes);
+                return "Tombol pengalihan/pembatalan akan muncul jika Rekan Jasa belum berangkat setelah 30 menit (tersisa {$remaining} menit lagi).";
+            }
+
             $maxWaitMinutes = 30;
-            $takenTime = $this->help->taken_at 
-                ? \Carbon\Carbon::parse($this->help->taken_at) 
-                : ($this->help->mitra_assigned_at 
-                    ? \Carbon\Carbon::parse($this->help->mitra_assigned_at) 
-                    : ($this->help->updated_at ? \Carbon\Carbon::parse($this->help->updated_at) : null));
-            
-            $diffMinutes = $takenTime ? $takenTime->diffInMinutes(now()) : 0;
+            $takenTime = $this->help->getExpectedJourneyStartTime();
+            $diffMinutes = $takenTime ? (int) $takenTime->diffInMinutes(now()) : 0;
             $remaining = (int) max(1, ceil($maxWaitMinutes - $diffMinutes));
 
-            return "Tombol batalkan pesanan akan muncul setelah 30 menit sejak bantuan diambil oleh Rekan Jasa (tersisa {$remaining} menit lagi).";
+            return "Tombol pembatalan/pengalihan akan muncul setelah 30 menit sejak bantuan diambil oleh Rekan Jasa jika belum berangkat (tersisa {$remaining} menit lagi).";
         }
 
         return 'Pesanan sedang ditangani oleh Rekan Jasa.';
@@ -334,8 +414,8 @@ class Detail extends Component
         $this->loadHelp();
 
         // Check if partner is on the way or at nearby statuses
-        if (!in_array($this->help->status, ['taken', 'partner_on_the_way', 'partner_arrived'])) {
-            session()->flash('error', 'Tracking hanya tersedia saat mitra sedang menuju lokasi.');
+        if (!in_array($this->help->status, ['taken', 'partner_on_the_way', 'partner_arrived']) || ($this->help->status === 'taken' && !$this->help->canPartnerStartJourney())) {
+            session()->flash('error', 'Tracking tersedia saat mitra mulai menuju lokasi (mulai 1 jam sebelum jadwal pelaksanaan).');
             return;
         }
 
@@ -620,7 +700,11 @@ class Detail extends Component
 
     public function render()
     {
-        return view('livewire.customer.helps.detail')
-            ->layout('layouts.app', ['title' => 'Detail Pesanan']);
+        return view('livewire.customer.helps.detail', array_merge(get_object_vars($this), [
+            'help' => $this->help,
+            'statusColor' => $this->statusColor,
+            'statusText' => $this->statusText,
+            'canCustomerCancel' => $this->canCustomerCancel,
+        ]))->layout('layouts.app', ['title' => 'Detail Pesanan']);
     }
 }

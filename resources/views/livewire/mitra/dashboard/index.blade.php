@@ -390,25 +390,11 @@
             </div>
 
             <div class="space-y-3">
-                <div wire:loading class="space-y-3">
-                    @for($i=0;$i<3;$i++)
-                        <div class="bg-white rounded-xl p-3 shadow-sm animate-pulse">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 bg-gray-200 rounded-lg"></div>
-                                <div class="flex-1">
-                                    <div class="h-3 bg-gray-200 rounded w-3/5 mb-2"></div>
-                                    <div class="h-2.5 bg-gray-200 rounded w-4/5"></div>
-                                </div>
-                            </div>
-                        </div>
-                    @endfor
-                </div>
-
                 @forelse($recommendedHelps as $help)
                     @php 
                         $schedDate = $help->scheduled_at ?? $help->created_at;
                         $schedLabel = $schedDate ? \Carbon\Carbon::parse($schedDate)->translatedFormat('d M Y, H:i') : '-' ;
-                        $catLabel = $help->category ? ($help->category->icon . ' ' . $help->category->name) : '📦 Lainnya';
+                        $catLabel = $help->category ? $help->category->name : 'Lainnya';
                         $isUrgent = $help->isUrgent();
                         $cityLabel = $help->city->name ?? '-';
                         $distLabel = isset($help->distance) ? number_format($help->distance, 1) . ' km' : '';
@@ -653,103 +639,107 @@
         }
     </script>
 
-    <!-- Modal Preview Bantuan (Bottom Sheet Style) -->
-    <div id="helpPreviewModal" class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 hidden pb-16">
-        <div class="bg-white rounded-t-3xl w-full max-w-md shadow-2xl max-h-[75vh] overflow-y-auto" onclick="event.stopPropagation()">
+    <!-- Modal Preview Bantuan (Compact Bottom Sheet Style) -->
+    <div id="helpPreviewModal" class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 hidden" onclick="closePreviewModal()">
+        <div class="bg-white rounded-t-3xl w-full max-w-md shadow-2xl max-h-[85vh] overflow-y-auto flex flex-col relative" onclick="event.stopPropagation()">
+            <!-- Drag Handle Bar -->
+            <div class="pt-2.5 pb-1 flex justify-center">
+                <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+            </div>
+
             <!-- Modal Header -->
-            <div class="sticky top-0 bg-white border-b px-5 py-4 rounded-t-3xl">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">Preview Bantuan</h3>
-                    <button type="button" onclick="closePreviewModal()" class="p-2 hover:bg-gray-100 rounded-full transition">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+            <div class="px-4 py-2 flex items-center justify-between border-b border-gray-100">
+                <h3 class="text-sm font-bold text-gray-900">Preview Bantuan</h3>
+                <button type="button" onclick="closePreviewModal()" class="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition cursor-pointer" title="Tutup">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
 
             <!-- Modal Content -->
-            <div class="p-5 pb-6">
-                <div id="previewUrgentBadge" class="hidden mb-3 p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold flex items-center gap-1.5">
-                    <span class="text-sm">⚡</span>
-                    <span>BANTUAN MENDESAK (URGENT) — Mohon segera ditindaklanjuti.</span>
+            <div class="p-4 space-y-2.5">
+                <div id="previewUrgentBadge" class="hidden p-2 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold text-center">
+                    BANTUAN MENDESAK (URGENT)
                 </div>
 
-                <div class="mb-4">
-                    <p class="text-xs text-gray-600 font-semibold mb-1">Judul Bantuan</p>
-                    <p id="previewTitle" class="text-base font-bold text-gray-900">-</p>
-                </div>
-
-                <div class="mb-4">
-                    <p class="text-xs text-gray-600 font-semibold mb-1">Kategori</p>
-                    <div id="previewCategory" class="text-sm text-gray-700">-</div>
-                </div>
-
-                <div class="mb-4">
-                    <p class="text-xs text-gray-600 font-semibold mb-1">Nominal untuk Mitra</p>
-                    <div id="previewAmount" class="inline-block bg-green-100 text-green-700 px-3 py-1.5 rounded-lg font-bold text-sm">
-                        💰 Rp 0
+                <!-- Judul & Nominal -->
+                <div class="bg-gray-50/80 border border-gray-100 rounded-xl p-3 flex items-start justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">Judul Bantuan</span>
+                        <p id="previewTitle" class="text-sm font-bold text-gray-900 line-clamp-2 mt-0.5 leading-snug">-</p>
+                    </div>
+                    <div class="shrink-0 text-right">
+                        <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">Upah Anda</span>
+                        <div id="previewAmount" class="inline-flex items-center bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-lg font-extrabold text-xs mt-0.5 whitespace-nowrap">
+                            Rp 0
+                        </div>
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <p class="text-xs text-gray-600 font-semibold mb-1">Jadwal Permintaan</p>
-                    <div id="previewScheduled" class="text-sm text-gray-700">-</div>
-                </div>
-
-                <div class="mb-4">
-                    <p class="text-xs text-gray-600 font-semibold mb-1">Lokasi & Jarak</p>
-                    <div class="flex items-center gap-2 text-sm text-gray-700 flex-wrap">
-                        <span id="previewCity" class="inline-flex items-center gap-1 font-medium whitespace-nowrap">📍 -</span>
-                        <span id="previewDistanceDot" class="text-gray-300 hidden">•</span>
-                        <span id="previewDistance" class="hidden font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full text-xs whitespace-nowrap"></span>
+                <!-- Info Details List -->
+                <div class="bg-white border border-gray-100 rounded-xl p-3 space-y-2 text-xs shadow-2xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500 font-medium">Kategori</span>
+                        <span id="previewCategory" class="font-semibold text-gray-800 text-right">-</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-1.5 border-t border-gray-100">
+                        <span class="text-gray-500 font-medium">Jadwal</span>
+                        <span id="previewScheduled" class="font-semibold text-gray-800 text-right">-</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-1.5 border-t border-gray-100">
+                        <span class="text-gray-500 font-medium">Lokasi & Jarak</span>
+                        <div class="flex items-center gap-1.5 font-semibold text-gray-800 justify-end">
+                            <span id="previewCity">-</span>
+                            <span id="previewDistanceDot" class="text-gray-300 hidden">•</span>
+                            <span id="previewDistance" class="hidden text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap"></span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Notice -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                    <p class="text-xs font-semibold text-blue-800 mb-1">🔒 Informasi Terbatas</p>
-                    <p class="text-xs text-blue-700">
-                        Deskripsi, alamat lengkap, lokasi di peta, foto, dan kontak customer akan ditampilkan setelah Anda mengambil bantuan ini.
+                <div class="bg-blue-50/70 border border-blue-100 rounded-xl p-2.5 text-blue-800">
+                    <p class="text-[11px] leading-relaxed text-blue-700">
+                        <strong class="font-semibold text-blue-900">Info Terbatas:</strong> Deskripsi lengkap, peta, dan kontak customer akan terbuka setelah bantuan diambil.
                     </p>
                 </div>
             </div>
 
-            <!-- Sticky footer -->
-            <div class="sticky bottom-0 bg-white border-t pt-4 px-5 pb-5">
+            <!-- Footer Buttons -->
+            <div class="px-4 pb-4 pt-1 bg-white border-t border-gray-100">
                 @if(auth()->check() && !auth()->user()->isProfileComplete())
-                    <div class="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs">
-                        <p class="font-bold flex items-center gap-1.5 mb-1">
+                    <div class="mb-2.5 p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs">
+                        <p class="font-bold flex items-center gap-1.5 mb-0.5">
                             <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                             <span>Biodata Belum Lengkap</span>
                         </p>
                         <p class="text-[11px] text-red-700 leading-relaxed">
-                            Harap lengkapi biodata profil Anda terlebih dahulu sebelum dapat mengambil bantuan.
+                            Harap lengkapi biodata profil Anda terlebih dahulu sebelum mengambil bantuan.
                         </p>
                     </div>
                 @elseif(auth()->check() && !auth()->user()->verified)
-                    <div class="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
-                        <p class="font-bold flex items-center gap-1.5 mb-1">
+                    <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                        <p class="font-bold flex items-center gap-1.5 mb-0.5">
                             <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>KTP Belum Terverifikasi</span>
                         </p>
                         <p class="text-[11px] text-amber-700 leading-relaxed">
-                            Akun dan KTP Anda sedang dalam proses verifikasi oleh Admin. Anda belum dapat mengambil bantuan hingga akun terverifikasi.
+                            Akun dan KTP sedang dalam verifikasi Admin. Belum dapat mengambil bantuan.
                         </p>
                     </div>
                 @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
-                    <div class="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
-                        <p class="font-bold flex items-center gap-1.5 mb-1">
+                    <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                        <p class="font-bold flex items-center gap-1.5 mb-0.5">
                             <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                             <span>Batas 2 Bantuan Tercapai</span>
                         </p>
                         <p class="text-[11px] text-amber-700 leading-relaxed">
-                            Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk dapat mengambil bantuan kembali tanpa batas.
+                            Akun belum verifikasi email dan mencapai batas maksimal 2 bantuan.
                         </p>
                     </div>
                 @endif
-                <div id="previewCancelledByMeAlert" class="hidden mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
-                    <p class="font-bold flex items-center gap-1.5 mb-1">
+                <div id="previewCancelledByMeAlert" class="hidden mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                    <p class="font-bold flex items-center gap-1.5 mb-0.5">
                         <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                         <span>Bantuan Pernah Dibatalkan</span>
                     </p>
@@ -757,27 +747,27 @@
                         Anda tidak bisa mengambil bantuan ini karena sudah pernah dibatalkan.
                     </p>
                 </div>
-                <div class="flex gap-3">
-                    <button type="button" onclick="closePreviewModal()" class="flex-1 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl font-bold hover:bg-gray-200 transition">
+                <div class="flex gap-2.5">
+                    <button type="button" onclick="closePreviewModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 px-4 rounded-xl font-bold text-xs transition cursor-pointer">
                         Batal
                     </button>
-                    <button type="button" id="previewCancelledTakeBtn" disabled class="hidden flex-1 bg-gray-200 text-gray-400 px-4 py-2.5 rounded-xl font-bold cursor-not-allowed text-xs">
+                    <button type="button" id="previewCancelledTakeBtn" disabled class="hidden flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
                         Tidak Dapat Diambil
                     </button>
                     @if(auth()->check() && !auth()->user()->isProfileComplete())
-                        <a href="{{ route('mitra.profile.edit') }}" class="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
+                        <a href="{{ route('mitra.profile.edit') }}" class="flex-1 bg-red-600 text-white py-2.5 px-4 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
                             Lengkapi Biodata
                         </a>
                     @elseif(auth()->check() && !auth()->user()->verified)
-                        <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 px-4 py-2.5 rounded-xl font-bold cursor-not-allowed text-xs">
+                        <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
                             Menunggu Verifikasi KTP
                         </button>
                     @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
-                        <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 px-4 py-2.5 rounded-xl font-bold cursor-not-allowed text-xs">
+                        <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
                             Batas Order Tercapai
                         </button>
                     @else
-                        <button type="button" id="previewTakeBtn" onclick="takeHelpFromModal()" class="flex-1 bg-primary-500 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-primary-600 transition">
+                        <button type="button" id="previewTakeBtn" onclick="takeHelpFromModal()" class="flex-1 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white py-2.5 px-4 rounded-xl font-bold text-xs transition shadow-md shadow-primary-500/20 cursor-pointer text-center">
                             Ambil Bantuan
                         </button>
                     @endif
@@ -813,8 +803,9 @@
                 if (takeBtn) takeBtn.classList.remove('hidden');
             }
             document.getElementById('previewTitle').textContent = title;
-            document.getElementById('previewCategory').textContent = category || '📦 Lainnya';
-            document.getElementById('previewAmount').textContent = '💰 Rp ' + amount.toLocaleString('id-ID');
+            const cleanCategory = (category || 'Lainnya').replace(/^[\p{Extended_Pictographic}\uFE0F\u200D\s]+/u, '').trim();
+            document.getElementById('previewCategory').textContent = cleanCategory || 'Lainnya';
+            document.getElementById('previewAmount').textContent = 'Rp ' + amount.toLocaleString('id-ID');
             const schedEl = document.getElementById('previewScheduled');
             if (schedEl) {
                 if (scheduled && scheduled.length) {
@@ -833,7 +824,7 @@
             const distEl = document.getElementById('previewDistance');
             const distDot = document.getElementById('previewDistanceDot');
             if (cityEl) {
-                cityEl.textContent = city ? ('📍 ' + city) : '📍 -';
+                cityEl.textContent = city ? city : '-';
             }
             if (distEl) {
                 if (distance && distance.trim() !== '') {
@@ -857,127 +848,64 @@
         function takeHelpFromModal() {
             if (!currentHelpId) return;
 
-            // Fungsi untuk reset button
-            const resetButton = (btn, originalText) => {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            };
-            
-            // Fungsi untuk ambil bantuan dengan/tanpa lokasi
-            const takeBantuanWithLocation = (lat = null, lng = null) => {
+            const btn = document.getElementById('previewTakeBtn') || document.querySelector('[onclick="takeHelpFromModal()"]');
+            const originalText = btn ? btn.textContent : 'Ambil Bantuan';
+
+            if (btn) {
+                btn.textContent = 'Memproses...';
+                btn.disabled = true;
+            }
+
+            let taken = false;
+            const completeTake = (lat = null, lng = null) => {
+                if (taken) return;
+                taken = true;
+                clearTimeout(fallbackTimer);
+
                 if (lat && lng) {
-                    console.log('📍 Mengambil bantuan dengan lokasi:', { lat, lng });
+                    console.log('📍 Mengambil bantuan dengan lokasi GPS:', { lat, lng });
                     @this.takeHelp(currentHelpId, lat, lng);
                 } else {
-                    console.log('📍 Mengambil bantuan tanpa lokasi GPS');
+                    console.log('📍 Mengambil bantuan (koordinat default dari profil mitra)');
                     @this.takeHelp(currentHelpId);
                 }
+
                 closePreviewModal();
-            };
-            
-            // Fungsi fallback: Coba gunakan IP-based location
-            const tryIPBasedLocation = (btn, originalText) => {
-                console.log('🌐 Mencoba IP-based location...');
-                btn.textContent = 'Mendeteksi lokasi dari IP...';
-                
-                // Gunakan ipapi.co untuk mendapatkan koordinat dari IP
-                fetch('https://ipapi.co/json/', { timeout: 3000 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.latitude && data.longitude) {
-                            console.log('✅ IP-based location berhasil:', data);
-                            takeBantuanWithLocation(data.latitude, data.longitude);
-                            resetButton(btn, originalText);
-                        } else {
-                            throw new Error('Invalid location data');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('❌ IP-based location gagal:', error);
-                        // Tetap tanyakan apakah mau ambil tanpa lokasi
-                        if (confirm('📍 Lokasi tidak dapat dideteksi.\n\n✅ Ambil bantuan tanpa GPS tracking?\n\n(Lokasi dapat diupdate nanti saat Anda mulai bergerak)')) {
-                            takeBantuanWithLocation();
-                        }
-                        resetButton(btn, originalText);
-                    });
-            };
 
-            // Request GPS permission dan ambil lokasi
-            if (navigator.geolocation) {
-                // Show loading on button
-                const btn = document.getElementById('previewTakeBtn');
-                const originalText = btn.textContent;
-                btn.textContent = 'Mengambil GPS...';
-                btn.disabled = true;
-
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        const accuracy = position.coords.accuracy;
-                        
-                        console.log('✅ GPS Location obtained:', { lat, lng, accuracy: accuracy + 'm' });
-                        
-                        // Call Livewire method dengan GPS coordinates
-                        takeBantuanWithLocation(lat, lng);
-                        
-                        // Reset button
-                        resetButton(btn, originalText);
-                    },
-                    (error) => {
-                        console.error('❌ GPS Error:', error);
-                        
-                        // Error codes:
-                        // 1 = PERMISSION_DENIED
-                        // 2 = POSITION_UNAVAILABLE (no GPS hardware atau signal)
-                        // 3 = TIMEOUT
-                        
-                        if (error.code === 2) {
-                            // GPS tidak tersedia (laptop/desktop tanpa GPS)
-                            console.log('💻 Device tidak memiliki GPS, mencoba IP-based location...');
-                            tryIPBasedLocation(btn, originalText);
-                        } else if (error.code === 1) {
-                            // User menolak permission
-                            if (confirm('📍 Akses lokasi ditolak.\n\n🌐 Coba deteksi lokasi dari IP address?\n\n(Akurasi lebih rendah tetapi cukup untuk tracking)')) {
-                                tryIPBasedLocation(btn, originalText);
-                            } else if (confirm('✅ Ambil bantuan tanpa GPS tracking?\n\n(Lokasi dapat diupdate nanti)')) {
-                                takeBantuanWithLocation();
-                                resetButton(btn, originalText);
-                            } else {
-                                resetButton(btn, originalText);
-                            }
-                        } else {
-                            // Timeout atau error lain
-                            if (confirm('⏱️ GPS timeout atau error.\n\n🌐 Coba deteksi lokasi dari IP address?')) {
-                                tryIPBasedLocation(btn, originalText);
-                            } else if (confirm('✅ Ambil bantuan tanpa GPS tracking?')) {
-                                takeBantuanWithLocation();
-                                resetButton(btn, originalText);
-                            } else {
-                                resetButton(btn, originalText);
-                            }
-                        }
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 8000, // 8 detik timeout (lebih lama untuk laptop)
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                // Browser tidak support GPS (browser lama)
-                const btn = document.getElementById('previewTakeBtn');
-                const originalText = btn.textContent;
-                console.warn('⚠️ Browser tidak support Geolocation API');
-                
-                if (confirm('🌐 Browser tidak mendukung GPS.\n\nCoba deteksi lokasi dari IP address?')) {
-                    btn.disabled = true;
-                    tryIPBasedLocation(btn, originalText);
-                } else if (confirm('✅ Ambil bantuan tanpa GPS tracking?')) {
-                    takeBantuanWithLocation();
-                } else {
-                    // User cancel
+                if (btn) {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
                 }
+            };
+
+            // Batas maksimal tunggu deteksi GPS adalah 1.8 detik agar tidak pernah stuck/macet
+            const fallbackTimer = setTimeout(() => {
+                console.log('⏱️ Waktu deteksi GPS selesai, langsung mengambil bantuan...');
+                completeTake();
+            }, 1800);
+
+            // Coba ambil lokasi secara cepat jika browser mendukung
+            if (navigator.geolocation) {
+                try {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            completeTake(position.coords.latitude, position.coords.longitude);
+                        },
+                        (error) => {
+                            console.warn('⚠️ Lokasi GPS tidak dapat diakses, mengambil bantuan langsung:', error.message);
+                            completeTake();
+                        },
+                        {
+                            enableHighAccuracy: false,
+                            timeout: 1500,
+                            maximumAge: 300000 // gunakan cache lokasi 5 menit terakhir jika ada
+                        }
+                    );
+                } catch (e) {
+                    completeTake();
+                }
+            } else {
+                completeTake();
             }
         }
 

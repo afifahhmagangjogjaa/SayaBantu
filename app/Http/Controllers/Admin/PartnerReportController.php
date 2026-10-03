@@ -23,6 +23,8 @@ class PartnerReportController extends Controller
                         $sq->whereIn('city_id', $adminCityIds);
                     })->orWhereHas('reportedUser', function ($sq) use ($adminCityIds) {
                         $sq->whereIn('city_id', $adminCityIds);
+                    })->orWhereHas('reportedHelp', function ($sq) use ($adminCityIds) {
+                        $sq->whereIn('city_id', $adminCityIds);
                     });
                 });
             }
@@ -160,8 +162,34 @@ class PartnerReportController extends Controller
         ));
     }
 
+    /**
+     * Pastikan admin hanya bisa melihat dan mengelola laporan dari wilayah yang ditugaskan kepadanya.
+     */
+    protected function authorizeReportAccess(PartnerReport $report): void
+    {
+        $user = auth()->user();
+        if ($user && $user->role === 'admin') {
+            $adminCityIds = $user->getAdminCityIds();
+            if (!empty($adminCityIds)) {
+                $reporterCityId = $report->reporter?->city_id;
+                $reportedCityId = $report->reportedUser?->city_id;
+                $helpCityId = $report->reportedHelp?->city_id;
+
+                $matches = ($reporterCityId && in_array($reporterCityId, $adminCityIds))
+                    || ($reportedCityId && in_array($reportedCityId, $adminCityIds))
+                    || ($helpCityId && in_array($helpCityId, $adminCityIds));
+
+                if (!$matches) {
+                    abort(403, 'Anda tidak memiliki hak akses untuk melihat atau mengelola laporan aduan dari wilayah lain.');
+                }
+            }
+        }
+    }
+
     public function show(PartnerReport $report)
     {
+        $this->authorizeReportAccess($report);
+
         $report->load([
             'reporter', 
             'reportedUser', 
@@ -196,6 +224,8 @@ class PartnerReportController extends Controller
 
     public function updateStatus(PartnerReport $report, Request $request)
     {
+        $this->authorizeReportAccess($report);
+
         $request->validate([
             'status' => 'required|in:pending,in_progress,resolved,dismissed',
         ]);
@@ -230,6 +260,8 @@ class PartnerReportController extends Controller
 
     public function storeSanction(Request $request, PartnerReport $report)
     {
+        $this->authorizeReportAccess($report);
+
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'warning_level' => 'required|integer|in:0,1,2,3',
@@ -344,6 +376,8 @@ class PartnerReportController extends Controller
 
     public function addNote(PartnerReport $report, Request $request)
     {
+        $this->authorizeReportAccess($report);
+
         $request->validate([
             'note' => 'nullable|string|max:2000',
             'admin_notes' => 'nullable|string|max:5000',
@@ -372,6 +406,8 @@ class PartnerReportController extends Controller
 
     public function resolve(PartnerReport $report)
     {
+        $this->authorizeReportAccess($report);
+
         $oldStatus = $report->status;
         $report->update([
             'status' => 'resolved',
@@ -393,6 +429,8 @@ class PartnerReportController extends Controller
 
     public function reopen(PartnerReport $report)
     {
+        $this->authorizeReportAccess($report);
+
         $oldStatus = $report->status;
         $report->update([
             'status' => 'in_progress',

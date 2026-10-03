@@ -4,7 +4,49 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" wire:click="closeModal"></div>
 
-            <div class="relative bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl transform transition-all">
+            <div class="relative bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl transform transition-all"
+                 x-data="{
+                     previewUrl: null,
+                     isUploading: false,
+                     pendingSubmit: false,
+                     hasFile: false,
+                     handleFileChange(event) {
+                         const file = event.target.files[0];
+                         if (!file) return;
+
+                         this.previewUrl = URL.createObjectURL(file);
+                         this.isUploading = true;
+                         this.hasFile = true;
+
+                         $wire.upload('photo', file,
+                             () => {
+                                 this.isUploading = false;
+                                 if (this.pendingSubmit) {
+                                     this.pendingSubmit = false;
+                                     $wire.updatePhoto();
+                                 }
+                             },
+                             (error) => {
+                                 this.isUploading = false;
+                                 this.pendingSubmit = false;
+                             },
+                             (event) => {}
+                         );
+                     },
+                     submit() {
+                         if (!this.hasFile && !this.previewUrl) {
+                             $wire.updatePhoto();
+                             return;
+                         }
+
+                         if (this.isUploading) {
+                             this.pendingSubmit = true;
+                             return;
+                         }
+
+                         $wire.updatePhoto();
+                     }
+                 }">
                 <!-- Header -->
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-xl font-bold text-gray-900">Upload Foto Profil</h3>
@@ -17,7 +59,7 @@
                 </div>
 
                 <!-- Upload Area -->
-                <div class="mb-6" x-data="{ previewUrl: null }">
+                <div class="mb-6">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">Pilih Foto Profil</label>
 
                     <div class="relative">
@@ -25,12 +67,7 @@
                                accept="image/*" 
                                class="hidden" 
                                id="photoInputCustomer"
-                               x-on:change="
-                                   if ($event.target.files[0]) {
-                                       previewUrl = URL.createObjectURL($event.target.files[0]);
-                                       $wire.upload('photo', $event.target.files[0], function() {}, function() {}, function() {});
-                                   }
-                               ">
+                               x-on:change="handleFileChange($event)">
 
                         <label for="photoInputCustomer"
                             class="relative flex flex-col items-center justify-center w-full h-52 border-2 border-dashed border-gray-300 hover:border-primary-500 rounded-2xl cursor-pointer hover:bg-gray-50/80 transition overflow-hidden group">
@@ -87,6 +124,22 @@
                         </label>
                     </div>
 
+                    {{-- Upload Status Indicators --}}
+                    <div x-show="isUploading" style="display: none;" class="mt-2.5 text-xs text-blue-600 font-semibold flex items-center gap-2">
+                        <svg class="animate-spin w-4 h-4 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Sedang mengunggah foto ke sistem...</span>
+                    </div>
+
+                    <div x-show="!isUploading && hasFile" style="display: none;" class="mt-2.5 text-xs text-emerald-600 font-semibold flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Foto siap disimpan! Silakan klik tombol Upload di bawah.</span>
+                    </div>
+
                     @error('photo')
                         <div class="mt-2 text-sm text-red-600 flex items-center gap-1">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -97,17 +150,6 @@
                             {{ $message }}
                         </div>
                     @enderror
-
-                    <div wire:loading wire:target="photo" class="mt-2 text-sm text-blue-600 flex items-center gap-2">
-                        <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                            </circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                            </path>
-                        </svg>
-                        <span>Memuat foto...</span>
-                    </div>
                 </div>
 
                 <!-- Actions -->
@@ -116,18 +158,26 @@
                         class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl font-bold text-gray-700 hover:bg-gray-50 transition">
                         Batal
                     </button>
-                    <button wire:click="updatePhoto" type="button" wire:loading.attr="disabled" wire:target="updatePhoto"
-                        class="flex-1 px-4 py-3 bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl font-bold text-white hover:from-primary-700 hover:to-primary-800 transition disabled:opacity-50">
-                        <span wire:loading.remove wire:target="updatePhoto">Upload</span>
-                        <span wire:loading wire:target="updatePhoto" class="flex items-center justify-center gap-2">
-                            <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                                </circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
+                    <button @click="submit()" type="button"
+                        wire:loading.attr="disabled" wire:target="updatePhoto"
+                        :disabled="pendingSubmit"
+                        class="flex-1 px-4 py-3 bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl font-bold text-white hover:from-primary-700 hover:to-primary-800 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                        <span x-show="!isUploading && !pendingSubmit" wire:loading.remove wire:target="updatePhoto">
+                            Upload
+                        </span>
+                        <span x-show="isUploading || pendingSubmit" style="display: none;" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Mengupload...
+                            <span x-text="pendingSubmit ? 'Menyimpan...' : 'Memproses...'">Memproses...</span>
+                        </span>
+                        <span wire:loading wire:target="updatePhoto" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Menyimpan...</span>
                         </span>
                     </button>
                 </div>

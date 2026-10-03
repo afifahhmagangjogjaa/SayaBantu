@@ -5,7 +5,32 @@
             display: none !important;
         }
     </style>
-    <div class="w-full flex-1 flex flex-col justify-between py-2">
+    <div class="w-full flex-1 flex flex-col justify-between py-2"
+        x-data="{
+            newPass: '',
+            confirmPass: '',
+            get score() {
+                let p = this.newPass || '';
+                if (!p) return 0;
+                let s = 0;
+                if (p.length >= 8) s++;
+                if (p.length >= 10) s++;
+                if (/[A-Z]/.test(p)) s++;
+                if (/[0-9]/.test(p)) s++;
+                if (/[^A-Za-z0-9]/.test(p)) s++;
+                return s;
+            },
+            get isValid() {
+                let p = this.newPass || '';
+                let c = this.confirmPass || '';
+                let hasMin = p.length >= 8;
+                let hasUpper = /[A-Z]/.test(p);
+                let hasNum = /[0-9]/.test(p);
+                let hasSpecial = /[^A-Za-z0-9]/.test(p);
+                let isMatch = p.length > 0 && p === c;
+                return hasMin && hasUpper && hasNum && hasSpecial && isMatch;
+            }
+        }">
         <div>
             <!-- Header -->
             <div class="pt-2 mb-6 text-center">
@@ -32,6 +57,7 @@
                     </label>
                     <div class="relative">
                         <input id="password" type="password" name="password" required autofocus
+                            @input="newPass = $event.target.value"
                             placeholder="Minimal 8 karakter"
                             class="w-full pl-4 pr-12 py-3.5 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium outline-none @error('password') border-red-500 @enderror">
                         
@@ -57,6 +83,20 @@
                             {{ $message }}
                         </p>
                     @enderror
+
+                    {{-- Password Strength Meter --}}
+                    <div x-show="newPass && newPass.length > 0" x-transition class="mt-2.5">
+                        <div class="flex items-center justify-between text-[11px] mb-1">
+                            <span class="text-gray-500">Kekuatan Kata Sandi:</span>
+                            <span class="font-bold" 
+                                  :class="score <= 2 ? 'text-red-500' : (score <= 3 ? 'text-amber-500' : 'text-emerald-600')"
+                                  x-text="score <= 2 ? 'Lemah' : (score <= 3 ? 'Sedang' : 'Kuat & Aman')"></span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                            <div class="h-full transition-all duration-300 rounded-full" 
+                                 :class="score <= 2 ? 'w-1/3 bg-red-500' : (score <= 3 ? 'w-2/3 bg-amber-500' : 'w-full bg-emerald-500')"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Konfirmasi Kata Sandi -->
@@ -66,6 +106,7 @@
                     </label>
                     <div class="relative">
                         <input id="password_confirmation" type="password" name="password_confirmation" required
+                            @input="confirmPass = $event.target.value"
                             placeholder="Ketik ulang kata sandi Anda"
                             class="w-full pl-4 pr-12 py-3.5 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium outline-none">
                         
@@ -85,11 +126,54 @@
                             </svg>
                         </button>
                     </div>
+
+                    {{-- Status Kecocokan Password --}}
+                    <div x-show="confirmPass && confirmPass.length > 0" x-transition class="mt-1.5">
+                        <p x-show="newPass === confirmPass" class="text-xs text-emerald-600 flex items-center gap-1 font-medium">
+                            <span>✓</span> <span>Konfirmasi kata sandi cocok.</span>
+                        </p>
+                        <p x-show="newPass !== confirmPass" class="text-xs text-red-500 flex items-center gap-1 font-medium">
+                            <span>✕</span> <span>Kata sandi tidak cocok.</span>
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Criteria Checklist --}}
+                <div class="p-3.5 bg-gray-50/80 rounded-xl border border-gray-200/80 text-xs space-y-1.5">
+                    <p class="font-bold text-gray-700 mb-1">Ketentuan kata sandi:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                        <div class="flex items-center gap-1.5 transition-colors duration-150" :class="newPass.length >= 8 ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
+                            <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
+                                  :class="newPass.length >= 8 ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
+                                  x-text="newPass.length >= 8 ? '✓' : '✕'">✕</span>
+                            <span>Minimal 8 karakter</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[A-Z]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
+                            <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
+                                  :class="/[A-Z]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
+                                  x-text="/[A-Z]/.test(newPass) ? '✓' : '✕'">✕</span>
+                            <span>Huruf besar (A-Z)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
+                            <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
+                                  :class="/[0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
+                                  x-text="/[0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                            <span>Angka (0-9)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[^A-Za-z0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
+                            <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
+                                  :class="/[^A-Za-z0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
+                                  x-text="/[^A-Za-z0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                            <span>Karakter khusus / simbol</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="pt-3">
                     <button type="submit"
-                        class="w-full text-white font-bold py-3.5 px-4 rounded-full shadow-md hover:shadow-lg active:scale-98 transition text-sm tracking-wide cursor-pointer"
+                        :disabled="!isValid"
+                        :class="!isValid ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-lg active:scale-98'"
+                        class="w-full text-white font-bold py-3.5 px-4 rounded-full shadow-md transition text-sm tracking-wide"
                         style="background-color: #0098e7;">
                         Simpan Kata Sandi & Lanjutkan →
                     </button>

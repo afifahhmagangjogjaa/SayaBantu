@@ -153,7 +153,12 @@
                                     <span class="ml-2 text-sm text-gray-600">Ingat saya</span>
                                 </label>
 
-                                @if (Route::has('password.request'))
+                                @if (Route::has('admin.password.request'))
+                                    <a href="{{ route('admin.password.request') }}" wire:navigate
+                                        class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                                        Lupa password?
+                                    </a>
+                                @elseif (Route::has('password.request'))
                                     <a href="{{ route('password.request') }}" wire:navigate
                                         class="text-sm text-primary-600 hover:text-primary-700 font-medium">
                                         Lupa password?
@@ -195,7 +200,7 @@
                             Bukan admin?
                             <a href="{{ route('login') }}" wire:navigate
                                 class="font-medium text-primary-600 hover:text-primary-700">
-                                Login sebagai Kustomer/Mitra
+                                Login sebagai Customer/Mitra
                             </a>
                         </p>
                     </div>

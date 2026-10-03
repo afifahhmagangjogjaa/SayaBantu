@@ -27,7 +27,7 @@ class SimpleRegisterController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'confirmed', Password::min(8)],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
             'role' => ['required', 'in:customer,mitra'],
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
@@ -37,6 +37,7 @@ class SimpleRegisterController extends Controller
             'email.unique' => 'Email ini sudah terdaftar. Silakan login.',
             'password.required' => 'Kata sandi wajib diisi.',
             'password.min' => 'Kata sandi minimal 8 karakter.',
+            'password.regex' => 'Kata sandi harus mengandung huruf besar, angka, dan karakter khusus / simbol.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
             'role.required' => 'Pilih peran terlebih dahulu.',
         ]);

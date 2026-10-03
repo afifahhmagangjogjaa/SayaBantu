@@ -59,6 +59,8 @@ class Index extends Component
             'help_title' => $transaction->help?->title,
             'proof_of_payment' => $transaction->proof_of_payment,
             'rejection_reason' => $transaction->rejection_reason,
+            'approved_by_name' => $transaction->approvedBy?->name,
+            'approved_at' => $transaction->approved_at ? $transaction->approved_at->format('d M Y • H:i') . ' WIB' : null,
             'created_at' => $transaction->created_at ? $transaction->created_at->format('d M Y • H:i') . ' WIB' : '-',
             'created_at_human' => $transaction->created_at ? $transaction->created_at->diffForHumans() : '',
         ];

@@ -108,35 +108,35 @@
 
             <!-- Table Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-50/80 border-b border-gray-200">
                             <tr>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-10">No</th>
-                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Customer</th>
-                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Kode Request</th>
-                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Nominal</th>
-                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Total Bayar</th>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Metode</th>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Status</th>
-                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Waktu Masuk</th>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-28">Aksi</th>
+                                <th class="px-2 py-2.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-8">No</th>
+                                <th class="px-2 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Customer</th>
+                                <th class="px-2 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Kode Request</th>
+                                <th class="px-2 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Nominal</th>
+                                <th class="px-2 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Total Bayar</th>
+                                <th class="px-2 py-2.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Metode</th>
+                                <th class="px-2 py-2.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Status</th>
+                                <th class="px-2 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Waktu Masuk</th>
+                                <th class="px-2 py-2.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
                             @forelse($pendingRequests as $transaction)
                                 <tr class="hover:bg-gray-50/80 transition-colors">
-                                    <td class="px-2.5 py-3 whitespace-nowrap text-center text-xs font-medium text-gray-500">
+                                    <td class="px-2 py-2.5 whitespace-nowrap text-center text-xs font-medium text-gray-500">
                                         {{ $pendingRequests->firstItem() + $loop->index }}
                                     </td>
-                                    <td class="px-2.5 py-3">
-                                        <div class="flex items-center gap-3" style="gap: 12px;">
-                                            <div class="w-8 h-8 flex-shrink-0 rounded-full bg-primary-100 text-primary-700 font-bold flex items-center justify-center text-xs" style="width: 32px; height: 32px; min-width: 32px;">
+                                    <td class="px-2 py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 flex-shrink-0 rounded-full bg-primary-100 text-primary-700 font-bold flex items-center justify-center text-xs">
                                                 {{ strtoupper(substr($transaction->user->name ?? 'U', 0, 1)) }}
                                             </div>
-                                            <div class="min-w-0" style="margin-left: 4px;">
-                                                <div class="text-sm font-semibold text-gray-900 leading-tight truncate max-w-[150px]" title="{{ $transaction->user->name ?? '-' }}">{{ $transaction->user->name ?? '-' }}</div>
-                                                <div class="text-xs text-gray-500 mt-0.5 truncate max-w-[150px]" title="{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
+                                            <div class="min-w-0">
+                                                <div class="text-xs font-semibold text-gray-900 leading-tight truncate max-w-[125px]" title="{{ $transaction->user->name ?? '-' }}">{{ $transaction->user->name ?? '-' }}</div>
+                                                <div class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[125px]" title="{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
                                                 @if(!empty($transaction->user->city->name))
                                                     <div class="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
                                                         <span>📍 {{ $transaction->user->city->name }}</span>
@@ -145,15 +145,15 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap">
-                                        <div class="text-xs font-mono font-bold text-gray-900 px-2 py-0.5 bg-gray-100 border border-gray-200 rounded inline-block">
+                                    <td class="px-2 py-2.5 whitespace-nowrap">
+                                        <div class="text-[11px] font-mono font-bold text-gray-900 px-1.5 py-0.5 bg-gray-100 border border-gray-200 rounded inline-block">
                                             {{ $transaction->request_code ?? '#' . $transaction->id }}
                                         </div>
-                                        <div class="text-xs text-gray-500 mt-0.5 font-mono">
+                                        <div class="text-[11px] text-gray-500 mt-0.5 font-mono">
                                             {{ $transaction->customer_phone ?? ($transaction->user->phone ?? '-') }}
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap">
+                                    <td class="px-2 py-2.5 whitespace-nowrap">
                                         <div class="text-xs font-bold text-gray-900">
                                             Rp {{ number_format($transaction->amount, 0, ',', '.') }}
                                         </div>
@@ -161,29 +161,29 @@
                                             +Rp {{ number_format($transaction->admin_fee, 0, ',', '.') }} fee
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap">
-                                        <div class="text-xs font-bold text-primary-700 px-2 py-0.5 bg-primary-50 border border-primary-100 rounded inline-block">
+                                    <td class="px-2 py-2.5 whitespace-nowrap">
+                                        <div class="text-xs font-bold text-primary-700 px-1.5 py-0.5 bg-primary-50 border border-primary-100 rounded inline-block">
                                             Rp {{ number_format($transaction->total_payment, 0, ',', '.') }}
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap text-center">
-                                        <span class="px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-700 inline-block border border-gray-200">
+                                    <td class="px-2 py-2.5 whitespace-nowrap text-center">
+                                        <span class="px-1.5 py-0.5 text-[11px] font-medium rounded bg-gray-100 text-gray-700 inline-block border border-gray-200">
                                             {{ $transaction->payment_method ?? 'QRIS' }}
                                         </span>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap text-center">
-                                        <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                    <td class="px-2 py-2.5 whitespace-nowrap text-center">
+                                        <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                                             Menunggu
                                         </span>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap">
+                                    <td class="px-2 py-2.5 whitespace-nowrap">
                                         <div class="text-xs font-semibold text-gray-900">{{ $transaction->created_at->format('d M Y') }}</div>
                                         <div class="text-[10px] text-gray-500">{{ $transaction->created_at->format('H:i') }} WIB</div>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap text-center text-xs font-medium">
+                                    <td class="px-2 py-2.5 whitespace-nowrap text-center text-xs font-medium">
                                         <button type="button" wire:click="viewDetail({{ $transaction->id }})"
                                             wire:loading.attr="disabled"
-                                            class="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer"
+                                            class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded text-[11px] font-semibold transition shadow-2xs cursor-pointer"
                                             title="Lihat Detail">
                                             Detail
                                         </button>
@@ -209,7 +209,7 @@
                 </div>
 
                 @if ($pendingRequests->hasPages())
-                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div class="px-6 py-4 border-t border-gray-200 bg-white">
                         {{ $pendingRequests->links() }}
                     </div>
                 @endif
@@ -277,35 +277,35 @@
 
             <!-- Table Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-50/80 border-b border-gray-200">
                             <tr>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-10">No</th>
-                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Customer</th>
-                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Kode Request</th>
-                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Nominal</th>
-                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Total Bayar</th>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Metode</th>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Status</th>
-                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Waktu Diproses</th>
-                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-28">Aksi</th>
+                                <th class="px-2 py-2.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-8">No</th>
+                                <th class="px-2 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Customer</th>
+                                <th class="px-2 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Kode Request</th>
+                                <th class="px-2 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Nominal</th>
+                                <th class="px-2 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Total Bayar</th>
+                                <th class="px-2 py-2.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Metode</th>
+                                <th class="px-2 py-2.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Status</th>
+                                <th class="px-2 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Waktu Diproses</th>
+                                <th class="px-2 py-2.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
                             @forelse($historyRequests as $transaction)
                                 <tr class="hover:bg-gray-50/80 transition-colors">
-                                    <td class="px-2.5 py-3 whitespace-nowrap text-center text-xs font-medium text-gray-500">
+                                    <td class="px-2 py-2.5 whitespace-nowrap text-center text-xs font-medium text-gray-500">
                                         {{ $historyRequests->firstItem() + $loop->index }}
                                     </td>
-                                    <td class="px-2.5 py-3">
-                                        <div class="flex items-center gap-3" style="gap: 12px;">
-                                            <div class="w-8 h-8 flex-shrink-0 rounded-full bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs" style="width: 32px; height: 32px; min-width: 32px;">
+                                    <td class="px-2 py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 flex-shrink-0 rounded-full bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs">
                                                 {{ strtoupper(substr($transaction->user->name ?? 'U', 0, 1)) }}
                                             </div>
-                                            <div class="min-w-0" style="margin-left: 4px;">
-                                                <div class="text-sm font-semibold text-gray-900 leading-tight truncate max-w-[150px]" title="{{ $transaction->user->name ?? '-' }}">{{ $transaction->user->name ?? '-' }}</div>
-                                                <div class="text-xs text-gray-500 mt-0.5 truncate max-w-[150px]" title="{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
+                                            <div class="min-w-0">
+                                                <div class="text-xs font-semibold text-gray-900 leading-tight truncate max-w-[125px]" title="{{ $transaction->user->name ?? '-' }}">{{ $transaction->user->name ?? '-' }}</div>
+                                                <div class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[125px]" title="{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
                                                 @if(!empty($transaction->user->city->name))
                                                     <div class="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
                                                         <span>📍 {{ $transaction->user->city->name }}</span>
@@ -314,15 +314,15 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap">
-                                        <div class="text-xs font-mono font-bold text-gray-900 px-2 py-0.5 bg-gray-100 border border-gray-200 rounded inline-block">
+                                    <td class="px-2 py-2.5 whitespace-nowrap">
+                                        <div class="text-[11px] font-mono font-bold text-gray-900 px-1.5 py-0.5 bg-gray-100 border border-gray-200 rounded inline-block">
                                             {{ $transaction->request_code ?? '#' . $transaction->id }}
                                         </div>
-                                        <div class="text-xs text-gray-500 mt-0.5 font-mono">
+                                        <div class="text-[11px] text-gray-500 mt-0.5 font-mono">
                                             {{ $transaction->customer_phone ?? ($transaction->user->phone ?? '-') }}
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap">
+                                    <td class="px-2 py-2.5 whitespace-nowrap">
                                         <div class="text-xs font-bold text-gray-900">
                                             Rp {{ number_format($transaction->amount, 0, ',', '.') }}
                                         </div>
@@ -330,40 +330,40 @@
                                             +Rp {{ number_format($transaction->admin_fee, 0, ',', '.') }} fee
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap">
+                                    <td class="px-2 py-2.5 whitespace-nowrap">
                                         <div class="text-xs font-bold text-gray-900">
                                             Rp {{ number_format($transaction->total_payment, 0, ',', '.') }}
                                         </div>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap text-center">
-                                        <span class="px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-700 inline-block border border-gray-200">
+                                    <td class="px-2 py-2.5 whitespace-nowrap text-center">
+                                        <span class="px-1.5 py-0.5 text-[11px] font-medium rounded bg-gray-100 text-gray-700 inline-block border border-gray-200">
                                             {{ $transaction->payment_method ?? 'QRIS' }}
                                         </span>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap text-center">
+                                    <td class="px-2 py-2.5 whitespace-nowrap text-center">
                                         @if($transaction->status === 'completed' || $transaction->status === 'approved')
-                                            <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">
+                                            <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">
                                                 Disetujui
                                             </span>
                                         @elseif($transaction->status === 'rejected')
-                                            <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
+                                            <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
                                                 Ditolak
                                             </span>
                                         @else
-                                            <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                                            <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">
                                                 {{ ucfirst($transaction->status) }}
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap">
+                                    <td class="px-2 py-2.5 whitespace-nowrap">
                                         <div class="text-xs font-semibold text-gray-900">{{ $transaction->approved_at ? $transaction->approved_at->format('d M Y') : $transaction->updated_at->format('d M Y') }}</div>
                                         <div class="text-[10px] text-gray-500">{{ $transaction->approved_at ? $transaction->approved_at->format('H:i') : $transaction->updated_at->format('H:i') }} WIB</div>
                                     </td>
-                                    <td class="px-2.5 py-3 whitespace-nowrap text-center text-xs font-medium">
+                                    <td class="px-2 py-2.5 whitespace-nowrap text-center text-xs font-medium">
                                         <div class="flex items-center justify-center gap-1.5">
                                             <button type="button" wire:click="viewDetail({{ $transaction->id }})"
                                                 wire:loading.attr="disabled"
-                                                class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold transition border border-gray-200 cursor-pointer"
+                                                class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-[11px] font-semibold transition border border-gray-200 cursor-pointer"
                                                 title="Lihat Detail Transaksi">
                                                 Detail
                                             </button>
@@ -398,7 +398,7 @@
                 </div>
 
                 @if ($historyRequests->hasPages())
-                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div class="px-6 py-4 border-t border-gray-200 bg-white">
                         {{ $historyRequests->links() }}
                     </div>
                 @endif

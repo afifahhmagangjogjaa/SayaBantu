@@ -3,6 +3,7 @@
 namespace App\Livewire\Customer;
 
 use App\Models\BalanceTransaction;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -15,6 +16,12 @@ class TopupHistory extends Component
     public $showDetailModal = false;
 
     protected $queryString = ['filterStatus'];
+
+    #[On('balance-updated')]
+    public function refreshTransactions()
+    {
+        $this->dispatch('$refresh');
+    }
 
     public function mount()
     {

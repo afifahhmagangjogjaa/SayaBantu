@@ -127,6 +127,8 @@ class Index extends Component
             'notifications' => $notifications,
             'unreadCount' => $unreadCount,
             'totalCount' => $totalCount,
+            'filter' => $this->filter,
+            'selected' => $this->selected,
         ]);
     }
 }

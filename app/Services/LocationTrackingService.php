@@ -13,9 +13,9 @@ class LocationTrackingService
     const MOVING_THRESHOLD = 20;
 
     /**
-     * Jarak maksimum untuk menganggap mitra sudah tiba di lokasi (dalam meter)
+     * Jarak maksimum untuk menganggap mitra sudah tiba dalam radius lokasi (dalam meter)
      */
-    const ARRIVAL_THRESHOLD = 20;
+    const ARRIVAL_THRESHOLD = 50;
 
     /**
      * Hitung jarak antara dua titik koordinat menggunakan formula Haversine
@@ -126,15 +126,16 @@ class LocationTrackingService
             }
         }
 
-        // Jika mitra dalam perjalanan, cek apakah sudah sampai
+        // Jika mitra dalam perjalanan, status 'partner_arrived' utamanya dikonfirmasi manual
+        // oleh mitra lewat tombol "Saya Sudah Tiba di Lokasi" saat radius <= 50 meter.
+        // Fallback auto-arrived hanya aktif jika mitra sudah berada sangat dekat (<= 10 meter).
         if (in_array($help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way']) && $distanceToCustomer !== null) {
-            // Jika mitra sudah dekat dengan lokasi customer (dalam radius 50m)
-            if ($distanceToCustomer <= self::ARRIVAL_THRESHOLD) {
+            if ($distanceToCustomer <= 10) {
                 $help->status = 'partner_arrived';
                 $help->partner_arrived_at = now();
                 $statusChanged = true;
 
-                Log::info("Status berubah: Rekan jasa tiba di lokasi", [
+                Log::info("Status berubah: Rekan jasa tiba di lokasi (auto-arrived <= 10m)", [
                     'help_id' => $help->id,
                     'old_status' => $oldStatus,
                     'distance_to_customer' => round($distanceToCustomer, 2)

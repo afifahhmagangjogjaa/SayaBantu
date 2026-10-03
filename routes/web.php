@@ -155,7 +155,7 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     // Lightweight AJAX endpoints for authenticated users
     Route::get('/ajax/cities', [\App\Http\Controllers\Api\CityController::class, 'search'])->name('ajax.cities');
     Route::get('/check-account-status', function () {
-        $user = auth()->user();
+        $user = auth()->user()?->fresh() ?? auth()->user();
         if (!$user) {
             return response()->json([
                 'status' => 'logged_out',
@@ -164,8 +164,18 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
                 'should_logout' => true,
             ]);
         }
-        $isBlocked = ($user->status === 'blocked');
+
+        $isBlocked = $user->isBanned() || ($user->status === 'blocked');
         $isInactive = ($user->status === 'inactive');
+
+        if ($isBlocked || $isInactive) {
+            // Hapus total seluruh sesi aktif pengguna dari database dan file sesi
+            $user->purgeSessions();
+            \Illuminate\Support\Facades\Auth::logout();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+        }
+
         return response()->json([
             'status' => $user->status,
             'is_blocked' => $isBlocked,
@@ -176,7 +186,7 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
 
     // Halaman Tersendiri Detail Surat Peringatan (SP)
     Route::get('/notifications/sanction/{id}', [\App\Http\Controllers\SanctionNotificationController::class, 'show'])->name('notifications.sanction');
-    Route::post('/notifications/sanction/{id}/acknowledge', [\App\Http\Controllers\SanctionNotificationController::class, 'acknowledge'])->name('notifications.sanction.acknowledge');
+    Route::match(['get', 'post'], '/notifications/sanction/{id}/acknowledge', [\App\Http\Controllers\SanctionNotificationController::class, 'acknowledge'])->name('notifications.sanction.acknowledge');
 
     // ========================================
     // CUSTOMER ROUTES (Customer/Penerima Bantuan)
@@ -328,12 +338,13 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     Route::put('/profile/password', function (\Illuminate\Http\Request $request) {
         $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'min:8', 'confirmed', 'different:current_password'],
+            'password' => ['required', 'min:8', 'confirmed', 'different:current_password', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
         ], [
             'current_password.required' => 'Kata sandi saat ini wajib diisi.',
             'current_password.current_password' => 'Kata sandi saat ini tidak sesuai / salah.',
             'password.required' => 'Kata sandi baru wajib diisi.',
             'password.min' => 'Kata sandi baru minimal 8 karakter.',
+            'password.regex' => 'Kata sandi baru harus mengandung huruf besar, angka, dan karakter khusus / simbol.',
             'password.confirmed' => 'Konfirmasi kata sandi baru tidak cocok.',
             'password.different' => 'Kata sandi baru tidak boleh sama dengan kata sandi saat ini.',
         ]);
@@ -544,6 +555,7 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
     Route::delete('/withdraws/clear-all', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroyAll'])->name('withdraws.destroy_all');
     Route::delete('/withdraws/delete-period', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroyPeriod'])->name('withdraws.destroy_period');
     Route::delete('/withdraws/{withdraw}', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroy'])->name('withdraws.destroy');
+    Route::get('/password', \App\Livewire\SuperAdmin\ChangePassword::class)->name('password');
 });
 
 // Admin routes
@@ -569,6 +581,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/users/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('users.show');
     Route::post('/users/{user}/verify-ktp', [\App\Http\Controllers\Admin\AdminUserController::class, 'verifyKtp'])->name('users.verify-ktp');
     Route::post('/users/{user}/reject-ktp', [\App\Http\Controllers\Admin\AdminUserController::class, 'rejectKtp'])->name('users.reject-ktp');
+    Route::post('/users/{user}/toggle-status', [\App\Http\Controllers\Admin\AdminUserController::class, 'toggleStatus'])->name('users.toggle-status');
 
     Route::get('/ratings', [\App\Http\Controllers\Admin\AdminRatingController::class, 'index'])->name('ratings.index');
     Route::get('/ratings/user/{user}', [\App\Http\Controllers\Admin\AdminRatingController::class, 'userRatings'])->name('ratings.user');
@@ -600,6 +613,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::get('/topup/approvals', \App\Livewire\Admin\TopupApproval::class)->name('topup.approvals');
     Route::get('/notifications', \App\Livewire\Admin\NotificationsIndex::class)->name('notifications.index');
+    Route::get('/password', \App\Livewire\Admin\ChangePassword::class)->name('password');
 });
 
 

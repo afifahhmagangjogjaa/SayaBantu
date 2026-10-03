@@ -42,6 +42,10 @@ class SanctionNotificationController extends Controller
 
     public function acknowledge($id)
     {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
         $notification = DatabaseNotification::findOrFail($id);
 
         if ($notification->notifiable_id !== auth()->id()) {

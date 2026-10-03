@@ -255,6 +255,16 @@
                                     <span>{{ $user->isShadowBanned() ? 'Lepas Shadow Ban' : 'Aktifkan Shadow Ban' }}</span>
                                 </button>
                             </form>
+                            @if ($user->status !== 'blocked')
+                                <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST"
+                                    onsubmit="return confirm('Apakah Anda yakin ingin {{ $user->status === 'active' ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?');">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer shadow-2xs {{ $user->status === 'active' ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' }}">
+                                        {{ $user->status === 'active' ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}
+                                    </button>
+                                </form>
+                            @endif
                             <form action="{{ route('admin.partners.toggle', $user->id) }}" method="POST">
                                 @csrf
                                 <button type="submit"

@@ -104,38 +104,41 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-50/80 border-b border-gray-200">
                             <tr>
-                                <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-12">No</th>
-                                <th class="px-4 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Pengguna</th>
-                                <th class="px-4 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Role</th>
-                                <th class="px-4 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Kota</th>
-                                <th class="px-4 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Terdaftar</th>
-                                <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">KTP</th>
-                                <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Rating</th>
-                                <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">SP</th>
-                                <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
-                                <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-28">Aksi</th>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-10">No</th>
+                                <th class="px-2.5 sm:px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Pengguna</th>
+                                @if(!request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*'))
+                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Role</th>
+                                @endif
+                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Kota</th>
+                                <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Terdaftar</th>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">KTP</th>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Rating</th>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">SP</th>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Status</th>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-24">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
                             @foreach ($users as $user)
                                 <tr class="hover:bg-gray-50/80 transition-colors">
-                                    <td class="px-4 py-3.5 text-center text-xs text-gray-500 font-medium whitespace-nowrap">
+                                    <td class="px-2.5 py-3 text-center text-xs text-gray-500 font-medium whitespace-nowrap">
                                         {{ $users->firstItem() + $loop->index }}
                                     </td>
-                                    <td class="px-4 py-3.5">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-xs">
+                                    <td class="px-2.5 sm:px-3 py-3">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0 shadow-xs">
                                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                                             </div>
                                             <div class="min-w-0">
-                                                <div class="text-sm font-semibold text-gray-900 leading-tight">{{ $user->name }}</div>
-                                                <div class="text-xs text-gray-500 mt-0.5">{{ $user->email }}</div>
+                                                <div class="text-xs sm:text-sm font-semibold text-gray-900 leading-tight truncate max-w-[150px] sm:max-w-[200px]" title="{{ $user->name }}">{{ $user->name }}</div>
+                                                <div class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[150px] sm:max-w-[200px]" title="{{ $user->email }}">{{ $user->email }}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-4 py-3.5 whitespace-nowrap">
+                                    @if(!request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*'))
+                                    <td class="px-2.5 py-3 whitespace-nowrap">
                                         <div class="flex items-center gap-1.5 flex-wrap">
-                                            <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                                            <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">
                                                 {{ in_array($user->role, ['customer', 'kustomer']) ? 'Customer' : ucfirst(str_replace('_', ' ', $user->role)) }}
                                             </span>
                                             @if($user->isShadowBanned())
@@ -145,22 +148,23 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td class="px-4 py-3.5 text-xs text-gray-600 whitespace-nowrap">
+                                    @endif
+                                    <td class="px-2.5 py-3 text-xs text-gray-600 whitespace-nowrap">
                                         @if(!empty($user->city_name))
                                              {{ $user->city_name }}
                                         @elseif($user->city_id)
-                                            {{ $user->city_name ?? $user->city_id }}
+                                             {{ $user->city_name ?? $user->city_id }}
                                         @else
                                             -
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3.5 text-xs text-gray-500 whitespace-nowrap">
+                                    <td class="px-2.5 py-3 text-xs text-gray-500 whitespace-nowrap">
                                         {{ optional($user->created_at)->format('Y-m-d') ?? '-' }}
                                     </td>
-                                    <td class="px-4 py-3.5 text-center whitespace-nowrap">
+                                    <td class="px-2.5 py-3 text-center whitespace-nowrap">
                                         @if($user->ktp_path || $user->ktp_photo)
-                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200" title="KTP Telah Diunggah">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200" title="KTP Telah Diunggah">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                                 Ada
                                             </span>
                                         @else
@@ -169,7 +173,7 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3.5 text-center whitespace-nowrap">
+                                    <td class="px-2.5 py-3 text-center whitespace-nowrap">
                                         @php
                                             $ratingsCount = $user->ratings_count ?? 0;
                                             $avgRating = $user->average_rating ?? null;
@@ -179,7 +183,7 @@
                                             <a href="{{ route('admin.ratings.index', ['search' => $user->email ?? $user->name], false) }}" 
                                                title="Klik untuk melihat ulasan pengguna di menu Rating & Ulasan"
                                                class="inline-flex items-center group cursor-pointer hover:opacity-85 transition">
-                                                <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-200 group-hover:bg-amber-100 transition shadow-2xs">
+                                                <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-200 group-hover:bg-amber-100 transition shadow-2xs">
                                                     ★ {{ number_format($avgRating, 1) }}
                                                 </span>
                                                 <span class="text-[11px] text-gray-500 ml-1 group-hover:text-primary-600 group-hover:underline">({{ $ratingsCount }})</span>
@@ -188,12 +192,12 @@
                                             <span class="text-xs text-gray-400">-</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3.5 text-center whitespace-nowrap">
+                                    <td class="px-2.5 py-3 text-center whitespace-nowrap">
                                         @php
                                             $spLevel = (int) ($user->warning_level ?? 0);
                                         @endphp
                                         @if($spLevel > 0)
-                                            <span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full
+                                            <span class="px-2 py-0.5 inline-flex text-xs font-bold rounded-full
                                                 {{ $spLevel >= 3
                                                     ? 'bg-red-50 text-red-700 border border-red-200'
                                                     : ($spLevel == 2
@@ -205,20 +209,31 @@
                                             <span class="text-xs text-gray-400">-</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3.5 text-center whitespace-nowrap">
+                                    <td class="px-2.5 py-3 text-center whitespace-nowrap">
                                         <div class="inline-flex flex-col items-center gap-1">
                                             @if ($user->status === 'blocked')
-                                                <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
+                                                <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
                                                     Diblokir
                                                 </span>
-                                            @elseif ($user->status === 'inactive')
-                                                <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
-                                                    Nonaktif
-                                                </span>
                                             @else
-                                                <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">
-                                                    Aktif
-                                                </span>
+                                                @php
+                                                    $isUserActive = ($user->status === 'active');
+                                                @endphp
+                                                <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="inline-block m-0">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="inline-flex items-center gap-1 cursor-pointer focus:outline-none transition group"
+                                                        title="{{ $isUserActive ? 'Status: Aktif — Klik untuk nonaktifkan' : 'Status: Nonaktif — Klik untuk aktifkan' }}"
+                                                        onclick="return confirm('Apakah Anda yakin ingin {{ $isUserActive ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?');">
+                                                        <span class="px-2 py-0.5 inline-flex items-center gap-1 text-xs font-semibold rounded-full border transition {{ $isUserActive ? 'bg-green-50 text-green-700 border-green-200 group-hover:bg-green-100' : 'bg-yellow-50 text-yellow-700 border-yellow-200 group-hover:bg-yellow-100' }}">
+                                                            <span class="w-1.5 h-1.5 rounded-full {{ $isUserActive ? 'bg-green-600' : 'bg-yellow-500' }}"></span>
+                                                            <span>{{ $isUserActive ? 'Aktif' : 'Nonaktif' }}</span>
+                                                        </span>
+                                                        <span class="inline-flex items-center h-4 w-7 p-0.5 rounded-full transition-colors duration-200 ease-in-out border border-gray-300 {{ $isUserActive ? 'bg-emerald-500 justify-end' : 'bg-gray-300 justify-start' }}">
+                                                            <span class="h-3 w-3 rounded-full bg-white shadow ring-0"></span>
+                                                        </span>
+                                                    </button>
+                                                </form>
                                             @endif
 
                                             @if($user->isMitra() && $user->isShadowBanned())
@@ -228,8 +243,8 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td class="px-4 py-3.5 text-center whitespace-nowrap">
-                                        <div class="inline-flex items-center justify-center gap-2 leading-none">
+                                    <td class="px-2.5 py-3 text-center whitespace-nowrap">
+                                        <div class="inline-flex items-center justify-center gap-1.5 leading-none">
                                             <button type="button" 
                                                onclick="openAdminUserDetail('/admin/users/{{ $user->id }}')"
                                                class="p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg transition shadow-2xs leading-none cursor-pointer inline-flex items-center justify-center"
@@ -244,7 +259,7 @@
                                                 data-form-id="block-form-{{ $user->id }}"
                                                 data-user-name="{{ $user->name }}"
                                                 data-is-blocked="{{ $user->status === 'blocked' ? '1' : '0' }}"
-                                                class="open-block-modal inline-flex items-center justify-center px-2.5 py-1.5 border border-transparent rounded-lg text-xs font-medium transition shadow-2xs leading-none cursor-pointer {{ $user->status === 'blocked' ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700' }}">
+                                                class="open-block-modal inline-flex items-center justify-center px-2 py-1 border border-transparent rounded-lg text-xs font-medium transition shadow-2xs leading-none cursor-pointer {{ $user->status === 'blocked' ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700' }}">
                                                 {{ $user->status === 'blocked' ? 'Buka' : 'Blokir' }}
                                             </button>
                                         </div>
@@ -260,7 +275,7 @@
                 </div>
 
                 @if ($users->hasPages())
-                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-center">
+                    <div class="bg-white px-6 py-4 border-t border-gray-100 flex justify-center">
                         {{ $users->links() }}
                     </div>
                 @endif
@@ -270,25 +285,25 @@
 
     <!-- Modal Container for User Detail -->
     <div id="user-detail-modal-container"></div>
-@endsection
 
-<!-- Confirm Block Modal -->
-<div id="confirm-block-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div id="confirm-block-backdrop" class="absolute inset-0 bg-black bg-opacity-40"></div>
-    <div class="relative bg-white rounded-lg shadow-lg w-full max-w-md z-10">
-        <div class="p-4 border-b flex items-center justify-between">
-            <h3 class="text-lg font-semibold">Konfirmasi</h3>
-            <button id="confirm-block-close" class="text-gray-500 hover:text-gray-700">&times;</button>
-        </div>
-        <div class="p-4">
-            <p id="confirm-block-message" class="text-sm text-gray-700">Apakah Anda yakin ingin memblokir pengguna ini?</p>
-        </div>
-        <div class="p-4 border-t flex justify-end gap-2">
-            <button id="confirm-block-cancel" class="px-4 py-2 bg-gray-100 rounded">Batal</button>
-            <button id="confirm-block-confirm" class="px-4 py-2 bg-red-600 text-white rounded">Konfirmasi</button>
+    <!-- Confirm Block Modal -->
+    <div id="confirm-block-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div id="confirm-block-backdrop" class="absolute inset-0 bg-black bg-opacity-40"></div>
+        <div class="relative bg-white rounded-lg shadow-lg w-full max-w-md z-10">
+            <div class="p-4 border-b flex items-center justify-between">
+                <h3 class="text-lg font-semibold">Konfirmasi</h3>
+                <button id="confirm-block-close" class="text-gray-500 hover:text-gray-700">&times;</button>
+            </div>
+            <div class="p-4">
+                <p id="confirm-block-message" class="text-sm text-gray-700">Apakah Anda yakin ingin memblokir pengguna ini?</p>
+            </div>
+            <div class="p-4 border-t flex justify-end gap-2">
+                <button id="confirm-block-cancel" class="px-4 py-2 bg-gray-100 rounded">Batal</button>
+                <button id="confirm-block-confirm" class="px-4 py-2 bg-red-600 text-white rounded">Konfirmasi</button>
+            </div>
         </div>
     </div>
-</div>
+@endsection
 
 @push('scripts')
 <script>

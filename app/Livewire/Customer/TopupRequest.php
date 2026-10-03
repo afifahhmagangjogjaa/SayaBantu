@@ -28,9 +28,6 @@ class TopupRequest extends Component
     // Step 2 - Payment detail (calculated)
     public $adminFee = 0;
     public $totalPayment = 0;
-    // Unique 3-digit code and final transfer amount (includes code)
-    public $uniqueCode = null;
-    public $uniqueTotal = 0;
 
     // Step 3 - Payment method
     public $paymentMethod;
@@ -90,8 +87,6 @@ class TopupRequest extends Component
             $this->paymentMethod = $sessionData['paymentMethod'] ?? null;
             $this->adminFee = $sessionData['adminFee'] ?? 0;
             $this->totalPayment = $sessionData['totalPayment'] ?? 0;
-            $this->uniqueCode = $sessionData['uniqueCode'] ?? null;
-            $this->uniqueTotal = $sessionData['uniqueTotal'] ?? 0;
         } else {
             $this->customerName = $user->name;
             $this->customerPhone = $user->phone ?? '';
@@ -158,7 +153,6 @@ class TopupRequest extends Component
         }
 
         $this->totalPayment = $amount + $this->adminFee;
-        $this->ensureUniqueSuffix();
         $this->saveFormData();
     }
 
@@ -175,8 +169,6 @@ class TopupRequest extends Component
                 'paymentMethod' => $this->paymentMethod,
                 'adminFee' => $this->adminFee,
                 'totalPayment' => $this->totalPayment,
-                'uniqueCode' => $this->uniqueCode,
-                'uniqueTotal' => $this->uniqueTotal,
             ]
         ]);
     }
@@ -302,13 +294,11 @@ class TopupRequest extends Component
 
             $this->requestCode = $this->generateRequestCode();
 
-            $this->ensureUniqueSuffix();
-
             $transaction = BalanceTransaction::create([
                 'user_id' => auth()->id(),
                 'amount' => $this->amount,
                 'admin_fee' => $this->adminFee,
-                'total_payment' => $this->uniqueTotal ?: $this->totalPayment,
+                'total_payment' => $this->totalPayment,
                 'type' => 'topup',
                 'description' => 'Top-up saldo via ' . $this->getPaymentMethodName(),
                 'status' => 'waiting_approval',
@@ -318,7 +308,7 @@ class TopupRequest extends Component
                 'payment_method' => $this->paymentMethod,
                 'proof_of_payment' => $proofPath,
                 'request_code' => $this->requestCode,
-                'customer_notes' => ($this->customerNotes ? $this->customerNotes . ' | ' : '') . 'UniqueCode:' . ($this->uniqueCode ?? '000'),
+                'customer_notes' => $this->customerNotes,
                 'expired_at' => now()->addHours(24),
             ]);
 
@@ -366,41 +356,6 @@ class TopupRequest extends Component
         return "TPU-{$date}-" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
     }
 
-    protected function ensureUniqueSuffix()
-    {
-        if (!$this->totalPayment) {
-            $this->uniqueCode = null;
-            $this->uniqueTotal = 0;
-            return;
-        }
-
-        $total = (int) round($this->totalPayment);
-        $base = intdiv($total, 1000) * 1000;
-
-        if ($this->uniqueCode) {
-            $existingBase = intdiv((int) $this->uniqueTotal, 1000) * 1000;
-            if ($existingBase === $base && (int) $this->uniqueTotal >= $total) {
-                return;
-            }
-        }
-
-        try {
-            $code = random_int(1, 999);
-        } catch (\Exception $e) {
-            $code = mt_rand(1, 999);
-        }
-
-        $padded = str_pad($code, 3, '0', STR_PAD_LEFT);
-        $uniqueTotal = $base + $code;
-
-        if ($uniqueTotal < $total) {
-            $base += 1000;
-            $uniqueTotal = $base + $code;
-        }
-
-        $this->uniqueCode = $padded;
-        $this->uniqueTotal = $uniqueTotal;
-    }
 
     protected function getPaymentMethodName()
     {

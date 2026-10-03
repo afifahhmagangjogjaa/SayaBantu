@@ -75,6 +75,7 @@ class NotificationDropdown extends Component
         // Tandai notifikasi yang dipop-upkan sebagai sudah pernah muncul (popped_at = now())
         if ($unreads->isNotEmpty()) {
             $user->notifications()->whereIn('id', $unreads->pluck('id'))->update(['popped_at' => now()]);
+            $this->dispatch('admin-new-notifications', notifs: $this->recentUnread);
         }
     }
 

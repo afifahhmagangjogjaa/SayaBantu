@@ -512,7 +512,7 @@
         </div>
 
         <!-- Pagination Section -->
-        <div class="pagination-container px-6 py-4 border-t border-gray-100 bg-gray-50 no-print">
+        <div class="pagination-container px-6 py-4 border-t border-gray-100 bg-white no-print">
             {{ $transactions->links('vendor.pagination.superadmin') }}
         </div>
     </div>

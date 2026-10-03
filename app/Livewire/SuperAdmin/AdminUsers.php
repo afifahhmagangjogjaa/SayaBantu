@@ -53,6 +53,9 @@ class AdminUsers extends Component
     public $showCreateModal = false;
     public $showConfirmDelete = false;
     public $confirmingDeleteId = null;
+    public $showConfirmDeactivate = false;
+    public $confirmingDeactivateId = null;
+    public $confirmingDeactivateName = '';
 
     // Wilayah.id API dropdowns for Kecamatan & Kelurahan
     public $apiProvinces = [];
@@ -342,9 +345,9 @@ class AdminUsers extends Component
     }
 
     /**
-     * Toggle admin status (active <-> inactive) directly via button
+     * Confirm before deactivating admin or directly activate if inactive
      */
-    public function toggleStatus($id)
+    public function confirmDeactivate($id)
     {
         $user = User::find($id);
         if (!$user) {
@@ -352,11 +355,40 @@ class AdminUsers extends Component
             return;
         }
 
-        $newStatus = ($user->status === 'active') ? 'inactive' : 'active';
-        $user->update(['status' => $newStatus]);
+        if ($user->status === 'active') {
+            $this->confirmingDeactivateId = $user->id;
+            $this->confirmingDeactivateName = $user->name;
+            $this->showConfirmDeactivate = true;
+        } else {
+            // Langsung aktifkan kembali
+            $user->update(['status' => 'active']);
+            session()->flash('message', "Status admin {$user->name} berhasil diaktifkan kembali.");
+        }
+    }
 
-        $statusLabel = $newStatus === 'active' ? 'diaktifkan' : 'dinonaktifkan';
-        session()->flash('message', "Status admin {$user->name} berhasil {$statusLabel}.");
+    public function executeDeactivateAdmin()
+    {
+        if ($this->confirmingDeactivateId) {
+            $user = User::find($this->confirmingDeactivateId);
+            if ($user) {
+                $user->update(['status' => 'inactive']);
+                $user->purgeSessions();
+                session()->flash('message', "Status admin {$user->name} berhasil dinonaktifkan.");
+            }
+        }
+        $this->closeDeactivateModal();
+    }
+
+    public function closeDeactivateModal()
+    {
+        $this->showConfirmDeactivate = false;
+        $this->confirmingDeactivateId = null;
+        $this->confirmingDeactivateName = '';
+    }
+
+    public function toggleStatus($id)
+    {
+        $this->confirmDeactivate($id);
     }
 
     public function saveUser()
@@ -543,6 +575,9 @@ class AdminUsers extends Component
         $this->showViewModal = false;
         $this->showConfirmDelete = false;
         $this->confirmingDeleteId = null;
+        $this->showConfirmDeactivate = false;
+        $this->confirmingDeactivateId = null;
+        $this->confirmingDeactivateName = '';
     }
 
     public function render()

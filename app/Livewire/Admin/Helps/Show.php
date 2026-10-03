@@ -22,7 +22,7 @@ class Show extends Component
 
     public function loadHelp()
     {
-        $this->help = Help::with(['customer', 'mitra', 'category', 'city'])->findOrFail($this->helpId);
+        $this->help = Help::with(['customer', 'mitra', 'category', 'city', 'lastCancelledMitra'])->findOrFail($this->helpId);
     }
 
     public function toggleShadowBan($userId)
@@ -70,6 +70,7 @@ class Show extends Component
     {
         $this->decisionType = $type;
         $this->admin_notes = '';
+        $this->resetErrorBag();
         $this->showDecisionModal = true;
     }
 
@@ -78,10 +79,23 @@ class Show extends Component
         $this->showDecisionModal = false;
         $this->admin_notes = '';
         $this->decisionType = '';
+        $this->resetErrorBag();
     }
 
     public function processDecision()
     {
+        $isRejectHelp = $this->decisionType === 'reject_help';
+
+        $this->validate([
+            'admin_notes' => 'required|string|min:5|max:1000',
+        ], [
+            'admin_notes.required' => $isRejectHelp 
+                ? 'Wajib mengisi alasan penolakan bantuan.' 
+                : 'Wajib mengisi catatan/alasan keputusan mediasi.',
+            'admin_notes.min' => 'Catatan minimal :min karakter.',
+            'admin_notes.max' => 'Catatan maksimal :max karakter.',
+        ]);
+
         if ($this->decisionType === 'refund') {
             $this->approveRefund();
         } elseif ($this->decisionType === 'reject_complaint') {

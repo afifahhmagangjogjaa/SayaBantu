@@ -67,8 +67,14 @@ new #[Layout('layouts.guest')] class extends Component {
     {
         $validated = $this->validate([
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
             'agree_terms' => ['accepted'],
+        ], [
+            'password.required' => 'Kata sandi wajib diisi.',
+            'password.min' => 'Kata sandi minimal 8 karakter.',
+            'password.regex' => 'Kata sandi harus mengandung huruf besar, angka, dan karakter khusus / simbol.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'agree_terms.accepted' => 'Anda harus menyetujui Syarat & Ketentuan.',
         ]);
 
         // Ambil registration
@@ -185,7 +191,35 @@ new #[Layout('layouts.guest')] class extends Component {
         </div>
     </div>
 
-    <form wire:submit="complete" class="space-y-5">
+    <form wire:submit="complete" class="space-y-5"
+        x-data="{
+            showPass: false,
+            showConfirm: false,
+            newPass: '',
+            confirmPass: '',
+            agreeTerms: @entangle('agree_terms'),
+            get score() {
+                let p = this.newPass || '';
+                if (!p) return 0;
+                let s = 0;
+                if (p.length >= 8) s++;
+                if (p.length >= 10) s++;
+                if (/[A-Z]/.test(p)) s++;
+                if (/[0-9]/.test(p)) s++;
+                if (/[^A-Za-z0-9]/.test(p)) s++;
+                return s;
+            },
+            get isValid() {
+                let p = this.newPass || '';
+                let c = this.confirmPass || '';
+                let hasMin = p.length >= 8;
+                let hasUpper = /[A-Z]/.test(p);
+                let hasNum = /[0-9]/.test(p);
+                let hasSpecial = /[^A-Za-z0-9]/.test(p);
+                let isMatch = p.length > 0 && p === c;
+                return hasMin && hasUpper && hasNum && hasSpecial && isMatch && this.agreeTerms;
+            }
+        }">
         <!-- 1. Ringkasan Data Pribadi & Alamat -->
         <div class="bg-gray-50/90 border border-gray-200/80 rounded-2xl p-4 shadow-2xs">
             <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-gray-200/80">
@@ -288,40 +322,97 @@ new #[Layout('layouts.guest')] class extends Component {
                 <label for="password" class="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
                     Password <span class="text-red-500">*</span>
                 </label>
-                <div class="relative" x-data="{ show: false }">
-                    <input wire:model="password" id="password" x-bind:type="show ? 'text' : 'password'" placeholder="Minimal 8 karakter"
+                <div class="relative">
+                    <input wire:model="password" id="password" :type="showPass ? 'text' : 'password'" placeholder="Minimal 8 karakter"
+                        @input="newPass = $event.target.value"
                         class="w-full py-3 pl-4 pr-12 bg-white border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-                    <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none">
-                        <svg x-show="show" x-cloak style="display: none;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="button" @click="showPass = !showPass" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
+                        <svg x-show="showPass" x-cloak style="display: none;" class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg x-show="!showPass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                         </svg>
                     </button>
                 </div>
                 <x-input-error :messages="$errors->get('password')" class="mt-1" />
+
+                {{-- Password Strength Meter --}}
+                <div x-show="newPass && newPass.length > 0" x-transition class="mt-2.5">
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="text-gray-500">Kekuatan Kata Sandi:</span>
+                        <span class="font-bold" 
+                              :class="score <= 2 ? 'text-red-500' : (score <= 3 ? 'text-amber-500' : 'text-emerald-600')"
+                              x-text="score <= 2 ? 'Lemah' : (score <= 3 ? 'Sedang' : 'Kuat & Aman')"></span>
+                    </div>
+                    <div class="w-full bg-gray-200/80 rounded-full h-1.5 overflow-hidden">
+                        <div class="h-full transition-all duration-300 rounded-full" 
+                             :class="score <= 2 ? 'w-1/3 bg-red-500' : (score <= 3 ? 'w-2/3 bg-amber-500' : 'w-full bg-emerald-500')"></div>
+                    </div>
+                </div>
             </div>
 
             <div>
                 <label for="password_confirmation" class="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
                     Konfirmasi Password <span class="text-red-500">*</span>
                 </label>
-                <div class="relative" x-data="{ show: false }">
-                    <input wire:model="password_confirmation" id="password_confirmation" x-bind:type="show ? 'text' : 'password'" placeholder="Ketik ulang password"
+                <div class="relative">
+                    <input wire:model="password_confirmation" id="password_confirmation" :type="showConfirm ? 'text' : 'password'" placeholder="Ketik ulang password"
+                        @input="confirmPass = $event.target.value"
                         class="w-full py-3 pl-4 pr-12 bg-white border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-                    <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none">
-                        <svg x-show="show" x-cloak style="display: none;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="button" @click="showConfirm = !showConfirm" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
+                        <svg x-show="showConfirm" x-cloak style="display: none;" class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg x-show="!showConfirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                         </svg>
                     </button>
                 </div>
                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1" />
+
+                {{-- Status Kecocokan Password --}}
+                <div x-show="confirmPass && confirmPass.length > 0" x-transition class="mt-1.5">
+                    <p x-show="newPass === confirmPass" class="text-xs text-emerald-600 flex items-center gap-1 font-medium">
+                        <span>✓</span> <span>Konfirmasi kata sandi cocok.</span>
+                    </p>
+                    <p x-show="newPass !== confirmPass" class="text-xs text-red-500 flex items-center gap-1 font-medium">
+                        <span>✕</span> <span>Kata sandi tidak cocok.</span>
+                    </p>
+                </div>
+            </div>
+
+            {{-- Criteria Checklist --}}
+            <div class="p-3.5 bg-white rounded-xl border border-gray-200/80 text-xs space-y-1.5">
+                <p class="font-bold text-gray-700 mb-1">Ketentuan kata sandi:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                    <div class="flex items-center gap-1.5 transition-colors duration-150" :class="newPass.length >= 8 ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
+                        <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
+                              :class="newPass.length >= 8 ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
+                              x-text="newPass.length >= 8 ? '✓' : '✕'">✕</span>
+                        <span>Minimal 8 karakter</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[A-Z]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
+                        <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
+                              :class="/[A-Z]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
+                              x-text="/[A-Z]/.test(newPass) ? '✓' : '✕'">✕</span>
+                        <span>Huruf besar (A-Z)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
+                        <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
+                              :class="/[0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
+                              x-text="/[0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                        <span>Angka (0-9)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[^A-Za-z0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
+                        <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
+                              :class="/[^A-Za-z0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
+                              x-text="/[^A-Za-z0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                        <span>Karakter khusus / simbol</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -339,7 +430,9 @@ new #[Layout('layouts.guest')] class extends Component {
         <!-- 5. Complete Button -->
         <div class="pt-5 pb-3">
             <button type="submit" wire:loading.attr="disabled"
-                class="w-full bg-green-600 hover:bg-green-700 active:scale-98 text-white font-bold py-3.5 px-4 rounded-full shadow-md hover:shadow-lg transition text-base tracking-wide disabled:opacity-50 flex items-center justify-center gap-2">
+                :disabled="!isValid"
+                :class="!isValid ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-green-700 active:scale-98'"
+                class="w-full bg-green-600 text-white font-bold py-3.5 px-4 rounded-full shadow-md transition text-base tracking-wide flex items-center justify-center gap-2">
                 <span wire:loading.remove class="inline-flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />

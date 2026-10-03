@@ -180,6 +180,10 @@
                                 $titleText = $data['title'] ?? 'Update Status Laporan Aduan';
                                 $bodyText = $data['message'] ?? 'Status laporan aduan Anda telah diperbarui oleh Admin.';
                                 $detailUrl = isset($data['report_id']) ? route('customer.reports.show', $data['report_id']) : ($data['url'] ?? '#');
+                            } elseif ($type === 'idle_partner_alert') {
+                                $titleText = $data['title'] ?? '⏳ Rekan Jasa Belum Berangkat';
+                                $bodyText = $data['message'] ?? 'Pesanan sudah diambil lebih dari 30 menit namun belum menuju lokasi Anda. Ketuk untuk pilih tindakan.';
+                                $detailUrl = isset($data['help_id']) ? route('customer.helps.detail', $data['help_id']) : ($data['url'] ?? '#');
                             } else {
                                 $titleText = $data['title'] ?? 'Notifikasi';
                                 $bodyText = $data['message'] ?? ($data['body'] ?? 'Notifikasi baru');
@@ -189,6 +193,7 @@
                             $isTopupApproved = ($type === 'topup_approved');
                             $isTopupRejected = ($type === 'topup_rejected');
                             $isTopupSubmitted = ($type === 'topup_request_submitted');
+                            $isIdleAlert = ($type === 'idle_partner_alert');
                             $isRejected = ($type === 'help_status' && ($data['new_status'] ?? '') === 'rejected') || $type === 'ktp_rejected' || $isTopupRejected;
                             $isKtpApproved = ($type === 'ktp_approved');
                             $isKtpNotice = (str_contains($type, 'ktp') || str_contains($type, 'verification'));
@@ -197,7 +202,7 @@
                         @endphp
 
                         <div wire:key="notif-{{ $notification->id }}" 
-                            class="rounded-2xl border transition shadow-2xs overflow-hidden relative p-4 {{ $isSanction ? 'border-red-200 bg-red-50/40 hover:border-red-300' : ($isTopupApproved ? 'border-emerald-200 bg-emerald-50/20 hover:border-emerald-300' : ($isTopupRejected ? 'border-red-200 bg-red-50/20 hover:border-red-300' : ($isUnread ? 'border-blue-200 bg-blue-50/20' : 'border-gray-200 bg-white hover:border-blue-300'))) }}">
+                            class="rounded-2xl border transition shadow-2xs overflow-hidden relative p-4 {{ $isSanction ? 'border-red-200 bg-red-50/40 hover:border-red-300' : ($isIdleAlert ? 'border-amber-300 bg-amber-50/40 hover:border-amber-400' : ($isTopupApproved ? 'border-emerald-200 bg-emerald-50/20 hover:border-emerald-300' : ($isTopupRejected ? 'border-red-200 bg-red-50/20 hover:border-red-300' : ($isUnread ? 'border-blue-200 bg-blue-50/20' : 'border-gray-200 bg-white hover:border-blue-300')))) }}">
 
                             <div class="flex items-start gap-3">
                                 @if($isSanction)
@@ -216,10 +221,14 @@
 
                                 <div class="flex-shrink-0 mt-0.5">
                                     <div class="w-10 h-10 rounded-full flex items-center justify-center border
-                                        {{ $isSanction ? 'border-red-200 bg-red-100/70 text-red-600' : ($isTopupApproved ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : ($isTopupSubmitted ? 'border-amber-200 bg-amber-50 text-amber-600' : ($isRejected ? 'border-red-200 bg-red-50 text-red-600' : ($isKtpApproved ? 'border-green-200 bg-green-50 text-green-600' : ($isKtpNotice ? 'border-amber-200 bg-amber-50 text-amber-600' : ($isUnread ? 'border-blue-200 bg-blue-50 text-blue-600' : 'border-gray-200 bg-gray-50 text-gray-500')))))) }}">
+                                        {{ $isSanction ? 'border-red-200 bg-red-100/70 text-red-600' : ($isIdleAlert ? 'border-amber-300 bg-amber-100 text-amber-600' : ($isTopupApproved ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : ($isTopupSubmitted ? 'border-amber-200 bg-amber-50 text-amber-600' : ($isRejected ? 'border-red-200 bg-red-50 text-red-600' : ($isKtpApproved ? 'border-green-200 bg-green-50 text-green-600' : ($isKtpNotice ? 'border-amber-200 bg-amber-50 text-amber-600' : ($isUnread ? 'border-blue-200 bg-blue-50 text-blue-600' : 'border-gray-200 bg-gray-50 text-gray-500'))))))) }}">
                                         @if($isSanction)
                                             <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                            </svg>
+                                        @elseif($isIdleAlert)
+                                            <svg class="w-5 h-5 text-amber-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                         @elseif($isTopupApproved)
                                             <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,10 +266,14 @@
                                     <div class="flex items-start justify-between">
                                         <div>
                                             <div class="flex items-center gap-1.5 flex-wrap">
-                                                <h3 class="text-sm font-semibold {{ $isSanction ? 'text-red-900' : 'text-gray-900' }}">{{ $titleText }}</h3>
+                                                <h3 class="text-sm font-semibold {{ $isSanction ? 'text-red-900' : ($isIdleAlert ? 'text-amber-900' : 'text-gray-900') }}">{{ $titleText }}</h3>
                                                 @if($isSanction)
                                                     <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-red-100 text-red-700">
                                                         Sanksi
+                                                    </span>
+                                                @elseif($isIdleAlert)
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                                        Perlu Tindakan
                                                     </span>
                                                 @endif
                                             </div>

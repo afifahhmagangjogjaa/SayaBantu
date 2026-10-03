@@ -134,6 +134,28 @@
 												</div>
 											@endif
 
+											@if($help->complaint_resolution === 'refunded')
+												<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+													<h4 class="text-xs font-bold text-emerald-800 mb-1 flex items-center gap-1">
+														✓ Pengembalian Dana (Refund) Disetujui
+													</h4>
+													<p class="text-xs text-emerald-700">Dana sebesar Rp {{ number_format($help->amount + ($help->admin_fee ?? 0), 0, ',', '.') }} telah dikembalikan ke saldo akun Anda.</p>
+													@if($help->complaint_admin_notes)
+														<p class="text-xs text-emerald-800 mt-1 font-medium">Catatan Admin: {{ $help->complaint_admin_notes }}</p>
+													@endif
+												</div>
+											@elseif($help->complaint_resolution === 'rejected')
+												<div class="bg-gray-50 border border-gray-200 rounded-xl p-3">
+													<h4 class="text-xs font-bold text-gray-800 mb-1 flex items-center gap-1">
+														✕ Komplain Ditolak Admin
+													</h4>
+													<p class="text-xs text-gray-600">Pekerjaan dinyatakan selesai oleh admin dan dana telah diteruskan ke rekan jasa.</p>
+													@if($help->complaint_admin_notes)
+														<p class="text-xs text-gray-700 mt-1 font-medium">Catatan Admin: {{ $help->complaint_admin_notes }}</p>
+													@endif
+												</div>
+											@endif
+
 											@if($help->description)
 												<div>
 													<h4 class="text-sm font-semibold text-gray-900 mb-2">Deskripsi</h4>

@@ -298,11 +298,19 @@ class AllHelps extends Component
 
         session()->flash('message', 'Bantuan berhasil diambil. Silakan hubungi pengguna.');
 
-        // Create a notification for the customer so it appears in their notifications page
+        // Create a notification for the customer so it appears in their notifications page (if not already sent by observer)
         try {
             $customer = User::find($help->user_id);
-            if ($customer) {
-                $customer->notify(new HelpTakenNotification($helpId, auth()->id(), optional(auth()->user())->name));
+            if ($customer && auth()->user()) {
+                $alreadyNotified = $customer->notifications()
+                    ->where('type', HelpTakenNotification::class)
+                    ->where('created_at', '>=', now()->subSeconds(10))
+                    ->get()
+                    ->contains(fn($n) => ($n->data['help_id'] ?? null) == $helpId);
+
+                if (!$alreadyNotified) {
+                    $customer->notify(new HelpTakenNotification($help, auth()->user()));
+                }
             }
         } catch (\Throwable $e) {
             // ignore notification failures

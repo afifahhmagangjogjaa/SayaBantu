@@ -158,8 +158,19 @@
 
     <script>
         // Utility to show a temporary clickable toast in the mitra header area.
-        function showMitraNotification({ title = 'Notifikasi', message = '', url = '#' , timeout = 4000 }) {
+        function showMitraNotification(argObj) {
             try {
+                let options = argObj || {};
+                if (Array.isArray(options)) {
+                    options = options[0] || {};
+                } else if (options && typeof options === 'object' && options.detail) {
+                    options = Array.isArray(options.detail) ? (options.detail[0] || {}) : options.detail;
+                }
+                const title = options.title || 'Notifikasi';
+                const message = options.message || options.msg || options.body || '';
+                const url = options.url || '#';
+                const timeout = options.timeout || 4000;
+
                 const container = document.getElementById('mitra-global-notification-inner');
                 if (!container) return;
 

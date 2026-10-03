@@ -217,24 +217,8 @@
                     </div>
                 </div>
 
-                {{-- Loading skeleton --}}
-                <div wire:loading wire:target="statusFilter, search" class="space-y-3">
-                    @for($i=0;$i<4;$i++)
-                        <div class="bg-gray-50 rounded-2xl p-4 card-shadow animate-pulse">
-                            <div class="flex items-center gap-3">
-                                <div class="w-16 h-16 bg-gray-200 rounded-lg"></div>
-                                <div class="flex-1">
-                                    <div class="h-4 bg-gray-200 rounded w-3/5 mb-2"></div>
-                                    <div class="h-3 bg-gray-200 rounded w-4/5"></div>
-                                </div>
-                                <div class="w-16 h-4 bg-gray-200 rounded"></div>
-                            </div>
-                        </div>
-                    @endfor
-                </div>
-
                 {{-- List based on filter --}}
-                <div wire:loading.remove wire:target="statusFilter, search" class="space-y-4">
+                <div class="space-y-4">
                 @forelse($helps as $help)
                     @if($statusFilter === 'menunggu_mitra')
                         {{-- Simple Menunggu Mitra Card --}}
@@ -723,6 +707,10 @@
                                         @if($help->complaint_resolution === 'refunded')
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
                                                 ✓ Refund Disetujui
+                                            </span>
+                                        @elseif($help->complaint_resolution === 'rejected')
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
+                                                ✕ Komplain Ditolak
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 animate-pulse">

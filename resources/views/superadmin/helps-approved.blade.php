@@ -143,7 +143,7 @@
             </div>
 
             @if(method_exists($helps, 'hasPages') && $helps->hasPages())
-                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                <div class="bg-white px-6 py-4 border-t border-gray-200">
                     {{ $helps->links() }}
                 </div>
             @endif
@@ -254,8 +254,29 @@
                             <span class="text-[10px] text-red-600 font-normal">{{ $detailHelp->complaint_submitted_at?->format('d M Y, H:i') }}</span>
                         </div>
                         <p class="text-red-700 leading-relaxed">
-                            Customer mengajukan komplain hasil kerja. Anda dapat menyetujui refund atau menolak komplain langsung di bawah ini.
+                            Customer mengajukan komplain hasil kerja. Anda dapat menyetujui refund atau menolak komplain melalui tombol mediasi di bawah.
                         </p>
+                        @if($detailHelp->complaint_reason)
+                            <div class="bg-white p-3 rounded-lg border border-red-100 text-xs text-red-950">
+                                <span class="font-bold text-red-700 block mb-0.5">Alasan Komplain Customer:</span>
+                                <p class="italic text-gray-800">"{{ $detailHelp->complaint_reason }}"</p>
+                            </div>
+                        @endif
+                    </div>
+                @elseif($detailHelp->complaint_resolution)
+                    <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-xs text-purple-900 space-y-1.5">
+                        <div class="flex items-center justify-between font-bold">
+                            <span class="flex items-center gap-1">⚖️ Riwayat Mediasi Komplain</span>
+                            <span class="text-[10px] text-purple-600 font-normal">{{ $detailHelp->complaint_resolved_at?->format('d M Y, H:i') }}</span>
+                        </div>
+                        <p class="text-purple-800">
+                            Keputusan: <strong>{{ $detailHelp->complaint_resolution === 'refunded' ? 'Dana Dikembalikan ke Customer (Refund)' : 'Komplain Ditolak & Dana Dicairkan ke Mitra' }}</strong>
+                        </p>
+                        @if($detailHelp->complaint_admin_notes)
+                            <p class="text-gray-700 italic mt-1 bg-white p-2.5 rounded-lg border border-purple-100">
+                                Catatan Admin: "{{ $detailHelp->complaint_admin_notes }}"
+                            </p>
+                        @endif
                     </div>
                 @endif
 
@@ -433,14 +454,47 @@
                             <div class="text-xs text-amber-900 mt-1">
                                 <span class="font-semibold text-gray-800">Dibatalkan oleh Customer:</span>
                                 <p class="italic mt-0.5 text-gray-700 bg-white p-2.5 rounded-lg border border-amber-100">"{{ $detailHelp->customer_cancel_reason }}"</p>
-                                <p class="text-[10px] text-gray-400 mt-0.5">Waktu: {{ optional($detailHelp->cancelled_at)->format('d M Y, H:i') ?? '-' }}</p>
+                                @php
+                                    $custCancelTime = $detailHelp->cancelled_at ?? $detailHelp->updated_at;
+                                @endphp
+                                <p class="text-[10px] text-gray-500 mt-1 flex items-center gap-1 font-medium">
+                                    <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span>Waktu: <strong class="text-gray-700">{{ $custCancelTime ? $custCancelTime->format('d M Y, H:i') . ' WIB' : '-' }}</strong></span>
+                                </p>
                             </div>
                         @endif
                         @if($detailHelp->partner_cancel_reason)
                             <div class="text-xs text-amber-900 mt-2">
-                                <span class="font-semibold text-gray-800">Dibatalkan oleh Rekan Jasa (Mitra):</span>
-                                <p class="italic mt-0.5 text-gray-700 bg-white p-2.5 rounded-lg border border-amber-100">"{{ $detailHelp->partner_cancel_reason }}"</p>
-                                <p class="text-[10px] text-gray-400 mt-0.5">Waktu: {{ optional($detailHelp->partner_cancel_requested_at)->format('d M Y, H:i') ?? '-' }}</p>
+                                <div class="flex items-center justify-between flex-wrap gap-1.5">
+                                    <span class="font-semibold text-gray-800">
+                                        @if(str_contains(strtolower($detailHelp->partner_cancel_reason), 'rekan jasa lain') || str_contains(strtolower($detailHelp->partner_cancel_reason), 'keberangkatan'))
+                                            Dibatalkan & Ganti Rekan Jasa:
+                                        @else
+                                            Dibatalkan oleh Rekan Jasa (Mitra):
+                                        @endif
+                                    </span>
+                                    @if($detailHelp->lastCancelledMitra)
+                                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-200">
+                                            <span>Mitra yang Dibatalkan:</span>
+                                            <span class="text-gray-900 font-bold">{{ $detailHelp->lastCancelledMitra->name }}</span>
+                                            @if($detailHelp->lastCancelledMitra->phone)
+                                                <span class="text-gray-500 font-mono text-[10px]">({{ $detailHelp->lastCancelledMitra->phone }})</span>
+                                            @endif
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="italic mt-1 text-gray-700 bg-white p-2.5 rounded-lg border border-amber-100">"{{ $detailHelp->partner_cancel_reason }}"</p>
+                                @php
+                                    $partnerCancelTime = $detailHelp->partner_cancel_requested_at ?? $detailHelp->cancelled_at ?? $detailHelp->updated_at;
+                                @endphp
+                                <p class="text-[10px] text-gray-500 mt-1 flex items-center gap-1 font-medium">
+                                    <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span>Waktu: <strong class="text-gray-700">{{ $partnerCancelTime ? $partnerCancelTime->format('d M Y, H:i') . ' WIB' : '-' }}</strong></span>
+                                </p>
                             </div>
                         @endif
                     </div>
@@ -462,11 +516,11 @@
 
                 <div class="flex items-center gap-2">
                     @if(in_array($detailHelp->status, ['komplain', 'disputed']))
-                        <button wire:click="approveRefund({{ $detailHelp->id }})"
+                        <button type="button" wire:click="openDecisionModal({{ $detailHelp->id }}, 'refund')"
                             class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer">
                             Setujui Refund Customer
                         </button>
-                        <button wire:click="rejectComplaint({{ $detailHelp->id }})"
+                        <button type="button" wire:click="openDecisionModal({{ $detailHelp->id }}, 'reject_complaint')"
                             class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer">
                             Tolak Komplain & Selesaikan
                         </button>
@@ -480,5 +534,68 @@
             </div>
         </div>
     </div>
+    @endif
+
+    {{-- Modal Konfirmasi Mediasi Putusan Super Admin --}}
+    @if($showDecisionModal && $decisionHelp)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
+                {{-- Modal Header --}}
+                <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between {{ $decisionType === 'refund' ? 'bg-red-50' : 'bg-emerald-50' }}">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full {{ $decisionType === 'refund' ? 'bg-red-500 text-white' : 'bg-emerald-600 text-white' }} flex items-center justify-center font-bold text-sm">
+                            {{ $decisionType === 'refund' ? '💸' : '✅' }}
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-900">
+                                @if($decisionType === 'refund')
+                                    Konfirmasi Refund ke Customer
+                                @else
+                                    Konfirmasi Tolak Komplain & Cairkan ke Mitra
+                                @endif
+                            </h3>
+                            <p class="text-[11px] text-gray-500">Putusan mediasi oleh Super Admin</p>
+                        </div>
+                    </div>
+                    <button type="button" wire:click="closeDecisionModal" class="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-700 transition text-xs cursor-pointer">✕</button>
+                </div>
+
+                {{-- Modal Body --}}
+                <form wire:submit.prevent="processDecision" class="p-5 space-y-4">
+                    <div class="p-3 {{ $decisionType === 'refund' ? 'bg-red-50 text-red-800 border-red-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200' }} border rounded-xl text-xs leading-relaxed">
+                        @if($decisionType === 'refund')
+                            <strong>Perhatian:</strong> Saldo sebesar <strong>Rp {{ number_format($decisionHelp->amount + ($decisionHelp->admin_fee ?? 0), 0, ',', '.') }}</strong> akan dikembalikan ke dompet customer. Status pesanan akan diubah menjadi <em>Dibatalkan</em>.
+                        @else
+                            <strong>Perhatian:</strong> Dana sebesar <strong>Rp {{ number_format($decisionHelp->amount, 0, ',', '.') }}</strong> akan langsung dicairkan ke dompet saldo mitra. Status pesanan akan diubah menjadi <em>Selesai</em>.
+                        @endif
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-800 mb-1">
+                            Catatan Keputusan Mediasi Super Admin <span class="text-red-500 font-bold">*</span>
+                        </label>
+                        <textarea wire:model="admin_notes" rows="3" placeholder="Wajib masukkan alasan keputusan atau catatan mediasi untuk arsip..."
+                            class="w-full px-3 py-2 text-xs border @error('admin_notes') border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-200 @else border-gray-300 bg-gray-50 focus:bg-white focus:ring-primary-500 @enderror rounded-xl focus:ring-2 transition"></textarea>
+                        @error('admin_notes')
+                            <p class="text-xs text-red-600 mt-1 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                        <button type="button" wire:click="closeDecisionModal" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit" wire:loading.attr="disabled"
+                            class="px-5 py-2 {{ $decisionType === 'refund' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer flex items-center gap-1.5">
+                            <span wire:loading.remove wire:target="processDecision">Eksekusi Keputusan</span>
+                            <span wire:loading wire:target="processDecision" class="inline-flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                Memproses...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     @endif
 </div>

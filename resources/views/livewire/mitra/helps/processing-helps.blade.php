@@ -201,6 +201,13 @@
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
                                                     ⚠️ Permintaan Batal Diajukan
                                                 </span>
+                                            @elseif($help->isScheduled() && !$help->canPartnerStartJourney())
+                                                @php
+                                                    $schedDays = (int) now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($help->scheduled_at)->startOfDay(), false);
+                                                @endphp
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                                    ⏳ Terjadwal {{ $schedDays > 0 ? "(H-{$schedDays})" : '(Hari Ini)' }}
+                                                </span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
                                                     Sedang Berjalan
@@ -261,7 +268,7 @@
                                             <span>📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</span>
                                             @if($help->isUrgent())
                                                 <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">Urgent</span>
-                                            @elseif($help->scheduled_at)
+                                            @elseif($help->scheduled_at && !($tab === 'diproses' && $help->isScheduled() && !$help->canPartnerStartJourney()))
                                                 <span class="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">Terjadwal</span>
                                             @endif
                                         </div>

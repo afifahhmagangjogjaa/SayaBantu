@@ -231,7 +231,7 @@
                 </div>
 
                 @if ($reports->hasPages())
-                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-center">
+                    <div class="bg-white px-6 py-4 border-t border-gray-100 flex justify-center">
                         {{ $reports->links() }}
                     </div>
                 @endif

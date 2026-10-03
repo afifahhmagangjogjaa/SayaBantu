@@ -142,9 +142,9 @@
                                         @endphp
                                         <button type="button"
                                             wire:key="admin-user-toggle-{{ $user->id }}-{{ $user->status }}"
-                                            wire:click="toggleStatus({{ $user->id }})"
+                                            wire:click="confirmDeactivate({{ $user->id }})"
                                             wire:loading.attr="disabled"
-                                            wire:target="toggleStatus({{ $user->id }})"
+                                            wire:target="confirmDeactivate({{ $user->id }})"
                                             class="inline-flex items-center gap-1.5 cursor-pointer focus:outline-none"
                                             title="{{ $isAdminStatusActive ? 'Aktif — Klik me-nonaktifkan' : 'Nonaktif — Klik mengaktifkan' }}">
                                             <span class="inline-flex items-center h-5 w-9 p-0.5 rounded-full transition-colors duration-200 ease-in-out border border-gray-300 {{ $isAdminStatusActive ? 'bg-emerald-500 justify-end' : 'bg-gray-300 justify-start' }}">
@@ -185,7 +185,7 @@
 
             <!-- Pagination -->
             @if ($users->hasPages())
-                <div class="bg-gray-50 px-6 py-5 border-t border-gray-200">
+                <div class="bg-white px-6 py-5 border-t border-gray-200">
                     {{ $users->links() }}
                 </div>
             @endif
@@ -655,6 +655,34 @@
                     <button type="button" wire:click.prevent="closeModal"
                         class="px-4 py-2 mr-2 bg-gray-100 rounded-lg">Batal</button>
                     <button wire:click="deleteUser" class="px-4 py-2 bg-red-600 text-white rounded-lg">Hapus</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Confirm Deactivate Admin Modal --}}
+    @if($showConfirmDeactivate)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 text-center border border-gray-100">
+                <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Peringatan: Nonaktifkan Admin</h3>
+                <p class="text-xs sm:text-sm text-gray-600 mb-6 leading-relaxed">
+                    Apakah Anda yakin ingin menonaktifkan akun admin <strong class="text-gray-900">{{ $confirmingDeactivateName }}</strong>?<br>
+                    Admin ini akan <strong>langsung dikeluarkan dari sistem</strong> dan tidak dapat mengakses panel admin lagi sampai diaktifkan kembali.
+                </p>
+                <div class="flex items-center justify-center gap-3">
+                    <button type="button" wire:click="closeDeactivateModal"
+                        class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl text-sm transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="button" wire:click="executeDeactivateAdmin"
+                        class="px-5 py-2.5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-semibold rounded-xl text-sm shadow-md shadow-red-200 transition cursor-pointer">
+                        Ya, Nonaktifkan
+                    </button>
                 </div>
             </div>
         </div>

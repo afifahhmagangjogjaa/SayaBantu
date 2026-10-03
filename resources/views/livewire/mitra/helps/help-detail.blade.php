@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-gray-50"
-    wire:poll.5s
+    @if(!$showCompletionModal) wire:poll.3s="loadHelp" @endif
     x-data="{ 
         showNotification: false, 
         notificationMessage: '',
@@ -88,7 +88,7 @@
     </div>
 
     <!-- Content -->
-    <div class="bg-gray-50 -mt-6 px-5 pt-6 pb-20 max-w-md mx-auto">
+    <div class="bg-gray-50 -mt-6 px-5 pt-6 pb-28 max-w-md mx-auto">
         {{-- GPS Tracker - Auto tracking untuk status aktif --}}
         @if (in_array($help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived']))
             {{-- <div class="mb-3">
@@ -204,7 +204,7 @@
             </div>
         </div>
 
-        {{-- Status Badge dengan Alpine.js --}}
+        {{-- Status Card (Rapi, Elegan, Bukan Mirip Tombol) --}}
         @php
             $status = $help->status;
             $statusLabel = match($status) {
@@ -212,55 +212,232 @@
                 'mencari_mitra', 'menunggu_mitra' => 'Mencari Mitra',
                 'memperoleh_mitra' => 'Pesanan Diterima',
                 'taken' => 'Pesanan Diambil',
-                'partner_on_the_way' => 'Dalam Perjalanan',
-                'partner_arrived' => 'Tiba di Lokasi',
+                'partner_on_the_way' => 'Dalam Perjalanan Menuju Lokasi',
+                'partner_arrived' => 'Tiba di Lokasi Customer',
                 'in_progress', 'sedang_diproses' => 'Sedang Dikerjakan',
                 'waiting_customer_confirmation' => 'Menunggu Konfirmasi Customer',
-                'selesai', 'completed' => 'Pesanan Selesai',
-                'dibatalkan', 'cancelled' => 'Dibatalkan',
-                'partner_cancel_requested' => 'Permintaan Pembatalan',
+                'komplain', 'disputed' => 'Dalam Mediasi Komplain',
+                'selesai', 'completed' => ($help->complaint_resolution === 'rejected' ? 'Selesai (Komplain Ditolak)' : 'Pekerjaan Selesai'),
+                'dibatalkan', 'cancelled' => ($help->complaint_resolution === 'refunded' ? 'Dibatalkan (Hasil Mediasi Refund)' : 'Pesanan Dibatalkan'),
+                'partner_cancel_requested' => 'Permintaan Pembatalan Diajukan',
                 default => ucfirst(str_replace('_', ' ', $status)),
             };
 
-            $statusBg = match($status) {
-                'menunggu_pembayaran' => 'bg-yellow-500',
-                'mencari_mitra', 'menunggu_mitra' => 'bg-blue-500',
-                'memperoleh_mitra', 'taken' => 'bg-blue-600',
-                'partner_on_the_way' => 'bg-blue-700',
-                'partner_arrived' => 'bg-green-600',
-                'in_progress', 'sedang_diproses' => 'bg-cyan-600',
-                'waiting_customer_confirmation' => 'bg-orange-500',
-                'selesai', 'completed' => 'bg-green-700',
-                'partner_cancel_requested' => 'bg-yellow-600',
-                default => 'bg-gray-400'
+            $mitraStatusTheme = match($status) {
+                'menunggu_pembayaran' => [
+                    'card' => 'bg-amber-50/70 border-amber-200/80',
+                    'icon_bg' => 'bg-amber-100 text-amber-600',
+                    'badge' => 'bg-amber-100 text-amber-800 border-amber-200',
+                    'dot' => 'bg-amber-500',
+                    'badge_label' => 'Menunggu',
+                    'pulse' => true,
+                ],
+                'memperoleh_mitra', 'taken' => [
+                    'card' => 'bg-blue-50/70 border-blue-200/80',
+                    'icon_bg' => 'bg-blue-100 text-blue-600',
+                    'badge' => 'bg-blue-100 text-blue-800 border-blue-200',
+                    'dot' => 'bg-blue-600',
+                    'badge_label' => 'Diambil',
+                    'pulse' => true,
+                ],
+                'partner_on_the_way' => [
+                    'card' => 'bg-indigo-50/70 border-indigo-200/80',
+                    'icon_bg' => 'bg-indigo-100 text-indigo-600',
+                    'badge' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                    'dot' => 'bg-indigo-600',
+                    'badge_label' => 'Menuju Lokasi',
+                    'pulse' => true,
+                ],
+                'partner_arrived' => [
+                    'card' => 'bg-emerald-50/70 border-emerald-200/80',
+                    'icon_bg' => 'bg-emerald-100 text-emerald-600',
+                    'badge' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                    'dot' => 'bg-emerald-600',
+                    'badge_label' => 'Tiba',
+                    'pulse' => false,
+                ],
+                'in_progress', 'sedang_diproses' => [
+                    'card' => 'bg-sky-50/70 border-sky-200/80',
+                    'icon_bg' => 'bg-sky-100 text-sky-600',
+                    'badge' => 'bg-sky-100 text-sky-800 border-sky-200',
+                    'dot' => 'bg-sky-600',
+                    'badge_label' => 'Proses',
+                    'pulse' => true,
+                ],
+                'waiting_customer_confirmation' => [
+                    'card' => 'bg-orange-50/70 border-orange-200/80',
+                    'icon_bg' => 'bg-orange-100 text-orange-600',
+                    'badge' => 'bg-orange-100 text-orange-800 border-orange-200',
+                    'dot' => 'bg-orange-600',
+                    'badge_label' => 'Konfirmasi',
+                    'pulse' => true,
+                ],
+                'komplain', 'disputed' => [
+                    'card' => 'bg-amber-50/70 border-amber-200/80',
+                    'icon_bg' => 'bg-amber-100 text-amber-600',
+                    'badge' => 'bg-amber-100 text-amber-800 border-amber-200',
+                    'dot' => 'bg-amber-500',
+                    'badge_label' => 'Mediasi Komplain',
+                    'pulse' => true,
+                ],
+                'selesai', 'completed' => [
+                    'card' => 'bg-emerald-50/70 border-emerald-200/80',
+                    'icon_bg' => 'bg-emerald-100 text-emerald-600',
+                    'badge' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                    'dot' => 'bg-emerald-600',
+                    'badge_label' => 'Selesai',
+                    'pulse' => false,
+                ],
+                'dibatalkan', 'cancelled' => [
+                    'card' => 'bg-rose-50/70 border-rose-200/80',
+                    'icon_bg' => 'bg-rose-100 text-rose-600',
+                    'badge' => 'bg-rose-100 text-rose-800 border-rose-200',
+                    'dot' => 'bg-rose-500',
+                    'badge_label' => 'Batal',
+                    'pulse' => false,
+                ],
+                'partner_cancel_requested' => [
+                    'card' => 'bg-amber-50/70 border-amber-200/80',
+                    'icon_bg' => 'bg-amber-100 text-amber-600',
+                    'badge' => 'bg-amber-100 text-amber-800 border-amber-200',
+                    'dot' => 'bg-amber-500',
+                    'badge_label' => 'Pengajuan Batal',
+                    'pulse' => true,
+                ],
+                default => [
+                    'card' => 'bg-gray-50 border-gray-200',
+                    'icon_bg' => 'bg-gray-100 text-gray-600',
+                    'badge' => 'bg-gray-100 text-gray-800 border-gray-200',
+                    'dot' => 'bg-gray-500',
+                    'badge_label' => 'Status',
+                    'pulse' => false,
+                ]
             };
         @endphp
 
-        <div class="bg-white mt-3 px-4 py-3 rounded-xl shadow-sm border border-gray-100">
-            <div class="flex items-center justify-center">
-                <div class="px-4 py-2 rounded-lg {{ $statusBg }} text-white font-semibold text-sm flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        @if(in_array($help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way']))
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+        <div class="mt-3 p-3 rounded-2xl border {{ $mitraStatusTheme['card'] }} shadow-xs bg-white">
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div class="w-9 h-9 rounded-xl {{ $mitraStatusTheme['icon_bg'] }} flex items-center justify-center shrink-0">
+                        @if(in_array($help->status, ['memperoleh_mitra', 'taken']))
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        @elseif($help->status === 'partner_on_the_way')
+                            <svg class="w-4 h-4 animate-bounce" style="animation-duration: 2s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                            </svg>
                         @elseif($help->status === 'partner_arrived')
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
                         @elseif(in_array($help->status, ['in_progress', 'sedang_diproses']))
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        @elseif($help->status === 'waiting_customer_confirmation')
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <svg class="w-4 h-4 text-sky-600 animate-spin" style="animation-duration: 4s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
                         @elseif(in_array($help->status, ['selesai', 'completed']))
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
                         @else
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
                         @endif
-                    </svg>
-                    {{ $statusLabel }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block leading-tight">Status Pesanan</span>
+                        <span class="text-xs sm:text-sm font-bold text-gray-900 block leading-snug truncate">{{ $statusLabel }}</span>
+                    </div>
                 </div>
+
+                <span class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border {{ $mitraStatusTheme['badge'] }}">
+                    @if($mitraStatusTheme['pulse'])
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ $mitraStatusTheme['dot'] }} opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 {{ $mitraStatusTheme['dot'] }}"></span>
+                        </span>
+                    @else
+                        <span class="w-1.5 h-1.5 rounded-full {{ $mitraStatusTheme['dot'] }}"></span>
+                    @endif
+                    <span>{{ $mitraStatusTheme['badge_label'] }}</span>
+                </span>
             </div>
         </div>
 
-        {{-- Banner Jika Dibatalkan oleh Customer --}}
-        @if(in_array($help->status, ['dibatalkan', 'cancelled']))
+        {{-- Banner Status Khusus Mediasi / Komplain (Mitra) --}}
+        @if(in_array($help->status, ['komplain', 'disputed']))
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-3 mb-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 shrink-0 text-base">
+                        ⚠️
+                    </div>
+                    <div class="flex-1 text-xs space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-amber-900 text-sm">Pesanan Dalam Mediasi Komplain</h4>
+                            <span class="text-[10px] text-amber-700">{{ $help->complaint_submitted_at?->format('d M Y, H:i') }}</span>
+                        </div>
+                        <p class="text-amber-800 leading-relaxed">
+                            Customer mengajukan komplain penolakan hasil kerja. Tim Admin sedang memediasi bukti dari kedua pihak. Dana imbalan ditahan sementara hingga keputusan diambil.
+                        </p>
+                        @if($help->complaint_reason)
+                            <div class="bg-white p-2.5 rounded-lg border border-amber-200/80 text-gray-800">
+                                <span class="font-semibold text-gray-900 block mb-0.5">Alasan Komplain Customer:</span>
+                                <p class="italic">"{{ $help->complaint_reason }}"</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @elseif($help->complaint_resolution === 'refunded')
+            <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mt-3 mb-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shrink-0 text-base">
+                        ⚖️
+                    </div>
+                    <div class="flex-1 text-xs space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-rose-900 text-sm">Hasil Mediasi: Komplain Disetujui (Refund Customer)</h4>
+                            <span class="text-[10px] text-rose-600 font-semibold">{{ $help->complaint_resolved_at?->format('d M Y, H:i') }}</span>
+                        </div>
+                        <p class="text-rose-800 leading-relaxed">
+                            Admin telah menyelesaikan mediasi dengan keputusan <strong>mengembalikan dana penuh ke customer</strong>. Saldo imbalan untuk pesanan ini tidak dicairkan. Saldo dompet Anda saat ini aman dan tidak dipotong/berkurang.
+                        </p>
+                        @if($help->complaint_admin_notes)
+                            <div class="bg-white p-2.5 rounded-lg border border-rose-200/80 text-gray-800">
+                                <span class="font-semibold text-gray-900 block mb-0.5">Catatan / Alasan Keputusan Admin:</span>
+                                <p class="italic text-gray-700">"{{ $help->complaint_admin_notes }}"</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @elseif($help->complaint_resolution === 'rejected')
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mt-3 mb-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 text-base">
+                        🎉
+                    </div>
+                    <div class="flex-1 text-xs space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-emerald-900 text-sm">Hasil Mediasi: Komplain Ditolak & Dana Dicairkan</h4>
+                            <span class="text-[10px] text-emerald-600 font-semibold">{{ $help->complaint_resolved_at?->format('d M Y, H:i') }}</span>
+                        </div>
+                        <p class="text-emerald-800 leading-relaxed">
+                            Admin telah meninjau bukti pekerjaan dan memutuskan <strong>menolak komplain customer</strong>. Pekerjaan Anda dinyatakan selesai dan dana imbalan telah dicairkan ke saldo akun Anda.
+                        </p>
+                        @if($help->complaint_admin_notes)
+                            <div class="bg-white p-2.5 rounded-lg border border-emerald-200/80 text-gray-800">
+                                <span class="font-semibold text-gray-900 block mb-0.5">Catatan Putusan Admin:</span>
+                                <p class="italic text-gray-700">"{{ $help->complaint_admin_notes }}"</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @elseif(in_array($help->status, ['dibatalkan', 'cancelled']))
             <div class="bg-red-50 border border-red-200 rounded-xl p-4 mt-3 mb-3">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
@@ -444,28 +621,88 @@
         @if (config('app.gps_simulator', true) &&
                 $help->mitra_id === auth()->id() &&
                 !in_array($help->status, ['selesai', 'dibatalkan']))
-            <div class="mb-3">
-                <livewire:mitra.gps-simulator :help-id="$help->id" :key="'gps-simulator-' . $help->id" />
-            </div>
+            @if($help->canPartnerStartJourney() || !in_array($help->status, ['memperoleh_mitra', 'taken']))
+                <div class="mb-3">
+                    <livewire:mitra.gps-simulator :help-id="$help->id" :key="'gps-simulator-' . $help->id" />
+                </div>
+            @endif
         @endif
 
         {{-- Update Status Section --}}
 
         @if (in_array($help->status, ['memperoleh_mitra', 'taken']))
-            <div class="bg-white px-4 py-4 rounded-xl shadow-sm border border-gray-100 mb-3">
-                <button wire:click="markPartnerStarted"
-                    class="w-full py-3.5 text-white rounded-xl font-bold text-sm hover:opacity-95 transition flex items-center justify-center gap-2 shadow-sm"
-                    style="background: linear-gradient(135deg, #0098e7, #0077cc); box-shadow: 0 4px 14px rgba(0, 152, 231, 0.35);">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                    </svg>
-                    🚗 Menuju ke Lokasi Customer
-                </button>
-                <p class="text-xs text-gray-500 text-center mt-2">Klik tombol ini saat Anda mulai berangkat menuju lokasi customer</p>
-            </div>
+            @if ($help->canPartnerStartJourney())
+                <div class="bg-white px-4 py-4 rounded-xl shadow-sm border border-gray-100 mb-3">
+                    <button wire:click="markPartnerStarted"
+                        class="w-full py-3.5 text-white rounded-xl font-bold text-sm hover:opacity-95 transition flex items-center justify-center gap-2 shadow-sm"
+                        style="background: linear-gradient(135deg, #0098e7, #0077cc); box-shadow: 0 4px 14px rgba(0, 152, 231, 0.35);">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                        Menuju ke Lokasi Customer
+                    </button>
+                    <p class="text-xs text-gray-500 text-center mt-2">Klik tombol ini saat Anda mulai berangkat menuju lokasi customer</p>
+                </div>
+            @else
+                @php
+                    $schedCarbon = \Carbon\Carbon::parse($help->scheduled_at)->locale('id');
+                    $availableAt = $schedCarbon->copy()->subHour();
+                    $daysRemaining = (int) now()->startOfDay()->diffInDays($schedCarbon->copy()->startOfDay(), false);
+                    $formattedDateWithYear = $schedCarbon->isoFormat('D MMMM Y');
+                    $formattedFull = $schedCarbon->isoFormat('dddd, D MMMM Y');
+
+                    if ($availableAt->isToday()) {
+                        $availableText = 'Hari ini pukul ' . $availableAt->format('H:i') . ' WIB';
+                        $btnAvailableText = 'Tersedia pukul ' . $availableAt->format('H:i') . ' WIB';
+                    } elseif ($availableAt->isTomorrow()) {
+                        $availableText = 'Besok pukul ' . $availableAt->format('H:i') . ' WIB';
+                        $btnAvailableText = 'Tersedia Besok, ' . $availableAt->format('H:i') . ' WIB';
+                    } else {
+                        $availableText = $availableAt->isoFormat('dddd, D MMMM Y [pukul] H:i') . ' WIB';
+                        $btnAvailableText = 'Tersedia ' . $availableAt->isoFormat('D MMM Y, H:i') . ' WIB';
+                    }
+                @endphp
+                <div class="bg-gradient-to-br from-amber-50/70 to-blue-50/40 p-4 rounded-2xl border border-amber-200/80 shadow-xs mb-3 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-amber-900">Pesanan Terjadwal</span>
+                                <span class="text-[10px] font-semibold bg-amber-200/70 text-amber-800 px-2 py-0.5 rounded-full">
+                                    {{ $daysRemaining > 0 ? "H-{$daysRemaining}" : 'Hari Ini' }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-amber-900/90 mt-1 font-medium">
+                                Jadwal: <span class="font-bold text-gray-900">{{ $formattedFull }}</span> (Jam {{ $schedCarbon->format('H:i') }} WIB)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-white/90 rounded-xl border border-amber-200/60 text-xs text-gray-600 leading-relaxed">
+                        Pesanan telah berhasil Anda ambil. Tombol <strong>Menuju ke Lokasi</strong> akan aktif pada <strong>H-1 jam sebelum jadwal</strong> (<strong>{{ $availableText }}</strong>) agar Anda dapat tiba tepat waktu.
+                    </div>
+
+                    <button type="button" disabled
+                        class="w-full py-3 bg-gray-100 border border-gray-200 text-gray-400 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-not-allowed select-none">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <span>Menuju ke Lokasi ({{ $btnAvailableText }})</span>
+                    </button>
+                </div>
+            @endif
         @endif
 
         @if ($help->status === 'partner_on_the_way')
+            @php
+                $distToCust = $this->distanceToCustomer;
+                $isWithinArrivalRange = $distToCust !== null && $distToCust <= 50;
+            @endphp
+
             <div class="bg-blue-50 px-4 py-3.5 rounded-xl border border-blue-200 mb-3 shadow-sm">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0 shadow-sm">
@@ -473,24 +710,69 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                         </svg>
                     </div>
-                    <div class="flex-1">
+                    <div class="flex-1 min-w-0">
                         <h4 class="font-semibold text-xs text-blue-900">🛵 Sedang Menuju Lokasi Customer</h4>
-                        <p class="text-[11px] text-blue-700 mt-0.5">Status dapat berubah otomatis saat GPS mendekati lokasi, atau klik tombol di bawah jika sudah sampai.</p>
+                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                            @if($distToCust !== null)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold {{ $isWithinArrivalRange ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-blue-100 text-blue-800 border border-blue-200' }}">
+                                    📍 Jarak: {{ $distToCust >= 1000 ? number_format($distToCust / 1000, 1) . ' km' : round($distToCust) . ' meter' }}
+                                </span>
+                                @if($isWithinArrivalRange)
+                                    <span class="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
+                                        <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                        Dalam Radius (≤ 50m)
+                                    </span>
+                                @else
+                                    <span class="text-[10px] text-gray-500">Maksimal radius tiba: 50m</span>
+                                @endif
+                            @else
+                                <span class="text-[11px] text-blue-700">Mendeteksi koordinat GPS...</span>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="bg-white px-4 py-4 rounded-xl shadow-sm border border-gray-100 mb-3">
-                <button wire:click="markPartnerArrived"
-                    class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-sm"
-                    style="box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    📍 Saya Sudah Tiba di Lokasi
-                </button>
-                <p class="text-xs text-gray-500 text-center mt-2">Klik tombol ini setelah Anda tiba di alamat customer</p>
+                @if($isWithinArrivalRange)
+                    {{-- Jarak <= 50 meter: Tombol aktif & siap diklik --}}
+                    <button wire:click="markPartnerArrived"
+                        class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg animate-pulse"
+                        style="box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        📍 Saya Sudah Tiba di Lokasi
+                    </button>
+                    <p class="text-xs text-emerald-600 font-semibold text-center mt-2">
+                        ✓ Anda sudah berada dalam radius 50m! Klik tombol di atas untuk konfirmasi kedatangan.
+                    </p>
+                @elseif($distToCust !== null)
+                    {{-- Jarak > 50 meter: Tombol terkunci / belum aktif --}}
+                    <button type="button" disabled
+                        class="w-full py-3.5 bg-gray-100 border border-gray-200 text-gray-400 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-not-allowed select-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <span>Telah Tiba di Lokasi (Terkunci)</span>
+                    </button>
+                    <p class="text-xs text-gray-500 text-center mt-2 leading-relaxed">
+                        Tombol akan aktif otomatis saat jarak Anda <strong>≤ 50 meter</strong> dari customer.<br>
+                        <span class="text-gray-400">(Saat ini masih berjarak <strong>{{ $distToCust >= 1000 ? number_format($distToCust / 1000, 1) . ' km' : round($distToCust) . ' meter' }}</strong>)</span>
+                    </p>
+                @else
+                    {{-- Menunggu koordinat GPS --}}
+                    <button type="button" disabled
+                        class="w-full py-3.5 bg-gray-100 border border-gray-200 text-gray-400 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-not-allowed select-none">
+                        <svg class="w-5 h-5 text-gray-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span>Mendeteksi Sinyal GPS...</span>
+                    </button>
+                    <p class="text-xs text-gray-400 text-center mt-2">Menunggu koordinat lokasi Anda terdeteksi...</p>
+                @endif
             </div>
         @endif
 
@@ -987,14 +1269,33 @@
                     <p class="text-xs text-gray-600">Unggah foto hasil pengerjaan sebagai bukti bahwa pekerjaan telah selesai dikerjakan.</p>
 
                     {{-- Upload Foto --}}
-                    <div>
+                    <div x-data="{ uploading: false, progress: 0, uploadError: null }"
+                         x-on:livewire-upload-start="uploading = true; uploadError = null"
+                         x-on:livewire-upload-finish="uploading = false"
+                         x-on:livewire-upload-error="uploading = false; uploadError = 'Gagal mengunggah foto. Pastikan ukuran file maksimal 5 MB dan format gambar valid.'"
+                         x-on:livewire-upload-progress="progress = $event.detail.progress">
                         <label class="block text-xs font-semibold text-gray-800 mb-1.5">
                             Foto Bukti Pengerjaan <span class="text-red-500">*</span>
                         </label>
 
                         @if ($completion_photo)
+                            @php
+                                $previewUrl = null;
+                                try {
+                                    $previewUrl = $completion_photo->temporaryUrl();
+                                } catch (\Throwable $e) {
+                                    $previewUrl = null;
+                                }
+                            @endphp
                             <div class="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-900 h-44 flex items-center justify-center group mb-2">
-                                <img src="{{ $completion_photo->temporaryUrl() }}" alt="Preview Bukti" class="h-full w-full object-contain">
+                                @if($previewUrl)
+                                    <img src="{{ $previewUrl }}" alt="Preview Bukti" class="h-full w-full object-contain">
+                                @else
+                                    <div class="text-white text-xs p-3 text-center">
+                                        <p class="font-bold text-emerald-400">✓ Foto Berhasil Dipilih</p>
+                                        <p class="text-[11px] text-gray-300 mt-1">{{ is_object($completion_photo) && method_exists($completion_photo, 'getClientOriginalName') ? $completion_photo->getClientOriginalName() : 'Foto bukti' }}</p>
+                                    </div>
+                                @endif
                                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
                                     <label for="completion_photo_input" class="px-3 py-1.5 bg-white text-gray-800 text-xs font-semibold rounded-lg cursor-pointer hover:bg-gray-100 transition shadow-xs">
                                         Ganti Foto
@@ -1013,14 +1314,21 @@
                             </label>
                         @endif
 
-                        <input type="file" id="completion_photo_input" wire:model="completion_photo" accept="image/*" class="hidden">
+                        <input type="file" id="completion_photo_input" wire:model="completion_photo" accept="image/png,image/jpeg,image/jpg,image/webp" class="hidden">
                         
-                        <div wire:loading wire:target="completion_photo" class="text-xs text-blue-600 mt-1 flex items-center gap-1 font-semibold">
-                            <svg class="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                            </svg>
-                            Mengunggah foto...
+                        {{-- Upload Progress Bar --}}
+                        <div x-show="uploading" class="mt-2" style="display: none;">
+                            <div class="flex items-center justify-between text-[11px] text-blue-600 font-semibold mb-1">
+                                <span>Mengunggah foto...</span>
+                                <span x-text="progress + '%'"></span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-200" :style="'width: ' + progress + '%'"></div>
+                            </div>
                         </div>
+
+                        {{-- Client-side upload error --}}
+                        <div x-show="uploadError" class="text-xs text-red-500 mt-1 font-medium" x-text="uploadError" style="display: none;"></div>
 
                         @error('completion_photo')
                             <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span>
@@ -1058,6 +1366,27 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal Pesanan Dialihkan ke Rekan Jasa Lain --}}
+    @if($showReassignedModal)
+        <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-[99999] p-4">
+            <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl border border-gray-100">
+                <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-amber-600">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </div>
+                <h3 class="text-base font-bold text-gray-900 mb-1.5">Pesanan Dialihkan</h3>
+                <p class="text-xs text-gray-600 leading-relaxed mb-6">
+                    Pesanan ini telah dialihkan oleh customer ke Rekan Jasa lain karena belum ada tanda pergerakan menuju lokasi dalam waktu 30 menit.
+                </p>
+                <a href="{{ route('mitra.dashboard') }}"
+                   class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition">
+                    Kembali ke Beranda
+                </a>
             </div>
         </div>
     @endif

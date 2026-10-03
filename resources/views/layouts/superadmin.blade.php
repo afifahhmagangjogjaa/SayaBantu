@@ -78,6 +78,10 @@
             'title' => 'Permintaan Terbaru',
             'subtitle' => 'Daftar seluruh bantuan yang baru masuk'
         ],
+        'superadmin.password' => [
+            'title' => 'Profil & Keamanan',
+            'subtitle' => 'Kelola informasi profil dan perbarui kata sandi akun Super Admin'
+        ],
     ];
 
     $detectedTitle = $routeMeta[$currentRoute]['title'] ?? null;
@@ -114,6 +118,9 @@
         } elseif (request()->routeIs('superadmin.activity*')) {
             $detectedTitle = 'Activity Logs';
             $detectedSubtitle = 'Log riwayat aktivitas dan peristiwa penting dalam sistem';
+        } elseif (request()->routeIs('superadmin.password*')) {
+            $detectedTitle = 'Profil & Keamanan';
+            $detectedSubtitle = 'Kelola informasi profil dan perbarui kata sandi akun Super Admin';
         }
     }
 
@@ -329,32 +336,24 @@
                     Activity Logs
                 </a>
 
-
-
-                <!-- Subscriptions (Langganan Mitra) removed -->
-
-
-                <!-- Moderasi Bantuan link removed -->
-
-                <!-- Verifikasi KTP link removed -->
             </nav>
 
             <div class="w-64 p-4 border-t border-gray-200 bg-white">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div
-                            class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-medium">
-                            {{ substr(auth()->user()->name, 0, 1) }}
+                    <a href="{{ route('superadmin.password') }}" class="flex items-center group flex-1 min-w-0 mr-2 p-1.5 -ml-1.5 rounded-xl hover:bg-gray-50 transition cursor-pointer" title="Kelola Profil & Ubah Password">
+                        <div style="background-color: #4f46e5; color: #ffffff;"
+                            class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition flex-shrink-0 shadow-xs">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>
-                            <p class="text-xs text-gray-500">Super Admin</p>
+                        <div class="ml-3 min-w-0">
+                            <p class="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition truncate">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-gray-500 truncate">Super Admin</p>
                         </div>
-                    </div>
+                    </a>
                     <button 
                         @click="$dispatch('open-logout-modal')" 
                         type="button" 
-                        class="text-gray-400 hover:text-red-600 transition" 
+                        class="text-gray-400 hover:text-red-600 transition p-1.5 rounded-lg hover:bg-gray-50 flex-shrink-0 cursor-pointer" 
                         title="Logout">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -392,15 +391,19 @@
                             <!-- Notifications -->
                             <livewire:super-admin.notification-dropdown />
 
-                            <!-- User Profile -->
-                            <div class="flex items-center space-x-3 border-l border-gray-200 pl-3 sm:pl-4">
-                                <div class="text-right hidden sm:block">
-                                    <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>
-                                    <p class="text-xs text-gray-500">Super Admin</p>
-                                </div>
-                                <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-medium shadow-xs">
-                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                </div>
+                            <!-- User Profile Link -->
+                            <div class="flex items-center border-l border-gray-200 pl-3 sm:pl-4">
+                                <a href="{{ route('superadmin.password') }}" 
+                                   class="flex items-center space-x-2.5 group cursor-pointer focus:outline-none" 
+                                   title="Profil Super Admin & Keamanan">
+                                    <div class="text-right hidden sm:block">
+                                        <p class="text-sm font-medium text-gray-900 group-hover:text-primary-600 transition">{{ auth()->user()->name }}</p>
+                                        <p class="text-xs text-gray-500">Super Admin</p>
+                                    </div>
+                                    <div style="background-color: #4f46e5; color: #ffffff;" class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-xs transition group-hover:ring-2 group-hover:ring-primary-500">
+                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                    </div>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -540,6 +543,18 @@
                     sessionStorage.setItem('superadmin_sidebar_scroll', sidebarNav.scrollTop);
                 }, { passive: true });
             }
+        });
+
+        // Cegah popup browser "This page has expired" saat sesi habis
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('request', ({ fail }) => {
+                fail(({ status, preventDefault }) => {
+                    if (status === 419) {
+                        preventDefault();
+                        window.location.reload();
+                    }
+                });
+            });
         });
     </script>
 </body>

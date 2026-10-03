@@ -21,13 +21,13 @@ class RealtimeNotifications extends Component
             $this->last_notification_check = now();
             $this->checkUnpoppedSanctions();
             $this->checkUnpoppedReportStatus();
+            $this->checkUnpoppedHelpStatus();
         }
     }
 
     public function poll()
     {
         if (!auth()->check()) {
-            Log::info('[RealtimeNotifications] poll called but no auth user.');
             return;
         }
 
@@ -35,10 +35,10 @@ class RealtimeNotifications extends Component
         if (!$this->sanctionModalOpen) {
             $this->checkUnpoppedSanctions();
             $this->checkUnpoppedReportStatus();
+            $this->checkUnpoppedHelpStatus();
         }
 
-        Log::info('[RealtimeNotifications] polling for mitra_id=' . auth()->id() . ' last_chat_id=' . $this->last_chat_id);
-
+        // Check for new chat messages
         $new = ChatModel::where('mitra_id', auth()->id())
             ->where('sender_type', 'customer')
             ->where('id', '>', $this->last_chat_id)
@@ -75,15 +75,23 @@ class RealtimeNotifications extends Component
                 Log::info('[RealtimeNotifications] processing notification', ['id' => $notification->id, 'type' => $notification->type, 'data' => $data]);
 
                 if (isset($data['type']) && $data['type'] === 'help_status') {
+                    $notification->update(['popped_at' => now()]);
                     $helpId = $data['help_id'] ?? ($data['helpId'] ?? 0);
                     $newStatus = $data['new_status'] ?? ($data['newStatus'] ?? null);
+                    $notifTitle = $data['title'] ?? 'Info Pesanan';
+                    $notifMsg = $data['message'] ?? 'Status pesanan telah diperbarui';
+
+                    $toastType = in_array($newStatus, ['dibatalkan', 'cancelled', 'partner_cancelled_direct', 'partner_reassigned']) ? 'error' : 'info';
 
                     // Dispatch a browser event via inline JS so frontend can react
                     $this->js(sprintf(
-                        "console.log('🔔 Mitra help-status notification'); window.dispatchEvent(new CustomEvent('mitra-help-status', { detail: { helpId: %d, newStatus: '%s', message: '%s' } }));",
+                        "console.log('🔔 Mitra help-status notification'); window.dispatchEvent(new CustomEvent('mitra-help-status', { detail: { helpId: %d, newStatus: '%s', message: '%s', title: '%s' } })); if (typeof window.showGlobalFlashToast === 'function') { window.showGlobalFlashToast('%s', '%s'); } if (typeof window.playNotifChime === 'function') { window.playNotifChime(); }",
                         $helpId,
                         addslashes($newStatus ?? ''),
-                        addslashes($data['message'] ?? '')
+                        addslashes($notifMsg),
+                        addslashes($notifTitle),
+                        addslashes($notifTitle . ': ' . $notifMsg),
+                        $toastType
                     ));
 
                     Log::info('[RealtimeNotifications] dispatched mitra-help-status', ['help_id' => $helpId, 'new_status' => $newStatus]);
@@ -134,6 +142,36 @@ class RealtimeNotifications extends Component
                     'dismissed' => 'error',
                     default => 'success',
                 }
+            ));
+        }
+    }
+
+    public function checkUnpoppedHelpStatus()
+    {
+        if (!auth()->check()) {
+            return;
+        }
+
+        $notif = auth()->user()->notifications()
+            ->whereNull('popped_at')
+            ->where('created_at', '>=', now()->subHours(2))
+            ->latest()
+            ->get()
+            ->first(function ($n) {
+                $type = $n->data['type'] ?? '';
+                $newStatus = $n->data['new_status'] ?? '';
+                return $type === 'help_status' && in_array($newStatus, ['partner_reassigned', 'dibatalkan', 'cancelled', 'partner_cancelled_direct']);
+            });
+
+        if ($notif) {
+            $data = $notif->data;
+            $notif->update(['popped_at' => now()]);
+
+            $title = $data['title'] ?? 'Info Pesanan';
+            $msg = $data['message'] ?? 'Status pesanan Anda telah diperbarui.';
+            $this->js(sprintf(
+                "setTimeout(() => { if (typeof window.showGlobalFlashToast === 'function') { window.showGlobalFlashToast('%s', 'error'); } if (typeof window.playNotifChime === 'function') { window.playNotifChime(); } }, 600);",
+                addslashes($title . ': ' . $msg)
             ));
         }
     }

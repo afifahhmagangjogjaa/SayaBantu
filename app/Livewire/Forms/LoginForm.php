@@ -33,12 +33,30 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
+        $foundUser = User::where('email', $this->email)->first();
+
+        // Check if user is inactive, blocked, or banned BEFORE logging into session.
+        // This avoids writing a session file and then purging it, which destroys the browser's
+        // CSRF session token and causes 419 TokenMismatchException when the user clicks login again.
+        if ($foundUser && (in_array($foundUser->status, ['inactive', 'blocked']) || $foundUser->isBanned())) {
+            if (\Illuminate\Support\Facades\Hash::check($this->password, $foundUser->password)) {
+                $status = $foundUser->status;
+                $errorMessage = ($status === 'inactive')
+                    ? 'Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service untuk informasi lebih lanjut.'
+                    : 'Akun Anda telah diblokir/banned. Seluruh sesi login telah dihapus secara total. Silakan hubungi administrator.';
+
+                throw ValidationException::withMessages([
+                    'form.email' => $errorMessage,
+                ]);
+            }
+        }
+
         if (!Auth::attempt($this->only(['email', 'password']), $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 
             // Log failed login attempt for partner reporting (if user exists)
             try {
-                $found = User::where('email', $this->email)->first();
+                $found = $foundUser ?? User::where('email', $this->email)->first();
                 PartnerActivity::create([
                     'user_id' => $found?->id,
                     'activity_type' => 'login_failed',
@@ -83,7 +101,7 @@ class LoginForm extends Form
             ]);
         }
 
-        // Block inactive users
+        // Fallback block for inactive/blocked in case status changed concurrently
         if ($user->status === 'inactive') {
             Auth::logout();
             throw ValidationException::withMessages([
@@ -91,11 +109,10 @@ class LoginForm extends Form
             ]);
         }
 
-        // Block blocked users
-        if ($user->status === 'blocked') {
+        if ($user->status === 'blocked' || $user->isBanned()) {
             Auth::logout();
             throw ValidationException::withMessages([
-                'form.email' => 'Akun Anda telah diblokir. Silakan hubungi administrator.',
+                'form.email' => 'Akun Anda telah diblokir/banned. Seluruh sesi login telah dihapus secara total. Silakan hubungi administrator.',
             ]);
         }
 

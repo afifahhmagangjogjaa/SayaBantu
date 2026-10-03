@@ -27,6 +27,11 @@
         input[type="password"]::-ms-clear {
             display: none !important;
         }
+
+        /* Otomatis sembunyikan menu navigasi bawah saat modal overlay aktif agar layar tertutup penuh */
+        body:has(.modal-backdrop-open) #bottom-nav {
+            display: none !important;
+        }
         
         /* Bottom Navigation Animations */
         @keyframes slideUp {
@@ -265,10 +270,10 @@
                 </div>
 
                 <!-- Bottom Navigation Bar -->
-                <div class="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-white border-t border-gray-200 shadow-2xl z-50"
-                    style="max-width: 448px; width: 100vw;">
+                <div id="bottom-nav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-white border-t border-gray-200 shadow-2xl z-40"
+                    style="max-width: 448px; width: 100vw; background-color: #ffffff !important;">
                     <div class="max-w-md mx-auto flex items-center justify-around px-4 py-2.5">
-                        <a href="{{ route('mitra.dashboard') }}"
+                        <a href="{{ route('mitra.dashboard') }}" wire:navigate
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.dashboard') && !request()->has('tab') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -276,7 +281,7 @@
                             </svg>
                             <span class="text-xs font-bold mt-0.5">Beranda</span>
                         </a>
-                        <a href="{{ route('mitra.helps.all') }}"
+                        <a href="{{ route('mitra.helps.all') }}" wire:navigate
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.all') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -312,7 +317,7 @@
                             }
                         @endphp
 
-                        <a href="{{ route('mitra.helps.processing') }}"
+                        <a href="{{ route('mitra.helps.processing') }}" wire:navigate
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.processing') || request()->routeIs('mitra.helps.completed') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <div class="relative inline-flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,7 +333,7 @@
                             <span class="text-xs font-bold mt-0.5">Pekerjaan</span>
                         </a>
 
-                        <a href="{{ route('mitra.chat') }}"
+                        <a href="{{ route('mitra.chat') }}" wire:navigate
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.chat*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <div class="relative inline-flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -353,7 +358,7 @@
                                 !$u->hasVerifiedEmail()
                             );
                         @endphp
-                        <a href="{{ route('mitra.profile') }}"
+                        <a href="{{ route('mitra.profile') }}" wire:navigate
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <div class="relative inline-flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -382,8 +387,29 @@
     @livewire('mitra.realtime-notifications')
 
     <script>
-        function showMitraNotification({ title = 'Notifikasi', message = '', url = '#' , timeout = 3000, type = 'success' }) {
+        let _lastMitraNotification = { key: '', time: 0 };
+        function showMitraNotification(argObj) {
             try {
+                let options = argObj || {};
+                if (Array.isArray(options)) {
+                    options = options[0] || {};
+                } else if (options && typeof options === 'object' && options.detail) {
+                    options = Array.isArray(options.detail) ? (options.detail[0] || {}) : options.detail;
+                }
+                const title = options.title || 'Notifikasi';
+                const message = options.message || options.msg || options.body || '';
+                const url = options.url || '#';
+                const timeout = options.timeout || 3000;
+                const type = options.type || 'success';
+
+                // Debounce duplicate toast notifications within 2 seconds
+                const toastKey = `${title}:::${message}`;
+                const now = Date.now();
+                if (_lastMitraNotification.key === toastKey && (now - _lastMitraNotification.time) < 2000) {
+                    return;
+                }
+                _lastMitraNotification = { key: toastKey, time: now };
+
                 console.log('showMitraNotification (text-only) called', { title, message, url, timeout, type });
                 const container = document.getElementById('mitra-global-notification-inner');
                 if (!container) { console.warn('mitra-global-notification-inner not found'); return; }
@@ -483,15 +509,14 @@
                     ? 'Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan bantuan.' 
                     : 'Akses akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan informasi lebih lanjut.' }}
             </p>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="w-full py-3.5 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-xl text-sm shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2">
-                    <span>OK, Mengerti</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                </button>
-            </form>
+            <a href="{{ route('logout') }}"
+               onclick="this.style.pointerEvents='none'; this.innerHTML='<span>Mengeluarkan...</span>';"
+               class="w-full py-3.5 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-xl text-sm shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2 cursor-pointer text-center">
+                <span>OK, Mengerti</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+            </a>
         </div>
     </div>
 
@@ -564,7 +589,7 @@
             @endif
         });
 
-        setInterval(checkAccountStatus, 2500);
+        setInterval(checkAccountStatus, 30000);
         window.addEventListener('focus', checkAccountStatus);
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) checkAccountStatus();
@@ -668,7 +693,14 @@
         }
 
         // Global interactive toast popup
+        let _lastMitraFlashToast = { msg: '', time: 0 };
         window.showGlobalFlashToast = function(message, type = 'success') {
+            const now = Date.now();
+            if (_lastMitraFlashToast.msg === message && (now - _lastMitraFlashToast.time) < 2000) {
+                return;
+            }
+            _lastMitraFlashToast = { msg: message, time: now };
+
             let existing = document.getElementById('flash-toast');
             if (existing) existing.remove();
 

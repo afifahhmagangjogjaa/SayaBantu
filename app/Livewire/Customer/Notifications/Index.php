@@ -109,6 +109,35 @@ class Index extends Component
     {
         if (auth()->check()) {
             \App\Services\KtpVerificationNoticeService::ensurePromptNotification(auth()->user());
+
+            // Pastikan jika ada rekan jasa yang idle >= 30 menit sesuai kondisi riil, notifikasi masuk ke inbox
+            $candidates = \App\Models\Help::where('user_id', auth()->id())
+                ->whereIn('status', ['taken', 'memperoleh_mitra'])
+                ->whereNotNull('mitra_id')
+                ->whereNull('partner_started_moving_at')
+                ->whereNull('partner_started_at')
+                ->get();
+
+            foreach ($candidates as $idleHelp) {
+                if (!$idleHelp->isPartnerIdleOver30Minutes()) {
+                    continue;
+                }
+
+                $alreadyNotified = \Illuminate\Support\Facades\DB::table('notifications')
+                    ->where('notifiable_id', auth()->id())
+                    ->where('data->type', 'idle_partner_alert')
+                    ->where('data->help_id', $idleHelp->id)
+                    ->where('data->mitra_id', $idleHelp->mitra_id)
+                    ->exists();
+
+                if (!$alreadyNotified) {
+                    try {
+                        auth()->user()->notify(new \App\Notifications\IdlePartnerNotification($idleHelp));
+                    } catch (\Throwable $e) {
+                        // ignore
+                    }
+                }
+            }
         }
 
         $query = auth()->user()->notifications();

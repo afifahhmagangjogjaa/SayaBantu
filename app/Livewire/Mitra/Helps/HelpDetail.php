@@ -38,11 +38,43 @@ class HelpDetail extends Component
     // UI for showing the live status modal after partner cancel request
     public $showPartnerCancelStatusModal = false;
     public $partnerCancelStatus = null; // 'pending' | 'accepted' | 'rejected'
+    public $showReassignedModal = false;
 
     // Completion proof fields
     public $completion_photo;
     public $completion_notes = '';
     public $showCompletionModal = false;
+
+    /**
+     * Hitung jarak real-time dari posisi mitra saat ini ke lokasi tujuan customer (dalam meter)
+     */
+    public function getDistanceToCustomerProperty()
+    {
+        if (!$this->help) {
+            return null;
+        }
+
+        $mitraLat = $this->help->partner_current_lat;
+        $mitraLng = $this->help->partner_current_lng;
+
+        if (!$mitraLat || !$mitraLng) {
+            return null;
+        }
+
+        $custLat = !empty($this->help->latitude) ? (float) $this->help->latitude : (!empty($this->help->city?->latitude) ? (float) $this->help->city->latitude : null);
+        $custLng = !empty($this->help->longitude) ? (float) $this->help->longitude : (!empty($this->help->city?->longitude) ? (float) $this->help->city->longitude : null);
+
+        if (!$custLat || !$custLng) {
+            return null;
+        }
+
+        return app(\App\Services\LocationTrackingService::class)->calculateDistance(
+            (float) $mitraLat,
+            (float) $mitraLng,
+            $custLat,
+            $custLng
+        );
+    }
 
     public function mount($id)
     {
@@ -50,11 +82,10 @@ class HelpDetail extends Component
         $this->help = Help::with(['user', 'city', 'rating', 'category'])->findOrFail($id);
 
         // Verify this help belongs to the authenticated mitra.
-        // If not assigned anymore, allow access only when there is a recent
-        // notification that confirms the customer's acceptance of the
-        // partner-cancellation request (so the mitra can see the confirmation modal after refresh).
+        // If not assigned anymore, allow access only when reassigned or cancel_accepted
         if ($this->help->mitra_id !== auth()->id()) {
             $allowed = false;
+            $isReassigned = in_array(auth()->id(), $this->help->cancelled_mitra_ids ?? []);
 
             // Look up recent notifications for this mitra related to this help
             $recent = DB::table('notifications')
@@ -63,25 +94,34 @@ class HelpDetail extends Component
                 ->limit(50)
                 ->get();
 
+            $reassignedNotif = false;
             foreach ($recent as $n) {
                 $data = json_decode($n->data, true);
                 if (!is_array($data)) continue;
                 if (isset($data['type']) && $data['type'] === 'help_status'
-                    && isset($data['help_id']) && $data['help_id'] == $id
-                    && isset($data['new_status']) && $data['new_status'] === 'cancel_accepted') {
-                    $allowed = true;
-                    break;
+                    && isset($data['help_id']) && $data['help_id'] == $id) {
+                    if (isset($data['new_status']) && $data['new_status'] === 'cancel_accepted') {
+                        $allowed = true;
+                        $this->showPartnerCancelStatusModal = true;
+                        $this->partnerCancelStatus = 'accepted';
+                        break;
+                    }
+                    if (isset($data['new_status']) && in_array($data['new_status'], ['partner_reassigned', 'partner_cancelled_direct'])) {
+                        $allowed = true;
+                        $reassignedNotif = true;
+                        break;
+                    }
                 }
+            }
+
+            if ($isReassigned || $reassignedNotif) {
+                $allowed = true;
+                $this->showReassignedModal = true;
             }
 
             if (!$allowed) {
                 abort(403, 'Anda tidak memiliki akses ke bantuan ini.');
             }
-
-            // If allowed because of a recent cancel_accepted notification,
-            // show the partner-cancel accepted modal on mount.
-            $this->showPartnerCancelStatusModal = true;
-            $this->partnerCancelStatus = 'accepted';
         }
 
         $this->currentStatus = $this->help->status;
@@ -101,12 +141,21 @@ class HelpDetail extends Component
         // Reload help data dari database untuk mendeteksi perubahan
         $oldStatus = $this->help->status;
         $oldFlag = $this->help->partner_cancel_prev_status;
+        $oldMitraId = $this->help->mitra_id;
         
         $this->help->refresh();
         $this->help->load(['user', 'city', 'rating']);
         
         $newStatus = $this->help->status;
         $newFlag = $this->help->partner_cancel_prev_status;
+        $newMitraId = $this->help->mitra_id;
+
+        // Jika pesanan dialihkan atau mitra_id bukan kita lagi
+        if ($oldMitraId === auth()->id() && $newMitraId !== auth()->id()) {
+            $this->showReassignedModal = true;
+            $this->dispatch('show-status-notification', message: 'Pesanan dialihkan ke Rekan Jasa lain.');
+            return;
+        }
         
         // Detect status change untuk trigger notifikasi
         if ($oldStatus !== $newStatus || $oldFlag !== $newFlag) {
@@ -282,6 +331,16 @@ class HelpDetail extends Component
 
     public function markPartnerStarted()
     {
+        if (!$this->help->canPartnerStartJourney()) {
+            $availAt = $this->help->partnerJourneyAvailableAt();
+            $formattedTime = $availAt 
+                ? $availAt->translatedFormat('l, d F Y [pukul] H:i') . ' WIB' 
+                : '1 jam sebelum jadwal pelaksanaan';
+            session()->flash('error', "Pesanan ini terjadwal. Anda baru bisa menuju lokasi mulai 1 jam sebelum jadwal pelaksanaan ({$formattedTime}).");
+            $this->dispatch('show-status-notification', message: "Tombol baru aktif 1 jam sebelum jadwal ({$formattedTime})");
+            return;
+        }
+
         $oldStatus = $this->help->status;
         $this->help->update([
             'status' => 'partner_on_the_way',
@@ -317,6 +376,16 @@ class HelpDetail extends Component
 
     public function markPartnerArrived()
     {
+        $distance = $this->distanceToCustomer;
+
+        // Validasi: tombol hanya dapat ditekan jika jarak <= 50 meter
+        if ($distance !== null && $distance > 50) {
+            $formattedDist = $distance >= 1000 ? round($distance / 1000, 1) . ' km' : round($distance) . ' meter';
+            $this->dispatch('show-status-notification', message: "Anda masih berjarak {$formattedDist}. Tombol aktif jika jarak maksimal 50m.");
+            session()->flash('error', "Anda masih berjarak {$formattedDist} dari lokasi. Tombol hanya dapat ditekan jika jarak maksimal 50 meter.");
+            return;
+        }
+
         $oldStatus = $this->help->status;
         $this->help->update([
             'status' => 'partner_arrived',
@@ -510,6 +579,9 @@ class HelpDetail extends Component
             $this->currentStatus = $this->help->status;
         }
 
-        return view('livewire.mitra.helps.help-detail');
+        return view('livewire.mitra.helps.help-detail', array_merge(get_object_vars($this), [
+            'help' => $this->help,
+            'distanceToCustomer' => $this->distanceToCustomer,
+        ]));
     }
 }

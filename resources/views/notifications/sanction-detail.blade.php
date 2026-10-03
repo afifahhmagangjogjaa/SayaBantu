@@ -171,17 +171,14 @@
                     <div class="mt-4 flex flex-col gap-2">
                         @if($warningLevel >= 3)
                             {{-- SP 3: Tombol Saya Mengerti → ban + logout --}}
-                            <form method="POST" action="{{ route('notifications.sanction.acknowledge', $notification->id) }}">
-                                @csrf
-                                <button type="submit"
-                                    onclick="return confirm('Dengan mengklik ini, akun Anda akan segera dinonaktifkan dan Anda akan keluar dari sistem. Lanjutkan?')"
-                                    class="w-full py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl text-center transition flex items-center justify-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                    Saya Mengerti — Keluar dari Akun
-                                </button>
-                            </form>
+                            <a href="{{ route('notifications.sanction.acknowledge', $notification->id) }}"
+                               onclick="return confirm('Dengan mengklik ini, akun Anda akan segera dinonaktifkan dan Anda akan keluar dari sistem. Lanjutkan?')"
+                               class="w-full py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl text-center transition flex items-center justify-center gap-2 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Saya Mengerti — Keluar dari Akun
+                            </a>
                         @else
                             <a href="{{ $profileUrl }}" class="w-full py-2.5 px-4 bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold rounded-xl text-center transition">
                                 Periksa Halaman Profil

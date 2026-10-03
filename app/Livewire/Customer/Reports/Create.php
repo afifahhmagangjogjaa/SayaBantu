@@ -162,8 +162,16 @@ class Create extends Component
 
         // Kirim notifikasi khusus ke Admin Kota terkait
         try {
-            $cityId = auth()->user()->city_id;
-            $cityAdmins = \App\Models\User::getAdminsForCity($cityId);
+            $cityId = $this->reported_help_id ? Help::find($this->reported_help_id)?->city_id : null;
+            $cityId = $cityId ?: (auth()->user()->city_id ?: ($this->reported_user_id ? User::find($this->reported_user_id)?->city_id : null));
+            $cityAdmins = $cityId ? \App\Models\User::getAdminsForCity($cityId) : collect();
+
+            // Fallback jika tidak ada admin kota khusus yang ditemukan
+            if ($cityAdmins->isEmpty()) {
+                $cityAdmins = \App\Models\User::where('role', 'admin')
+                    ->where('status', 'active')
+                    ->get();
+            }
 
             foreach ($cityAdmins as $adminUser) {
                 $adminUser->notify(new \App\Notifications\NewReportNotification($report));

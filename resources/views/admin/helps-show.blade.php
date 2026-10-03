@@ -15,42 +15,33 @@
     </div>
 
     {{-- Banner Mediasi Komplain (Jika status komplain) --}}
+    {{-- Banner Mediasi Komplain (Jika status komplain) --}}
     @if(in_array($help->status, ['komplain', 'disputed']))
-        <div class="bg-gradient-to-r from-red-500 to-rose-600 rounded-2xl p-5 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="bg-gradient-to-r from-red-500 to-rose-600 rounded-2xl p-5 text-white shadow-md flex items-center justify-between gap-4">
             <div class="flex items-start gap-3">
                 <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl flex-shrink-0">
                     ⚠️
                 </div>
                 <div>
                     <h3 class="font-bold text-base">Pesanan Memerlukan Mediasi Komplain</h3>
-                    <p class="text-xs text-red-100 mt-0.5 leading-relaxed">Customer mengajukan komplain penolakan hasil kerja pada {{ $help->complaint_submitted_at?->format('d M Y, H:i') ?? '-' }}. Mohon periksa bukti foto dari kedua belah pihak di bawah sebelum memutuskan.</p>
+                    <p class="text-xs text-red-100 mt-0.5 leading-relaxed">Customer mengajukan komplain penolakan hasil kerja pada {{ $help->complaint_submitted_at?->format('d M Y, H:i') ?? '-' }}. Mohon periksa bukti foto kedua belah pihak di bawah, lalu ambil keputusan pada panel mediasi di sebelah kanan.</p>
                 </div>
-            </div>
-            <div class="flex items-center gap-2 w-full md:w-auto">
-                <button type="button" wire:click="openDecisionModal('refund')"
-                    class="flex-1 md:flex-none px-4 py-2.5 bg-white text-red-600 hover:bg-red-50 text-xs font-bold rounded-xl transition shadow-sm cursor-pointer whitespace-nowrap">
-                    Setujui Refund Customer
-                </button>
-                <button type="button" wire:click="openDecisionModal('reject_complaint')"
-                    class="flex-1 md:flex-none px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition shadow-sm cursor-pointer whitespace-nowrap">
-                    Tolak Komplain & Cairkan ke Mitra
-                </button>
             </div>
         </div>
     @elseif($help->complaint_resolution)
-        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 text-xs text-gray-700 flex items-center justify-between">
+        <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4 text-xs text-purple-900 flex items-center justify-between shadow-2xs">
             <div>
-                <span class="font-bold text-gray-900 block">Riwayat Mediasi Komplain:</span>
-                <span>Keputusan: <strong>{{ $help->complaint_resolution === 'refunded' ? 'Dana Dikembalikan ke Customer (Refund)' : 'Komplain Ditolak & Dana Dicairkan ke Mitra' }}</strong> pada {{ $help->complaint_resolved_at?->format('d M Y H:i') }}</span>
+                <span class="font-bold text-purple-950 block text-sm flex items-center gap-1.5">⚖️ Riwayat Mediasi Komplain</span>
+                <p class="mt-1 text-purple-900">Keputusan: <strong>{{ $help->complaint_resolution === 'refunded' ? 'Dana Dikembalikan ke Customer (Refund)' : 'Komplain Ditolak & Dana Dicairkan ke Mitra' }}</strong> pada {{ $help->complaint_resolved_at?->format('d M Y H:i') }}</p>
                 @if($help->complaint_admin_notes)
-                    <p class="text-gray-500 italic mt-0.5">Catatan Admin: "{{ $help->complaint_admin_notes }}"</p>
+                    <p class="text-gray-700 italic mt-1.5 bg-white p-2.5 rounded-xl border border-purple-100">Catatan Admin: "{{ $help->complaint_admin_notes }}"</p>
                 @endif
             </div>
         </div>
     @endif
 
-    {{-- Banner Pembatalan (Jika dibatalkan) --}}
-    @if(in_array($help->status, ['dibatalkan', 'cancelled']) || $help->customer_cancel_reason || $help->partner_cancel_reason)
+    {{-- Banner Pembatalan (Hanya jika pembatalan manual, bukan refund mediasi) --}}
+    @if(((in_array($help->status, ['dibatalkan', 'cancelled']) && empty($help->complaint_resolution)) || $help->customer_cancel_reason || $help->partner_cancel_reason))
         <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 flex items-start gap-3 shadow-xs">
             <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold shrink-0">
                 ⚠️
@@ -61,14 +52,47 @@
                     <div class="bg-white p-2.5 rounded-xl border border-amber-100 mt-1">
                         <span class="font-semibold text-gray-800">Dibatalkan oleh Customer:</span>
                         <p class="italic text-gray-700 mt-0.5">"{{ $help->customer_cancel_reason }}"</p>
-                        <p class="text-[10px] text-gray-400 mt-0.5">Waktu: {{ optional($help->cancelled_at)->format('d M Y, H:i') ?? '-' }}</p>
+                        @php
+                            $custCancelTime = $help->cancelled_at ?? $help->updated_at;
+                        @endphp
+                        <p class="text-[10px] text-gray-500 mt-1 flex items-center gap-1 font-medium">
+                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Waktu: <strong class="text-gray-700">{{ $custCancelTime ? $custCancelTime->format('d M Y, H:i') . ' WIB' : '-' }}</strong></span>
+                        </p>
                     </div>
                 @endif
                 @if($help->partner_cancel_reason)
                     <div class="bg-white p-2.5 rounded-xl border border-amber-100 mt-1">
-                        <span class="font-semibold text-gray-800">Dibatalkan oleh Mitra:</span>
-                        <p class="italic text-gray-700 mt-0.5">"{{ $help->partner_cancel_reason }}"</p>
-                        <p class="text-[10px] text-gray-400 mt-0.5">Waktu: {{ optional($help->partner_cancel_requested_at)->format('d M Y, H:i') ?? '-' }}</p>
+                        <div class="flex items-center justify-between flex-wrap gap-1.5">
+                            <span class="font-semibold text-gray-800">
+                                @if(str_contains(strtolower($help->partner_cancel_reason), 'rekan jasa lain') || str_contains(strtolower($help->partner_cancel_reason), 'keberangkatan'))
+                                    Dibatalkan & Ganti Rekan Jasa:
+                                @else
+                                    Dibatalkan oleh Rekan Jasa (Mitra):
+                                @endif
+                            </span>
+                            @if($help->lastCancelledMitra)
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-200">
+                                    <span>Mitra yang Dibatalkan:</span>
+                                    <span class="text-gray-900 font-bold">{{ $help->lastCancelledMitra->name }}</span>
+                                    @if($help->lastCancelledMitra->phone)
+                                        <span class="text-gray-500 font-mono text-[10px]">({{ $help->lastCancelledMitra->phone }})</span>
+                                    @endif
+                                </span>
+                            @endif
+                        </div>
+                        <p class="italic text-gray-700 mt-1">"{{ $help->partner_cancel_reason }}"</p>
+                        @php
+                            $partnerCancelTime = $help->partner_cancel_requested_at ?? $help->cancelled_at ?? $help->updated_at;
+                        @endphp
+                        <p class="text-[10px] text-gray-500 mt-1 flex items-center gap-1 font-medium">
+                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Waktu Pembatalan: <strong class="text-gray-700">{{ $partnerCancelTime ? $partnerCancelTime->format('d M Y, H:i') . ' WIB' : '-' }}</strong></span>
+                        </p>
                     </div>
                 @endif
             </div>
@@ -425,10 +449,13 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-800 mb-1">
-                            {{ $decisionType === 'reject_help' ? 'Alasan Penolakan (Akan Dilihat Customer)' : 'Catatan Keputusan Admin (Opsional)' }}
+                            {{ $decisionType === 'reject_help' ? 'Alasan Penolakan (Akan Dilihat Customer)' : 'Catatan Keputusan Mediasi Admin' }} <span class="text-red-500 font-bold">*</span>
                         </label>
-                        <textarea wire:model="admin_notes" rows="3" placeholder="{{ $decisionType === 'reject_help' ? 'Contoh: Permintaan tidak sesuai ketentuan layanan atau informasi lokasi tidak jelas...' : 'Masukkan alasan keputusan atau catatan mediasi untuk arsip...' }}"
-                            class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white transition"></textarea>
+                        <textarea wire:model="admin_notes" rows="3" placeholder="{{ $decisionType === 'reject_help' ? 'Contoh: Permintaan tidak sesuai ketentuan layanan atau informasi lokasi tidak jelas...' : 'Wajib masukkan alasan keputusan atau catatan mediasi untuk arsip...' }}"
+                            class="w-full px-3 py-2 text-xs border @error('admin_notes') border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-200 @else border-gray-300 bg-gray-50 focus:bg-white focus:ring-primary-500 @enderror rounded-xl focus:ring-2 transition"></textarea>
+                        @error('admin_notes')
+                            <p class="text-xs text-red-600 mt-1 font-medium">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">

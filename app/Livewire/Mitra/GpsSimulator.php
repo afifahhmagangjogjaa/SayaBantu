@@ -111,6 +111,13 @@ class GpsSimulator extends Component
             return;
         }
 
+        if ($help->isScheduled() && !$help->canPartnerStartJourney()) {
+            $availAt = $help->partnerJourneyAvailableAt();
+            $formattedTime = $availAt ? $availAt->translatedFormat('l, d F Y [pukul] H:i') . ' WIB' : '1 jam sebelum jadwal';
+            $this->dispatch('show-status-notification', message: "Simulasi hanya bisa dimulai 1 jam sebelum jadwal ({$formattedTime})");
+            return;
+        }
+
         // Pastikan target location terisi
         $this->targetLat = !empty($help->latitude) ? floatval($help->latitude) : (!empty($help->city?->latitude) ? floatval($help->city->latitude) : -7.7956);
         $this->targetLng = !empty($help->longitude) ? floatval($help->longitude) : (!empty($help->city?->longitude) ? floatval($help->city->longitude) : 110.3695);
@@ -191,12 +198,10 @@ class GpsSimulator extends Component
 
         $isArrived = false;
 
-        // Jika sudah dekat (<= stepSize atau <= 20 meter), tiba di lokasi!
-        if ($distanceToTarget <= max($this->stepSize, 20)) {
-            $this->currentLat = $this->targetLat;
-            $this->currentLng = $this->targetLng;
+        // Jika sudah dekat (<= 35 meter), berhenti di radius kedatangan agar mitra bisa menekan tombol 'Saya Sudah Tiba di Lokasi'
+        if ($distanceToTarget <= 35) {
             $this->stopSimulation();
-            $isArrived = true;
+            $isArrived = false;
         } else {
             // Gerak selangkah ke arah target
             $angularDistance = $this->stepSize / $earthRadius;

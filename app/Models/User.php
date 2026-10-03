@@ -68,6 +68,22 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         });
 
+        static::updating(function (User $user) {
+            if ($user->isDirty(['status', 'is_banned'])) {
+                if ($user->isBanned() || in_array($user->status, ['blocked', 'inactive'])) {
+                    $user->remember_token = null;
+                }
+            }
+        });
+
+        static::updated(function (User $user) {
+            if ($user->wasChanged(['status', 'is_banned'])) {
+                if ($user->isBanned() || in_array($user->status, ['blocked', 'inactive'])) {
+                    $user->purgeSessions();
+                }
+            }
+        });
+
         static::deleting(function ($user) {
             try {
                 \App\Models\Registration::where('email', $user->email)->delete();
@@ -159,9 +175,48 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+
     public function isBanned(): bool
     {
         return (bool) ($this->is_banned ?? false) || $this->status === 'blocked';
+    }
+
+    /**
+     * Hapus total seluruh sesi aktif pengguna dari database dan file sesi, serta kosongkan remember_token
+     */
+    public function purgeSessions(): void
+    {
+        try {
+            // 1. Kosongkan remember_token di database agar auto-login / remember me di browser mati total
+            if ($this->remember_token !== null) {
+                $this->forceFill(['remember_token' => null])->saveQuietly();
+            }
+
+            // 2. Hapus seluruh data sesi di tabel database sessions
+            if (\Illuminate\Support\Facades\Schema::hasTable('sessions')) {
+                \Illuminate\Support\Facades\DB::table('sessions')->where('user_id', $this->id)->delete();
+            }
+
+            // 3. Hapus file sesi fisik jika menggunakan file driver
+            $sessionPath = storage_path('framework/sessions');
+            if (is_dir($sessionPath)) {
+                $files = @glob($sessionPath . '/*');
+                if (is_array($files)) {
+                    foreach ($files as $file) {
+                        if (is_file($file) && basename($file) !== '.gitignore') {
+                            $content = @file_get_contents($file);
+                            if ($content !== false && strpos($content, (string) $this->id) !== false) {
+                                if (preg_match('/login_[a-z0-9_]+[^\d]+' . $this->id . '([^\d]|$)/', $content)) {
+                                    @unlink($file);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal membersihkan sesi user #{$this->id}: " . $e->getMessage());
+        }
     }
 
     public function isShadowBanned(): bool
@@ -231,14 +286,34 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getAdminCityIds(): array
     {
-        return City::where('admin_id', $this->id)
-            ->pluck('id')
-            ->merge($this->managedCities()->pluck('cities.id'))
-            ->push($this->city_id)
-            ->filter()
-            ->unique()
-            ->values()
-            ->toArray();
+        $cityIds = collect();
+
+        if ($this->exists && !empty($this->id)) {
+            $managedDirect = City::where('admin_id', $this->id)->pluck('id');
+            $managedPivot = $this->managedCities()->pluck('cities.id');
+            $cityIds = $cityIds->merge($managedDirect)->merge($managedPivot);
+        }
+
+        if (!empty($this->city_id)) {
+            $cityIds->push($this->city_id);
+        }
+
+        $cityIds = $cityIds->filter()->unique()->values();
+
+        if ($cityIds->isNotEmpty()) {
+            $codes = City::whereIn('id', $cityIds)
+                ->whereNotNull('code')
+                ->where('code', '!=', '')
+                ->pluck('code')
+                ->unique();
+
+            if ($codes->isNotEmpty()) {
+                $sameCodeIds = City::whereIn('code', $codes)->pluck('id');
+                $cityIds = $cityIds->merge($sameCodeIds);
+            }
+        }
+
+        return $cityIds->unique()->values()->toArray();
     }
 
     /**
@@ -253,18 +328,24 @@ class User extends Authenticatable implements MustVerifyEmail
             return collect();
         }
 
-        $directAdminId = City::where('id', $cityId)->value('admin_id');
+        $targetCity = City::find($cityId);
+        $targetCityIds = [$cityId];
+        if ($targetCity && !empty($targetCity->code)) {
+            $targetCityIds = City::where('code', $targetCity->code)->pluck('id')->toArray();
+        }
+
+        $directAdminIds = City::whereIn('id', $targetCityIds)->whereNotNull('admin_id')->pluck('admin_id')->toArray();
 
         return static::where('role', 'admin')
             ->where('status', 'active')
-            ->where(function ($query) use ($cityId, $directAdminId) {
-                $query->where('city_id', $cityId)
-                      ->orWhereHas('managedCities', function ($q) use ($cityId) {
-                          $q->where('cities.id', $cityId);
+            ->where(function ($query) use ($targetCityIds, $directAdminIds) {
+                $query->whereIn('city_id', $targetCityIds)
+                      ->orWhereHas('managedCities', function ($q) use ($targetCityIds) {
+                          $q->whereIn('cities.id', $targetCityIds);
                       });
 
-                if ($directAdminId) {
-                    $query->orWhere('id', $directAdminId);
+                if (!empty($directAdminIds)) {
+                    $query->orWhereIn('id', $directAdminIds);
                 }
             })
             ->get();

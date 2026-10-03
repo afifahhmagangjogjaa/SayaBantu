@@ -13,6 +13,16 @@
             this.$watch('$wire.recentUnread', (val) => {
                 this.checkNewNotifications(val);
             });
+            window.addEventListener('admin-new-notifications', (e) => {
+                const notifs = e.detail && e.detail.notifs ? e.detail.notifs : (Array.isArray(e.detail) ? e.detail : []);
+                this.checkNewNotifications(notifs);
+            });
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('admin-new-notifications', (data) => {
+                    const notifs = data && data.notifs ? data.notifs : (Array.isArray(data) ? data : []);
+                    this.checkNewNotifications(notifs);
+                });
+            });
         },
 
         checkNewNotifications(items) {
@@ -307,11 +317,12 @@
     </div>
 
     <!-- Compact Floating Real-time Notification Pop-up (Like Customer & Mitra) -->
-    <div wire:ignore
-         x-show="currentNotif !== null" 
-         x-cloak
-         @keydown.escape.window="dismissAll()"
-         class="fixed top-4 left-1/2 transform -translate-x-1/2 z-[99999] w-[92vw] max-w-sm pointer-events-none"
+    <template x-teleport="body">
+        <div wire:ignore
+             x-show="currentNotif !== null" 
+             x-cloak
+             @keydown.escape.window="dismissAll()"
+             class="fixed top-4 left-1/2 transform -translate-x-1/2 z-[999999] w-[92vw] max-w-sm pointer-events-none"
          x-transition:enter="transition ease-out duration-250 transform"
          x-transition:enter-start="opacity-0 -translate-y-3 scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 scale-100"
@@ -403,4 +414,5 @@
             </div>
         </div>
     </div>
+    </template>
 </div>

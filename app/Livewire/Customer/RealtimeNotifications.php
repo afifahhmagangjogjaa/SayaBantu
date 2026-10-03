@@ -37,7 +37,6 @@ class RealtimeNotifications extends Component
     public function poll()
     {
         if (!auth()->check()) {
-            Log::info('[Customer\RealtimeNotifications] poll called but no auth user.');
             return;
         }
 
@@ -47,8 +46,6 @@ class RealtimeNotifications extends Component
             $this->checkUnpoppedReportStatus();
             $this->checkUnpoppedTopups();
         }
-
-        Log::info('[Customer\RealtimeNotifications] polling for customer_id=' . auth()->id() . ' last_chat_id=' . $this->last_chat_id);
 
         // Check for new chat messages
         $new = ChatModel::where('customer_id', auth()->id())
@@ -76,8 +73,6 @@ class RealtimeNotifications extends Component
             ->whereNotIn('id', $this->processed_ids)
             ->orderBy('created_at', 'asc')
             ->get();
-
-        Log::info('[Customer\RealtimeNotifications] checking notifications, last_check=' . $this->last_notification_check . ', found=' . $newNotifications->count());
 
         if ($newNotifications->count() > 0) {
             $this->last_notification_check = $newNotifications->last()->created_at;
@@ -202,6 +197,55 @@ class RealtimeNotifications extends Component
                 ));
             }
 
+            // Handle topup_request_submitted notification
+            if ((isset($data['type']) && $data['type'] === 'topup_request_submitted') || $notification->type === 'App\Notifications\TopupRequestSubmitted') {
+                $notification->update(['popped_at' => now()]);
+
+                $title = $data['title'] ?? '⏳ Request Top-Up Terkirim';
+                $amount = isset($data['amount']) ? 'Rp ' . number_format((float)$data['amount'], 0, ',', '.') : '';
+                $message = $data['message'] ?? "Request top-up saldo Anda sebesar $amount telah diterima dan menunggu verifikasi Admin.";
+                $url = $data['url'] ?? route('customer.topup.history');
+
+                $this->dispatch('customer-toast', [
+                    'title' => $title,
+                    'message' => $message,
+                    'type' => 'info',
+                    'url' => $url,
+                    'timeout' => 8000,
+                ]);
+
+                $this->js(sprintf(
+                    "window.dispatchEvent(new CustomEvent('customer-toast', { detail: { title: '%s', message: '%s', type: 'info', url: '%s', timeout: 8000 } })); if (typeof window.playNotifChime === 'function') { window.playNotifChime(); }",
+                    addslashes($title),
+                    addslashes($message),
+                    addslashes($url)
+                ));
+            }
+
+            // Handle idle_partner_alert notification
+            if (isset($data['type']) && $data['type'] === 'idle_partner_alert') {
+                $notification->update(['popped_at' => now()]);
+
+                $title = $data['title'] ?? '⏳ Rekan Jasa Belum Berangkat';
+                $message = $data['message'] ?? 'Rekan Jasa belum menuju lokasi Anda setelah 30 menit.';
+                $url = $data['url'] ?? route('customer.helps.detail', $data['help_id'] ?? 0);
+
+                $this->dispatch('customer-toast', [
+                    'title' => $title,
+                    'message' => $message,
+                    'type' => 'warning',
+                    'url' => $url,
+                    'timeout' => 10000,
+                ]);
+
+                $this->js(sprintf(
+                    "window.dispatchEvent(new CustomEvent('customer-toast', { detail: { title: '%s', message: '%s', type: 'warning', url: '%s', timeout: 10000 } })); if (typeof window.playNotifChime === 'function') { window.playNotifChime(); }",
+                    addslashes($title),
+                    addslashes($message),
+                    addslashes($url)
+                ));
+            }
+
             // Handle report status update notification
             if (isset($data['type']) && $data['type'] === 'report_status') {
                 $statusType = match ($data['new_status'] ?? '') {
@@ -281,38 +325,58 @@ class RealtimeNotifications extends Component
             ->get()
             ->first(function ($n) {
                 $type = $n->data['type'] ?? '';
-                return in_array($type, ['topup_approved', 'topup_rejected'])
-                    || in_array($n->type, ['App\Notifications\TopupApproved', 'App\Notifications\TopupRejected']);
+                return in_array($type, ['topup_approved', 'topup_rejected', 'topup_request_submitted'])
+                    || in_array($n->type, [
+                        'App\Notifications\TopupApproved', 
+                        'App\Notifications\TopupRejected',
+                        'App\Notifications\TopupRequestSubmitted'
+                    ]);
             });
 
         if ($notif) {
             $data = $notif->data;
             $notif->update(['popped_at' => now()]);
 
-            $isApproved = ($data['type'] ?? '') === 'topup_approved' || $notif->type === 'App\Notifications\TopupApproved';
+            $type = $data['type'] ?? '';
+            $isApproved = $type === 'topup_approved' || $notif->type === 'App\Notifications\TopupApproved';
+            $isRejected = $type === 'topup_rejected' || $notif->type === 'App\Notifications\TopupRejected';
 
             if ($isApproved) {
                 $amount = isset($data['amount']) ? 'Rp ' . number_format((float)$data['amount'], 0, ',', '.') : '';
                 $title = $data['title'] ?? 'Top-Up Saldo Disetujui! ✅';
                 $message = $data['message'] ?? ("Request top-up saldo Anda sebesar $amount telah disetujui! Saldo sudah masuk.");
                 $url = $data['url'] ?? route('customer.transactions.index', ['tab' => 'masuk']);
-                $type = 'success';
+                $toastType = 'success';
 
                 $this->dispatch('balance-updated');
                 $this->js("window.dispatchEvent(new CustomEvent('balance-updated'))");
-            } else {
+            } elseif ($isRejected) {
                 $title = $data['title'] ?? 'Top-Up Saldo Ditolak ❌';
                 $reason = $data['rejection_reason'] ?? '';
                 $message = $data['message'] ?? ("Request top-up saldo Anda ditolak." . ($reason ? " Alasan: $reason" : ''));
                 $url = $data['url'] ?? route('customer.topup.history');
-                $type = 'error';
+                $toastType = 'error';
+            } else {
+                $title = $data['title'] ?? '⏳ Request Top-Up Terkirim';
+                $amount = isset($data['amount']) ? 'Rp ' . number_format((float)$data['amount'], 0, ',', '.') : '';
+                $message = $data['message'] ?? ("Request top-up saldo Anda sebesar $amount telah diterima dan menunggu verifikasi Admin.");
+                $url = $data['url'] ?? route('customer.topup.history');
+                $toastType = 'info';
             }
+
+            $this->dispatch('customer-toast', [
+                'title' => $title,
+                'message' => $message,
+                'type' => $toastType,
+                'url' => $url,
+                'timeout' => 8000,
+            ]);
 
             $this->js(sprintf(
                 "setTimeout(() => { window.dispatchEvent(new CustomEvent('customer-toast', { detail: { title: '%s', message: '%s', type: '%s', url: '%s', timeout: 8000 } })); if (typeof window.playNotifChime === 'function') { window.playNotifChime(); } }, 500);",
                 addslashes($title),
                 addslashes($message),
-                $type,
+                $toastType,
                 addslashes($url)
             ));
         }

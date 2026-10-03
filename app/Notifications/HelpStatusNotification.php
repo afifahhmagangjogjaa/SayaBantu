@@ -56,9 +56,16 @@ class HelpStatusNotification extends Notification
             strtolower($this->newStatus) === 'partner_arrived' => "📍 Mitra Telah Tiba di Lokasi",
             strtolower($this->newStatus) === 'in_progress' => "⚙️ Pekerjaan Dimulai",
             strtolower($this->newStatus) === 'waiting_customer_confirmation' => "✋ Menunggu Konfirmasi Anda",
+            strtolower($this->newStatus) === 'partner_reassigned' => ($notifiable->role === 'mitra')
+                ? "🔄 Pesanan Dialihkan ke Rekan Jasa Lain"
+                : (($notifiable->role === 'admin' || $notifiable->role === 'super_admin')
+                    ? "🔄 Pesanan Dialihkan (Mitra Tidak Bergerak >30m)"
+                    : "🔄 Mencari Rekan Jasa Lain"),
             strtolower($this->newStatus) === 'partner_cancelled_direct' => ($notifiable->role === 'admin' || $notifiable->role === 'super_admin')
                 ? "⚠️ Rekan Jasa Membatalkan Bantuan"
-                : "🔄 Rekan Jasa Berhalangan Hadir",
+                : ($notifiable->role === 'mitra'
+                    ? "🔄 Pesanan Dibatalkan"
+                    : "🔄 Rekan Jasa Berhalangan Hadir"),
             strtolower($this->newStatus) === 'partner_cancel_requested' => "⚠️ Permintaan Pembatalan Mitra",
             strtolower($this->newStatus) === 'cancel_accepted' => "✅ Pembatalan Disetujui",
             strtolower($this->newStatus) === 'cancel_rejected' => "❌ Pembatalan Ditolak",
@@ -90,9 +97,16 @@ class HelpStatusNotification extends Notification
             strtolower($this->newStatus) === 'partner_arrived' => "$mitraName telah tiba di lokasi Anda",
             strtolower($this->newStatus) === 'in_progress' => "$mitraName telah memulai pekerjaan",
             strtolower($this->newStatus) === 'waiting_customer_confirmation' => "$mitraName telah menyelesaikan pekerjaan. Silakan konfirmasi pesanan Anda.",
+            strtolower($this->newStatus) === 'partner_reassigned' => ($notifiable->role === 'mitra')
+                ? "Pesanan '{$helpTitle}' telah dialihkan oleh customer ke Rekan Jasa lain karena belum ada tanda keberangkatan menuju lokasi setelah lebih dari 30 menit."
+                : (($notifiable->role === 'admin' || $notifiable->role === 'super_admin')
+                    ? "Pesanan #{$this->help->id} '{$helpTitle}' dialihkan dari {$mitraName} ke antrean pencarian baru karena tidak bergerak >30 menit."
+                    : "Sistem sedang mencarikan Rekan Jasa pengganti untuk pesanan '{$helpTitle}'."),
             strtolower($this->newStatus) === 'partner_cancelled_direct' => ($notifiable->role === 'admin' || $notifiable->role === 'super_admin')
                 ? "Rekan Jasa {$mitraName} membatalkan pesanan #{$this->help->id} '{$helpTitle}' (Alasan: " . ($this->help->partner_cancel_reason ?: 'Kendala di jalan') . "). Pesanan telah dikembalikan ke antrean."
-                : "Rekan Jasa $mitraName membatalkan pesanan (" . ($this->help->partner_cancel_reason ?: 'Kendala di jalan') . "). Sistem sedang mencarikan Rekan Jasa pengganti untuk Anda.",
+                : ($notifiable->role === 'mitra'
+                    ? "Anda telah membatalkan pesanan '{$helpTitle}'."
+                    : "Rekan Jasa $mitraName membatalkan pesanan (" . ($this->help->partner_cancel_reason ?: 'Kendala di jalan') . "). Sistem sedang mencarikan Rekan Jasa pengganti untuk Anda."),
             strtolower($this->newStatus) === 'partner_cancel_requested' => "$mitraName meminta pembatalan bantuan. Cek detail pesanan.",
             strtolower($this->newStatus) === 'cancel_accepted' => "Customer menerima pembatalan. Bantuan dibuka kembali untuk mitra lain.",
             strtolower($this->newStatus) === 'cancel_rejected' => "Customer menolak pembatalan. Silakan lanjutkan pekerjaan.",

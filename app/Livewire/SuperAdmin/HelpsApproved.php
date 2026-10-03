@@ -28,9 +28,16 @@ class HelpsApproved extends Component
     public $showDetailModal = false;
     public $detailHelp = null;
 
+    // Modal mediasi keputusan Super Admin
+    public $showDecisionModal = false;
+    public $decisionType = ''; // 'refund' | 'reject_complaint'
+    public $decisionHelpId = null;
+    public $decisionHelp = null;
+    public $admin_notes = '';
+
     public function openDetailModal($id)
     {
-        $this->detailHelp = Help::with(['customer', 'mitra', 'category', 'city'])->find($id);
+        $this->detailHelp = Help::with(['customer', 'mitra', 'category', 'city', 'lastCancelledMitra'])->find($id);
         if ($this->detailHelp) {
             $this->showDetailModal = true;
         }
@@ -40,6 +47,7 @@ class HelpsApproved extends Component
     {
         $this->showDetailModal = false;
         $this->detailHelp = null;
+        $this->closeDecisionModal();
     }
 
     public function toggleShadowBan($userId)
@@ -50,7 +58,7 @@ class HelpsApproved extends Component
         $user->save();
 
         if ($this->detailHelp) {
-            $this->detailHelp = Help::with(['customer', 'mitra', 'category', 'city'])->find($this->detailHelp->id);
+            $this->detailHelp = Help::with(['customer', 'mitra', 'category', 'city', 'lastCancelledMitra'])->find($this->detailHelp->id);
         }
 
         $label = $user->is_shadow_banned 
@@ -66,7 +74,7 @@ class HelpsApproved extends Component
         $user->save();
 
         if ($this->detailHelp) {
-            $this->detailHelp = Help::with(['customer', 'mitra', 'category', 'city'])->find($this->detailHelp->id);
+            $this->detailHelp = Help::with(['customer', 'mitra', 'category', 'city', 'lastCancelledMitra'])->find($this->detailHelp->id);
         }
 
         $label = $user->status === 'blocked' 
@@ -165,6 +173,43 @@ class HelpsApproved extends Component
         $this->closeDetailModal();
     }
 
+    public function openDecisionModal($id, $type)
+    {
+        $this->decisionHelpId = $id;
+        $this->decisionHelp = Help::with(['customer', 'mitra'])->findOrFail($id);
+        $this->decisionType = $type;
+        $this->admin_notes = '';
+        $this->resetErrorBag();
+        $this->showDecisionModal = true;
+    }
+
+    public function closeDecisionModal()
+    {
+        $this->showDecisionModal = false;
+        $this->decisionHelpId = null;
+        $this->decisionHelp = null;
+        $this->decisionType = '';
+        $this->admin_notes = '';
+        $this->resetErrorBag();
+    }
+
+    public function processDecision()
+    {
+        $this->validate([
+            'admin_notes' => 'required|string|min:5|max:1000',
+        ], [
+            'admin_notes.required' => 'Wajib mengisi catatan/alasan keputusan mediasi.',
+            'admin_notes.min' => 'Catatan minimal :min karakter.',
+            'admin_notes.max' => 'Catatan maksimal :max karakter.',
+        ]);
+
+        if ($this->decisionType === 'refund') {
+            $this->approveRefund($this->decisionHelpId);
+        } elseif ($this->decisionType === 'reject_complaint') {
+            $this->rejectComplaint($this->decisionHelpId);
+        }
+    }
+
     public function approveRefund($id)
     {
         $help = Help::with(['customer', 'mitra'])->findOrFail($id);
@@ -174,7 +219,7 @@ class HelpsApproved extends Component
             'status' => 'dibatalkan',
             'complaint_resolved_at' => now(),
             'complaint_resolution' => 'refunded',
-            'complaint_admin_notes' => 'Disetujui oleh Super Admin',
+            'complaint_admin_notes' => $this->admin_notes ?: 'Disetujui oleh Super Admin',
         ]);
 
         // Notify customer
@@ -193,6 +238,7 @@ class HelpsApproved extends Component
         } catch (\Throwable $e) {}
 
         session()->flash('message', 'Komplain bantuan #' . $help->id . ' disetujui. Dana sebesar Rp ' . number_format($help->amount + ($help->admin_fee ?? 0), 0, ',', '.') . ' telah dikembalikan ke saldo customer.');
+        $this->closeDecisionModal();
         $this->closeDetailModal();
     }
 
@@ -206,7 +252,7 @@ class HelpsApproved extends Component
             'completed_at' => $help->completed_at ?? now(),
             'complaint_resolved_at' => now(),
             'complaint_resolution' => 'rejected',
-            'complaint_admin_notes' => 'Ditolak oleh Super Admin (Pekerjaan disahkan selesai)',
+            'complaint_admin_notes' => $this->admin_notes ?: 'Ditolak oleh Super Admin (Pekerjaan disahkan selesai)',
         ]);
 
         // Notify customer
@@ -225,6 +271,7 @@ class HelpsApproved extends Component
         } catch (\Throwable $e) {}
 
         session()->flash('message', 'Komplain bantuan #' . $help->id . ' ditolak. Pesanan dinyatakan selesai dan dana sebesar Rp ' . number_format($help->amount, 0, ',', '.') . ' telah dicairkan ke saldo mitra.');
+        $this->closeDecisionModal();
         $this->closeDetailModal();
     }
 

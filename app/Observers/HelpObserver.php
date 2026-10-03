@@ -40,9 +40,11 @@ class HelpObserver
             // Load the mitra relationship
             $mitra = $help->mitra;
 
-            // Send notification to the help requester
+            // Send notification to the help requester (if not already notified recently)
             if ($help->user && $mitra) {
-                $help->user->notify(new HelpTakenNotification($help, $mitra));
+                if (!$this->isAlreadyNotified($help->user, HelpTakenNotification::class, ['help_id' => $help->id])) {
+                    $help->user->notify(new HelpTakenNotification($help, $mitra));
+                }
             }
 
             // Record partner activity for taking the help
@@ -68,15 +70,7 @@ class HelpObserver
             if ($newStatus === 'rejected' && $prevStatus !== 'rejected') {
                 $customer = $help->customer ?? ($help->user ?? \App\Models\User::find($help->user_id));
                 if ($customer) {
-                    $alreadyNotified = $customer->notifications()
-                        ->where('type', \App\Notifications\HelpStatusNotification::class)
-                        ->where('created_at', '>=', now()->subSeconds(5))
-                        ->get()
-                        ->contains(function ($n) use ($help) {
-                            return ($n->data['help_id'] ?? null) == $help->id && ($n->data['new_status'] ?? null) === 'rejected';
-                        });
-
-                    if (!$alreadyNotified) {
+                    if (!$this->isAlreadyNotified($customer, \App\Notifications\HelpStatusNotification::class, ['help_id' => $help->id, 'new_status' => 'rejected'])) {
                         try {
                             $customer->notify(new \App\Notifications\HelpStatusNotification($help, $prevStatus, 'rejected'));
                             \Log::info('Sent HelpStatusNotification (rejected) to customer id=' . $customer->id . ' for help_id=' . $help->id);
@@ -117,24 +111,28 @@ class HelpObserver
                     }
                 }
 
-                // Notify mitra if help had an assigned partner
+                // Notify mitra if help had an assigned partner (avoid double notification)
                 $mitra = $help->mitra ?? ($help->mitra_id ? \App\Models\User::find($help->mitra_id) : null);
                 if ($mitra) {
-                    try {
-                        $mitra->notify(new \App\Notifications\HelpStatusNotification($help, $prevStatus, $newStatus, $mitra));
-                        \Log::info("Sent cancellation notification to mitra id={$mitra->id} for help_id={$help->id}");
-                    } catch (\Throwable $e) {
-                        \Log::warning('Failed to notify mitra of cancellation via HelpObserver: ' . $e->getMessage());
+                    if (!$this->isAlreadyNotified($mitra, \App\Notifications\HelpStatusNotification::class, ['help_id' => $help->id, 'new_status' => $newStatus])) {
+                        try {
+                            $mitra->notify(new \App\Notifications\HelpStatusNotification($help, $prevStatus, $newStatus, $mitra));
+                            \Log::info("Sent cancellation notification to mitra id={$mitra->id} for help_id={$help->id}");
+                        } catch (\Throwable $e) {
+                            \Log::warning('Failed to notify mitra of cancellation via HelpObserver: ' . $e->getMessage());
+                        }
                     }
                 }
 
                 // Notify customer on cancellation (if not already handled)
                 $customer = $help->customer ?? ($help->user ?? \App\Models\User::find($help->user_id));
                 if ($customer && $newStatus !== 'rejected') {
-                    try {
-                        $customer->notify(new \App\Notifications\HelpStatusNotification($help, $prevStatus, $newStatus, $mitra));
-                    } catch (\Throwable $e) {
-                        \Log::warning('Failed to notify customer of cancellation via HelpObserver: ' . $e->getMessage());
+                    if (!$this->isAlreadyNotified($customer, \App\Notifications\HelpStatusNotification::class, ['help_id' => $help->id, 'new_status' => $newStatus])) {
+                        try {
+                            $customer->notify(new \App\Notifications\HelpStatusNotification($help, $prevStatus, $newStatus, $mitra));
+                        } catch (\Throwable $e) {
+                            \Log::warning('Failed to notify customer of cancellation via HelpObserver: ' . $e->getMessage());
+                        }
                     }
                 }
             }
@@ -186,5 +184,28 @@ class HelpObserver
                 }
             }
         }
+    }
+
+    /**
+     * Check if a similar notification was already sent to this user within $withinSeconds.
+     */
+    protected function isAlreadyNotified($user, string $notificationClass, array $criteria, int $withinSeconds = 10): bool
+    {
+        if (!$user) {
+            return true;
+        }
+
+        return $user->notifications()
+            ->where('type', $notificationClass)
+            ->where('created_at', '>=', now()->subSeconds($withinSeconds))
+            ->get()
+            ->contains(function ($n) use ($criteria) {
+                foreach ($criteria as $key => $val) {
+                    if (($n->data[$key] ?? null) != $val) {
+                        return false;
+                    }
+                }
+                return true;
+            });
     }
 }

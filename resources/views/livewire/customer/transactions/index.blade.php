@@ -290,28 +290,51 @@
     <!-- DETAIL MODAL TRANSAKSI (POP-UP LENGKAP)        -->
     <!-- ============================================== -->
     @if($selectedTransaction)
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4" wire:click="closeTransaction">
-            <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all" wire:click.stop>
+        <!-- Sembunyikan menu navigasi bawah saat pop-up terbuka agar layar tertutup penuh -->
+        <style>
+            #bottom-nav { display: none !important; }
+        </style>
+        <div class="modal-backdrop-open fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] p-4" wire:click="closeTransaction">
+            <div class="bg-white rounded-3xl w-full max-w-sm max-h-[85vh] flex flex-col overflow-hidden shadow-2xl transform transition-all my-auto" wire:click.stop>
                 
                 <!-- Dynamic Header Modal -->
-                @if($selectedTransaction['type'] === 'topup' || str_contains(strtolower($selectedTransaction['description'] ?? ''), 'refund'))
-                    <div class="px-5 pt-6 pb-10 relative overflow-hidden text-white text-center rounded-t-3xl" style="background: linear-gradient(to bottom right, #10b981, #059669);">
+                @php
+                    $isRejected = ($selectedTransaction['status'] === 'rejected');
+                    $isWaiting = ($selectedTransaction['status'] === 'waiting_approval');
+                    $isTopup = ($selectedTransaction['type'] === 'topup' || str_contains(strtolower($selectedTransaction['description'] ?? ''), 'refund'));
+                @endphp
+
+                @if($isRejected)
+                    <div class="px-5 pt-6 pb-9 relative overflow-hidden text-white text-center rounded-t-3xl shrink-0" style="background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);">
+                @elseif($isWaiting)
+                    <div class="px-5 pt-6 pb-9 relative overflow-hidden text-white text-center rounded-t-3xl shrink-0" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                @elseif($isTopup)
+                    <div class="px-5 pt-6 pb-9 relative overflow-hidden text-white text-center rounded-t-3xl shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                 @else
-                    <div class="px-5 pt-6 pb-10 relative overflow-hidden text-white text-center rounded-t-3xl" style="background: linear-gradient(to bottom right, #0098e7, #0077cc);">
+                    <div class="px-5 pt-6 pb-9 relative overflow-hidden text-white text-center rounded-t-3xl shrink-0" style="background: linear-gradient(135deg, #0098e7 0%, #0060b0 100%);">
                 @endif
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-12 -mt-12"></div>
-                    <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-8 -mb-8"></div>
-                    
+                    <!-- Decorative circles -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-12 -mt-12 pointer-events-none"></div>
+                    <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-8 -mb-8 pointer-events-none"></div>
+
                     <div class="relative z-10">
-                        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-2.5 shadow-md">
-                            @if($selectedTransaction['type'] === 'topup' || str_contains(strtolower($selectedTransaction['description'] ?? ''), 'refund'))
-                                <span class="text-2xl">💰</span>
+                        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-2.5 shadow-md shrink-0" style="width: 56px; height: 56px;">
+                            @if($isRejected)
+                                <span class="text-2xl leading-none">❌</span>
+                            @elseif($isWaiting)
+                                <span class="text-2xl leading-none">⏳</span>
+                            @elseif($isTopup)
+                                <span class="text-2xl leading-none">💰</span>
                             @else
-                                <span class="text-2xl">🤝</span>
+                                <span class="text-2xl leading-none">🤝</span>
                             @endif
                         </div>
-                        <h2 class="text-lg font-bold">
-                            @if($selectedTransaction['type'] === 'topup' || str_contains(strtolower($selectedTransaction['description'] ?? ''), 'refund'))
+                        <h2 class="text-base font-bold tracking-tight">
+                            @if($isRejected)
+                                {{ $isTopup ? 'Top-Up Ditolak' : 'Transaksi Ditolak' }}
+                            @elseif($isWaiting)
+                                Menunggu Approval Top-Up
+                            @elseif($isTopup)
                                 Detail Saldo Masuk
                             @else
                                 Detail Saldo Keluar
@@ -321,28 +344,69 @@
                     </div>
                 </div>
 
-                <!-- Modal Body -->
-                <div class="bg-white rounded-t-3xl -mt-5 px-5 pt-5 pb-6 space-y-4">
+                <!-- Modal Body (Scrollable) -->
+                <div class="bg-white rounded-t-3xl -mt-4 px-5 pt-4 pb-5 space-y-3.5 overflow-y-auto flex-1">
                     <!-- Nominal Besar -->
                     <div class="text-center pb-2 border-b border-gray-100">
-                        <p class="text-xs text-gray-500 font-medium">Nominal Mutasi</p>
-                        <p class="text-2xl font-black mt-0.5 {{ ($selectedTransaction['type'] === 'topup' || str_contains(strtolower($selectedTransaction['description'] ?? ''), 'refund')) ? 'text-emerald-600' : 'text-red-600' }}">
-                            {{ ($selectedTransaction['type'] === 'topup' || str_contains(strtolower($selectedTransaction['description'] ?? ''), 'refund')) ? '+' : '-' }} Rp {{ number_format(abs($selectedTransaction['amount']), 0, ',', '.') }}
-                        </p>
+                        @if($isRejected)
+                            <p class="text-[11px] font-bold text-rose-600 uppercase tracking-wider">Pengajuan Top-Up</p>
+                            <p class="text-2xl font-black mt-0.5 text-gray-400 line-through">
+                                Rp {{ number_format(abs($selectedTransaction['amount']), 0, ',', '.') }}
+                            </p>
+                            <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                Dana tidak masuk ke saldo
+                            </span>
+                        @elseif($isWaiting)
+                            <p class="text-[11px] font-bold text-amber-600 uppercase tracking-wider">Pengajuan Top-Up</p>
+                            <p class="text-2xl font-black mt-0.5 text-amber-600">
+                                Rp {{ number_format(abs($selectedTransaction['amount']), 0, ',', '.') }}
+                            </p>
+                            <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                Menunggu verifikasi admin
+                            </span>
+                        @else
+                            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Nominal Mutasi</p>
+                            <p class="text-2xl font-black mt-0.5 {{ $isTopup ? 'text-emerald-600' : 'text-rose-600' }}">
+                                {{ $isTopup ? '+' : '-' }} Rp {{ number_format(abs($selectedTransaction['amount']), 0, ',', '.') }}
+                            </p>
+                        @endif
                     </div>
 
+                    <!-- Informasi Alasan Penolakan (Langsung di atas agar terlihat jelas) -->
+                    @if($isRejected)
+                        <div class="bg-rose-50/90 border border-rose-200 rounded-2xl p-3.5 space-y-2">
+                            <div class="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wide text-rose-800">
+                                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <span>Alasan Penolakan:</span>
+                            </div>
+                            <p class="text-xs text-rose-900 font-medium bg-white/90 rounded-xl p-2.5 border border-rose-100 leading-relaxed">
+                                {{ $selectedTransaction['rejection_reason'] ?: 'Bukti transfer tidak valid atau dana tidak masuk.' }}
+                            </p>
+                            @if(!empty($selectedTransaction['approved_by_name']))
+                                <div class="pt-2 border-t border-rose-200/60 flex justify-between items-center text-[11px] text-rose-600 font-medium">
+                                    <span>Ditolak oleh: <strong>{{ $selectedTransaction['approved_by_name'] }}</strong></span>
+                                    @if(!empty($selectedTransaction['approved_at']))
+                                        <span>{{ $selectedTransaction['approved_at'] }}</span>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
                     <!-- Detail Rincian List -->
-                    <div class="bg-gray-50 border border-gray-200/80 rounded-2xl p-4 space-y-2.5 text-xs">
+                    <div class="bg-gray-50/80 border border-gray-200/80 rounded-2xl p-3.5 space-y-2 text-xs">
                         <div class="flex justify-between items-center gap-2">
                             <span class="text-gray-500">Status</span>
                             @if($selectedTransaction['status'] === 'waiting_approval')
-                                <span class="px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800">Menunggu Approval</span>
+                                <span class="px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 text-[11px]">Menunggu Approval</span>
                             @elseif($selectedTransaction['status'] === 'approved' || $selectedTransaction['status'] === 'completed')
-                                <span class="px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800">Berhasil / Selesai</span>
+                                <span class="px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 text-[11px]">Berhasil</span>
                             @elseif($selectedTransaction['status'] === 'rejected')
-                                <span class="px-2 py-0.5 rounded-full font-bold bg-rose-100 text-rose-800">Ditolak</span>
+                                <span class="px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-800 text-[11px]">Ditolak</span>
                             @else
-                                <span class="px-2 py-0.5 rounded-full font-bold bg-gray-100 text-gray-700">{{ ucfirst($selectedTransaction['status'] ?? 'Selesai') }}</span>
+                                <span class="px-2.5 py-0.5 rounded-full font-bold bg-gray-100 text-gray-700 text-[11px]">{{ ucfirst($selectedTransaction['status'] ?? 'Selesai') }}</span>
                             @endif
                         </div>
 
@@ -377,61 +441,76 @@
                         @if(!empty($selectedTransaction['payment_method']))
                             <div class="flex justify-between items-center gap-2">
                                 <span class="text-gray-500">Metode</span>
-                                <span class="font-bold text-gray-900">{{ $selectedTransaction['payment_method'] }}</span>
+                                <span class="font-semibold text-gray-900">{{ $selectedTransaction['payment_method'] }}</span>
                             </div>
                         @endif
 
                         @if(!empty($selectedTransaction['admin_fee']) && $selectedTransaction['admin_fee'] > 0)
                             <div class="flex justify-between items-center gap-2">
                                 <span class="text-gray-500">Biaya Admin</span>
-                                <span class="font-bold text-gray-900">Rp {{ number_format($selectedTransaction['admin_fee'], 0, ',', '.') }}</span>
+                                <span class="font-medium text-gray-900">Rp {{ number_format($selectedTransaction['admin_fee'], 0, ',', '.') }}</span>
                             </div>
                         @endif
 
                         @if(!empty($selectedTransaction['total_payment']) && $selectedTransaction['total_payment'] > 0)
                             <div class="flex justify-between items-center gap-2 border-t border-gray-200/70 pt-2 font-bold">
                                 <span class="text-gray-700">Total Ditransfer</span>
-                                <span class="text-blue-700">Rp {{ number_format($selectedTransaction['total_payment'], 0, ',', '.') }}</span>
+                                <span class="text-blue-600 text-sm">Rp {{ number_format($selectedTransaction['total_payment'], 0, ',', '.') }}</span>
                             </div>
                         @endif
 
                         @if(!empty($selectedTransaction['description']))
                             <div class="pt-2 border-t border-gray-200/70">
                                 <span class="text-gray-500 block mb-1">Keterangan:</span>
-                                <p class="text-gray-800 leading-relaxed">{{ $selectedTransaction['description'] }}</p>
+                                <p class="text-gray-800 leading-relaxed font-medium">{{ $selectedTransaction['description'] }}</p>
                             </div>
                         @endif
 
-                        @if(!empty($selectedTransaction['rejection_reason']))
-                            <div class="pt-2 border-t border-rose-200 text-rose-700 bg-rose-50 -mx-4 -mb-4 p-3 rounded-b-2xl">
-                                <span class="font-bold block mb-0.5">Alasan Penolakan:</span>
-                                <p class="leading-relaxed">{{ $selectedTransaction['rejection_reason'] }}</p>
+                        <!-- Informasi Disetujui (Jika Berhasil) -->
+                        @if(($selectedTransaction['status'] === 'approved' || $selectedTransaction['status'] === 'completed') && !empty($selectedTransaction['approved_by_name']))
+                            <div class="pt-2 border-t border-gray-200/70 flex justify-between items-center text-[11px] text-emerald-700">
+                                <span>Disetujui oleh: <strong>{{ $selectedTransaction['approved_by_name'] }}</strong></span>
+                                @if(!empty($selectedTransaction['approved_at']))
+                                    <span>{{ $selectedTransaction['approved_at'] }}</span>
+                                @endif
                             </div>
                         @endif
                     </div>
 
-                    <!-- Bukti Transfer (Jika Ada) -->
+                    <!-- Bukti Transfer (Clean Compact Preview) -->
                     @if(!empty($selectedTransaction['proof_of_payment']))
-                        <div class="p-3 bg-gray-50 border border-gray-200 rounded-2xl flex items-center justify-between text-xs">
-                            <span class="text-gray-600 font-medium">Bukti Transfer</span>
-                            <a href="{{ asset('storage/' . $selectedTransaction['proof_of_payment']) }}" target="_blank" class="px-3 py-1 bg-blue-50 text-blue-600 font-bold rounded-lg hover:bg-blue-100 transition">
-                                Lihat Bukti &rarr;
-                            </a>
+                        <div class="bg-gray-50/90 border border-gray-200/80 rounded-2xl p-3 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-700">Bukti Transfer</span>
+                                <a href="{{ asset('storage/' . $selectedTransaction['proof_of_payment']) }}" target="_blank" class="text-xs font-semibold text-blue-600 hover:underline inline-flex items-center gap-1">
+                                    <span>Buka Gambar Penuh</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                </a>
+                            </div>
+                            <div class="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-900/5 h-28 flex items-center justify-center group cursor-pointer" onclick="window.open('{{ asset('storage/' . $selectedTransaction['proof_of_payment']) }}', '_blank')">
+                                <img src="{{ asset('storage/' . $selectedTransaction['proof_of_payment']) }}" 
+                                    class="w-full h-full object-contain group-hover:scale-105 transition duration-200"
+                                    alt="Bukti Transfer">
+                                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                                    <span>Perbesar</span>
+                                </div>
+                            </div>
                         </div>
                     @endif
+                </div>
 
-                    <!-- Action Buttons -->
-                    <div class="space-y-2 pt-2">
-                        @if(!empty($selectedTransaction['reference_id']))
-                            <a href="{{ route('customer.helps.detail', $selectedTransaction['reference_id']) }}" class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-xs">
-                                Buka Halaman Bantuan #{{ $selectedTransaction['reference_id'] }}
-                            </a>
-                        @endif
+                <!-- Sticky Modal Footer -->
+                <div class="bg-white border-t border-gray-100 p-4 shrink-0 space-y-2">
+                    @if(!empty($selectedTransaction['reference_id']))
+                        <a href="{{ route('customer.helps.detail', $selectedTransaction['reference_id']) }}" class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-xs">
+                            Buka Halaman Bantuan #{{ $selectedTransaction['reference_id'] }}
+                        </a>
+                    @endif
 
-                        <button type="button" wire:click="closeTransaction" class="block w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
-                            Tutup
-                        </button>
-                    </div>
+                    <button type="button" wire:click="closeTransaction" class="block w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold active:scale-98 transition">
+                        Tutup
+                    </button>
                 </div>
             </div>
         </div>

@@ -272,4 +272,44 @@ class AdminUserController extends Controller
 
         return back()->with('success', "Verifikasi KTP pengguna {$user->name} telah ditolak.");
     }
+
+    public function toggleStatus(Request $request, User $user)
+    {
+        $admin = auth()->user();
+
+        $cityIds = City::where('admin_id', $admin->id)
+            ->pluck('id')
+            ->merge($admin->managedCities()->pluck('cities.id'))
+            ->push($admin->city_id)
+            ->filter()
+            ->unique();
+
+        if ($cityIds->isNotEmpty() && ! $cityIds->contains($user->city_id)) {
+            abort(403, 'Akses tidak diizinkan untuk pengguna kota lain.');
+        }
+
+        // Toggle status: active <-> inactive (or if blocked, unblock to active)
+        if ($user->status === 'blocked') {
+            $user->status = 'active';
+            $label = 'diaktifkan kembali';
+        } elseif ($user->status === 'active') {
+            $user->status = 'inactive';
+            $label = 'dinonaktifkan';
+        } else {
+            $user->status = 'active';
+            $label = 'diaktifkan kembali';
+        }
+
+        $user->save();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'status' => $user->status,
+                'message' => "Status pengguna {$user->name} berhasil {$label}."
+            ]);
+        }
+
+        return back()->with('success', "Status pengguna {$user->name} berhasil {$label}.");
+    }
 }

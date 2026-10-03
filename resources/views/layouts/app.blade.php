@@ -26,6 +26,11 @@
         input[type="password"]::-ms-clear {
             display: none !important;
         }
+
+        /* Otomatis sembunyikan menu navigasi bawah saat modal overlay aktif agar layar tertutup penuh */
+        body:has(.modal-backdrop-open) #bottom-nav {
+            display: none !important;
+        }
         
         /* Bottom Navigation Animations */
         @keyframes slideUp {
@@ -69,6 +74,9 @@
 
         #bottom-nav {
             animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #ffffff !important;
+            background: #ffffff !important;
+            opacity: 1 !important;
         }
 
         .nav-item {
@@ -261,12 +269,19 @@
                 @endif
             </main>
 
+            {{-- Global Alert: Rekan Jasa Belum Berangkat setelah 30 Menit --}}
+            @auth
+                @if(in_array(auth()->user()->role, ['customer', 'kustomer', 'user']) || !auth()->user()->role)
+                    <livewire:customer.idle-partner-alert />
+                @endif
+            @endauth
+
             <!-- Bottom Navigation (styled like mitra layout) -->
             @auth
-                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-white border-t border-gray-200 shadow-2xl z-50"
-                    style="max-width: 448px; width: 100vw;">
+                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-white border-t border-gray-200 shadow-2xl z-40"
+                    style="max-width: 448px; width: 100vw; background-color: #ffffff !important;">
                     <div class="max-w-md mx-auto flex items-center justify-around px-4 py-2.5">
-                        <a href="{{ route('customer.dashboard') }}"
+                        <a href="{{ route('customer.dashboard') }}" wire:navigate
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.dashboard') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -275,7 +290,7 @@
                             <span class="nav-label text-xs font-bold mt-0.5">Beranda</span>
                         </a>
 
-                        <a href="{{ route('customer.helps.index') }}"
+                        <a href="{{ route('customer.helps.index') }}" wire:navigate
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.helps.*') && !request()->routeIs('customer.helps.create') && !request()->routeIs('customer.helps.history') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -284,7 +299,7 @@
                             <span class="nav-label text-xs font-bold mt-0.5">Aktivitas</span>
                         </a>
 
-                        <a href="{{ route('customer.helps.create') }}"
+                        <a href="{{ route('customer.helps.create') }}" wire:navigate
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.helps.create') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -303,7 +318,7 @@
                                 } catch (\Throwable $e) {}
                             }
                         @endphp
-                        <a href="{{ route('customer.chat') }}"
+                        <a href="{{ route('customer.chat') }}" wire:navigate
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.chat*') || request()->routeIs('chat.*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <div class="relative inline-flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,7 +343,7 @@
                                 !$u->hasVerifiedEmail()
                             );
                         @endphp
-                        <a href="{{ route('profile') }}"
+                        <a href="{{ route('profile') }}" wire:navigate
                             class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('profile.*') || request()->routeIs('profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <div class="relative inline-flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,78 +371,132 @@
     @livewire('customer.realtime-notifications')
 
     <script>
-        function showCustomerNotification({ title = 'Notifikasi', message = '', url = '#' , timeout = 3000, type = 'success' }) {
+        let _lastCustomerToast = { key: '', time: 0 };
+        function showCustomerNotification(argObj) {
             try {
-                console.log('showCustomerNotification (text-only) called', { title, message, url, timeout, type });
+                let options = argObj || {};
+                if (Array.isArray(options)) {
+                    options = options[0] || {};
+                } else if (options && typeof options === 'object' && options.detail) {
+                    options = Array.isArray(options.detail) ? (options.detail[0] || {}) : options.detail;
+                }
+
+                let title = options.title || 'Notifikasi';
+                let message = options.message || options.msg || options.body || '';
+                let url = options.url || '#';
+                let timeout = options.timeout || 4000;
+                let type = options.type || 'info';
+
+                // Debounce duplicate toast notifications within 2 seconds
+                const toastKey = `${title}:::${message}`;
+                const now = Date.now();
+                if (_lastCustomerToast.key === toastKey && (now - _lastCustomerToast.time) < 2000) {
+                    return;
+                }
+                _lastCustomerToast = { key: toastKey, time: now };
+
+                console.log('showCustomerNotification called', { title, message, url, timeout, type });
                 const container = document.getElementById('customer-global-notification-inner');
                 if (!container) { console.warn('customer-global-notification-inner not found'); return; }
                 container.innerHTML = '';
 
-                const isRejected = (type === 'error' || String(title).toLowerCase().includes('ditolak'));
+                const isRejected = (type === 'error' || String(title).toLowerCase().includes('ditolak') || String(title).toLowerCase().includes('reject'));
+                const isWarning = (type === 'warning' || String(title).toLowerCase().includes('peringatan') || String(title).toLowerCase().includes('belum berangkat'));
+                const isSuccess = (type === 'success' || String(title).toLowerCase().includes('disetujui') || String(title).toLowerCase().includes('selesai') || String(title).toLowerCase().includes('berhasil') || type === 'taken' || type === 'completed');
+
                 const wrap = document.createElement('div');
-                wrap.className = isRejected
-                    ? 'bg-white rounded-2xl shadow-2xl border-2 border-red-500/20 p-4 max-w-md mx-3 pointer-events-auto transition transform duration-300 ring-1 ring-red-500/10'
-                    : 'bg-white rounded-xl shadow-xl border border-gray-100 p-3 max-w-md mx-3 pointer-events-auto transition transform duration-300';
-                wrap.style.boxShadow = '0 10px 30px rgba(2,6,23,0.12)';
+                wrap.className = 'bg-white rounded-2xl shadow-2xl p-3.5 max-w-md mx-3 pointer-events-auto transition transform duration-300 border overflow-hidden relative cursor-pointer hover:shadow-3xl';
+                wrap.style.boxShadow = '0 10px 30px rgba(2,6,23,0.15)';
+
+                // Configure icon & theme
+                let iconBg = 'bg-primary-50 text-primary-600 border-primary-200';
+                let iconSvg = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+                let badgeText = 'Info';
+                let badgeClass = 'bg-primary-100 text-primary-700';
+                let borderClass = 'border-primary-100';
+                let buttonText = 'Lihat Detail &rarr;';
+                let buttonClass = 'bg-primary-600 hover:bg-primary-700 text-white';
 
                 if (isRejected) {
-                    wrap.innerHTML = `
-                        <div class="flex items-start gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-red-100 border border-red-200 flex items-center justify-center text-red-600 flex-shrink-0 shadow-xs">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between gap-1 mb-0.5">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-xs font-bold text-gray-900">${escapeHtml(title || 'Bantuan Ditolak Admin')}</span>
-                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-red-100 text-red-700">Ditolak</span>
-                                    </div>
-                                    <button type="button" class="btn-close text-gray-400 hover:text-gray-600 p-1 -mr-1 -mt-1 rounded-lg transition cursor-pointer text-xs" title="Tutup">&times;</button>
-                                </div>
-                                <p class="text-xs text-gray-600 leading-snug">${escapeHtml(message || '')}</p>
-                                <div class="mt-2.5 flex items-center justify-end gap-2">
-                                    <button type="button" class="btn-detail px-3 py-1.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm cursor-pointer transition">
-                                        Lihat Detail Pembatalan &rarr;
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    const closeBtn = wrap.querySelector('.btn-close');
-                    if (closeBtn) {
-                        closeBtn.onclick = function(e) {
-                            e.stopPropagation();
-                            container.innerHTML = '';
-                        };
+                    iconBg = 'bg-red-50 text-red-600 border-red-200';
+                    iconSvg = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>`;
+                    badgeText = 'Ditolak';
+                    badgeClass = 'bg-red-100 text-red-700';
+                    borderClass = 'border-red-200 ring-1 ring-red-500/10';
+                    buttonClass = 'bg-red-600 hover:bg-red-700 text-white';
+                    if (url.includes('topup')) {
+                        buttonText = 'Lihat Riwayat Top-Up &rarr;';
+                    } else if (url.includes('withdraw')) {
+                        buttonText = 'Lihat Riwayat Withdraw &rarr;';
+                    } else {
+                        buttonText = 'Lihat Detail Pembatalan &rarr;';
                     }
-                    const btn = wrap.querySelector('.btn-detail');
-                    if (btn) {
-                        btn.onclick = function(e) {
-                            e.stopPropagation();
-                            if (url && url !== '#') window.location.href = url;
-                            container.innerHTML = '';
-                        };
-                    }
+                } else if (isSuccess) {
+                    iconBg = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                    iconSvg = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`;
+                    badgeText = 'Sukses';
+                    badgeClass = 'bg-emerald-100 text-emerald-700';
+                    borderClass = 'border-emerald-200';
+                    buttonClass = 'bg-emerald-600 hover:bg-emerald-700 text-white';
+                    buttonText = url.includes('topup') ? 'Lihat Riwayat Top-Up &rarr;' : 'Lihat Detail &rarr;';
+                } else if (isWarning) {
+                    iconBg = 'bg-amber-50 text-amber-600 border-amber-200';
+                    iconSvg = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+                    badgeText = 'Peringatan';
+                    badgeClass = 'bg-amber-100 text-amber-700';
+                    borderClass = 'border-amber-200';
+                    buttonClass = 'bg-amber-600 hover:bg-amber-700 text-white';
+                    buttonText = 'Cek Status &rarr;';
                 } else {
-                    // Text-only body (no icons)
-                    const body = document.createElement('div');
-                    body.className = 'min-w-0';
-                    const titleEl = document.createElement('div');
-                    titleEl.className = 'text-sm font-semibold text-gray-900';
-                    titleEl.innerText = String(title || 'Notifikasi');
+                    if (url.includes('topup')) {
+                        buttonText = 'Lihat Riwayat Top-Up &rarr;';
+                    }
+                }
 
-                    const msgEl = document.createElement('div');
-                    msgEl.className = 'text-xs text-gray-600 mt-0.5';
-                    msgEl.innerText = String(message || '');
+                wrap.className += ' ' + borderClass;
 
-                    body.appendChild(titleEl);
-                    if ((message || '').toString().trim() !== '') body.appendChild(msgEl);
+                wrap.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-9 h-9 rounded-xl ${iconBg} border flex items-center justify-center flex-shrink-0 shadow-xs">
+                            ${iconSvg}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-1 mb-0.5">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <span class="text-xs font-bold text-gray-900 truncate">${escapeHtml(title || 'Notifikasi')}</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase ${badgeClass} flex-shrink-0">${badgeText}</span>
+                                </div>
+                                <button type="button" class="btn-close text-gray-400 hover:text-gray-600 p-1 -mr-1 -mt-1 rounded-lg transition cursor-pointer text-xs" title="Tutup">&times;</button>
+                            </div>
+                            ${message ? `<p class="text-xs text-gray-600 leading-snug line-clamp-2">${escapeHtml(message)}</p>` : ''}
+                            ${(url && url !== '#') ? `
+                            <div class="mt-2.5 flex items-center justify-end gap-2">
+                                <button type="button" class="btn-detail px-3 py-1.5 ${buttonClass} active:scale-95 text-xs font-bold rounded-lg shadow-xs cursor-pointer transition">
+                                    ${buttonText}
+                                </button>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                `;
 
-                    wrap.appendChild(body);
+                const closeBtn = wrap.querySelector('.btn-close');
+                if (closeBtn) {
+                    closeBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        container.innerHTML = '';
+                    };
+                }
+                const btn = wrap.querySelector('.btn-detail');
+                if (btn) {
+                    btn.onclick = function(e) {
+                        e.stopPropagation();
+                        if (url && url !== '#') window.location.href = url;
+                        container.innerHTML = '';
+                    };
                 }
 
                 wrap.addEventListener('click', function (ev) {
-                    ev.preventDefault();
+                    if (ev.target && (ev.target.closest('.btn-close') || ev.target.closest('.btn-detail'))) return;
                     if (url && url !== '#') {
                         window.location.href = url;
                     }
@@ -441,9 +510,14 @@
                     window.playNotifChime();
                 }
 
-                // If it's a rejection notification, keep for 20s so user can read and click detail
-                const effectiveTimeout = isRejected ? 20000 : ((type === 'error' || type === 'warning' || type === 'danger') ? Math.max(timeout, 8000) : timeout);
-                setTimeout(() => { container.innerHTML = ''; }, effectiveTimeout);
+                const effectiveTimeout = (isRejected || isWarning) ? Math.max(timeout, 9000) : timeout;
+                setTimeout(() => { 
+                    if (wrap && wrap.parentNode) {
+                        wrap.style.opacity = '0';
+                        wrap.style.transform = 'translateY(-10px)';
+                        setTimeout(() => { container.innerHTML = ''; }, 300);
+                    }
+                }, effectiveTimeout);
             } catch (err) { console.error('showCustomerNotification error', err); }
         }
 
@@ -636,14 +710,11 @@
         // Usage: window.dispatchEvent(new CustomEvent('customer-toast', { detail: { title: 'Hi', message: 'Hello', type: 'info', timeout: 4000, url: '#' } }));
         window.addEventListener('customer-toast', function (e) {
             try {
-                const d = e && e.detail ? e.detail : {};
-                showCustomerNotification({
-                    title: d.title || 'Notifikasi',
-                    message: d.message || '',
-                    url: d.url || '#',
-                    timeout: d.timeout || 4000,
-                    type: d.type || 'info'
-                });
+                let d = e && e.detail ? e.detail : {};
+                if (Array.isArray(d)) {
+                    d = d[0] || {};
+                }
+                showCustomerNotification(d);
             } catch (err) { console.error('customer-toast handler error', err); }
         });
     </script>
@@ -722,19 +793,19 @@
                     ? 'Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan bantuan.' 
                     : 'Akses akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service SayaBantu jika Anda memerlukan informasi lebih lanjut.' }}
             </p>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="w-full py-3.5 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-xl text-sm shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2">
-                    <span>OK, Mengerti</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                </button>
-            </form>
+            <a href="{{ route('logout') }}"
+               onclick="this.style.pointerEvents='none'; this.innerHTML='<span>Mengeluarkan...</span>';"
+               class="w-full py-3.5 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-xl text-sm shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2 cursor-pointer text-center">
+                <span>OK, Mengerti</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+            </a>
         </div>
     </div>
 
     <script>
+        @auth
         function triggerCustomerBlockedModal(isInactive = null) {
             const modal = document.getElementById('blocked-account-modal');
             if (!modal) return;
@@ -796,18 +867,21 @@
 
         // Check immediately on load, on focus, on click, and every 2.5 seconds
         document.addEventListener('DOMContentLoaded', () => {
-            @if(auth()->check() && in_array(auth()->user()->status, ['blocked', 'inactive']))
+            @if(in_array(auth()->user()->status, ['blocked', 'inactive']))
                 triggerCustomerBlockedModal({{ auth()->user()->status === 'inactive' ? 'true' : 'false' }});
             @else
                 checkCustomerAccountStatus();
             @endif
         });
 
-        setInterval(checkCustomerAccountStatus, 2500);
+        setInterval(checkCustomerAccountStatus, 30000);
         window.addEventListener('focus', checkCustomerAccountStatus);
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) checkCustomerAccountStatus();
         });
+        @else
+        function triggerCustomerBlockedModal(isInactive = null) {}
+        @endauth
 
         // Intercept any Livewire request errors
         document.addEventListener('livewire:init', () => {

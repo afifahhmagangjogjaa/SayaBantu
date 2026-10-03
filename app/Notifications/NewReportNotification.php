@@ -27,11 +27,12 @@ class NewReportNotification extends Notification
         $reporterName = $this->report->reporter?->name ?? ($this->report->category === 'dari_customer' ? 'Customer' : 'Mitra');
         $rolePrefix = $this->report->category === 'dari_customer' ? 'Customer' : 'Mitra';
 
-        $url = $notifiable->role === 'super_admin'
-            ? route('admin.partners.reports.show', $this->report->id)
-            : route('admin.partners.reports.show', $this->report->id);
+        $url = route('admin.partners.reports.show', $this->report->id);
 
-        $cityId = $this->report->reporter?->city_id ?? $this->report->reportedUser?->city_id ?? null;
+        $cityId = $this->report->reportedHelp?->city_id 
+            ?? $this->report->reporter?->city_id 
+            ?? $this->report->reportedUser?->city_id 
+            ?? null;
 
         return [
             'type' => 'new_report',

@@ -336,20 +336,6 @@
             </div>
 
             <div class="space-y-3">
-                <div wire:loading class="space-y-3">
-                    @for($i=0;$i<3;$i++)
-                        <div class="bg-white rounded-xl p-3 shadow-sm animate-pulse">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 bg-gray-200 rounded-lg"></div>
-                                <div class="flex-1">
-                                    <div class="h-3 bg-gray-200 rounded w-3/5 mb-2"></div>
-                                    <div class="h-2.5 bg-gray-200 rounded w-4/5"></div>
-                                </div>
-                            </div>
-                        </div>
-                    @endfor
-                </div>
-
                 @if($activeTab !== 'history')
                     @forelse($availableHelps as $help)
                         <a href="{{ route('customer.helps.detail', $help->id) }}"

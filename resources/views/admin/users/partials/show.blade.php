@@ -349,19 +349,32 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 text-xs">
                     <div>
                         <span class="block text-gray-400 font-medium mb-1">Status Akun:</span>
-                        @if ($user->status === 'blocked')
-                            <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
-                                Diblokir
-                            </span>
-                        @elseif ($user->status === 'inactive')
-                            <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200">
-                                Nonaktif
-                            </span>
-                        @else
-                            <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                Aktif
-                            </span>
-                        @endif
+                        <div class="flex items-center gap-2 flex-wrap">
+                            @if ($user->status === 'blocked')
+                                <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+                                    Diblokir
+                                </span>
+                            @elseif ($user->status === 'inactive')
+                                <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200">
+                                    Nonaktif
+                                </span>
+                            @else
+                                <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    Aktif
+                                </span>
+                            @endif
+
+                            @if ($user->status !== 'blocked')
+                                <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="inline-block m-0"
+                                    onsubmit="return confirm('Apakah Anda yakin ingin {{ $user->status === 'active' ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?');">
+                                    @csrf
+                                    <button type="submit"
+                                        class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer shadow-2xs {{ $user->status === 'active' ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' }}">
+                                        {{ $user->status === 'active' ? 'Nonaktifkan' : 'Aktifkan' }}
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
 
                     <div>

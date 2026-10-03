@@ -41,14 +41,7 @@
 <body class="font-sans antialiased bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
     <div class="max-w-sm mx-auto h-screen flex flex-col overflow-hidden">
 
-        @php
-            $showCards = ! request()->cookie('shown_bantuan');
-            $helps = $showCards ? \App\Models\Help::latest()->get() : collect();
-        @endphp
-
-        @if($showCards)
-
-            <!-- Header (matching mitra/customer help pages) -->
+        <!-- Header (matching mitra/customer help pages) -->
             <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
                 <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
                 <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
@@ -226,101 +219,9 @@
 
             <script>
                 document.addEventListener('DOMContentLoaded', function(){
-                    document.cookie = "shown_bantuan=1; path=/; max-age=" + (60*60*24*30);
-
-                    // Initialize home banner auto slider
-                    const slidesWrapper = document.querySelector('.home-banner-slides');
-                    if (slidesWrapper && slidesWrapper.children.length > 1) {
-                        let idx = 0;
-                        const total = slidesWrapper.children.length;
-                        const dots = document.querySelectorAll('.home-dot');
-
-                        function updateDots() {
-                            dots.forEach((dot, i) => {
-                                if (i === idx) {
-                                    dot.className = 'home-dot h-2 rounded-full bg-primary-500 w-5 transition-all duration-300';
-                                } else {
-                                    dot.className = 'home-dot h-2 rounded-full bg-gray-300 w-2 transition-all duration-300';
-                                }
-                            });
-                        }
-
-                        setInterval(function() {
-                            idx = (idx + 1) % total;
-                            slidesWrapper.style.transform = 'translateX(' + (-idx * 100) + '%)';
-                            updateDots();
-                        }, 3500);
-                    }
+                    document.cookie = "shown_bantuan=; path=/; max-age=0;";
                 });
             </script>
-
-        @else
-            <!-- Hero Section -->
-            <div class="flex-1 flex flex-col items-center justify-center px-6">
-                <div class="text-center mb-8">
-                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-3xl shadow-xl shadow-primary-500/30 mb-6">
-                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </div>
-                    <h1 class="text-3xl font-bold text-gray-900 mb-3">sayabantu</h1>
-                    <p class="text-gray-600 max-w-xs mx-auto">Platform berbagi bantuan sosial untuk mereka yang membutuhkan</p>
-                </div>
-
-                <!-- Features -->
-                <div class="w-full max-w-xs space-y-3 mb-8">
-                    <div class="flex items-center gap-3 bg-white/60 backdrop-blur-sm p-3 rounded-xl">
-                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <span class="text-sm text-gray-700">Transparan dan Terpercaya</span>
-                    </div>
-                    <div class="flex items-center gap-3 bg-white/60 backdrop-blur-sm p-3 rounded-xl">
-                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <span class="text-sm text-gray-700">Aman dan Mudah</span>
-                    </div>
-                    <div class="flex items-center gap-3 bg-white/60 backdrop-blur-sm p-3 rounded-xl">
-                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                        </div>
-                        <span class="text-sm text-gray-700">Komunitas Peduli</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Buttons Section -->
-            <div class="px-6 pb-8 space-y-3">
-                <!-- Log In Button -->
-                <a href="{{ route('login') }}"
-                    class="block w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-4 rounded-2xl text-center transition-all duration-200 shadow-lg shadow-primary-500/30">
-                    Log In
-                </a>
-
-                <!-- Sign Up Button -->
-                <a href="{{ route('register') }}"
-                    class="block w-full bg-white hover:bg-gray-50 text-gray-800 font-bold py-4 rounded-2xl text-center transition-all duration-200 shadow-sm border-2 border-gray-200 hover:border-gray-300">
-                    Sign Up
-                </a>
-
-                <!-- Forgot Password Link -->
-                @if (Route::has('password.request'))
-                    <div class="text-center pt-2">
-                        <a href="{{ route('password.request') }}"
-                            class="text-sm text-gray-600 hover:text-gray-900 font-semibold transition-colors">
-                            Forgot Password?
-                        </a>
-                    </div>
-                @endif
-            </div>
-        @endif
 
     </div>
 

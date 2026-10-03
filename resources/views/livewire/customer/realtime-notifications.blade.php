@@ -1,5 +1,5 @@
 <div>
-    <div wire:poll.3s="poll"></div>
+    <div wire:poll.6s="poll"></div>
 
     {{-- MODAL POP-UP MERAH SURAT PERINGATAN (COMPACT & PROPORTIONAL) --}}
     @if($sanctionModalOpen && $currentSanction)
@@ -75,19 +75,27 @@
 
                     <!-- Action Buttons -->
                     <div style="display: flex; flex-direction: column; gap: 6px; padding-top: 4px;">
-                        <button wire:click="dismissSanctionModal('{{ $currentSanction['id'] }}')"
-                                type="button"
-                                class="transition active:scale-95 cursor-pointer"
-                                style="width: 100%; padding: 10px 14px; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: #ffffff; font-weight: 700; font-size: 12px; border-radius: 12px; border: none; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35); display: flex; align-items: center; justify-content: center; gap: 6px;">
-                            <svg style="width: 15px; height: 15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            @if(($currentSanction['warning_level'] ?? 0) >= 3)
+                        @if(($currentSanction['warning_level'] ?? 0) >= 3)
+                            <a href="{{ route('logout') }}"
+                               onclick="this.style.pointerEvents='none'; this.innerHTML='<span>Mengeluarkan...</span>';"
+                               class="transition active:scale-95 cursor-pointer text-center"
+                               style="width: 100%; padding: 10px 14px; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: #ffffff; font-weight: 700; font-size: 12px; border-radius: 12px; border: none; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35); display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;">
+                                <svg style="width: 15px; height: 15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                </svg>
                                 <span>Saya Mengerti &mdash; Keluar dari Akun</span>
-                            @else
+                            </a>
+                        @else
+                            <button wire:click="dismissSanctionModal('{{ $currentSanction['id'] }}')"
+                                    type="button"
+                                    class="transition active:scale-95 cursor-pointer"
+                                    style="width: 100%; padding: 10px 14px; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: #ffffff; font-weight: 700; font-size: 12px; border-radius: 12px; border: none; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35); display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <svg style="width: 15px; height: 15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                </svg>
                                 <span>Saya Mengerti &amp; Akan Mematuhi</span>
-                            @endif
-                        </button>
+                            </button>
+                        @endif
 
                         <button wire:click="viewSanctionDetail('{{ $currentSanction['id'] }}')"
                                 type="button"

@@ -663,7 +663,7 @@ class Index extends Component
                     } elseif ($this->statusFilter === 'komplain') {
                         $query->where(function ($q) {
                             $q->whereIn('status', ['komplain', 'disputed'])
-                                ->orWhere('complaint_resolution', 'refunded');
+                                ->orWhereNotNull('complaint_resolution');
                         });
                     } else {
                         $query->where('status', $this->statusFilter);

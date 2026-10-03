@@ -28,6 +28,8 @@ class UpdateProfilePhoto extends Component
     public function openModal()
     {
         $this->showModal = true;
+        $this->photo = null;
+        $this->resetErrorBag();
     }
 
     public function closeModal()
@@ -35,6 +37,11 @@ class UpdateProfilePhoto extends Component
         $this->showModal = false;
         $this->photo = null;
         $this->resetErrorBag();
+    }
+
+    public function updatedPhoto()
+    {
+        $this->resetErrorBag('photo');
     }
 
     public function updatePhoto()

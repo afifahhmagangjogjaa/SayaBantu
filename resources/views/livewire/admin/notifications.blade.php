@@ -13,6 +13,16 @@
             this.$watch('$wire.recentUnread', (val) => {
                 this.checkNewNotifications(val);
             });
+            window.addEventListener('admin-new-notifications', (e) => {
+                const notifs = e.detail && e.detail.notifs ? e.detail.notifs : (Array.isArray(e.detail) ? e.detail : []);
+                this.checkNewNotifications(notifs);
+            });
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('admin-new-notifications', (data) => {
+                    const notifs = data && data.notifs ? data.notifs : (Array.isArray(data) ? data : []);
+                    this.checkNewNotifications(notifs);
+                });
+            });
         },
 
         checkNewNotifications(items) {
@@ -310,103 +320,105 @@
     </div>
 
     <!-- Compact Floating Real-time Notification Pop-up (Like Customer & Mitra) -->
-    <div wire:ignore
-         x-show="currentNotif !== null" 
-         x-cloak
-         @keydown.escape.window="dismissAll()"
-         class="fixed top-4 left-1/2 transform -translate-x-1/2 z-[99999] w-[92vw] max-w-sm pointer-events-none"
-         x-transition:enter="transition ease-out duration-250 transform"
-         x-transition:enter-start="opacity-0 -translate-y-3 scale-95"
-         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-         x-transition:leave="transition ease-in duration-200 transform"
-         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-         x-transition:leave-end="opacity-0 -translate-y-3 scale-95">
-        
-        <div 
-            @mouseenter="paused = true"
-            @mouseleave="paused = false"
-            class="pointer-events-auto relative w-full bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200/90 p-2.5 sm:p-3 overflow-hidden transition-all hover:shadow-2xl"
-            style="box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);"
-        >
-            <div class="flex items-center gap-2.5">
-                <!-- Compact Icon (w-8 h-8) -->
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-white shadow-xs"
-                     :class="{
-                         'bg-emerald-500': currentNotif && currentNotif.type && currentNotif.type.includes('topup'),
-                         'bg-amber-500': currentNotif && currentNotif.type && currentNotif.type.includes('withdraw'),
-                         'bg-blue-500': currentNotif && currentNotif.type && (currentNotif.type.includes('ktp') || currentNotif.type.includes('registration') || currentNotif.type.includes('user')),
-                         'bg-rose-500': currentNotif && currentNotif.type && (currentNotif.type.includes('komplain') || currentNotif.type.includes('report') || currentNotif.type.includes('rejected')),
-                         'bg-primary-600': currentNotif && (!currentNotif.type || (!currentNotif.type.includes('topup') && !currentNotif.type.includes('withdraw') && !currentNotif.type.includes('ktp') && !currentNotif.type.includes('registration') && !currentNotif.type.includes('user') && !currentNotif.type.includes('komplain') && !currentNotif.type.includes('report') && !currentNotif.type.includes('rejected')))
-                     }">
-                    <template x-if="currentNotif && currentNotif.type && currentNotif.type.includes('topup')">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </template>
-                    <template x-if="currentNotif && currentNotif.type && currentNotif.type.includes('withdraw')">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </template>
-                    <template x-if="currentNotif && currentNotif.type && (currentNotif.type.includes('ktp') || currentNotif.type.includes('registration') || currentNotif.type.includes('user'))">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                    </template>
-                    <template x-if="currentNotif && currentNotif.type && (currentNotif.type.includes('komplain') || currentNotif.type.includes('report') || currentNotif.type.includes('rejected'))">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                    </template>
-                    <template x-if="currentNotif && (!currentNotif.type || (!currentNotif.type.includes('topup') && !currentNotif.type.includes('withdraw') && !currentNotif.type.includes('ktp') && !currentNotif.type.includes('registration') && !currentNotif.type.includes('user') && !currentNotif.type.includes('komplain') && !currentNotif.type.includes('report') && !currentNotif.type.includes('rejected')))">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                    </template>
-                </div>
-
-                <!-- Text Content -->
-                <div class="flex-1 min-w-0 cursor-pointer" @click="openUrl()">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                        <span class="text-xs font-bold text-gray-900 truncate" x-text="currentNotif ? currentNotif.title : ''"></span>
-                        <template x-if="currentNotif && currentNotif.city_name">
-                            <span class="text-[9px] font-semibold text-primary-700 bg-primary-50 border border-primary-200 px-1.5 py-0.5 rounded-full flex-shrink-0" x-text="currentNotif.city_name"></span>
+    <template x-teleport="body">
+        <div wire:ignore
+             x-show="currentNotif !== null" 
+             x-cloak
+             @keydown.escape.window="dismissAll()"
+             class="fixed top-4 left-1/2 transform -translate-x-1/2 z-[999999] w-[92vw] max-w-sm pointer-events-none"
+             x-transition:enter="transition ease-out duration-250 transform"
+             x-transition:enter-start="opacity-0 -translate-y-3 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+             x-transition:leave-end="opacity-0 -translate-y-3 scale-95">
+            
+            <div 
+                @mouseenter="paused = true"
+                @mouseleave="paused = false"
+                class="pointer-events-auto relative w-full bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200/90 p-2.5 sm:p-3 overflow-hidden transition-all hover:shadow-2xl"
+                style="box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);"
+            >
+                <div class="flex items-center gap-2.5">
+                    <!-- Compact Icon (w-8 h-8) -->
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-white shadow-xs"
+                         :class="{
+                             'bg-emerald-500': currentNotif && currentNotif.type && currentNotif.type.includes('topup'),
+                             'bg-amber-500': currentNotif && currentNotif.type && currentNotif.type.includes('withdraw'),
+                             'bg-blue-500': currentNotif && currentNotif.type && (currentNotif.type.includes('ktp') || currentNotif.type.includes('registration') || currentNotif.type.includes('user')),
+                             'bg-rose-500': currentNotif && currentNotif.type && (currentNotif.type.includes('komplain') || currentNotif.type.includes('report') || currentNotif.type.includes('rejected')),
+                             'bg-primary-600': currentNotif && (!currentNotif.type || (!currentNotif.type.includes('topup') && !currentNotif.type.includes('withdraw') && !currentNotif.type.includes('ktp') && !currentNotif.type.includes('registration') && !currentNotif.type.includes('user') && !currentNotif.type.includes('komplain') && !currentNotif.type.includes('report') && !currentNotif.type.includes('rejected')))
+                         }">
+                        <template x-if="currentNotif && currentNotif.type && currentNotif.type.includes('topup')">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                         </template>
-                        <template x-if="queue.length > 0">
-                            <span class="text-[9px] font-bold text-primary-700 bg-primary-50 px-1.5 py-0.5 rounded-full border border-primary-200 flex-shrink-0"
-                                  x-text="`+${queue.length}`"></span>
+                        <template x-if="currentNotif && currentNotif.type && currentNotif.type.includes('withdraw')">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </template>
+                        <template x-if="currentNotif && currentNotif.type && (currentNotif.type.includes('ktp') || currentNotif.type.includes('registration') || currentNotif.type.includes('user'))">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </template>
+                        <template x-if="currentNotif && currentNotif.type && (currentNotif.type.includes('komplain') || currentNotif.type.includes('report') || currentNotif.type.includes('rejected'))">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </template>
+                        <template x-if="currentNotif && (!currentNotif.type || (!currentNotif.type.includes('topup') && !currentNotif.type.includes('withdraw') && !currentNotif.type.includes('ktp') && !currentNotif.type.includes('registration') && !currentNotif.type.includes('user') && !currentNotif.type.includes('komplain') && !currentNotif.type.includes('report') && !currentNotif.type.includes('rejected')))">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
                         </template>
                     </div>
-                    <p class="text-[11px] text-gray-500 truncate mt-0.5" x-text="currentNotif ? currentNotif.message : ''"></p>
+
+                    <!-- Text Content -->
+                    <div class="flex-1 min-w-0 cursor-pointer" @click="openUrl()">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-xs font-bold text-gray-900 truncate" x-text="currentNotif ? currentNotif.title : ''"></span>
+                            <template x-if="currentNotif && currentNotif.city_name">
+                                <span class="text-[9px] font-semibold text-primary-700 bg-primary-50 border border-primary-200 px-1.5 py-0.5 rounded-full flex-shrink-0" x-text="currentNotif.city_name"></span>
+                            </template>
+                            <template x-if="queue.length > 0">
+                                <span class="text-[9px] font-bold text-primary-700 bg-primary-50 px-1.5 py-0.5 rounded-full border border-primary-200 flex-shrink-0"
+                                      x-text="`+${queue.length}`"></span>
+                            </template>
+                        </div>
+                        <p class="text-[11px] text-gray-500 truncate mt-0.5" x-text="currentNotif ? currentNotif.message : ''"></p>
+                    </div>
+
+                    <!-- Action Button + Dismiss -->
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <button 
+                            @click="openUrl()" 
+                            type="button" 
+                            class="px-2.5 py-1 text-[11px] font-bold text-white rounded-lg shadow-2xs hover:opacity-90 transition cursor-pointer"
+                            style="background: linear-gradient(to right, #0098e7, #0077cc);"
+                            title="Buka notifikasi">
+                            Lihat
+                        </button>
+                        <button 
+                            @click="dismissCurrent()" 
+                            type="button" 
+                            class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition cursor-pointer"
+                            title="Tutup">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Action Button + Dismiss -->
-                <div class="flex items-center gap-1 flex-shrink-0">
-                    <button 
-                        @click="openUrl()" 
-                        type="button" 
-                        class="px-2.5 py-1 text-[11px] font-bold text-white rounded-lg shadow-2xs hover:opacity-90 transition cursor-pointer"
-                        style="background: linear-gradient(to right, #0098e7, #0077cc);"
-                        title="Buka notifikasi">
-                        Lihat
-                    </button>
-                    <button 
-                        @click="dismissCurrent()" 
-                        type="button" 
-                        class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition cursor-pointer"
-                        title="Tutup">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                <!-- Slim Progress Bar -->
+                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-100 overflow-hidden">
+                    <div class="h-full bg-primary-500 transition-all duration-100 ease-linear"
+                         :style="`width: ${progress}%`"></div>
                 </div>
-            </div>
-
-            <!-- Slim Progress Bar -->
-            <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-100 overflow-hidden">
-                <div class="h-full bg-primary-500 transition-all duration-100 ease-linear"
-                     :style="`width: ${progress}%`"></div>
             </div>
         </div>
-    </div>
+    </template>
 </div>

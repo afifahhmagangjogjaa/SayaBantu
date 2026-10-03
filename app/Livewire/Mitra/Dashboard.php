@@ -148,10 +148,18 @@ class Dashboard extends Component
             $locationService->setInitialLocation($help, $latitude, $longitude);
         }
 
-        // Send notification to customer that their help has been taken
+        // Send notification to customer that their help has been taken (if not already sent by observer)
         try {
             if ($help->user) {
-                $help->user->notify(new HelpTakenNotification($help, auth()->user()));
+                $alreadyNotified = $help->user->notifications()
+                    ->where('type', HelpTakenNotification::class)
+                    ->where('created_at', '>=', now()->subSeconds(10))
+                    ->get()
+                    ->contains(fn($n) => ($n->data['help_id'] ?? null) == $help->id);
+
+                if (!$alreadyNotified) {
+                    $help->user->notify(new HelpTakenNotification($help, auth()->user()));
+                }
             }
         } catch (\Exception $e) {
             \Log::warning('Failed to send HelpTakenNotification', ['error' => $e->getMessage()]);
