@@ -1171,18 +1171,25 @@
         </div>
     @endif
 
-    <!-- Delete Confirmation Modal (Centered Modal Dialog) -->
+    <!-- Delete Confirmation Modal (Centered Modal Dialog) with Reason Selection -->
     @if($showDeleteConfirm ?? false)
-        <div class="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity" wire:click="cancelDelete">
-            <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-5 overflow-hidden animate-in fade-in zoom-in duration-200" wire:click.stop>
-                <div class="text-center mb-4">
-                    <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-3 shadow-xs">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        <div class="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity overflow-y-auto" wire:click="cancelDelete" data-confirm-modal>
+            <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl p-5 sm:p-6 overflow-hidden animate-in fade-in zoom-in duration-200 my-auto" wire:click.stop>
+                <div class="flex items-center gap-3 pb-3 border-b border-gray-100 mb-3.5">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                     </div>
-                    <h3 class="text-base font-bold text-gray-900">Batalkan Permintaan Bantuan?</h3>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">Apakah Anda yakin ingin membatalkan permintaan bantuan ini? Tindakan ini tidak dapat dibatalkan.</p>
+                    <div class="min-w-0 flex-1">
+                        <h3 class="text-base font-bold text-gray-900 leading-tight">Batalkan Permintaan Bantuan?</h3>
+                        <p class="text-xs text-gray-500">Saldo akan dikembalikan 100% penuh ke akun Anda.</p>
+                    </div>
+                    <button type="button" wire:click="cancelDelete" class="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
 
                 @php
@@ -1193,29 +1200,71 @@
                 @endphp
 
                 @if($delHelp)
-                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 mb-5">
+                    {{-- Alert info refund --}}
+                    <div class="p-3 bg-emerald-50 border border-emerald-100 rounded-xl mb-3 text-xs text-emerald-800 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Pengembalian dana: <strong>Rp {{ number_format($delHelp->total_customer_paid > 0 ? $delHelp->total_customer_paid : ($delHelp->total_amount ?? ($delHelp->amount + ($delHelp->admin_fee ?? 0))), 0, ',', '.') }}</strong></span>
+                    </div>
+
+                    {{-- Item Summary Card --}}
+                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 mb-4">
                         <div class="flex items-center gap-3">
                             <div class="w-11 h-11 rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
                                 @if($delHelp->photo)
                                     <img src="{{ asset('storage/' . $delHelp->photo) }}" alt="Foto" class="w-full h-full object-cover">
                                 @else
-                                    <span class="text-lg">🤝</span>
+                                    <span class="text-lg">{{ $delHelp->category?->icon ?? '📦' }}</span>
                                 @endif
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="font-bold text-xs text-gray-900 truncate">{{ $delHelp->title }}</div>
-                                <div class="text-[11px] font-semibold text-primary-600 mt-0.5">Rp {{ number_format($delHelp->amount,0,',','.') }}</div>
+                                <div class="text-[11px] font-semibold text-primary-600 mt-0.5">Rp {{ number_format($delHelp->amount, 0, ',', '.') }}</div>
                             </div>
                         </div>
                     </div>
                 @endif
 
-                <div class="flex gap-3">
-                    <button type="button" wire:click="cancelDelete" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition">
+                {{-- Radio Reason Selection --}}
+                <div class="mb-4 text-left">
+                    <label class="text-xs font-bold text-gray-700 block mb-2">
+                        Pilih Alasan Pembatalan <span class="text-red-500">*</span>
+                    </label>
+                    <div class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                        @foreach($this->availableCancelReasons as $reason)
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer {{ $selectedCancelReason === $reason ? 'border-red-500 bg-red-50/50' : 'border-gray-200 hover:bg-gray-50' }}">
+                                <input type="radio" wire:model.live="selectedCancelReason" value="{{ $reason }}" class="mt-0.5 text-red-600 focus:ring-red-500">
+                                <span class="text-xs font-medium text-gray-800 leading-snug">{{ $reason }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('selectedCancelReason')
+                        <p class="text-xs text-red-500 mt-1.5 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Custom reason textarea when Lainnya selected --}}
+                @if($selectedCancelReason === 'Lainnya')
+                    <div class="mb-4 text-left">
+                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda <span class="text-red-500">*</span></label>
+                        <textarea wire:model="customCancelReason" rows="2" placeholder="Contoh: Perlu reschedule atau ada keperluan mendesak..." class="w-full text-xs p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
+                        @error('customCancelReason')
+                            <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endif
+
+                <div class="flex gap-3 pt-2 border-t border-gray-100">
+                    <button type="button" wire:click="cancelDelete" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition cursor-pointer">
                         Tidak, Kembali
                     </button>
-                    <button type="button" wire:click="deleteConfirmed" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold transition shadow-xs">
-                        Ya, Batalkan
+                    <button type="button" wire:click="deleteConfirmed" wire:loading.attr="disabled" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5">
+                        <span wire:loading.remove wire:target="deleteConfirmed">Ya, Batalkan</span>
+                        <span wire:loading wire:target="deleteConfirmed" class="inline-flex items-center gap-1">
+                            <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Memproses...
+                        </span>
                     </button>
                 </div>
             </div>

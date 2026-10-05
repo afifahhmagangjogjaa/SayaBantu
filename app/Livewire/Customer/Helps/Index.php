@@ -57,9 +57,11 @@ class Index extends Component
     public $editSearchResults = [];
     public $editCityQuery = null;
     public $cities = null;
-    // Delete confirmation modal state
+    // Delete confirmation modal state & cancellation reason
     public $showDeleteConfirm = false;
     public $deletingHelpId = null;
+    public $selectedCancelReason = '';
+    public $customCancelReason = '';
 
     // Reset pagination ketika user mengetik di kolom search
     public function updatingSearch()
@@ -71,6 +73,27 @@ class Index extends Component
     {
         $this->search = '';
         $this->resetPage();
+    }
+
+    public function getAvailableCancelReasonsProperty(): array
+    {
+        $help = $this->deletingHelpId ? Help::find($this->deletingHelpId) : null;
+        if ($help && $help->mitra_id) {
+            return [
+                'Rekan Jasa tidak kunjung berangkat / tidak bergerak',
+                'Rekan Jasa tidak membalas chat / tidak bisa dihubungi',
+                'Waktu kedatangan Rekan Jasa terlalu lama',
+                'Rekan Jasa meminta pesanan dibatalkan',
+                'Lainnya',
+            ];
+        }
+
+        return [
+            'Terlalu lama menunggu Rekan Jasa ditemukan',
+            'Ingin mengubah rincian bantuan / jadwal',
+            'Sudah tidak membutuhkan bantuan lagi',
+            'Lainnya',
+        ];
     }
 
     /**
@@ -85,6 +108,9 @@ class Index extends Component
         }
 
         $this->deletingHelpId = $id;
+        $this->selectedCancelReason = '';
+        $this->customCancelReason = '';
+        $this->resetErrorBag();
         $this->showDeleteConfirm = true;
     }
 
@@ -95,10 +121,13 @@ class Index extends Component
     {
         $this->deletingHelpId = null;
         $this->showDeleteConfirm = false;
+        $this->selectedCancelReason = '';
+        $this->customCancelReason = '';
+        $this->resetErrorBag();
     }
 
     /**
-     * Perform the delete (or cancellation) action after confirmation.
+     * Perform the delete (or cancellation) action after confirmation with reason.
      */
     public function deleteConfirmed()
     {
@@ -114,13 +143,40 @@ class Index extends Component
             return;
         }
 
+        // Validasi alasan pembatalan
+        if (empty($this->selectedCancelReason)) {
+            $this->addError('selectedCancelReason', 'Silakan pilih salah satu alasan pembatalan.');
+            return;
+        }
+
+        $finalReason = $this->selectedCancelReason;
+        if ($this->selectedCancelReason === 'Lainnya') {
+            $customText = trim($this->customCancelReason);
+            if (empty($customText)) {
+                $this->addError('customCancelReason', 'Silakan tuliskan alasan pembatalan Anda.');
+                return;
+            }
+            $finalReason = $customText;
+        }
+
         try {
             // Update status to dibatalkan so HelpObserver triggers automatic refund and notifications
             $help->update([
                 'status' => 'dibatalkan',
+                'customer_cancel_reason' => $finalReason,
+                'cancelled_by' => 'customer',
+                'cancelled_at' => now(),
             ]);
+
+            Log::info('Help cancelled by customer from helps index', [
+                'help_id' => $help->id,
+                'user_id' => auth()->id(),
+                'reason' => $finalReason,
+            ]);
+
             session()->flash('message', 'Permintaan bantuan berhasil dibatalkan dan saldo telah dikembalikan.');
         } catch (\Throwable $e) {
+            Log::error('Failed to cancel help from index: ' . $e->getMessage());
             session()->flash('error', 'Gagal membatalkan permintaan bantuan.');
         }
 
