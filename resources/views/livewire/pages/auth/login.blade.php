@@ -42,6 +42,32 @@ new #[Layout('layouts.guest')] class extends Component {
 
         $this->redirectIntended(default: $redirect, navigate: false);
     }
+
+    /**
+     * Fitur Akun Testing Sementara: 1-Klik Login Langsung
+     * (Dapat dihapus bersama blok tampilan jika project sudah selesai)
+     */
+    public function quickLogin(string $email): void
+    {
+        $user = \App\Models\User::where('email', $email)->first();
+        if (!$user) {
+            $this->addError('form.email', "Akun {$email} belum ada di database.");
+            return;
+        }
+
+        \Illuminate\Support\Facades\Auth::login($user);
+        \Illuminate\Support\Facades\Session::regenerate();
+
+        if ($user->role === 'super_admin') {
+            $this->redirectIntended(default: route('superadmin.dashboard', absolute: false), navigate: false);
+        } elseif ($user->role === 'admin') {
+            $this->redirectIntended(default: route('admin.dashboard', absolute: false), navigate: false);
+        } elseif ($user->role === 'mitra') {
+            $this->redirectIntended(default: route('mitra.dashboard', absolute: false), navigate: false);
+        } else {
+            $this->redirectIntended(default: route('customer.dashboard', absolute: false), navigate: false);
+        }
+    }
 }; ?>
 
 <div class="w-full flex-1 flex flex-col justify-between py-2">
@@ -151,6 +177,73 @@ new #[Layout('layouts.guest')] class extends Component {
                 Daftar Akun
             </a>
         </div>
+
+        <!-- ========================================================================= -->
+        <!-- AKUN TESTING SEMENTARA (HAPUS BLOK INI JIKA PROJECT SUDAH SELESAI/PRODUKSI) -->
+        <!-- ========================================================================= -->
+        <div class="mt-6 pt-5 border-t border-dashed border-gray-300">
+            <div class="flex items-center justify-between mb-2.5">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Akun Testing (Tinggal Klik)
+                </span>
+                <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full font-medium">Auto Login</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-left">
+                <!-- Customer Terverifikasi -->
+                <button type="button" wire:click="quickLogin('customer@sayabantu.com')"
+                    class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100/80 active:scale-95 transition text-left group cursor-pointer">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-base">👤</span>
+                        <div class="truncate">
+                            <p class="text-xs font-bold text-blue-900 group-hover:text-blue-700">Customer</p>
+                            <p class="text-[10px] text-blue-700/70 truncate">Siti Nurhaliza (Aktif)</p>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Mitra Terverifikasi -->
+                <button type="button" wire:click="quickLogin('mitra@sayabantu.com')"
+                    class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/80 active:scale-95 transition text-left group cursor-pointer">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-base">🤝</span>
+                        <div class="truncate">
+                            <p class="text-xs font-bold text-emerald-900 group-hover:text-emerald-700">Mitra</p>
+                            <p class="text-[10px] text-emerald-700/70 truncate">Rahmat Hidayat (Aktif)</p>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Customer Pending -->
+                <button type="button" wire:click="quickLogin('customer.pending@sayabantu.com')"
+                    class="p-2.5 rounded-xl border border-amber-200 bg-amber-50/60 hover:bg-amber-100/80 active:scale-95 transition text-left group cursor-pointer">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-base">⏳</span>
+                        <div class="truncate">
+                            <p class="text-xs font-bold text-amber-900 group-hover:text-amber-700">Customer Baru</p>
+                            <p class="text-[10px] text-amber-700/70 truncate">Belum Verifikasi KTP</p>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Mitra Pending -->
+                <button type="button" wire:click="quickLogin('mitra.pending@sayabantu.com')"
+                    class="p-2.5 rounded-xl border border-orange-200 bg-orange-50/60 hover:bg-orange-100/80 active:scale-95 transition text-left group cursor-pointer">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-base">📋</span>
+                        <div class="truncate">
+                            <p class="text-xs font-bold text-orange-900 group-hover:text-orange-700">Mitra Baru</p>
+                            <p class="text-[10px] text-orange-700/70 truncate">Menunggu Approval</p>
+                        </div>
+                    </div>
+                </button>
+            </div>
+            <p class="text-[10px] text-gray-400 text-center mt-2 font-mono">Password: password</p>
+        </div>
+        <!-- ========================================================================= -->
+        <!-- AKHIR BLOK AKUN TESTING SEMENTARA                                         -->
+        <!-- ========================================================================= -->
     </div>
 
     <!-- Admin Login Link (Cleanly placed at bottom) -->

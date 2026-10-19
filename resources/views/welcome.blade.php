@@ -5,131 +5,152 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>sayabantu - Platform Bantuan Sosial</title>
+    <meta name="description" content="Temukan Bantuan Yang Tersedia. Platform yang menghubungkan mereka yang membutuhkan bantuan dengan para relawan dan mitra profesional.">
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f7f9fa;
         }
-        .animate-fadeInUp {
-            animation: fadeInUp 0.8s ease-out forwards;
+
+        .blur-text {
+            filter: blur(4px);
+            user-select: none;
+            -webkit-user-select: none;
+            transition: filter 0.3s ease;
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .job-item {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .job-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .job-item:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
         }
     </style>
 </head>
 
-<body class="font-sans antialiased bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-    <div class="max-w-sm mx-auto min-h-screen flex flex-col">
+<body class="antialiased text-gray-900 selection:bg-blue-500 selection:text-white">
+    <div class="min-h-screen flex flex-col justify-between max-w-sm mx-auto bg-white shadow-xl sm:rounded-3xl my-0 sm:my-6 overflow-hidden border border-gray-100">
 
-        <!-- Header Navigation -->
-        <header class="px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                </svg>
-                <span class="text-xl font-bold text-gray-800">sayabantu</span>
-            </div>
-            <a href="{{ route('login') }}" class="text-sm font-semibold text-purple-600 hover:text-purple-700">
-                Masuk
-            </a>
+        <!-- Top Header Bar Sesuai Mockup: BANTUAN / Temukan Bantuan Yang Tersedia -->
+        <header class="pt-8 pb-5 px-6 text-center bg-gray-100/90 border-b border-gray-200/60">
+            <h1 class="text-2xl font-black tracking-wide text-gray-900 uppercase">
+                BANTUAN
+            </h1>
+            <p class="text-sm text-gray-600 font-medium mt-1">
+                Temukan Bantuan Yang Tersedia
+            </p>
         </header>
 
-        <!-- Hero Section -->
-        <main class="flex-1 flex flex-col justify-center px-6 py-12">
-            
-            <div class="text-center mb-8 animate-fadeInUp">
-                <!-- Main Icon with Gradient Background -->
-                <div class="inline-flex items-center justify-center w-24 h-24 rounded-full gradient-bg shadow-xl mb-6">
-                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                </div>
+        <!-- Main Content -->
+        <main class="flex-1 px-5 py-5 flex flex-col justify-between">
 
-                <!-- Headline -->
-                    <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                    Berbagi <span class="text-transparent bg-clip-text gradient-bg">Kebaikan</span><br/>
-                    Saling Membantu
-                </h1>
-
-                <!-- Subheadline -->
-                <p class="text-gray-600 text-base leading-relaxed max-w-xs mx-auto">
-                    Platform yang menghubungkan mereka yang membutuhkan dengan mereka yang ingin membantu
-                </p>
-            </div>
-
-            <!-- Feature Cards -->
-            <div class="grid grid-cols-3 gap-4 mb-8 animate-fadeInUp" style="animation-delay: 0.2s;">
-                <!-- Feature 1 -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
-                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 mb-2">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+            <!-- Hero Image / Banner Sesuai Mockup -->
+            <div class="mb-5 fade-in">
+                <div class="w-full h-44 rounded-2xl bg-gradient-to-br from-blue-100 via-sky-50 to-indigo-100 border border-blue-200/70 overflow-hidden relative flex flex-col items-center justify-center p-4 shadow-inner group">
+                    <div class="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center text-3xl mb-2 group-hover:scale-105 transition-transform">
+                        🤝
                     </div>
-                    <p class="text-xs font-semibold text-gray-700">Bantuan Dana</p>
-                </div>
+                    <span class="text-xs font-bold text-blue-900 tracking-wide uppercase">Gotong Royong &amp; Kepedulian</span>
+                    <span class="text-[11px] text-blue-700/80 text-center mt-0.5">Saling membantu untuk sesama di seluruh Indonesia</span>
 
-                <!-- Feature 2 -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
-                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-100 mb-2">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-700">Terpercaya</p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
-                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-pink-100 mb-2">
-                        <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-700">Cepat & Mudah</p>
+                    <!-- Decorative elements -->
+                    <div class="absolute -top-6 -right-6 w-20 h-20 bg-blue-400/10 rounded-full blur-xl"></div>
+                    <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-indigo-400/10 rounded-full blur-xl"></div>
                 </div>
             </div>
 
-            <!-- CTA Buttons -->
-            <div class="space-y-3 animate-fadeInUp" style="animation-delay: 0.4s;">
-                <!-- Primary CTA -->
-                <a href="{{ route('register') }}"
-                    class="block w-full gradient-bg text-white font-bold py-4 rounded-2xl text-center transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                    Mulai Sekarang
-                </a>
+            <!-- Pekerjaan yang tersedia Label -->
+            <div class="mb-2 fade-in">
+                <h2 class="text-base font-bold text-gray-900 tracking-tight">
+                    Pekerjaan yang tersedia:
+                </h2>
+            </div>
 
-                <!-- Secondary CTA -->
+            <!-- Gray Container with Blurred Job List Sesuai Mockup -->
+            <div class="bg-gray-200/80 rounded-2xl p-3.5 mb-6 fade-in space-y-2.5 shadow-inner">
+                
+                <!-- Job Item 1 -->
+                <div onclick="window.location='{{ route('login') }}'" 
+                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
+                    <span class="text-sm font-semibold text-gray-800 blur-text">
+                        Membersihkan rumput
+                    </span>
+                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
+                        🔒 Login
+                    </span>
+                </div>
+
+                <!-- Job Item 2 -->
+                <div onclick="window.location='{{ route('login') }}'" 
+                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
+                    <span class="text-sm font-semibold text-gray-800 blur-text">
+                        Membantu angkut pindahan rumah
+                    </span>
+                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
+                        🔒 Login
+                    </span>
+                </div>
+
+                <!-- Job Item 3 -->
+                <div onclick="window.location='{{ route('login') }}'" 
+                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
+                    <span class="text-sm font-semibold text-gray-800 blur-text">
+                        Membersihkan saluran air
+                    </span>
+                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
+                        🔒 Login
+                    </span>
+                </div>
+
+                <!-- Job Item 4 -->
+                <div onclick="window.location='{{ route('login') }}'" 
+                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
+                    <span class="text-sm font-semibold text-gray-800 blur-text">
+                        Perbaikan genteng &amp; atap rumah
+                    </span>
+                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
+                        🔒 Login
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- Bottom CTA Buttons Sesuai Mockup -->
+            <div class="mt-auto pt-2 pb-4 fade-in">
+                <!-- Tombol Mulai Berbagi Kebaikan -->
                 <a href="{{ route('login') }}"
-                    class="block w-full bg-white text-gray-700 font-semibold py-4 rounded-2xl text-center transition shadow-sm border-2 border-gray-200 hover:border-purple-300 hover:shadow-md">
-                    Sudah Punya Akun? Masuk
+                   class="block w-full py-4 px-6 rounded-2xl bg-gray-300 hover:bg-gray-400/90 text-gray-900 font-bold text-center text-base tracking-wide transition active:scale-98 shadow-sm">
+                    Mulai Berbagi Kebaikan
                 </a>
+
+                <!-- Sub link: Belum punya akun? masuk sekarang -->
+                <div class="text-center mt-3">
+                    <a href="{{ route('login') }}" class="text-xs font-medium text-gray-700 hover:text-blue-600 transition">
+                        Belum punya akun? <span class="font-bold underline">masuk sekarang</span>
+                    </a>
+                </div>
             </div>
 
         </main>
-
-        <!-- Footer -->
-        <footer class="px-6 py-6 text-center">
-            <p class="text-xs text-gray-500">
-                © {{ date('Y') }} sayabantu. Platform Bantuan Sosial Indonesia.
-            </p>
-            @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}"
-                    class="inline-block mt-3 text-xs text-purple-600 hover:text-purple-700 font-semibold">
-                    Lupa Password?
-                </a>
-            @endif
-        </footer>
 
     </div>
 </body>

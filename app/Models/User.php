@@ -725,7 +725,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Memeriksa apakah data profil wajib pengguna sudah terisi lengkap.
-     * Field wajib: Nama Lengkap, NIK (16 digit), No HP (10-13 digit), Kota Domisili, Alamat Lengkap, Agama, Status Pernikahan, dan Pekerjaan.
+     * Field wajib: Nama Lengkap, NIK (16 digit), No HP (10-13 digit), Kota Domisili, Alamat Lengkap.
      * Field opsional: RT, RW.
      */
     public function isProfileComplete(): bool
@@ -784,18 +784,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         if (empty(trim((string) $this->address))) {
             $missing['address'] = 'Alamat Lengkap';
-        }
-
-        if (empty($this->religion)) {
-            $missing['religion'] = 'Agama';
-        }
-
-        if (empty($this->marital_status)) {
-            $missing['marital_status'] = 'Status Pernikahan';
-        }
-
-        if (empty(trim((string) $this->occupation))) {
-            $missing['occupation'] = 'Pekerjaan';
         }
 
         return $missing;

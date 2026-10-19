@@ -18,7 +18,9 @@ return new class extends Migration {
         DB::table('helps')->where('status', 'completed')->update(['status' => 'temp_selesai']);
 
         // Change the enum column
-        DB::statement("ALTER TABLE helps MODIFY COLUMN status ENUM('menunggu_mitra', 'memperoleh_mitra', 'selesai') DEFAULT 'menunggu_mitra'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE helps MODIFY COLUMN status ENUM('menunggu_mitra', 'memperoleh_mitra', 'selesai') DEFAULT 'menunggu_mitra'");
+        }
 
         // Update temp values to final values
         DB::table('helps')->where('status', 'temp_menunggu')->update(['status' => 'menunggu_mitra']);

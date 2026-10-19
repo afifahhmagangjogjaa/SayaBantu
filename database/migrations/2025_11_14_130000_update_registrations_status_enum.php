@@ -10,7 +10,9 @@ return new class extends Migration {
     public function up(): void
     {
         // Expand enum values for registrations.status to include app statuses
-        DB::statement("ALTER TABLE `registrations` MODIFY `status` ENUM('in_progress','pending_verification','approved','rejected','completed','cancelled') NOT NULL DEFAULT 'in_progress'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE `registrations` MODIFY `status` ENUM('in_progress','pending_verification','approved','rejected','completed','cancelled') NOT NULL DEFAULT 'in_progress'");
+        }
     }
 
     /**
@@ -19,6 +21,8 @@ return new class extends Migration {
     public function down(): void
     {
         // Revert to original enum values
-        DB::statement("ALTER TABLE `registrations` MODIFY `status` ENUM('in_progress','completed','cancelled') NOT NULL DEFAULT 'in_progress'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE `registrations` MODIFY `status` ENUM('in_progress','completed','cancelled') NOT NULL DEFAULT 'in_progress'");
+        }
     }
 };

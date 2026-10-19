@@ -63,26 +63,16 @@
                             <span class="font-semibold text-gray-900">{{ $user->name }}</span>
                         </div>
                         <div>
-                            <span class="text-gray-400 block text-[10px] font-bold uppercase">Tempat, Tgl Lahir</span>
-                            <span class="font-medium text-gray-900">{{ $user->place_of_birth }}, {{ $user->date_of_birth ? ($user->date_of_birth instanceof \Carbon\CarbonInterface ? $user->date_of_birth->format('d/m/Y') : \Carbon\Carbon::parse($user->date_of_birth)->format('d/m/Y')) : '-' }}</span>
-                        </div>
-                        <div>
                             <span class="text-gray-400 block text-[10px] font-bold uppercase">Jenis Kelamin</span>
                             <span class="font-medium text-gray-900">{{ $user->gender }}</span>
                         </div>
-                        <div class="{{ empty($user->occupation) ? 'col-span-2' : '' }}">
+                        <div>
                             <span class="text-gray-400 block text-[10px] font-bold uppercase">No. WhatsApp</span>
                             <span class="font-medium text-gray-900">{{ $user->phone }}</span>
                         </div>
-                        @if(!empty($user->occupation))
-                        <div>
-                            <span class="text-gray-400 block text-[10px] font-bold uppercase">Pekerjaan</span>
-                            <span class="font-medium text-gray-900">{{ $user->occupation }}</span>
-                        </div>
-                        @endif
                         <div class="col-span-2">
-                            <span class="text-gray-400 block text-[10px] font-bold uppercase">Alamat Lengkap</span>
-                            <span class="font-medium text-gray-900">{{ $user->address }} {{ $user->rt ? 'RT '.$user->rt : '' }} {{ $user->rw ? 'RW '.$user->rw : '' }}, {{ $user->kelurahan }}, {{ $user->kecamatan }}, {{ $user->city ?? optional($user->cityRelation)->name }}, {{ $user->province }}</span>
+                            <span class="text-gray-400 block text-[10px] font-bold uppercase">Alamat Domisili</span>
+                            <span class="font-medium text-gray-900">{{ $user->address }}{{ $user->kelurahan ? ', ' . $user->kelurahan : '' }}{{ $user->kecamatan ? ', ' . $user->kecamatan : '' }}{{ ($user->city ?? optional($user->cityRelation)->name) ? ', ' . ($user->city ?? optional($user->cityRelation)->name) : '' }}{{ $user->province ? ', ' . $user->province : '' }}</span>
                         </div>
                     </div>
                 </div>

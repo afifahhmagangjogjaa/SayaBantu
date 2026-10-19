@@ -51,29 +51,6 @@
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Tempat & Tanggal Lahir -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label for="place_of_birth" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                            Tempat Lahir <span class="text-red-500">*</span>
-                        </label>
-                        <input name="place_of_birth" id="place_of_birth" type="text" placeholder="Kota lahir"
-                            value="{{ old('place_of_birth', $user->place_of_birth ?? '') }}" required
-                            class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium @error('place_of_birth') border-red-500 @enderror">
-                        @error('place_of_birth') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label for="date_of_birth" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                            Tanggal Lahir <span class="text-red-500">*</span>
-                        </label>
-                        <input name="date_of_birth" id="date_of_birth" type="date" 
-                            max="{{ now()->subYears(17)->format('Y-m-d') }}"
-                            value="{{ old('date_of_birth', $user->date_of_birth ? $user->date_of_birth->format('Y-m-d') : '') }}" required
-                            class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium @error('date_of_birth') border-red-500 @enderror">
-                        @error('date_of_birth') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-                </div>
-
                 <!-- Jenis Kelamin -->
                 @php $currentGender = old('gender', $user->gender ?? 'Laki-laki'); @endphp
                 <div>
@@ -108,34 +85,14 @@
                     @error('phone') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Alamat Lengkap -->
+                <!-- Alamat Lengkap Domisili -->
                 <div>
                     <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Alamat Lengkap KTP <span class="text-red-500">*</span>
+                        Alamat Lengkap Domisili <span class="text-red-500">*</span>
                     </label>
                     <textarea name="address" id="address" rows="2" placeholder="Jalan, nomor rumah, gedung, dll." required
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium @error('address') border-red-500 @enderror">{{ old('address', $user->address ?? '') }}</textarea>
                     @error('address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <!-- RT / RW -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label for="rt" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                            RT <span class="text-gray-400 font-normal">(Opsional)</span>
-                        </label>
-                        <input name="rt" id="rt" type="text" maxlength="5" placeholder="001"
-                            value="{{ old('rt', $user->rt ?? '') }}"
-                            class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm font-medium focus:bg-white focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="rw" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                            RW <span class="text-gray-400 font-normal">(Opsional)</span>
-                        </label>
-                        <input name="rw" id="rw" type="text" maxlength="5" placeholder="002"
-                            value="{{ old('rw', $user->rw ?? '') }}"
-                            class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm font-medium focus:bg-white focus:border-blue-500">
-                    </div>
                 </div>
 
                 @php
@@ -150,14 +107,14 @@
                     }
                 @endphp
 
-                <!-- 1. PROVINSI -->
+                <!-- 1. PROVINSI DOMISILI -->
                 <div>
                     <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Provinsi <span class="text-red-500">*</span>
+                        Provinsi Domisili <span class="text-red-500">*</span>
                     </label>
                     <select name="province" id="province" required onchange="handleProvinceChange()"
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium @error('province') border-red-500 @enderror">
-                        <option value="">-- Pilih Provinsi --</option>
+                        <option value="">-- Pilih Provinsi Domisili --</option>
                         @foreach($provinces as $prov)
                             <option value="{{ $prov }}" {{ $savedProvince === $prov ? 'selected' : '' }}>
                                 {{ $prov }}
@@ -167,38 +124,38 @@
                     @error('province') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- 2. KOTA / KABUPATEN -->
+                <!-- 2. KOTA DOMISILI -->
                 <div>
                     <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Kota / Kabupaten <span class="text-red-500">*</span>
+                        Kota Domisili <span class="text-red-500">*</span>
                     </label>
                     <select name="city_id" id="city_id" required onchange="handleCityChange()" disabled
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('city_id') border-red-500 @enderror">
-                        <option value="">-- Pilih Provinsi Terlebih Dahulu --</option>
+                        <option value="">-- Pilih Provinsi Domisili Terlebih Dahulu --</option>
                     </select>
                     @error('city_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- 3. KECAMATAN -->
+                <!-- 3. KECAMATAN DOMISILI -->
                 <div>
                     <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Kecamatan <span class="text-red-500">*</span>
+                        Kecamatan Domisili <span class="text-red-500">*</span>
                     </label>
                     <select name="kecamatan" id="kecamatan" required onchange="handleDistrictChange()" disabled
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('kecamatan') border-red-500 @enderror">
-                        <option value="">-- Pilih Kota Terlebih Dahulu --</option>
+                        <option value="">-- Pilih Kota Domisili Terlebih Dahulu --</option>
                     </select>
                     @error('kecamatan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- 4. KELURAHAN / DESA -->
+                <!-- 4. KELURAHAN / DESA DOMISILI -->
                 <div>
                     <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Kelurahan / Desa <span class="text-red-500">*</span>
+                        Kelurahan / Desa Domisili <span class="text-red-500">*</span>
                     </label>
                     <select name="kelurahan" id="kelurahan" required disabled
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('kelurahan') border-red-500 @enderror">
-                        <option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>
+                        <option value="">-- Pilih Kecamatan Domisili Terlebih Dahulu --</option>
                     </select>
                     @error('kelurahan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>

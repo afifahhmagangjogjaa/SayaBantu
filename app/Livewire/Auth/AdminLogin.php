@@ -70,6 +70,33 @@ class AdminLogin extends Component
         }
     }
 
+    /**
+     * Fitur Akun Testing Sementara: 1-Klik Login Admin Langsung
+     * (Dapat dihapus bersama blok tampilan jika project sudah selesai)
+     */
+    public function quickLogin(string $email): void
+    {
+        $user = \App\Models\User::where('email', $email)->first();
+        if (!$user) {
+            $this->addError('form.email', "Akun {$email} belum terdaftar di database.");
+            return;
+        }
+
+        if (!in_array($user->role, ['admin', 'super_admin'])) {
+            $this->addError('form.email', 'Hanya akun Administrator yang dapat login di halaman ini.');
+            return;
+        }
+
+        Auth::login($user);
+        Session::regenerate();
+
+        if ($user->role === 'super_admin') {
+            $this->redirect(route('superadmin.dashboard', absolute: false), navigate: false);
+        } else {
+            $this->redirect(route('admin.dashboard', absolute: false), navigate: false);
+        }
+    }
+
     public function render()
     {
         return view('livewire.auth.admin-login');

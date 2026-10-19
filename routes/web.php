@@ -96,15 +96,7 @@ Route::get('/api/wilayah/villages', [OnboardingController::class, 'getVillages']
 // =========================================================================
 Route::group([], function () {
     // Batalkan Onboarding & Kembali ke Register Awal
-    Route::post('/onboarding/cancel', function (\Illuminate\Http\Request $request) {
-        if (\Illuminate\Support\Facades\Auth::check()) {
-            \Illuminate\Support\Facades\Auth::logout();
-        }
-        $request->session()->forget(['reg_account', 'reg_step1', 'reg_step2', 'reg_step3']);
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('register.choose-role')->with('status', 'Pendaftaran dibatalkan. Anda dapat mendaftar kembali kapan saja.');
-    })->name('onboarding.cancel');
+    Route::post('/onboarding/cancel', [OnboardingController::class, 'cancel'])->name('onboarding.cancel');
 
     // Buat Password
     Route::get('/onboarding/password', [OnboardingController::class, 'showPasswordForm'])->name('onboarding.password');
@@ -114,6 +106,7 @@ Route::group([], function () {
     Route::get('/onboarding/step1', [OnboardingController::class, 'showStep1'])->name('onboarding.step1');
     Route::post('/onboarding/step1', [OnboardingController::class, 'storeStep1'])->name('onboarding.step1.store');
     Route::get('/onboarding/biodata', [OnboardingController::class, 'showStep1'])->name('onboarding.biodata');
+    Route::post('/onboarding/biodata', [OnboardingController::class, 'storeStep1'])->name('onboarding.biodata.store');
 
     // Step 2: Upload Foto KTP
     Route::get('/onboarding/step2', [OnboardingController::class, 'showStep2'])->name('onboarding.step2');
@@ -224,56 +217,17 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
         Route::view('/help-support', 'customer.help-support')->name('help-support');
 
         // Tracking
-        Route::get('/helps/{id}/tracking', function ($id) {
-            $help = \App\Models\Help::find($id);
-            if (! $help) {
-                return response()->json(['error' => 'Not found'], 404);
-            }
-
-            return response()->json([
-                'partnerLat' => $help->partner_current_lat,
-                'partnerLng' => $help->partner_current_lng,
-                'customerLat' => $help->latitude,
-                'customerLng' => $help->longitude,
-                'partnerName' => $help->mitra?->name ?? null,
-                'updated_at' => $help->updated_at?->toDateTimeString(),
-            ]);
-        })->name('customer.helps.tracking');
+        Route::get('/helps/{id}/tracking', [\App\Http\Controllers\Api\HelpTrackingController::class, 'tracking'])->name('customer.helps.tracking');
 
         // Help details JSON
-        Route::get('/helps/{id}/json', function ($id) {
-            $help = \App\Models\Help::with(['city','mitra','user'])->find($id);
-            if (! $help) return response()->json(['error' => 'Not found'], 404);
-
-            return response()->json([
-                'id' => $help->id,
-                'scheduled_at' => $help->scheduled_at?->toDateTimeString(),
-                'title' => $help->title,
-                'amount' => $help->amount,
-            ]);
-        })->name('helps.json');
+        Route::get('/helps/{id}/json', [\App\Http\Controllers\Api\HelpTrackingController::class, 'json'])->name('helps.json');
 
         // Reports
         Route::get('/reports/create', \App\Livewire\Customer\Reports\Create::class)->name('reports.create');
         Route::get('/reports/create/user/{user_id}', \App\Livewire\Customer\Reports\Create::class)->name('reports.create.user');
         Route::get('/reports/create/help/{help_id}', \App\Livewire\Customer\Reports\Create::class)->name('reports.create.help');
-        Route::get('/reports/{report}/status-check', function (\App\Models\PartnerReport $report) {
-            if ($report->reporter_id !== auth()->id() && $report->reported_user_id !== auth()->id()) {
-                return response()->json(['error' => 'Unauthorized'], 403);
-            }
-            return response()->json([
-                'id' => $report->id,
-                'status' => $report->status,
-                'resolved_at' => $report->resolved_at?->toIso8601String(),
-                'updated_at' => $report->updated_at?->toIso8601String(),
-            ]);
-        })->name('reports.status-check');
-        Route::get('/reports/{report}', function (\App\Models\PartnerReport $report) {
-            if ($report->reporter_id !== auth()->id() && $report->reported_user_id !== auth()->id()) {
-                abort(403);
-            }
-            return view('livewire.customer.reports.show', ['report' => $report]);
-        })->name('reports.show');
+        Route::get('/reports/{report}/status-check', [\App\Http\Controllers\PartnerReportController::class, 'statusCheck'])->name('reports.status-check');
+        Route::get('/reports/{report}', [\App\Http\Controllers\PartnerReportController::class, 'show'])->name('reports.show');
     });
 
     // ========================================
@@ -282,7 +236,7 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     Route::prefix('mitra')->name('mitra.')->middleware('mitra')->group(function () {
         Route::get('/dashboard', \App\Livewire\Mitra\Dashboard\Index::class)->name('dashboard');
         Route::get('/helps', \App\Livewire\Mitra\Helps\AllHelps::class)->name('helps.all');
-        Route::get('/helps/completed', \App\Livewire\Mitra\Helps\ProcessingHelps::class)->name('helps.completed');
+        Route::get('/helps/completed', \App\Livewire\Mitra\Helps\CompletedHelps::class)->name('helps.completed');
         Route::get('/helps/{id}/detail', \App\Livewire\Mitra\Helps\HelpDetail::class)->name('helps.detail');
         Route::get('/profile', \App\Livewire\Mitra\Profile\Index::class)->name('profile');
         Route::get('/profile/edit', \App\Livewire\Mitra\Profile\EditPage::class)->name('profile.edit');
@@ -292,23 +246,8 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
         Route::get('/reports/create', \App\Livewire\Mitra\Reports\Create::class)->name('reports.create');
         Route::get('/reports/create/user/{user_id}', \App\Livewire\Mitra\Reports\Create::class)->name('reports.create.user');
         Route::get('/reports/create/help/{help_id}', \App\Livewire\Mitra\Reports\Create::class)->name('reports.create.help');
-        Route::get('/reports/{report}/status-check', function (\App\Models\PartnerReport $report) {
-            if ($report->reporter_id !== auth()->id() && $report->reported_user_id !== auth()->id()) {
-                return response()->json(['error' => 'Unauthorized'], 403);
-            }
-            return response()->json([
-                'id' => $report->id,
-                'status' => $report->status,
-                'resolved_at' => $report->resolved_at?->toIso8601String(),
-                'updated_at' => $report->updated_at?->toIso8601String(),
-            ]);
-        })->name('reports.status-check');
-        Route::get('/reports/{report}', function (\App\Models\PartnerReport $report) {
-            if ($report->reporter_id !== auth()->id() && $report->reported_user_id !== auth()->id()) {
-                abort(403);
-            }
-            return view('livewire.mitra.reports.show', ['report' => $report]);
-        })->name('reports.show');
+        Route::get('/reports/{report}/status-check', [\App\Http\Controllers\PartnerReportController::class, 'statusCheck'])->name('reports.status-check');
+        Route::get('/reports/{report}', [\App\Http\Controllers\PartnerReportController::class, 'show'])->name('reports.show');
 
         Route::get('/helps/processing', \App\Livewire\Mitra\Helps\ProcessingHelps::class)->name('helps.processing');
         Route::get('/ratings', \App\Livewire\Mitra\Ratings\Index::class)->name('ratings');
@@ -388,155 +327,7 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
     Route::get('/notifications', \App\Livewire\SuperAdmin\Notifications::class)->name('notifications.index');
     Route::get('/activity-logs', \App\Livewire\SuperAdmin\ActivityLogs::class)->name('activity.logs');
     Route::get('/transactions/logs', \App\Livewire\SuperAdmin\TransactionsLog::class)->name('transactions.log');
-    Route::get('/transactions/export-excel', function (\Illuminate\Http\Request $request) {
-        $type = $request->get('type', 'all');
-        $search = $request->get('search');
-        $from = $request->get('from');
-        $to = $request->get('to');
-        $cityId = $request->get('city_id');
-
-        $query = \App\Models\BalanceTransaction::query();
-
-        if ($type && $type !== 'all') {
-            if ($type === 'withdraw') {
-                $query->where(function ($q) {
-                    $q->where('type', 'withdraw')
-                      ->orWhere(function ($sub) {
-                          $sub->whereIn('type', ['deduction', 'withdraw_deduction'])
-                              ->whereHas('user', fn($u) => $u->where('role', 'mitra'));
-                      });
-                });
-            } elseif ($type === 'topup') {
-                $query->where('type', 'topup');
-            } elseif ($type === 'other') {
-                $query->whereNotIn('type', ['topup', 'withdraw']);
-            } else {
-                $query->where('type', $type);
-            }
-        }
-
-        if ($search) {
-            $s = trim($search);
-            $query->where(function ($q) use ($s) {
-                $q->where('request_code', 'like', "%{$s}%")
-                    ->orWhere('order_id', 'like', "%{$s}%")
-                    ->orWhere('reference_id', 'like', "%{$s}%")
-                    ->orWhereHas('user', function ($qu) use ($s) {
-                        $qu->where('name', 'like', "%{$s}%")->orWhere('email', 'like', "%{$s}%");
-                    });
-            });
-        }
-
-        if ($from) {
-            $query->whereDate('created_at', '>=', $from);
-        }
-        if ($to) {
-            $query->whereDate('created_at', '<=', $to);
-        }
-
-        // 1. FILTER BERDASARKAN WILAYAH / KOTA USER
-        if ($cityId) {
-            $query->whereHas('user', function ($q) use ($cityId) {
-                $q->where('city_id', $cityId);
-            });
-        }
-
-        // 2. TENTUKAN NAMA WILAYAH UNTUK JUDUL & FILENAME
-        $cityName = 'Semua-Wilayah';
-        if ($cityId) {
-            $selectedCity = \App\Models\City::find($cityId);
-            if ($selectedCity) {
-                $cityName = \Illuminate\Support\Str::slug($selectedCity->name);
-            }
-        }
-
-        $transactions = $query->with(['user.city'])->orderBy('created_at', 'desc')->get();
-        $filename = 'Laporan-Transaksi-' . $cityName . '-' . now()->format('Ymd-His') . '.xls';
-
-        return response()->streamDownload(function () use ($transactions, $cityName) {
-            echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-            echo '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
-            echo '<style>
-                body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #111827; }
-                table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-                th { background-color: #1e3a8a; color: #ffffff; font-weight: bold; border: 1px solid #0f172a; padding: 8px 10px; text-align: center; vertical-align: middle; }
-                td { border: 1px solid #cbd5e1; padding: 6px 8px; vertical-align: middle; }
-                .text-center { text-align: center; }
-                .text-left { text-align: left; }
-                .text-right { text-align: right; }
-                .font-bold { font-weight: bold; }
-                .bg-total { background-color: #f1f5f9; font-weight: bold; }
-                .title-main { font-size: 16pt; font-weight: bold; text-align: center; color: #1e3a8a; }
-                .title-sub { font-size: 10pt; color: #64748b; text-align: center; }
-            </style></head><body>';
-            
-            // Header Judul Dinamis sesuai Wilayah
-            echo '<table>';
-            echo '<tr><td colspan="9" class="title-main" style="border:none; padding-top:10px; padding-bottom:4px;">LAPORAN DAFTAR TRANSAKSI (' . strtoupper(str_replace('-', ' ', $cityName)) . ')</td></tr>';
-            echo '<tr><td colspan="9" class="title-sub" style="border:none; padding-bottom:15px;">Tanggal Cetak: ' . now()->translatedFormat('d F Y, H:i') . ' WIB | Oleh: ' . htmlspecialchars(auth()->user()->name ?? 'Super Admin') . '</td></tr>';
-            echo '</table>';
-
-            echo '<table>';
-            echo '<thead><tr>';
-            echo '<th style="width: 45px;">No</th>';
-            echo '<th style="width: 140px;">Waktu</th>';
-            echo '<th style="width: 180px;">Nama User</th>';
-            echo '<th style="width: 200px;">Email</th>';
-            echo '<th style="width: 140px;">Wilayah / Kota</th>'; // Kolom Wilayah Baru
-            echo '<th style="width: 130px;">Tipe</th>';
-            echo '<th style="width: 130px;">Jumlah (Rp)</th>';
-            echo '<th style="width: 120px;">Ref</th>';
-            echo '<th style="width: 100px;">Status</th>';
-            echo '</tr></thead><tbody>';
-
-            $no = 1;
-            $total = 0;
-
-            foreach ($transactions as $t) {
-                $userRole = optional($t->user)->role;
-                if ($t->type === 'withdraw' || ($userRole === 'mitra' && in_array($t->type, ['deduction', 'withdraw_deduction']))) {
-                    $label = 'Withdraw';
-                } elseif ($userRole === 'mitra' && ($t->type === 'topup' || $t->type === 'income')) {
-                    $label = 'Pendapatan Mitra';
-                } elseif ($t->type === 'topup' || $t->type === 'deposit') {
-                    $label = 'Top Up';
-                } elseif ($t->type === 'deduction') {
-                    $label = 'Pembayaran Bantuan';
-                } else {
-                    $label = ucfirst($t->type);
-                }
-
-                $statusLabel = $t->status ?? 'completed';
-                $total += (float) $t->amount;
-                $rowBg = ($no % 2 === 0) ? 'style="background-color: #f8fafc;"' : '';
-                $refCode = $t->request_code ?? $t->order_id ?? $t->reference_id ?? $t->reference ?? '-';
-                $userCity = $t->user->city_name ?? '-';
-
-                echo "<tr {$rowBg}>";
-                echo '<td class="text-center">' . $no++ . '</td>';
-                echo '<td class="text-center">' . ($t->created_at ? $t->created_at->format('d/m/Y H:i') : '-') . '</td>';
-                echo '<td class="text-left">' . htmlspecialchars(optional($t->user)->name ?? '-') . '</td>';
-                echo '<td class="text-left">' . htmlspecialchars(optional($t->user)->email ?? '-') . '</td>';
-                echo '<td class="text-center">' . htmlspecialchars($userCity) . '</td>'; // Isi Wilayah
-                echo '<td class="text-center">' . $label . '</td>';
-                echo '<td class="text-right font-bold">' . number_format($t->amount, 0, ',', '.') . '</td>';
-                echo '<td class="text-center">' . htmlspecialchars($refCode) . '</td>';
-                echo '<td class="text-center">' . $statusLabel . '</td>';
-                echo '</tr>';
-            }
-
-            echo '<tr>';
-            echo '<td colspan="6" class="text-right font-bold bg-total">TOTAL KESELURUHAN</td>';
-            echo '<td class="text-right font-bold bg-total">Rp ' . number_format($total, 0, ',', '.') . '</td>';
-            echo '<td colspan="2" class="bg-total"></td>';
-            echo '</tr>';
-
-            echo '</tbody></table></body></html>';
-        }, $filename, [
-            'Content-Type' => 'application/vnd.ms-excel; charset=utf-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ]);
-    })->name('transactions.export.excel');
+    Route::get('/transactions/export-excel', [\App\Http\Controllers\SuperAdmin\TransactionExportController::class, 'export'])->name('transactions.export.excel');
     
     Route::get('/helps/approved', \App\Livewire\SuperAdmin\HelpsApproved::class)->name('helps.approved');
     Route::get('/settings/help', \App\Livewire\SuperAdmin\Settings\HelpSettings::class)->name('settings.help');

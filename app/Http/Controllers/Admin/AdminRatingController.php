@@ -103,4 +103,23 @@ class AdminRatingController extends Controller
 
         return back()->with('success', $user->is_shadow_banned ? 'User dikenakan Shadow Ban.' : 'User dibebaskan dari Shadow Ban.');
     }
+
+    public function show(Request $request, Rating $rating)
+    {
+        $rating->load(['rater', 'ratee', 'help.city']);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'rating' => $rating,
+            ]);
+        }
+
+        $targetUserId = $rating->ratee_id ?? $rating->user_id;
+        if ($targetUserId) {
+            return redirect()->route('admin.ratings.user', $targetUserId);
+        }
+
+        return redirect()->route('admin.ratings.index');
+    }
 }

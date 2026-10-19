@@ -13,8 +13,9 @@ return new class extends Migration
     public function up(): void
     {
         // Convert the ENUM status column to a VARCHAR to avoid future enum-value migrations.
-        // This preserves existing values while allowing new statuses (like partner_cancel_requested).
-        DB::statement("ALTER TABLE helps MODIFY COLUMN status VARCHAR(191) DEFAULT 'pending'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE helps MODIFY COLUMN status VARCHAR(191) DEFAULT 'pending'");
+        }
     }
 
     /**

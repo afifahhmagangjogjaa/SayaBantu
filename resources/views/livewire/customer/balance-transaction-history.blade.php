@@ -79,7 +79,7 @@
         </div>
 
         <!-- View All Link -->
-        <a href="{{ route('balance.history') ?? '#' }}"
+        <a href="{{ route('customer.transactions.index') }}"
             class="block text-center text-primary-600 text-sm font-semibold mt-4 hover:text-primary-700">
             Lihat Semua Transaksi →
         </a>

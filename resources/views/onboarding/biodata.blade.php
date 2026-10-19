@@ -57,57 +57,10 @@
                     @error('city_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Agama & Status Pernikahan -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                            Agama <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" name="religion" value="{{ old('religion') }}" required placeholder="Islam"
-                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('religion') border-red-500 @enderror">
-                        @error('religion') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                            Status <span class="text-red-500">*</span>
-                        </label>
-                        <select name="marital_status" required class="w-full px-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white">
-                            <option value="Belum Kawin" {{ old('marital_status') == 'Belum Kawin' ? 'selected' : '' }}>Belum Kawin</option>
-                            <option value="Kawin" {{ old('marital_status') == 'Kawin' ? 'selected' : '' }}>Kawin</option>
-                            <option value="Cerai Hidup" {{ old('marital_status') == 'Cerai Hidup' ? 'selected' : '' }}>Cerai Hidup</option>
-                            <option value="Cerai Mati" {{ old('marital_status') == 'Cerai Mati' ? 'selected' : '' }}>Cerai Mati</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Pekerjaan -->
+                <!-- Alamat Lengkap Domisili -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        Pekerjaan <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="occupation" value="{{ old('occupation') }}" required placeholder="Contoh: Karyawan Swasta"
-                           class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('occupation') border-red-500 @enderror">
-                    @error('occupation') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <!-- RT / RW (Opsional) -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">RT (Opsional)</label>
-                        <input type="text" name="rt" value="{{ old('rt') }}" maxlength="5" placeholder="001"
-                               class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none transition bg-gray-50/50 focus:bg-white">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">RW (Opsional)</label>
-                        <input type="text" name="rw" value="{{ old('rw') }}" maxlength="5" placeholder="002"
-                               class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none transition bg-gray-50/50 focus:bg-white">
-                    </div>
-                </div>
-
-                <!-- Alamat Lengkap -->
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        Alamat Lengkap <span class="text-red-500">*</span>
+                        Alamat Lengkap Domisili <span class="text-red-500">*</span>
                     </label>
                     <textarea name="address" rows="2" required placeholder="Jl. Nama Jalan, No. Rumah, Kelurahan, Kecamatan"
                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('address') border-red-500 @enderror">{{ old('address') }}</textarea>

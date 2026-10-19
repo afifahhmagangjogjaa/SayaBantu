@@ -127,7 +127,9 @@ class OnboardingController extends Controller
         $userId = $user->exists ? $user->id : null;
         $userEmail = $user->email;
 
-        $request->validate([
+        $isMitraRoute = $request->routeIs('onboarding.step1.store');
+
+        $rules = [
             'nik' => [
                 'required',
                 'string',
@@ -136,36 +138,36 @@ class OnboardingController extends Controller
                 Rule::unique('users', 'nik')->ignore($userId),
             ],
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
-            'place_of_birth' => ['required', 'string', 'max:100'],
-            'date_of_birth' => ['required', 'date', 'before_or_equal:' . now()->subYears(17)->format('Y-m-d')],
             'gender' => ['required', 'in:Laki-laki,Perempuan'],
             'phone' => ['required', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
             'city_id' => ['required', Rule::exists('cities', 'id')->where('is_active', true)],
             'address' => ['required', 'string', 'max:500'],
-            'rt' => ['nullable', 'string', 'max:5'],
-            'rw' => ['nullable', 'string', 'max:5'],
-            'kelurahan' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
-            'kecamatan' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
-            'province' => ['required', 'string', 'max:100'],
-        ], [
+        ];
+
+        // Field tambahan domisili HANYA untuk alur mitra (step1)
+        if ($isMitraRoute) {
+            $rules['kelurahan'] = ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'];
+            $rules['kecamatan'] = ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'];
+            $rules['province'] = ['required', 'string', 'max:100'];
+        }
+
+        $request->validate($rules, [
             'nik.required' => 'NIK wajib diisi.',
             'nik.size' => 'NIK harus 16 digit angka.',
             'nik.regex' => 'NIK hanya boleh berupa angka.',
             'nik.unique' => 'NIK ini sudah terdaftar pada akun lain. Mohon gunakan NIK Anda sendiri.',
             'name.required' => 'Nama lengkap wajib diisi.',
             'name.regex' => 'Nama lengkap hanya boleh berupa huruf.',
-            'place_of_birth.required' => 'Tempat lahir wajib diisi.',
-            'date_of_birth.before_or_equal' => 'Usia minimal adalah 17 tahun.',
             'phone.min' => 'Nomor HP minimal 10 digit.',
             'phone.max' => 'Nomor HP maksimal 13 digit.',
             'city_id.required' => 'Kota domisili wajib dipilih.',
             'city_id.exists' => 'Kota yang dipilih saat ini sedang tidak aktif.',
             'address.required' => 'Alamat lengkap wajib diisi.',
-            'kelurahan.required' => 'Kelurahan / Desa wajib diisi.',
-            'kelurahan.regex' => 'Kelurahan / Desa hanya boleh berisi huruf.',
-            'kecamatan.required' => 'Kecamatan wajib diisi.',
-            'kecamatan.regex' => 'Kecamatan hanya boleh berisi huruf.',
-            'province.required' => 'Provinsi wajib diisi.',
+            'kelurahan.required' => 'Kelurahan / Desa domisili wajib diisi.',
+            'kelurahan.regex' => 'Kelurahan / Desa domisili hanya boleh berisi huruf.',
+            'kecamatan.required' => 'Kecamatan domisili wajib diisi.',
+            'kecamatan.regex' => 'Kecamatan domisili hanya boleh berisi huruf.',
+            'province.required' => 'Provinsi domisili wajib diisi.',
         ]);
 
         // Cek apakah NIK sudah digunakan oleh akun lain di tabel users
@@ -657,5 +659,22 @@ class OnboardingController extends Controller
         } catch (\Exception $e) {}
 
         return response()->json(['success' => false, 'data' => []]);
+    }
+
+    /**
+     * Cancel ongoing onboarding and reset session state.
+     */
+    public function cancel(Request $request)
+    {
+        session()->forget(['reg_account', 'reg_step1', 'reg_step2', 'reg_step3', 'reg_role']);
+
+        if (Auth::check()) {
+            Auth::logout();
+        }
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('register.choose-role');
     }
 }

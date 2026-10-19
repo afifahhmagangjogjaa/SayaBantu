@@ -12,8 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('helps', function (Blueprint $table) {
-            // Ubah tipe kolom status untuk menambahkan status baru
+        if (DB::getDriverName() === 'mysql') {
             DB::statement("ALTER TABLE helps MODIFY COLUMN status ENUM(
                 'pending', 
                 'approved', 
@@ -28,7 +27,7 @@ return new class extends Migration
                 'memperoleh_mitra',
                 'selesai'
             ) DEFAULT 'pending'");
-        });
+        }
     }
 
     /**

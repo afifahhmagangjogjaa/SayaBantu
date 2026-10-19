@@ -51,11 +51,11 @@
                 </div>
 
                 <div class="flex gap-2.5 pt-2">
-                    <a href="{{ route('customer.withdraw.form', ['force' => 1]) }}" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm">
-                        Ajukan Ulang
+                    <a href="{{ route('customer.dashboard') }}" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm">
+                        Ke Dashboard
                     </a>
-                    <a href="{{ route('customer.withdraw.history') }}" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
-                        Riwayat
+                    <a href="{{ route('customer.transactions.index') }}" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
+                        Riwayat Transaksi
                     </a>
                 </div>
             </div>

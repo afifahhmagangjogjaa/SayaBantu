@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('helps', function (Blueprint $table) {
-            //
-        });
+        if (Schema::hasTable('helps') && !Schema::hasColumn('helps', 'category_id')) {
+            Schema::table('helps', function (Blueprint $table) {
+                $table->foreignId('category_id')->nullable()->after('city_id')->constrained()->nullOnDelete();
+            });
+        }
     }
 
     /**
@@ -21,8 +23,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('helps', function (Blueprint $table) {
-            //
-        });
+        if (Schema::hasTable('helps') && Schema::hasColumn('helps', 'category_id')) {
+            Schema::table('helps', function (Blueprint $table) {
+                $table->dropForeign(['category_id']);
+                $table->dropColumn('category_id');
+            });
+        }
     }
 };

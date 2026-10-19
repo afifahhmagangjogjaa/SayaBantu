@@ -40,19 +40,12 @@ new #[Layout('layouts.guest')] class extends Component {
         $this->step1_data = $registration->only([
             'nik',
             'full_name',
-            'place_of_birth',
-            'date_of_birth',
             'gender',
             'address',
-            'rt',
-            'rw',
             'kelurahan',
             'kecamatan',
             'city',
             'province',
-            'religion',
-            'marital_status',
-            'occupation'
         ]);
 
         $this->step2_data = ['ktp_photo_path' => $registration->ktp_photo_path];
@@ -92,19 +85,12 @@ new #[Layout('layouts.guest')] class extends Component {
             'role' => $registration->role ?? 'customer',
             'password' => Hash::make($validated['password']),
             'nik' => $registration->nik,
-            'place_of_birth' => $registration->place_of_birth,
-            'date_of_birth' => $registration->date_of_birth,
             'gender' => $registration->gender,
             'address' => $registration->address,
-            'rt' => $registration->rt,
-            'rw' => $registration->rw,
             'kelurahan' => $registration->kelurahan,
             'kecamatan' => $registration->kecamatan,
             'city' => $registration->city,
             'province' => $registration->province,
-            'religion' => $registration->religion,
-            'marital_status' => $registration->marital_status,
-            'occupation' => $registration->occupation,
             'ktp_photo' => $registration->ktp_photo_path,
             'selfie_photo' => $registration->selfie_photo_path,
         ];
@@ -244,10 +230,6 @@ new #[Layout('layouts.guest')] class extends Component {
                     <span class="font-bold text-gray-900 text-right">{{ $step1_data['full_name'] }}</span>
                 </div>
                 <div class="flex justify-between items-center py-1 border-b border-gray-100">
-                    <span class="text-gray-500 font-medium">Tempat, Tgl Lahir</span>
-                    <span class="font-bold text-gray-900 text-right">{{ $step1_data['place_of_birth'] }}, {{ date('d/m/Y', strtotime($step1_data['date_of_birth'])) }}</span>
-                </div>
-                <div class="flex justify-between items-center py-1 border-b border-gray-100">
                     <span class="text-gray-500 font-medium">Jenis Kelamin</span>
                     <span class="font-bold text-gray-900 text-right">{{ $step1_data['gender'] }}</span>
                 </div>
@@ -256,7 +238,7 @@ new #[Layout('layouts.guest')] class extends Component {
                     <div class="bg-white rounded-xl p-2.5 border border-gray-200/80 text-gray-800 leading-relaxed font-semibold">
                         <div>{{ $step1_data['address'] }}</div>
                         <div class="text-gray-600 font-normal mt-0.5">
-                            RT {{ $step1_data['rt'] }} / RW {{ $step1_data['rw'] }}, Kel. {{ $step1_data['kelurahan'] }}, Kec. {{ $step1_data['kecamatan'] }}
+                            Kel. {{ $step1_data['kelurahan'] }}, Kec. {{ $step1_data['kecamatan'] }}
                         </div>
                         <div class="text-gray-600 font-normal">
                             {{ $step1_data['city'] }}, {{ $step1_data['province'] }}
