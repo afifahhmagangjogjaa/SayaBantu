@@ -1,17 +1,4 @@
-<div class="min-h-screen bg-white"
-    x-data
-    x-init="
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                p => {
-                    $wire.setCoordinates(p.coords.latitude, p.coords.longitude);
-                },
-                err => { console.log('Geolocation init info:', err.message); },
-                { enableHighAccuracy: true, timeout: 8000 }
-            );
-        }
-    "
->
+<div class="min-h-screen bg-white">
     <style>
         :root{
             --brand-500: #0ea5a4;
@@ -584,56 +571,18 @@
                 btn.disabled = true;
             }
 
-            let taken = false;
-            const completeTake = (lat = null, lng = null) => {
-                if (taken) return;
-                taken = true;
-                clearTimeout(fallbackTimer);
+            // Langsung ambil bantuan tanpa GPS — backend pakai koordinat kota mitra
+            // GPS browser bisa berbeda kota (misal desktop di Jakarta, kota mitra di Bantul)
+            // Radius check di backend sudah pakai koordinat kota yg benar
+            @this.takeHelp(currentHelpId);
 
-                if (lat && lng) {
-                    console.log('📍 Mengambil bantuan dengan lokasi GPS:', { lat, lng });
-                    @this.takeHelp(currentHelpId, lat, lng);
-                } else {
-                    console.log('📍 Mengambil bantuan (koordinat default dari profil mitra)');
-                    @this.takeHelp(currentHelpId);
-                }
+            closePreviewModal();
 
-                closePreviewModal();
-
-                if (btn) {
+            if (btn) {
+                setTimeout(() => {
                     btn.textContent = originalText;
                     btn.disabled = false;
-                }
-            };
-
-            // Batas maksimal tunggu deteksi GPS adalah 1.8 detik agar tidak pernah stuck/macet
-            const fallbackTimer = setTimeout(() => {
-                console.log('⏱️ Waktu deteksi GPS selesai, langsung mengambil bantuan...');
-                completeTake();
-            }, 1800);
-
-            // Coba ambil lokasi secara cepat jika browser mendukung
-            if (navigator.geolocation) {
-                try {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            completeTake(position.coords.latitude, position.coords.longitude);
-                        },
-                        (error) => {
-                            console.warn('⚠️ Lokasi GPS tidak dapat diakses, mengambil bantuan langsung:', error.message);
-                            completeTake();
-                        },
-                        {
-                            enableHighAccuracy: false,
-                            timeout: 1500,
-                            maximumAge: 300000 // gunakan cache lokasi 5 menit terakhir jika ada
-                        }
-                    );
-                } catch (e) {
-                    completeTake();
-                }
-            } else {
-                completeTake();
+                }, 2000);
             }
         }
 

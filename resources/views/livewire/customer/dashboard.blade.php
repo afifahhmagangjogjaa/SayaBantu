@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-100" wire:poll.5s>
+<div class="min-h-screen bg-gray-100" wire:poll.20s>
     <style>
         :root{
             --brand-500: #0ea5a4;

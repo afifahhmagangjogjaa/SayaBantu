@@ -135,9 +135,9 @@
                                             <div class="min-w-0">
                                                 <div class="text-xs font-semibold text-gray-900 leading-tight truncate max-w-[125px]" title="{{ $transaction->user->name ?? '-' }}">{{ $transaction->user->name ?? '-' }}</div>
                                                 <div class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[125px]" title="{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
-                                                @if(!empty($transaction->user->city->name))
+                                                @if(!empty($transaction->user->city_name ?? $transaction->user->city))
                                                     <div class="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
-                                                        <span>📍 {{ $transaction->user->city->name }}</span>
+                                                        <span>📍 {{ $transaction->user->city_name ?? $transaction->user->city }}</span>
                                                     </div>
                                                 @endif
                                             </div>
@@ -326,9 +326,9 @@
                                             <div class="min-w-0">
                                                 <div class="text-xs font-semibold text-gray-900 leading-tight truncate max-w-[125px]" title="{{ $transaction->user->name ?? '-' }}">{{ $transaction->user->name ?? '-' }}</div>
                                                 <div class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[125px]" title="{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
-                                                @if(!empty($transaction->user->city->name))
+                                                @if(!empty($transaction->user->city_name ?? $transaction->user->city))
                                                     <div class="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
-                                                        <span>📍 {{ $transaction->user->city->name }}</span>
+                                                        <span>📍 {{ $transaction->user->city_name ?? $transaction->user->city }}</span>
                                                     </div>
                                                 @endif
                                             </div>

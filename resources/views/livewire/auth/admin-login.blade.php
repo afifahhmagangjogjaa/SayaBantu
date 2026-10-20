@@ -152,6 +152,20 @@
                             @endif
                         </div>
 
+                        <!-- Banner Notifikasi Saat Akun Testing Dipilih -->
+                        @if ($selectedEmail)
+                            <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl text-purple-900 text-xs flex items-center justify-between shadow-xs">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-base flex-shrink-0">👉</span>
+                                    <div>
+                                        <p class="font-bold">Akun Terpilih: {{ $selectedName ?: $selectedEmail }}</p>
+                                        <p class="text-[11px] text-purple-700">Email & password sudah terisi. Silakan klik tombol <b>Masuk ke Admin Panel</b> di bawah.</p>
+                                    </div>
+                                </div>
+                                <button type="button" wire:click="$set('selectedEmail', '')" class="text-purple-500 hover:text-purple-700 text-base font-bold px-1">&times;</button>
+                            </div>
+                        @endif
+
                         <!-- Login Button -->
                         <button type="submit" wire:target="login"
                             class="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg shadow-md transition duration-200 flex items-center justify-center">
@@ -168,67 +182,103 @@
                     </form>
 
                     <!-- ========================================================================= -->
-                    <!-- AKUN TESTING SEMENTARA ADMIN (HAPUS BLOK INI JIKA SUDAH SELESAI/PRODUKSI) -->
+                    <!-- AKUN TESTING SEMENTARA ADMIN (KLIK UNTUK MENGISI FORM)                     -->
                     <!-- ========================================================================= -->
                     <div class="mt-6 pt-5 border-t border-dashed border-gray-300">
                         <div class="flex items-center justify-between mb-2.5">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
-                                Akun Testing Admin (Tinggal Klik)
+                            <div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-700 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
+                                    Akun Testing Admin (Klik untuk Isi Form)
+                                </span>
+                                <p class="text-[10px] text-gray-500">Klik akun untuk mengisi email & password, lalu klik tombol Masuk</p>
+                            </div>
+                            <span class="text-[10px] text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full font-semibold">
+                                Password: password
                             </span>
-                            <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full font-medium">Auto Login</span>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
+                            <!-- Admin Yogyakarta (Baru) -->
+                            <button type="button"
+                                wire:click="fillCredentials('admin.jogja@test.com', 'Admin Yogyakarta', 'password')"
+                                @click="
+                                    const e = document.getElementById('email');
+                                    const p = document.getElementById('password');
+                                    if (e) { e.value = 'admin.jogja@test.com'; }
+                                    if (p) { p.value = 'password'; }
+                                "
+                                class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
+                                    {{ $selectedEmail === 'admin.jogja@test.com' ? 'border-purple-600 bg-purple-100/90 ring-2 ring-purple-300' : 'border-purple-200 bg-purple-50/70 hover:bg-purple-100/90' }}">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-lg">🛡️</span>
+                                    <div class="truncate">
+                                        <p class="text-xs font-bold text-purple-900 group-hover:text-purple-700">Admin Yogyakarta</p>
+                                        <p class="text-[10px] text-purple-700/80 truncate">Kota Yogyakarta (DIY)</p>
+                                    </div>
+                                </div>
+                            </button>
+
                             <!-- Super Admin -->
-                            <button type="button" wire:click="quickLogin('superadmin@sayabantu.com')"
-                                class="p-2.5 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100/90 active:scale-95 transition text-left group cursor-pointer">
+                            <button type="button"
+                                wire:click="fillCredentials('superadmin@sayabantu.com', 'Super Admin', 'password')"
+                                @click="
+                                    const e = document.getElementById('email');
+                                    const p = document.getElementById('password');
+                                    if (e) { e.value = 'superadmin@sayabantu.com'; }
+                                    if (p) { p.value = 'password'; }
+                                "
+                                class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
+                                    {{ $selectedEmail === 'superadmin@sayabantu.com' ? 'border-purple-600 bg-purple-100/90 ring-2 ring-purple-300' : 'border-purple-200 bg-purple-50/70 hover:bg-purple-100/90' }}">
                                 <div class="flex items-center gap-2">
                                     <span class="text-lg">👑</span>
                                     <div class="truncate">
                                         <p class="text-xs font-bold text-purple-900 group-hover:text-purple-700">Super Admin</p>
-                                        <p class="text-[10px] text-purple-700/70 truncate">Akses Penuh Nasional</p>
+                                        <p class="text-[10px] text-purple-700/80 truncate">Akses Penuh Nasional</p>
                                     </div>
                                 </div>
                             </button>
 
                             <!-- Admin Jakarta Pusat -->
-                            <button type="button" wire:click="quickLogin('admin.jakarta@sayabantu.com')"
-                                class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100/90 active:scale-95 transition text-left group cursor-pointer">
+                            <button type="button"
+                                wire:click="fillCredentials('admin.jakarta@sayabantu.com', 'Admin Jakarta Pusat', 'password')"
+                                @click="
+                                    const e = document.getElementById('email');
+                                    const p = document.getElementById('password');
+                                    if (e) { e.value = 'admin.jakarta@sayabantu.com'; }
+                                    if (p) { p.value = 'password'; }
+                                "
+                                class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
+                                    {{ $selectedEmail === 'admin.jakarta@sayabantu.com' ? 'border-blue-600 bg-blue-100/90 ring-2 ring-blue-300' : 'border-blue-200 bg-blue-50/70 hover:bg-blue-100/90' }}">
                                 <div class="flex items-center gap-2">
                                     <span class="text-lg">🛡️</span>
                                     <div class="truncate">
                                         <p class="text-xs font-bold text-blue-900 group-hover:text-blue-700">Admin Jakarta</p>
-                                        <p class="text-[10px] text-blue-700/70 truncate">Kota Jakarta Pusat</p>
+                                        <p class="text-[10px] text-blue-700/80 truncate">Kota Jakarta Pusat</p>
                                     </div>
                                 </div>
                             </button>
 
                             <!-- Admin Kota Bogor -->
-                            <button type="button" wire:click="quickLogin('admin.bogor@sayabantu.com')"
-                                class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/90 active:scale-95 transition text-left group cursor-pointer">
+                            <button type="button"
+                                wire:click="fillCredentials('admin.bogor@sayabantu.com', 'Admin Bogor', 'password')"
+                                @click="
+                                    const e = document.getElementById('email');
+                                    const p = document.getElementById('password');
+                                    if (e) { e.value = 'admin.bogor@sayabantu.com'; }
+                                    if (p) { p.value = 'password'; }
+                                "
+                                class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
+                                    {{ $selectedEmail === 'admin.bogor@sayabantu.com' ? 'border-emerald-600 bg-emerald-100/90 ring-2 ring-emerald-300' : 'border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/90' }}">
                                 <div class="flex items-center gap-2">
                                     <span class="text-lg">🛡️</span>
                                     <div class="truncate">
                                         <p class="text-xs font-bold text-emerald-900 group-hover:text-emerald-700">Admin Bogor</p>
-                                        <p class="text-[10px] text-emerald-700/70 truncate">Kota Bogor (Jabar)</p>
-                                    </div>
-                                </div>
-                            </button>
-
-                            <!-- Admin Jakarta Selatan -->
-                            <button type="button" wire:click="quickLogin('admin.jaksel@sayabantu.com')"
-                                class="p-2.5 rounded-xl border border-teal-200 bg-teal-50/70 hover:bg-teal-100/90 active:scale-95 transition text-left group cursor-pointer">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-lg">🛡️</span>
-                                    <div class="truncate">
-                                        <p class="text-xs font-bold text-teal-900 group-hover:text-teal-700">Admin Jaksel</p>
-                                        <p class="text-[10px] text-teal-700/70 truncate">Kota Jakarta Selatan</p>
+                                        <p class="text-[10px] text-emerald-700/80 truncate">Kota Bogor (Jabar)</p>
                                     </div>
                                 </div>
                             </button>
                         </div>
-                        <p class="text-[10px] text-gray-400 text-center mt-2.5 font-mono">Password: password</p>
                     </div>
                     <!-- ========================================================================= -->
                     <!-- AKHIR BLOK AKUN TESTING SEMENTARA ADMIN                                   -->

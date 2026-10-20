@@ -1,0 +1,48 @@
+{
+  "name": "SayaBantu - Layanan Jasa & Bantuan Harian",
+  "short_name": "SayaBantu",
+  "description": "Platform gotong-royong hyperlocal untuk layanan jasa harian dan bantuan terpercaya.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0284c7",
+  "orientation": "portrait",
+  "lang": "id-ID",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["lifestyle", "utilities", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Cari Bantuan",
+      "url": "/helps",
+      "description": "Cari pekerjaan atau permintaan bantuan terbaru"
+    },
+    {
+      "name": "Buat Permintaan",
+      "url": "/customer/helps/create",
+      "description": "Posting permintaan bantuan baru"
+    },
+    {
+      "name": "Profil Saya",
+      "url": "/profile",
+      "description": "Lihat profil dan status akun"
+    }
+  ]
+}

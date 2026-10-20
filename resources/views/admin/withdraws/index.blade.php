@@ -514,12 +514,14 @@
             if (rejectCancel) rejectCancel.addEventListener('click', hideReject);
         }
 
-        // Auto-refresh daftar withdraw setiap 8 detik jika tidak sedang membuka modal
+        // Auto-refresh daftar withdraw setiap 30 detik jika tidak sedang membuka modal atau hover
         setInterval(function() {
             var modalContainer = document.getElementById('admin-withdraw-modal-container');
             var isModalOpen = modalContainer && modalContainer.children.length > 0;
             var isInputFocused = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
-            if (!isModalOpen && !isInputFocused) {
+            var currentTable = document.querySelector('.bg-white.rounded-2xl.shadow-lg');
+            var isHovering = currentTable && currentTable.matches(':hover');
+            if (!isModalOpen && !isInputFocused && !isHovering) {
                 // Fetch silent update
                 fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(function(res) { return res.text(); })
@@ -527,8 +529,7 @@
                         var parser = new DOMParser();
                         var doc = parser.parseFromString(html, 'text/html');
                         var newTable = doc.querySelector('.bg-white.rounded-2xl.shadow-lg');
-                        var currentTable = document.querySelector('.bg-white.rounded-2xl.shadow-lg');
-                        if (newTable && currentTable) {
+                        if (newTable && currentTable && !currentTable.matches(':hover')) {
                             currentTable.innerHTML = newTable.innerHTML;
                             // Re-bind modal triggers
                             document.querySelectorAll('.open-withdraw-modal').forEach(function (btn) {
@@ -548,6 +549,6 @@
                     })
                     .catch(function(e) { /* ignore */ });
             }
-        }, 8000);
+        }, 30000);
     </script>
 @endsection

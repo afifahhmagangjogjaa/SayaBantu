@@ -7,6 +7,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Mastulongmas') }} - Mitra</title>
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -626,6 +631,27 @@
                 if (typeof window.playNotifChime === 'function') {
                     window.playNotifChime();
                 }
+            });
+
+            // Livewire flash message toast — show session flash errors/success dari backend
+            Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+                succeed(({ snapshot, effect }) => {
+                    try {
+                        // Check for flash messages in Livewire effects
+                        const dispatches = effect?.dispatches ?? [];
+                        dispatches.forEach(d => {
+                            if (d?.name === 'livewire-flash-error' && d?.params?.[0]) {
+                                if (typeof window.showGlobalFlashToast === 'function') {
+                                    window.showGlobalFlashToast(d.params[0], 'error');
+                                }
+                            } else if (d?.name === 'livewire-flash-success' && d?.params?.[0]) {
+                                if (typeof window.showGlobalFlashToast === 'function') {
+                                    window.showGlobalFlashToast(d.params[0], 'success');
+                                }
+                            }
+                        });
+                    } catch(e) {}
+                });
             });
         });
 

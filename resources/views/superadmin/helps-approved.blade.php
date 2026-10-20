@@ -396,21 +396,39 @@
                     </div>
                 </div>
 
-                @if($detailHelp->completion_photo || $detailHelp->complaint_photo)
+                @if($detailHelp->completion_photo || $detailHelp->before_photo || $detailHelp->complaint_photo)
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 text-xs">
-                            <h5 class="font-bold text-gray-700 mb-2 flex items-center gap-1">
-                                <span class="text-green-600">✓</span> Bukti Selesai Mitra
+                            <h5 class="font-bold text-gray-700 mb-2 flex items-center justify-between">
+                                <span class="flex items-center gap-1 text-emerald-700">
+                                    <span>✓</span> Bukti Mitra (Before & After)
+                                </span>
                             </h5>
-                            @if($detailHelp->completion_photo)
-                                <a href="{{ asset('storage/' . $detailHelp->completion_photo) }}" target="_blank" class="block rounded-lg overflow-hidden border border-gray-200 mb-2">
-                                    <img src="{{ asset('storage/' . $detailHelp->completion_photo) }}" alt="Bukti Mitra" class="w-full h-32 object-cover">
+                            @if($detailHelp->before_photo && $detailHelp->completion_photo)
+                                <div class="grid grid-cols-2 gap-2 mb-2">
+                                    <div>
+                                        <span class="text-[10px] font-bold text-amber-700 block mb-0.5">Sebelum:</span>
+                                        <a href="{{ asset('storage/' . $detailHelp->before_photo) }}" target="_blank" class="block rounded-lg overflow-hidden border border-amber-200">
+                                            <img src="{{ asset('storage/' . $detailHelp->before_photo) }}" alt="Sebelum" class="w-full h-24 object-cover">
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-bold text-emerald-700 block mb-0.5">Sesudah:</span>
+                                        <a href="{{ asset('storage/' . $detailHelp->completion_photo) }}" target="_blank" class="block rounded-lg overflow-hidden border border-emerald-200">
+                                            <img src="{{ asset('storage/' . $detailHelp->completion_photo) }}" alt="Sesudah" class="w-full h-24 object-cover">
+                                        </a>
+                                    </div>
+                                </div>
+                            @elseif($detailHelp->completion_photo || $detailHelp->before_photo)
+                                <a href="{{ asset('storage/' . ($detailHelp->completion_photo ?? $detailHelp->before_photo)) }}" target="_blank" class="block rounded-lg overflow-hidden border border-gray-200 mb-2">
+                                    <img src="{{ asset('storage/' . ($detailHelp->completion_photo ?? $detailHelp->before_photo)) }}" alt="Bukti Mitra" class="w-full h-32 object-cover">
                                 </a>
-                                @if($detailHelp->completion_notes)
-                                    <p class="text-[11px] text-gray-600 italic">"{{ $detailHelp->completion_notes }}"</p>
-                                @endif
                             @else
                                 <p class="text-gray-400 italic">Tidak ada foto</p>
+                            @endif
+
+                            @if($detailHelp->completion_notes)
+                                <p class="text-[11px] text-gray-600 italic">"{{ $detailHelp->completion_notes }}"</p>
                             @endif
                         </div>
 

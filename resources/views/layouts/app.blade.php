@@ -8,6 +8,17 @@
 
     <title>{{ config('app.name', 'sayabantu') }}</title>
 
+    <!-- PWA & Favicon Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <meta name="theme-color" content="#0284c7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SayaBantu">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
@@ -1040,6 +1051,78 @@
                 btn.innerHTML = originalHtml;
             });
         };
+    </script>
+
+    <!-- PWA Service Worker & Install Banner -->
+    <div id="pwa-install-banner" class="hidden fixed bottom-20 left-4 right-4 max-w-sm mx-auto bg-gray-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-gray-700/80 z-[99999] flex items-center justify-between gap-3 animate-slide-up">
+        <div class="flex items-center gap-3 min-w-0">
+            <img src="/icons/icon-192x192.png" alt="SayaBantu" class="w-10 h-10 rounded-xl shadow-xs shrink-0">
+            <div class="min-w-0">
+                <h4 class="text-xs font-bold text-white leading-tight truncate">Pasang Aplikasi SayaBantu</h4>
+                <p class="text-[11px] text-gray-300 leading-tight mt-0.5">Akses cepat & instan di HP Anda</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+            <button id="pwa-install-btn" type="button" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-xs transition active:scale-95 cursor-pointer">
+                Install
+            </button>
+            <button id="pwa-dismiss-btn" type="button" class="p-1.5 text-gray-400 hover:text-white rounded-lg transition cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Registrasi PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((reg) => console.log('✓ Service Worker PWA Aktif:', reg.scope))
+                    .catch((err) => console.log('Service Worker Gagal:', err));
+            });
+        }
+
+        // PWA Install Prompt Handler
+        let deferredPrompt;
+        const installBanner = document.getElementById('pwa-install-banner');
+        const installBtn = document.getElementById('pwa-install-btn');
+        const dismissBtn = document.getElementById('pwa-dismiss-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Cegah banner default mini-infobar browser
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Jangan tampilkan jika user baru saja klik dismiss dalam 24 jam terakhir
+            const dismissedAt = localStorage.getItem('pwa_dismissed_at');
+            if (!dismissedAt || (Date.now() - parseInt(dismissedAt)) > 86400000) {
+                if (installBanner) {
+                    installBanner.classList.remove('hidden');
+                }
+            }
+        });
+
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                installBanner.classList.add('hidden');
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to install: ${outcome}`);
+                deferredPrompt = null;
+            });
+        }
+
+        if (dismissBtn) {
+            dismissBtn.addEventListener('click', () => {
+                if (installBanner) {
+                    installBanner.classList.add('hidden');
+                }
+                localStorage.setItem('pwa_dismissed_at', Date.now().toString());
+            });
+        }
     </script>
 </body>
 

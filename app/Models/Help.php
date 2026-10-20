@@ -52,6 +52,8 @@ class Help extends Model
         'cancelled_at',
         'last_cancelled_mitra_id',
         'cancelled_mitra_ids',
+        'before_photo',
+        'before_notes',
         'completion_photo',
         'completion_notes',
         'complaint_photo',

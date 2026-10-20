@@ -23,21 +23,26 @@ class AdminUserController extends Controller
     {
         $admin = auth()->user();
 
-        // Get all cities managed by this admin (via admin_id, pivot table, or primary city_id)
-        $cityIds = City::where('admin_id', $admin->id)
-            ->pluck('id')
-            ->merge($admin->managedCities()->pluck('cities.id'))
-            ->push($admin->city_id)
-            ->filter()
-            ->unique();
+        // Get all cities managed by this admin
+        $cityIds = collect($admin ? $admin->getAdminCityIds() : []);
 
         $query = User::with('city')
             ->withCount('helps')
             ->withCount('partnerReports');
 
-        // Apply city scoping only when admin has linked cities
+        // Apply city scoping when admin has linked cities
         if ($cityIds->isNotEmpty()) {
-            $query->whereIn('city_id', $cityIds);
+            $cityNames = City::whereIn('id', $cityIds)->pluck('name')->map(fn($n) => strtolower(trim($n)))->all();
+            $query->where(function ($q) use ($cityIds, $cityNames) {
+                $q->whereIn('city_id', $cityIds);
+                if (!empty($cityNames)) {
+                    $q->orWhere(function ($subQ) use ($cityNames) {
+                        foreach ($cityNames as $cityName) {
+                            $subQ->orWhereRaw('LOWER(city) LIKE ?', ['%' . $cityName . '%']);
+                        }
+                    });
+                }
+            });
         }
 
         // Search by name or email

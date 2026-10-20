@@ -15,12 +15,7 @@ class AdminRatingController extends Controller
         $admin = auth()->user();
 
         // Get all cities managed by this admin
-        $cityIds = City::where('admin_id', $admin->id)
-            ->pluck('id')
-            ->merge($admin->managedCities()->pluck('cities.id'))
-            ->push($admin->city_id)
-            ->filter()
-            ->unique();
+        $cityIds = collect($admin ? $admin->getAdminCityIds() : []);
 
         // Query Rekap Pengguna (Mitra & Customer)
         $usersQuery = User::whereIn('role', ['mitra', 'customer', 'kustomer'])

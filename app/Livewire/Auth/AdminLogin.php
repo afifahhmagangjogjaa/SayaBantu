@@ -70,9 +70,23 @@ class AdminLogin extends Component
         }
     }
 
+    public string $selectedEmail = '';
+    public string $selectedName = '';
+
     /**
-     * Fitur Akun Testing Sementara: 1-Klik Login Admin Langsung
-     * (Dapat dihapus bersama blok tampilan jika project sudah selesai)
+     * Mengisi kolom email & password tanpa langsung submit login.
+     */
+    public function fillCredentials(string $email, string $name = '', string $password = 'password'): void
+    {
+        $this->form->email = $email;
+        $this->form->password = $password;
+        $this->selectedEmail = $email;
+        $this->selectedName = $name;
+        $this->resetErrorBag();
+    }
+
+    /**
+     * Fitur Akun Testing Sementara: 1-Klik Login Admin Langsung (opsional)
      */
     public function quickLogin(string $email): void
     {

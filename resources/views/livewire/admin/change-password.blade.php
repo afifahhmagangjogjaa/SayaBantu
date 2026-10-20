@@ -96,11 +96,11 @@
                         <p class="text-xs sm:text-sm text-gray-500 truncate mt-0.5">{{ $user->email }}</p>
                         <div class="flex flex-wrap items-center gap-2 mt-2.5">
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                                Admin {{ $user->city->name ?? 'Kota' }}
+                                Admin {{ $user->city ?? 'Kota' }}
                             </span>
-                            @if(isset($user->city) && $user->city)
+                            @if(!empty($user->city))
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                    📍 {{ $user->city->name }}
+                                    📍 {{ $user->city }}
                                 </span>
                             @endif
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
@@ -116,7 +116,7 @@
                 <div class="flex items-center">
                     <span class="w-36 sm:w-44 text-gray-500 flex-shrink-0">Tingkat Hak Akses</span>
                     <span class="text-gray-400 mr-3 flex-shrink-0">:</span>
-                    <span class="font-semibold text-blue-700 truncate">Administrator Wilayah ({{ $user->city->name ?? 'Kota' }})</span>
+                    <span class="font-semibold text-blue-700 truncate">Administrator Wilayah ({{ $user->city ?? 'Kota' }})</span>
                 </div>
                 <div class="flex items-center">
                     <span class="w-36 sm:w-44 text-gray-500 flex-shrink-0">Status Akun</span>
