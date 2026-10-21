@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'superadmin@sayabantu.com',
                 'name' => 'Super Admin',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'super_admin',
                 'verified' => true,
                 'status' => 'active',
@@ -44,7 +44,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'admin.jakarta@sayabantu.com',
                 'name' => 'Admin Jakarta Pusat',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'admin',
                 'city_id' => 1,
                 'city' => 'Kota Jakarta Pusat',
@@ -60,7 +60,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'admin.bogor@sayabantu.com',
                 'name' => 'Admin Kota Bogor',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'admin',
                 'city_id' => 7,
                 'city' => 'Kota Bogor',
@@ -76,7 +76,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'admin.jaksel@sayabantu.com',
                 'name' => 'Admin Jakarta Selatan',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'admin',
                 'city_id' => 4,
                 'city' => 'Kota Jakarta Selatan',
@@ -92,7 +92,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'admin@sayabantu.com',
                 'name' => 'Admin Utama',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'admin',
                 'verified' => true,
                 'status' => 'active',
@@ -110,7 +110,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'customer@sayabantu.com',
                 'name' => 'Siti Nurhaliza (Customer)',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'customer',
                 'gender' => 'Perempuan',
                 'city_id' => $cityId,
@@ -129,7 +129,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'budi@example.com',
                 'name' => 'Budi Santoso',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'customer',
                 'gender' => 'Laki-laki',
                 'city_id' => $cityId,
@@ -150,7 +150,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'mitra@sayabantu.com',
                 'name' => 'Rahmat Hidayat (Mitra)',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'mitra',
                 'gender' => 'Laki-laki',
                 'city_id' => $cityId,
@@ -169,7 +169,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'ahmad@example.com',
                 'name' => 'Ahmad Relawan',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'mitra',
                 'gender' => 'Laki-laki',
                 'city_id' => $cityId,
@@ -190,7 +190,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'customer.pending@sayabantu.com',
                 'name' => 'Dewi Lestari (Pending)',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'customer',
                 'gender' => 'Perempuan',
                 'city_id' => $cityId,
@@ -209,7 +209,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'mitra.pending@sayabantu.com',
                 'name' => 'Fajar Pratama (Pending)',
-                'password' => 'password',
+                'password' => 'Sayabantu123!',
                 'role' => 'mitra',
                 'gender' => 'Laki-laki',
                 'city_id' => $cityId,

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sayabantu-v1';
+const CACHE_NAME = 'sayabantu-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -31,30 +31,48 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event (Network-First strategy: selalu prioritaskan update server terbaru)
+// Fetch Event
 self.addEventListener('fetch', (event) => {
-  // Hanya proses GET request untuk navigasi dan aset statis
+  // Hanya proses GET request
   if (event.request.method !== 'GET') return;
 
+  const url = new URL(event.request.url);
+
+  // PENTING: Jangan interupsi atau cache halaman navigasi dinamis / Livewire
+  // agar perpindahan halaman Livewire (wire:navigate) instan & tidak konflik dengan cache lama.
+  if (
+    event.request.mode === 'navigate' ||
+    event.request.headers.get('X-Livewire-Navigate') ||
+    url.pathname.startsWith('/customer') ||
+    url.pathname.startsWith('/mitra') ||
+    url.pathname.startsWith('/admin') ||
+    url.pathname.startsWith('/superadmin') ||
+    url.pathname.startsWith('/livewire') ||
+    url.pathname.startsWith('/api') ||
+    url.pathname.startsWith('/chat') ||
+    url.pathname.startsWith('/profile') ||
+    url.pathname.startsWith('/settings')
+  ) {
+    return; // Browser & Livewire menangani langsung via jaringan secara native
+  }
+
+  // Untuk aset statis (gambar, icon, css build, js build), gunakan cache-first fallback network
   event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        // Jika respons valid, update cache di background
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            // Hindari caching request dinamis seperti livewire updates
-            const url = event.request.url;
-            if (!url.includes('/livewire/') && !url.includes('/admin/')) {
-              cache.put(event.request, responseToCache);
-            }
+            cache.put(event.request, responseToCache);
           });
         }
         return networkResponse;
-      })
-      .catch(() => {
-        // Jika offline atau jaringan terputus, gunakan fallback cache
-        return caches.match(event.request);
-      })
+      });
+    }).catch(() => {
+      return caches.match('/');
+    })
   );
 });

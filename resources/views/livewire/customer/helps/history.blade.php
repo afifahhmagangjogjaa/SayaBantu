@@ -51,18 +51,13 @@
 
 					{{-- List --}}
 					@if(isset($completedHelps) && $completedHelps->isEmpty())
-						<div class="text-center py-16">
-							<div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-								<svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-								</svg>
-							</div>
-							<h3 class="text-lg font-bold text-gray-800 mb-2">Belum Ada Riwayat</h3>
-							<p class="text-sm text-gray-500 mb-6">Belum ada bantuan yang selesai</p>
-							<a href="{{ route('customer.helps.create') }}" class="inline-block text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition" style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
-								Buat Bantuan Baru
-							</a>
-						</div>
+						<x-empty-state 
+							title="Belum Ada Riwayat Bantuan" 
+							description="Anda belum memiliki bantuan yang telah selesai dikerjakan." 
+							icon="clipboard" 
+							actionText="Buat Bantuan Baru" 
+							:actionUrl="route('customer.helps.create')" 
+						/>
 					@elseif(isset($completedHelps))
 						<div class="space-y-3">
 							@foreach($completedHelps as $help)

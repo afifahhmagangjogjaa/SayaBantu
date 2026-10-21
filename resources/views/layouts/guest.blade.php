@@ -14,6 +14,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <meta name="theme-color" content="#0284c7">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="SayaBantu">

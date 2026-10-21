@@ -25,6 +25,51 @@
         input[type="password"]::-ms-clear {
             display: none !important;
         }
+
+        .nav-item {
+            position: relative;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item * {
+            pointer-events: none;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(0, 152, 231, 0.12);
+            transform: translate(-50%, -50%);
+            transition: width 0.25s ease-out, height 0.25s ease-out;
+            pointer-events: none;
+        }
+
+        .nav-item:active::before {
+            width: 52px;
+            height: 52px;
+        }
+
+        .nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .nav-item svg {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+        }
+
+        .nav-item.active svg {
+            transform: scale(1.08);
+        }
     </style>
 </head>
 
@@ -45,19 +90,19 @@
                 </div>
 
                 <!-- Bottom Navigation Bar -->
-                <div class="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-white border-t border-gray-200 shadow-2xl z-50"
-                    style="max-width: 448px; width: 100vw;">
+                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-white border-t border-gray-200 shadow-2xl z-50"
+                    style="max-width: 448px; width: 100vw; background-color: #ffffff !important;">
                     <div class="max-w-md mx-auto flex items-center justify-around px-4 py-2.5">
-                        <a href="{{ route('mitra.dashboard') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.dashboard') && !request()->has('tab') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
+                        <a href="{{ route('mitra.dashboard') }}" wire:navigate
+                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.dashboard') && !request()->has('tab') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
                             <span class="text-xs font-bold mt-0.5">Beranda</span>
                         </a>
-                        <a href="{{ route('mitra.helps.all') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.all') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
+                        <a href="{{ route('mitra.helps.all') }}" wire:navigate
+                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.all') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -92,8 +137,8 @@
                             }
                         @endphp
 
-                        <a href="{{ route('mitra.helps.processing') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.processing') || request()->routeIs('mitra.helps.completed') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
+                        <a href="{{ route('mitra.helps.processing') }}" wire:navigate
+                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.processing') || request()->routeIs('mitra.helps.completed') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <div class="relative inline-flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -108,8 +153,8 @@
                             <span class="text-xs font-bold mt-0.5">Pekerjaan</span>
                         </a>
 
-                        <a href="{{ route('mitra.chat') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.chat*') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
+                        <a href="{{ route('mitra.chat') }}" wire:navigate
+                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.chat*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <div class="relative inline-flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -124,8 +169,8 @@
                             </div>
                             <span class="text-xs font-bold mt-0.5">Chat</span>
                         </a>
-                        <a href="{{ route('mitra.profile') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.profile') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
+                        <a href="{{ route('mitra.profile') }}" wire:navigate
+                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -133,7 +178,7 @@
                             <span class="text-xs font-bold mt-0.5">Profil</span>
                         </a>
                     </div>
-                </div>
+                </nav>
             </div>
         </div>
     </div>
@@ -255,10 +300,8 @@
         // Also expose a global helper for other components to trigger notifications
         window.triggerMitraNotification = function (payload) {
             showMitraNotification(payload || {});
-        }
+        };
+
     </script>
 </body>
-
-</html>
-
 </html>

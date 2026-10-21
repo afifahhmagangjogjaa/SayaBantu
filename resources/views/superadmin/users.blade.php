@@ -127,10 +127,12 @@
                                     @php
                                         $roleColors = [
                                             'mitra' => 'bg-green-50 text-green-700 border border-green-200',
-                                            'kustomer' => 'bg-gray-100 text-gray-700 border border-gray-200',
+                                            'customer' => 'bg-blue-50 text-blue-700 border border-blue-200',
+                                            'kustomer' => 'bg-blue-50 text-blue-700 border border-blue-200',
                                         ];
                                         $roleLabels = [
                                             'mitra' => 'Mitra',
+                                            'customer' => 'Customer',
                                             'kustomer' => 'Customer',
                                         ];
                                     @endphp
@@ -271,15 +273,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ ($pageType === 'users' && !$roleFilter) ? 11 : 10 }}" class="px-6 py-12 text-center">
-                                    <div class="flex flex-col items-center justify-center">
-                                        <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                        </svg>
-                                        <p class="text-gray-500 font-medium">Tidak ada data user</p>
-                                        <p class="text-gray-400 text-xs mt-0.5">Coba ubah filter atau tambah user baru</p>
-                                    </div>
+                                <td colspan="{{ ($pageType === 'users' && !$roleFilter) ? 11 : 10 }}" class="p-6">
+                                    <x-empty-state 
+                                        icon="users" 
+                                        title="Tidak Ada Data Pengguna" 
+                                        description="Coba ubah kata kunci pencarian, filter status, atau tambahkan pengguna baru." 
+                                        compact 
+                                    />
                                 </td>
                             </tr>
                         @endforelse
@@ -352,8 +352,9 @@
                                 @php
                                     $roleLabels = [
                                         'super_admin' => 'Super Admin',
-                                        'admin' => 'Admin',
+                                        'admin' => 'Admin Wilayah',
                                         'mitra' => 'Mitra',
+                                        'customer' => 'Customer',
                                         'kustomer' => 'Customer',
                                     ];
                                 @endphp
@@ -757,8 +758,13 @@
                                         </div>
                                         <div class="md:col-span-2">
                                             <label class="text-xs font-medium text-gray-700">Alamat Lengkap <span class="text-red-500">*</span></label>
-                                            <textarea wire:model="address" rows="3" placeholder="Jl. Merdeka No. 123..."
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+                                            <div class="mt-1">
+                                                <x-smart-address-input 
+                                                    wire:model="address" 
+                                                    rows="3" 
+                                                    placeholder="Ketik nama jalan, perumahan, kelurahan, atau kota..."
+                                                />
+                                            </div>
                                             @error('address') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
                                         @if($role === 'admin')

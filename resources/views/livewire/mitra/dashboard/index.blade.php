@@ -485,13 +485,11 @@
                         </div>
                     </button>
                 @empty
-                    <div class="text-center py-10 bg-white rounded-xl shadow-sm">
-                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                        <p class="text-sm font-semibold text-gray-700">Belum ada bantuan dalam radius {{ (int) ($maxRadius ?? 10) }} km</p>
-                        <p class="text-xs text-gray-500 mt-1">Kami akan menampilkan bantuan saat ada permintaan baru di sekitar Anda</p>
-                    </div>
+                    <x-empty-state 
+                        icon="clipboard" 
+                        title="Belum Ada Bantuan Terdekat" 
+                        :description="'Belum ada permintaan bantuan dalam radius ' . (int) ($maxRadius ?? 10) . ' km. Kami akan menampilkan bantuan saat ada permintaan baru di sekitar Anda.'" 
+                    />
                 @endforelse
             </div>
         </div>

@@ -5,8 +5,8 @@
     $breadcrumb = 'Admin / Approval Top-Up';
 @endphp
 
-<div class="space-y-6">
-    <div wire:poll.4s>
+<div x-data="approvalModal()" @confirm-approve.window="openFromEvent($event)" class="space-y-6">
+    <div wire:poll.30s.visible>
         <!-- Alerts -->
         @if (session()->has('success'))
             <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-800 flex items-start gap-3 shadow-2xs">
@@ -86,7 +86,7 @@
                             {{ $totalPendingCount ?? 0 }} Data
                         </span>
                     </h2>
-                    <p class="text-xs text-gray-500 mt-1.5">Antrean request top-up dari customer wilayah Anda yang menunggu approval Super Admin</p>
+                    <p class="text-xs text-gray-500 mt-1.5">Antrean request top-up dari customer wilayah Anda yang menunggu persetujuan</p>
                 </div>
 
                 <div class="flex items-center gap-3">
@@ -181,26 +181,45 @@
                                         <div class="text-[10px] text-gray-500">{{ $transaction->created_at->format('H:i') }} WIB</div>
                                     </td>
                                     <td class="px-2 py-2.5 whitespace-nowrap text-center text-xs font-medium">
-                                        <button type="button" wire:click="viewDetail({{ $transaction->id }})"
-                                            wire:loading.attr="disabled"
-                                            class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded text-[11px] font-semibold transition shadow-2xs cursor-pointer"
-                                            title="Lihat Detail">
-                                            Detail
-                                        </button>
+                                        <div class="inline-flex items-center justify-center gap-1">
+                                            <!-- Detail Button -->
+                                            <button type="button" wire:click="viewDetail({{ $transaction->id }})"
+                                                wire:loading.attr="disabled"
+                                                class="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded text-[11px] font-semibold transition cursor-pointer"
+                                                title="Lihat Bukti">
+                                                Detail
+                                            </button>
+
+                                            <!-- Tolak Button -->
+                                            <button type="button" wire:click="openRejectModal({{ $transaction->id }})"
+                                                wire:loading.attr="disabled"
+                                                class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded text-[11px] font-semibold transition cursor-pointer"
+                                                title="Tolak Request">
+                                                Tolak
+                                            </button>
+
+                                            <!-- Approve Button -->
+                                            <button type="button" wire:loading.attr="disabled"
+                                                data-id="{{ $transaction->id }}"
+                                                data-name="{{ $transaction->user->name ?? 'User' }}"
+                                                data-amount="{{ 'Rp ' . number_format($transaction->amount, 0, ',', '.') }}"
+                                                @click.prevent="openFromEl($event)"
+                                                class="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-[11px] font-semibold transition shadow-xs cursor-pointer"
+                                                title="Approve Request">
+                                                Approve
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="px-6 py-12 text-center text-gray-500">
-                                        <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
-                                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                            <p class="text-sm font-bold text-gray-800">Tidak Ada Antrean Approval</p>
-                                            <p class="text-xs text-gray-400 mt-0.5">Semua request top-up telah diproses atau belum ada request baru.</p>
-                                        </div>
+                                    <td colspan="9" class="p-6">
+                                        <x-empty-state 
+                                            icon="check-circle" 
+                                            title="Tidak Ada Antrean Approval" 
+                                            description="Semua pengajuan top-up telah diproses atau belum ada permintaan baru di wilayah Anda." 
+                                            compact 
+                                        />
                                     </td>
                                 </tr>
                             @endforelse
@@ -380,16 +399,13 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="px-6 py-12 text-center text-gray-500">
-                                        <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
-                                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                                </svg>
-                                            </div>
-                                            <p class="text-sm font-bold text-gray-800">Belum Ada Riwayat</p>
-                                            <p class="text-xs text-gray-400 mt-0.5">Belum ada transaksi yang diproses pada filter ini.</p>
-                                        </div>
+                                    <td colspan="9" class="p-6">
+                                        <x-empty-state 
+                                            icon="wallet" 
+                                            title="Belum Ada Riwayat Transaksi" 
+                                            description="Belum ada transaksi top-up yang diproses pada filter atau periode ini." 
+                                            compact 
+                                        />
                                     </td>
                                 </tr>
                             @endforelse
@@ -514,12 +530,70 @@
                     @endif
 
                     <!-- Actions in modal -->
-                    <div class="mt-6">
-                        <button type="button" wire:click="closeModal"
-                            class="w-full px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 text-sm transition cursor-pointer">
-                            Tutup
-                        </button>
+                    <div class="flex gap-3 mt-6">
+                        @if($selectedTransaction->status === 'waiting_approval')
+                            <button type="button" wire:loading.attr="disabled"
+                                data-id="{{ $selectedTransaction->id }}"
+                                data-name="{{ $selectedTransaction->user->name ?? 'User' }}"
+                                data-amount="{{ 'Rp ' . number_format($selectedTransaction->amount, 0, ',', '.') }}"
+                                @click.prevent="openFromEl($event)"
+                                class="flex-1 px-6 py-2.5 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 disabled:opacity-50 text-sm transition cursor-pointer">
+                                <span wire:loading.remove wire:target="approve({{ $selectedTransaction->id }})">Approve Request</span>
+                                <span wire:loading wire:target="approve({{ $selectedTransaction->id }})">Processing...</span>
+                            </button>
+                            <button type="button" wire:click="openRejectModal({{ $selectedTransaction->id }})"
+                                wire:loading.attr="disabled"
+                                class="flex-1 px-6 py-2.5 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 disabled:opacity-50 text-sm transition cursor-pointer">
+                                <span wire:loading.remove wire:target="openRejectModal({{ $selectedTransaction->id }})">Tolak Request</span>
+                                <span wire:loading wire:target="openRejectModal({{ $selectedTransaction->id }})">Loading...</span>
+                            </button>
+                        @else
+                            <button type="button" wire:click="closeModal"
+                                class="w-full px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 text-sm transition cursor-pointer">
+                                Tutup
+                            </button>
+                        @endif
                     </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ========================================== -->
+    <!-- MODAL TOLAK REQUEST -->
+    <!-- ========================================== -->
+    @if ($showRejectModal && $selectedTransaction)
+        <div class="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4" wire:click="closeModal">
+            <div class="bg-white rounded-2xl w-full max-w-md" wire:click.stop>
+                <div class="p-6">
+                    <h2 class="text-lg font-bold text-gray-900 mb-2">Tolak Request Top-Up</h2>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Anda akan menolak request dari <strong>{{ $selectedTransaction->user->name ?? '-' }}</strong>
+                        dengan nominal <strong>Rp {{ number_format($selectedTransaction->amount, 0, ',', '.') }}</strong>
+                    </p>
+
+                    <form wire:submit.prevent="reject">
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Alasan Penolakan *</label>
+                            <textarea wire:model="rejectionReason" rows="4"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                placeholder="Jelaskan alasan penolakan..."></textarea>
+                            @error('rejectionReason')
+                                <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button type="button" wire:click="closeModal"
+                                class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 text-sm transition cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 text-sm transition cursor-pointer">
+                                Tolak Request
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -683,4 +757,74 @@
             </div>
         </div>
     @endif
+
+    <!-- ========================================== -->
+    <!-- APPROVAL CONFIRMATION MODAL (ALPINE) -->
+    <!-- ========================================== -->
+    <template x-teleport="body">
+        <div x-cloak x-show="show" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" style="display: none;">
+            <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden" @click.away="close()">
+                <div class="p-6">
+                    <button @click="close()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mb-3">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+
+                        <h3 class="text-base font-bold text-gray-900">Setujui Request Top-Up?</h3>
+                        <p class="text-xs text-gray-500 mt-1">Saldo customer akan otomatis bertambah:</p>
+
+                        <div class="mt-3 w-full bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
+                            <div class="text-sm font-semibold text-gray-900" x-text="name"></div>
+                            <div class="text-sm font-bold text-green-600 mt-0.5" x-text="amount"></div>
+                        </div>
+
+                        <div class="mt-5 flex w-full gap-3">
+                            <button @click="close()" class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition cursor-pointer">
+                                Batal
+                            </button>
+                            <button @click="$wire.approve(id); close()" class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-semibold transition cursor-pointer">
+                                Ya, Setujui
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        function approvalModal() {
+            return {
+                show: false,
+                id: null,
+                name: '',
+                amount: '',
+                openFromEvent(e) {
+                    const d = e.detail || {};
+                    this.id = d.id ?? null;
+                    this.name = d.name ?? '';
+                    this.amount = d.amount ?? '';
+                    this.show = true;
+                },
+                openFromEl(e) {
+                    const el = e.currentTarget;
+                    this.id = el.dataset.id;
+                    this.name = el.dataset.name;
+                    this.amount = el.dataset.amount;
+                    this.show = true;
+                },
+                close() {
+                    this.show = false;
+                }
+            }
+        }
+    </script>
 </div>

@@ -212,9 +212,13 @@ x-on:profile-saved.window="
                     <span class="text-red-500 font-bold">*</span>
                 </span>
             </label>
-            <textarea wire:model="address" rows="3" required
-                class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition resize-none bg-white"
-                placeholder="Jl. Merdeka No. 123, Kelurahan, Kecamatan"></textarea>
+            <x-smart-address-input 
+                wire:model="address" 
+                id="profile_address"
+                rows="3"
+                required
+                placeholder="Ketik nama jalan, kelurahan, kecamatan, atau kota..."
+            />
             @error('address')
                 <p class="mt-2 text-xs text-red-600 flex items-center gap-1">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

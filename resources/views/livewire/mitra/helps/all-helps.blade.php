@@ -327,20 +327,14 @@
                     </div>
                 @empty
                     <!-- Empty State -->
-                    <div class="text-center py-16 bg-white rounded-xl shadow-sm">
-                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                        <p class="text-sm font-semibold text-gray-700">{{ $search ? 'Tidak ada bantuan ditemukan' : 'Belum ada bantuan dalam radius ' . (int) ($maxRadius ?? 10) . ' km' }}</p>
-                        <p class="text-xs text-gray-500 mt-1">
-                            {{ $search ? 'Coba cari dengan kata kunci lain' : 'Cek kembali nanti untuk bantuan baru di sekitar Anda' }}
-                        </p>
-                        @if(!empty($search))
-                            <button type="button" wire:click="$set('search', '')" class="inline-flex items-center gap-1.5 mt-3.5 px-3.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition shadow-2xs">
-                                Reset Pencarian
-                            </button>
-                        @endif
-                    </div>
+                    <x-empty-state 
+                        :icon="$search ? 'search' : 'clipboard'" 
+                        :title="$search ? 'Tidak Ada Bantuan Ditemukan' : 'Belum Ada Bantuan Terdekat'" 
+                        :description="$search ? 'Coba cari dengan kata kunci lain atau bersihkan filter pencarian.' : 'Belum ada bantuan dalam radius ' . (int) ($maxRadius ?? 10) . ' km dari lokasi Anda. Silakan cek kembali beberapa saat lagi.'" 
+                        :actionText="$search ? 'Reset Pencarian' : null" 
+                        actionWireClick="$set('search', '')" 
+                        actionType="secondary" 
+                    />
                 @endforelse
 
                 <!-- Pagination -->

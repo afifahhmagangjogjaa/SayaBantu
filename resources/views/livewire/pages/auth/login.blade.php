@@ -46,7 +46,7 @@ new #[Layout('layouts.guest')] class extends Component {
      * Mengisi otomatis kolom email & password tanpa langsung submit login.
      * User tinggal menekan tombol 'Masuk'.
      */
-    public function fillCredentials(string $email, string $name = '', string $password = 'password'): void
+    public function fillCredentials(string $email, string $name = '', string $password = 'Sayabantu123!'): void
     {
         $this->form->email = $email;
         $this->form->password = $password;
@@ -95,7 +95,7 @@ new #[Layout('layouts.guest')] class extends Component {
                 <label for="email" class="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
                     Email atau Username <span class="text-red-500">*</span>
                 </label>
-                <input wire:model="form.email" id="email" type="text" name="email" required autofocus
+                <input wire:model="form.email" id="email" type="text" name="email" required
                     autocomplete="username" placeholder="nama@example.com atau username"
                     class="w-full px-4 py-3.5 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
                 <x-input-error :messages="$errors->get('form.email')" class="mt-1.5" />
@@ -135,25 +135,10 @@ new #[Layout('layouts.guest')] class extends Component {
                 @endif
             </div>
 
-            <!-- Banner Notifikasi Saat Akun Testing Dipilih -->
-            @if ($selectedEmail)
-                <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center justify-between shadow-xs animate-fade-in">
-                    <div class="flex items-center gap-2">
-                        <span class="text-base flex-shrink-0">👉</span>
-                        <div>
-                            <p class="font-bold text-emerald-900">Akun Terpilih: {{ $selectedName ?: $selectedEmail }}</p>
-                            <p class="text-[11px] text-emerald-700">Email & password sudah terisi. Silakan klik tombol <b>Masuk</b> di bawah.</p>
-                        </div>
-                    </div>
-                    <button type="button" wire:click="$set('selectedEmail', '')" class="text-emerald-500 hover:text-emerald-700 text-base font-bold px-1">&times;</button>
-                </div>
-            @endif
-
             <!-- Log In Button -->
             <div class="pt-2">
                 <button type="submit" wire:loading.attr="disabled" wire:target="login"
-                    class="w-full bg-primary-500 hover:bg-primary-600 active:scale-98 text-white font-bold py-3.5 rounded-full shadow-md hover:shadow-lg transition text-base tracking-wide disabled:opacity-50 flex items-center justify-center gap-2"
-                    style="background-color: #0098e7;">
+                    class="w-full bg-primary-500 hover:bg-primary-600 active:scale-98 text-white font-bold py-3.5 rounded-full shadow-md hover:shadow-lg transition text-base tracking-wide disabled:opacity-50 flex items-center justify-center gap-2">
                     <svg wire:loading wire:target="login" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
@@ -173,26 +158,25 @@ new #[Layout('layouts.guest')] class extends Component {
         <!-- Register Button -->
         <div>
             <a href="{{ route('register.choose-role') }}" wire:navigate
-                class="block w-full py-3 rounded-full border-2 hover:bg-blue-50/60 font-bold text-center text-sm transition active:scale-98"
-                style="border-color: #0098e7; color: #0098e7;">
+                class="block w-full py-3 rounded-full border-2 border-primary-500 text-primary-600 hover:bg-primary-50 font-bold text-center text-sm transition active:scale-98">
                 Daftar Akun Baru
             </a>
         </div>
 
         <!-- ========================================================================= -->
-        <!-- AKUN TESTING JOGJA (KLIK UNTUK MENGISI FORM, BUKAN LANGSUNG MASUK)         -->
+        <!-- AKUN TESTING (KLIK UNTUK MENGISI FORM, BUKAN LANGSUNG MASUK)              -->
         <!-- ========================================================================= -->
         <div class="mt-6 pt-5 border-t border-dashed border-gray-300" x-data="{ tab: 'customer' }">
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <span class="text-[11px] font-bold uppercase tracking-wider text-gray-700 flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Akun Testing Wilayah Jogja
+                        Akun Testing (Sesuai Seeder)
                     </span>
                     <p class="text-[10px] text-gray-500 mt-0.5">Klik akun di bawah untuk mengisi form otomatis, lalu klik tombol Masuk</p>
                 </div>
                 <span class="text-[10px] text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full font-semibold">
-                    Password: password
+                    Password: Sayabantu123!
                 </span>
             </div>
 
@@ -211,29 +195,30 @@ new #[Layout('layouts.guest')] class extends Component {
                 <button type="button" @click="tab = 'admin'"
                     :class="tab === 'admin' ? 'bg-white text-purple-700 shadow-xs' : 'text-gray-600 hover:text-gray-900'"
                     class="flex-1 py-1.5 px-2 rounded-lg transition text-center flex items-center justify-center gap-1">
-                    <span>🛡️</span> Admin (1)
+                    <span>🛡️</span> Admin (5)
                 </button>
             </div>
 
-            <!-- Tab 1: Customer Jogja (5 Akun) -->
+            <!-- Tab 1: Customer (5 Akun) -->
             <div x-show="tab === 'customer'" class="space-y-1.5">
                 @php
                     $testCustomers = [
+                        ['name' => 'Siti Nurhaliza', 'area' => 'Jakarta Pusat', 'email' => 'customer@sayabantu.com', 'desc' => 'Customer Terverifikasi'],
+                        ['name' => 'Budi Santoso', 'area' => 'Jakarta Pusat', 'email' => 'budi@example.com', 'desc' => 'Customer Terverifikasi'],
+                        ['name' => 'Dewi Lestari', 'area' => 'Jakarta Pusat', 'email' => 'customer.pending@sayabantu.com', 'desc' => 'Pending Verifikasi'],
                         ['name' => 'Dewi Rahayu', 'area' => 'Kota Yogyakarta', 'email' => 'dewi.jogja@test.com', 'desc' => 'Saldo Rp 500rb • Terban'],
                         ['name' => 'Budi Hartono', 'area' => 'Kabupaten Sleman', 'email' => 'budi.sleman@test.com', 'desc' => 'Saldo Rp 300rb • Depok'],
-                        ['name' => 'Sari Wulandari', 'area' => 'Kabupaten Bantul', 'email' => 'sari.bantul@test.com', 'desc' => 'Saldo Rp 750rb • Bantul'],
-                        ['name' => 'Agus Prasetyo', 'area' => 'Kab. Gunungkidul', 'email' => 'agus.gunungkidul@test.com', 'desc' => 'Saldo Rp 200rb • Wonosari'],
-                        ['name' => 'Ratna Kusuma', 'area' => 'Kab. Kulonprogo', 'email' => 'ratna.kulonprogo@test.com', 'desc' => 'Saldo Rp 400rb • Wates'],
                     ];
                 @endphp
                 @foreach ($testCustomers as $c)
                     <button type="button"
-                        wire:click="fillCredentials('{{ $c['email'] }}', '{{ $c['name'] }}', 'password')"
+                        @mousedown.prevent
+                        wire:click="fillCredentials('{{ $c['email'] }}', '{{ $c['name'] }}', 'Sayabantu123!')"
                         @click="
                             const e = document.getElementById('email');
                             const p = document.getElementById('password');
-                            if (e) { e.value = '{{ $c['email'] }}'; }
-                            if (p) { p.value = 'password'; }
+                            if (e) { e.value = '{{ $c['email'] }}'; e.dispatchEvent(new Event('input', { bubbles: true })); }
+                            if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
                         "
                         class="w-full p-2.5 rounded-xl border text-left transition active:scale-98 flex items-center justify-between group cursor-pointer
                             {{ $selectedEmail === $c['email'] ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/40' }}">
@@ -245,36 +230,33 @@ new #[Layout('layouts.guest')] class extends Component {
                                 <p class="text-xs font-bold text-gray-900 group-hover:text-blue-700 truncate">
                                     {{ $c['name'] }} <span class="text-[10px] text-blue-600 font-semibold">({{ $c['area'] }})</span>
                                 </p>
-                                <p class="text-[11px] text-gray-500 font-mono truncate">{{ $c['email'] }}</p>
+                                <p class="text-[11px] text-gray-500 font-mono truncate">{{ $c['email'] }} <span class="text-gray-400 font-sans">• {{ $c['desc'] }}</span></p>
                             </div>
                         </div>
-                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md flex-shrink-0 ml-2
-                            {{ $selectedEmail === $c['email'] ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-700' }}">
-                            {{ $selectedEmail === $c['email'] ? '✓ Terpilih' : 'Pilih Akun' }}
-                        </span>
                     </button>
                 @endforeach
             </div>
 
-            <!-- Tab 2: Mitra Jogja (5 Akun) -->
+            <!-- Tab 2: Mitra (5 Akun) -->
             <div x-show="tab === 'mitra'" style="display: none;" class="space-y-1.5">
                 @php
                     $testMitras = [
+                        ['name' => 'Rahmat Hidayat', 'area' => 'Jakarta Pusat', 'email' => 'mitra@sayabantu.com', 'status' => 'Aktif', 'badge' => 'bg-emerald-100 text-emerald-800'],
+                        ['name' => 'Ahmad Relawan', 'area' => 'Jakarta Pusat', 'email' => 'ahmad@example.com', 'status' => 'Aktif', 'badge' => 'bg-emerald-100 text-emerald-800'],
+                        ['name' => 'Fajar Pratama', 'area' => 'Jakarta Pusat', 'email' => 'mitra.pending@sayabantu.com', 'status' => 'Pending Approval', 'badge' => 'bg-amber-100 text-amber-800'],
                         ['name' => 'Hendra Wijaya', 'area' => 'Kota Yogyakarta', 'email' => 'hendra.mitra@test.com', 'status' => 'Aktif', 'badge' => 'bg-emerald-100 text-emerald-800'],
                         ['name' => 'Rina Susanti', 'area' => 'Kota Yogyakarta', 'email' => 'rina.mitra@test.com', 'status' => 'Aktif', 'badge' => 'bg-emerald-100 text-emerald-800'],
-                        ['name' => 'Doni Setiawan', 'area' => 'Kabupaten Sleman', 'email' => 'doni.mitra@test.com', 'status' => 'Aktif', 'badge' => 'bg-emerald-100 text-emerald-800'],
-                        ['name' => 'Fitri Handayani', 'area' => 'Kabupaten Bantul', 'email' => 'fitri.mitra@test.com', 'status' => 'Aktif', 'badge' => 'bg-emerald-100 text-emerald-800'],
-                        ['name' => 'Yusuf Pratama', 'area' => 'Kota Yogyakarta', 'email' => 'yusuf.mitra@test.com', 'status' => 'Pending Approval', 'badge' => 'bg-amber-100 text-amber-800'],
                     ];
                 @endphp
                 @foreach ($testMitras as $m)
                     <button type="button"
-                        wire:click="fillCredentials('{{ $m['email'] }}', '{{ $m['name'] }}', 'password')"
+                        @mousedown.prevent
+                        wire:click="fillCredentials('{{ $m['email'] }}', '{{ $m['name'] }}', 'Sayabantu123!')"
                         @click="
                             const e = document.getElementById('email');
                             const p = document.getElementById('password');
-                            if (e) { e.value = '{{ $m['email'] }}'; }
-                            if (p) { p.value = 'password'; }
+                            if (e) { e.value = '{{ $m['email'] }}'; e.dispatchEvent(new Event('input', { bubbles: true })); }
+                            if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
                         "
                         class="w-full p-2.5 rounded-xl border text-left transition active:scale-98 flex items-center justify-between group cursor-pointer
                             {{ $selectedEmail === $m['email'] ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200' : 'border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/40' }}">
@@ -290,30 +272,30 @@ new #[Layout('layouts.guest')] class extends Component {
                                 <p class="text-[11px] text-gray-500 font-mono truncate">{{ $m['email'] }} <span class="text-gray-400 font-sans">• {{ $m['area'] }}</span></p>
                             </div>
                         </div>
-                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md flex-shrink-0 ml-2
-                            {{ $selectedEmail === $m['email'] ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-emerald-100 group-hover:text-emerald-700' }}">
-                            {{ $selectedEmail === $m['email'] ? '✓ Terpilih' : 'Pilih Akun' }}
-                        </span>
                     </button>
                 @endforeach
             </div>
 
-            <!-- Tab 3: Admin Jogja & Super Admin -->
+            <!-- Tab 3: Admin & Super Admin (5 Akun) -->
             <div x-show="tab === 'admin'" style="display: none;" class="space-y-1.5">
                 @php
                     $testAdmins = [
-                        ['name' => 'Admin Yogyakarta', 'area' => 'Kota Yogyakarta', 'email' => 'admin.jogja@test.com', 'role' => 'Admin Daerah', 'badge' => 'bg-purple-100 text-purple-800'],
                         ['name' => 'Super Admin', 'area' => 'Nasional', 'email' => 'superadmin@sayabantu.com', 'role' => 'Super Admin', 'badge' => 'bg-indigo-100 text-indigo-800'],
+                        ['name' => 'Admin Jakarta Pusat', 'area' => 'Kota Jakarta Pusat', 'email' => 'admin.jakarta@sayabantu.com', 'role' => 'Admin Wilayah', 'badge' => 'bg-purple-100 text-purple-800'],
+                        ['name' => 'Admin Kota Bogor', 'area' => 'Kota Bogor', 'email' => 'admin.bogor@sayabantu.com', 'role' => 'Admin Wilayah', 'badge' => 'bg-emerald-100 text-emerald-800'],
+                        ['name' => 'Admin Jakarta Selatan', 'area' => 'Kota Jakarta Selatan', 'email' => 'admin.jaksel@sayabantu.com', 'role' => 'Admin Wilayah', 'badge' => 'bg-blue-100 text-blue-800'],
+                        ['name' => 'Admin Utama', 'area' => 'Operasional Wilayah', 'email' => 'admin@sayabantu.com', 'role' => 'Admin Wilayah', 'badge' => 'bg-purple-100 text-purple-800'],
                     ];
                 @endphp
                 @foreach ($testAdmins as $a)
                     <button type="button"
-                        wire:click="fillCredentials('{{ $a['email'] }}', '{{ $a['name'] }}', 'password')"
+                        @mousedown.prevent
+                        wire:click="fillCredentials('{{ $a['email'] }}', '{{ $a['name'] }}', 'Sayabantu123!')"
                         @click="
                             const e = document.getElementById('email');
                             const p = document.getElementById('password');
-                            if (e) { e.value = '{{ $a['email'] }}'; }
-                            if (p) { p.value = 'password'; }
+                            if (e) { e.value = '{{ $a['email'] }}'; e.dispatchEvent(new Event('input', { bubbles: true })); }
+                            if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
                         "
                         class="w-full p-2.5 rounded-xl border text-left transition active:scale-98 flex items-center justify-between group cursor-pointer
                             {{ $selectedEmail === $a['email'] ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200' : 'border-gray-200 bg-white hover:border-purple-300 hover:bg-purple-50/40' }}">
@@ -329,16 +311,12 @@ new #[Layout('layouts.guest')] class extends Component {
                                 <p class="text-[11px] text-gray-500 font-mono truncate">{{ $a['email'] }} <span class="text-gray-400 font-sans">• {{ $a['area'] }}</span></p>
                             </div>
                         </div>
-                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md flex-shrink-0 ml-2
-                            {{ $selectedEmail === $a['email'] ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-purple-100 group-hover:text-purple-700' }}">
-                            {{ $selectedEmail === $a['email'] ? '✓ Terpilih' : 'Pilih Akun' }}
-                        </span>
                     </button>
                 @endforeach
             </div>
         </div>
         <!-- ========================================================================= -->
-        <!-- AKHIR BLOK AKUN TESTING JOGJA                                             -->
+        <!-- AKHIR BLOK AKUN TESTING                                                   -->
         <!-- ========================================================================= -->
     </div>
 

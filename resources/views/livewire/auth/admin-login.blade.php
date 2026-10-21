@@ -92,7 +92,7 @@
                                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
                                 </div>
-                                <input id="email" type="email" wire:model="form.email" required autofocus
+                                <input id="email" type="email" wire:model="form.email" required
                                     autocomplete="username"
                                     class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                     placeholder="admin@example.com">
@@ -152,20 +152,6 @@
                             @endif
                         </div>
 
-                        <!-- Banner Notifikasi Saat Akun Testing Dipilih -->
-                        @if ($selectedEmail)
-                            <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl text-purple-900 text-xs flex items-center justify-between shadow-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-base flex-shrink-0">👉</span>
-                                    <div>
-                                        <p class="font-bold">Akun Terpilih: {{ $selectedName ?: $selectedEmail }}</p>
-                                        <p class="text-[11px] text-purple-700">Email & password sudah terisi. Silakan klik tombol <b>Masuk ke Admin Panel</b> di bawah.</p>
-                                    </div>
-                                </div>
-                                <button type="button" wire:click="$set('selectedEmail', '')" class="text-purple-500 hover:text-purple-700 text-base font-bold px-1">&times;</button>
-                            </div>
-                        @endif
-
                         <!-- Login Button -->
                         <button type="submit" wire:target="login"
                             class="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg shadow-md transition duration-200 flex items-center justify-center">
@@ -194,39 +180,20 @@
                                 <p class="text-[10px] text-gray-500">Klik akun untuk mengisi email & password, lalu klik tombol Masuk</p>
                             </div>
                             <span class="text-[10px] text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full font-semibold">
-                                Password: password
+                                Password: Sayabantu123!
                             </span>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
-                            <!-- Admin Yogyakarta (Baru) -->
-                            <button type="button"
-                                wire:click="fillCredentials('admin.jogja@test.com', 'Admin Yogyakarta', 'password')"
-                                @click="
-                                    const e = document.getElementById('email');
-                                    const p = document.getElementById('password');
-                                    if (e) { e.value = 'admin.jogja@test.com'; }
-                                    if (p) { p.value = 'password'; }
-                                "
-                                class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
-                                    {{ $selectedEmail === 'admin.jogja@test.com' ? 'border-purple-600 bg-purple-100/90 ring-2 ring-purple-300' : 'border-purple-200 bg-purple-50/70 hover:bg-purple-100/90' }}">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-lg">🛡️</span>
-                                    <div class="truncate">
-                                        <p class="text-xs font-bold text-purple-900 group-hover:text-purple-700">Admin Yogyakarta</p>
-                                        <p class="text-[10px] text-purple-700/80 truncate">Kota Yogyakarta (DIY)</p>
-                                    </div>
-                                </div>
-                            </button>
-
                             <!-- Super Admin -->
                             <button type="button"
-                                wire:click="fillCredentials('superadmin@sayabantu.com', 'Super Admin', 'password')"
+                                @mousedown.prevent
+                                wire:click="fillCredentials('superadmin@sayabantu.com', 'Super Admin', 'Sayabantu123!')"
                                 @click="
                                     const e = document.getElementById('email');
                                     const p = document.getElementById('password');
-                                    if (e) { e.value = 'superadmin@sayabantu.com'; }
-                                    if (p) { p.value = 'password'; }
+                                    if (e) { e.value = 'superadmin@sayabantu.com'; e.dispatchEvent(new Event('input', { bubbles: true })); }
+                                    if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
                                 "
                                 class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
                                     {{ $selectedEmail === 'superadmin@sayabantu.com' ? 'border-purple-600 bg-purple-100/90 ring-2 ring-purple-300' : 'border-purple-200 bg-purple-50/70 hover:bg-purple-100/90' }}">
@@ -241,12 +208,13 @@
 
                             <!-- Admin Jakarta Pusat -->
                             <button type="button"
-                                wire:click="fillCredentials('admin.jakarta@sayabantu.com', 'Admin Jakarta Pusat', 'password')"
+                                @mousedown.prevent
+                                wire:click="fillCredentials('admin.jakarta@sayabantu.com', 'Admin Jakarta Pusat', 'Sayabantu123!')"
                                 @click="
                                     const e = document.getElementById('email');
                                     const p = document.getElementById('password');
-                                    if (e) { e.value = 'admin.jakarta@sayabantu.com'; }
-                                    if (p) { p.value = 'password'; }
+                                    if (e) { e.value = 'admin.jakarta@sayabantu.com'; e.dispatchEvent(new Event('input', { bubbles: true })); }
+                                    if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
                                 "
                                 class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
                                     {{ $selectedEmail === 'admin.jakarta@sayabantu.com' ? 'border-blue-600 bg-blue-100/90 ring-2 ring-blue-300' : 'border-blue-200 bg-blue-50/70 hover:bg-blue-100/90' }}">
@@ -261,12 +229,13 @@
 
                             <!-- Admin Kota Bogor -->
                             <button type="button"
-                                wire:click="fillCredentials('admin.bogor@sayabantu.com', 'Admin Bogor', 'password')"
+                                @mousedown.prevent
+                                wire:click="fillCredentials('admin.bogor@sayabantu.com', 'Admin Bogor', 'Sayabantu123!')"
                                 @click="
                                     const e = document.getElementById('email');
                                     const p = document.getElementById('password');
-                                    if (e) { e.value = 'admin.bogor@sayabantu.com'; }
-                                    if (p) { p.value = 'password'; }
+                                    if (e) { e.value = 'admin.bogor@sayabantu.com'; e.dispatchEvent(new Event('input', { bubbles: true })); }
+                                    if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
                                 "
                                 class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
                                     {{ $selectedEmail === 'admin.bogor@sayabantu.com' ? 'border-emerald-600 bg-emerald-100/90 ring-2 ring-emerald-300' : 'border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/90' }}">
@@ -275,6 +244,27 @@
                                     <div class="truncate">
                                         <p class="text-xs font-bold text-emerald-900 group-hover:text-emerald-700">Admin Bogor</p>
                                         <p class="text-[10px] text-emerald-700/80 truncate">Kota Bogor (Jabar)</p>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <!-- Admin Jakarta Selatan -->
+                            <button type="button"
+                                @mousedown.prevent
+                                wire:click="fillCredentials('admin.jaksel@sayabantu.com', 'Admin Jakarta Selatan', 'Sayabantu123!')"
+                                @click="
+                                    const e = document.getElementById('email');
+                                    const p = document.getElementById('password');
+                                    if (e) { e.value = 'admin.jaksel@sayabantu.com'; e.dispatchEvent(new Event('input', { bubbles: true })); }
+                                    if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
+                                "
+                                class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
+                                    {{ $selectedEmail === 'admin.jaksel@sayabantu.com' ? 'border-indigo-600 bg-indigo-100/90 ring-2 ring-indigo-300' : 'border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100/90' }}">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-lg">🛡️</span>
+                                    <div class="truncate">
+                                        <p class="text-xs font-bold text-indigo-900 group-hover:text-indigo-700">Admin Jaksel</p>
+                                        <p class="text-[10px] text-indigo-700/80 truncate">Kota Jakarta Selatan</p>
                                     </div>
                                 </div>
                             </button>

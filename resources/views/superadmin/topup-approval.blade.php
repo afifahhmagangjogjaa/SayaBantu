@@ -4,7 +4,7 @@
 @endphp
 
 <div x-data="approvalModal()" @confirm-approve.window="openFromEvent($event)" class="space-y-6">
-    <div wire:poll.4s>
+    <div wire:poll.30s.visible>
         <!-- Alerts -->
         @if (session()->has('success'))
             <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-800 flex items-start gap-3 shadow-2xs">
@@ -211,16 +211,13 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="px-6 py-12 text-center text-gray-500">
-                                        <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
-                                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                            <p class="text-sm font-bold text-gray-800">Tidak Ada Antrean Approval</p>
-                                            <p class="text-xs text-gray-400 mt-0.5">Semua request top-up telah diproses atau belum ada request baru.</p>
-                                        </div>
+                                    <td colspan="9" class="p-6">
+                                        <x-empty-state 
+                                            icon="check-circle" 
+                                            title="Tidak Ada Antrean Approval" 
+                                            description="Semua pengajuan top-up nasional telah diproses atau belum ada permintaan baru." 
+                                            compact 
+                                        />
                                     </td>
                                 </tr>
                             @endforelse
@@ -400,16 +397,13 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="px-6 py-12 text-center text-gray-500">
-                                        <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
-                                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                                </svg>
-                                            </div>
-                                            <p class="text-sm font-bold text-gray-800">Belum Ada Riwayat</p>
-                                            <p class="text-xs text-gray-400 mt-0.5">Belum ada transaksi yang diproses pada filter ini.</p>
-                                        </div>
+                                    <td colspan="9" class="p-6">
+                                        <x-empty-state 
+                                            icon="wallet" 
+                                            title="Belum Ada Riwayat Transaksi" 
+                                            description="Belum ada transaksi top-up yang diproses pada filter atau periode ini." 
+                                            compact 
+                                        />
                                     </td>
                                 </tr>
                             @endforelse

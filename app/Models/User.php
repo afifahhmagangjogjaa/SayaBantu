@@ -300,20 +300,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $cityIds = $cityIds->filter()->unique()->values();
 
-        // Admin Wilayah Yogyakarta (DIY):
-        // Jika admin bertugas di wilayah DI Yogyakarta, sertakan seluruh 5 kota/kabupaten di DIY
-        // (Kota Yogyakarta, Kabupaten Sleman, Kabupaten Bantul, Kabupaten Gunungkidul, Kabupaten Kulonprogo)
-        $isJogja = ($this->province && stripos($this->province, 'Yogyakarta') !== false)
-            || ($this->city && stripos($this->city, 'Yogyakarta') !== false)
-            || (stripos((string)$this->email, 'jogja') !== false)
-            || (stripos((string)$this->name, 'Yogyakarta') !== false)
-            || City::whereIn('id', $cityIds)->where('province', 'like', '%Yogyakarta%')->exists();
-
-        if ($isJogja) {
-            $jogjaCityIds = City::where('province', 'like', '%Yogyakarta%')->pluck('id');
-            $cityIds = $cityIds->merge($jogjaCityIds);
-        }
-
         if ($cityIds->isNotEmpty()) {
             $codes = City::whereIn('id', $cityIds)
                 ->whereNotNull('code')
@@ -636,6 +622,23 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         // Accept both 'customer' (new) and 'kustomer' (legacy) values
         return in_array($this->role, ['customer', 'kustomer']);
+    }
+
+    /**
+     * Mendapatkan Enum UserRole untuk pengguna ini.
+     */
+    public function getRoleEnumAttribute(): ?\App\Enums\UserRole
+    {
+        $roleValue = ($this->role === 'kustomer') ? 'customer' : (string) $this->role;
+        return \App\Enums\UserRole::tryFrom($roleValue);
+    }
+
+    /**
+     * Mendapatkan label manusiawi dari role (Super Admin, Admin Wilayah, Customer, Mitra).
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        return $this->role_enum?->label() ?? ucfirst((string) $this->role);
     }
 
     public function isVerified()

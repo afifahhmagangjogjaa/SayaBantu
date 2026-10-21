@@ -125,7 +125,14 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-gray-500 text-sm">Tidak ada data bantuan.</td>
+                                <td colspan="7" class="p-6">
+                                    <x-empty-state 
+                                        icon="clipboard" 
+                                        title="Tidak Ada Data Bantuan" 
+                                        description="Tidak ditemukan data bantuan pada filter atau pencarian saat ini." 
+                                        compact 
+                                    />
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>

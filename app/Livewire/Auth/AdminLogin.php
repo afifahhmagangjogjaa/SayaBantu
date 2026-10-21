@@ -76,7 +76,7 @@ class AdminLogin extends Component
     /**
      * Mengisi kolom email & password tanpa langsung submit login.
      */
-    public function fillCredentials(string $email, string $name = '', string $password = 'password'): void
+    public function fillCredentials(string $email, string $name = '', string $password = 'Sayabantu123!'): void
     {
         $this->form->email = $email;
         $this->form->password = $password;

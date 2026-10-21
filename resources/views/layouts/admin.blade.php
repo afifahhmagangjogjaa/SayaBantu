@@ -131,6 +131,12 @@
     <style>
         [x-cloak] { display: none !important; }
 
+        html, body {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
         /* Seluruh elemen bold, semibold, dan heading di panel Admin diubah ke font-medium (500) */
         .font-bold,
         .font-semibold,
@@ -146,20 +152,58 @@
         [style*="font-weight:bold"] {
             font-weight: 500 !important;
         }
+
+        /* Smooth sidebar transition */
+        #admin-sidebar {
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Pastikan elemen anak di dalam menu sidebar tidak memblokir event klik link */
+        #admin-sidebar-nav a * {
+            pointer-events: none;
+        }
     </style>
 </head>
 
 <body class="antialiased">
-    <div class="min-h-screen bg-gray-100 flex">
+    <div class="min-h-screen bg-gray-100 flex" x-data="{ sidebarOpen: false }">
+
+        <!-- Mobile Overlay Backdrop -->
+        <div
+            x-show="sidebarOpen"
+            x-cloak
+            x-transition:enter="transition-opacity ease-linear duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity ease-linear duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 lg:hidden"
+            @click="sidebarOpen = false">
+        </div>
+
         <!-- Sidebar -->
-        <aside class="w-64 bg-white shadow-lg fixed h-full flex flex-col z-50">
-            <div id="admin-sidebar-header" class="h-[96px] px-6 flex flex-col justify-center border-b border-gray-200 flex-shrink-0">
-                <h1 class="text-2xl font-bold text-primary-600">sayabantu</h1>
-                <p class="text-xs text-gray-500 mt-1">Admin Panel</p>
+        <aside id="admin-sidebar"
+            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+            class="w-64 bg-white shadow-2xl fixed inset-y-0 left-0 flex flex-col z-50 lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            <div id="admin-sidebar-header" class="h-[64px] lg:h-[96px] px-6 flex flex-col justify-center border-b border-gray-200 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-xl lg:text-2xl font-bold text-primary-600">sayabantu</h1>
+                        <p class="text-xs text-gray-500 mt-0.5">Admin Panel</p>
+                    </div>
+                    <!-- Close button (mobile only) -->
+                    <button @click="sidebarOpen = false" class="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition" title="Tutup menu">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <nav class="p-4 flex-1 overflow-y-auto" id="admin-sidebar-nav">
                 <a href="{{ route('admin.dashboard') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.dashboard') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                     Dashboard
@@ -170,6 +214,7 @@
                 </div>
 
                 <a href="{{ route('admin.verifications') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.verifications*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -179,6 +224,7 @@
                 </a>
 
                 <a href="{{ route('admin.customers') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.customers*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -188,6 +234,7 @@
                 </a>
 
                 <a href="{{ route('admin.mitra') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.mitra*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -196,8 +243,8 @@
                     Manajemen Mitra
                 </a>
 
-
                 <a href="{{ route('admin.partners.activity') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.partners.activity') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -226,6 +273,7 @@
                 @endphp
 
                 <a href="{{ route('admin.partners.report') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center justify-between mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.partners.report') || request()->routeIs('admin.partners.reports.*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,6 +290,7 @@
                 </a>
 
                 <a href="{{ route('admin.partners.blocked') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.partners.blocked') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -251,6 +300,7 @@
                 </a>
 
                 <a href="{{ route('admin.helps') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.helps') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -258,7 +308,8 @@
                     Manajemen Bantuan
                 </a>
 
-                 <a href="{{ route('admin.ratings.index') }}"
+                <a href="{{ route('admin.ratings.index') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.ratings*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
@@ -271,6 +322,7 @@
                 </div>
 
                 <a href="{{ route('admin.withdraws.index') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.withdraws.*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -280,70 +332,75 @@
                 </a>
 
                 <a href="{{ route('admin.topup.approvals') }}"
+                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.topup.approvals*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7 7h.01M7 11h.01M7 15h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Manajemen Approval
                 </a>
-
             </nav>
-
-
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 ml-64 overflow-y-auto min-h-screen">
+        <main class="flex-1 lg:ml-64 min-w-0 overflow-y-auto min-h-screen">
             <!-- Navbar -->
-            <nav class="bg-white shadow-md sticky top-0 z-40">
-                <div class="px-6 py-4">
-                    <div class="flex items-center justify-between">
-                        <!-- Page Title & Subtitle -->
-                        <div>
-                            <h2 class="text-lg sm:text-xl font-medium text-gray-900">
-                                @hasSection('page-title')
-                                    @yield('page-title')
-                                @else
-                                    {{ $pageTitle }}
-                                @endif
-                            </h2>
-                            <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
-                                @hasSection('page-description')
-                                    @yield('page-description')
-                                @else
-                                    {{ $pageSubtitle }}
-                                @endif
-                            </p>
+            <nav class="bg-white shadow-md sticky top-0 z-30">
+                <div class="px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <!-- Hamburger (mobile) + Page Title -->
+                        <div class="flex items-center gap-3 min-w-0">
+                            <!-- Hamburger button - mobile only -->
+                            <button @click="sidebarOpen = true" type="button" class="lg:hidden flex-shrink-0 p-2.5 -ml-1 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200 transition cursor-pointer touch-manipulation focus:outline-none" title="Buka menu" aria-label="Buka navigasi menu">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                                </svg>
+                            </button>
+                            <!-- Page Title & Subtitle -->
+                            <div class="min-w-0">
+                                <h2 class="text-base sm:text-lg lg:text-xl font-medium text-gray-900 truncate">
+                                    @hasSection('page-title')
+                                        @yield('page-title')
+                                    @else
+                                        {{ $pageTitle }}
+                                    @endif
+                                </h2>
+                                <p class="text-xs sm:text-sm text-gray-500 mt-0.5 hidden sm:block truncate">
+                                    @hasSection('page-description')
+                                        @yield('page-description')
+                                    @else
+                                        {{ $pageSubtitle }}
+                                    @endif
+                                </p>
+                            </div>
                         </div>
 
                         <!-- Right Side Actions -->
-                        <div class="flex items-center space-x-3 sm:space-x-4">
-                            <!-- Tombol Refresh -->
-                            <div class="flex items-center">
-                                <button onclick="location.reload()" type="button" class="inline-flex items-center gap-2 h-9 px-3.5 bg-gray-50 hover:bg-gray-100 hover:text-primary-600 border border-gray-200 text-xs font-medium text-gray-700 rounded-xl transition shadow-2xs cursor-pointer focus:outline-none" title="Refresh Halaman">
-                                    <svg class="w-4 h-4 text-gray-600 group-hover:text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                    <span>Refresh</span>
-                                </button>
+                        <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                            <!-- Hari dan Tanggal Badge -->
+                            <div class="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl border border-gray-200 shadow-2xs transition">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="whitespace-nowrap"><span class="hidden md:inline">{{ now()->locale('id')->translatedFormat('l, ') }}</span>{{ now()->locale('id')->translatedFormat('d M Y') }}</span>
                             </div>
 
                             <!-- Notifications -->
                             <livewire:admin.notifications />
 
                             <!-- User Avatar Dropdown -->
-                            <div class="flex items-center border-l border-gray-200 pl-3 sm:pl-4" x-data="{ open: false }" @click.outside="open = false">
+                            <div class="flex items-center border-l border-gray-200 pl-2 sm:pl-3" x-data="{ open: false }" @click.outside="open = false">
                                 <button
                                     @click="open = !open"
                                     type="button"
-                                    class="flex items-center space-x-2.5 group cursor-pointer focus:outline-none"
+                                    class="flex items-center gap-2 group cursor-pointer focus:outline-none"
                                     title="Menu Admin">
                                     <div class="text-right hidden sm:block">
                                         <p class="text-sm font-medium text-gray-900 group-hover:text-primary-600 transition">{{ auth()->user()->name ?? 'Admin' }}</p>
                                         <p class="text-xs text-gray-500">Admin {{ auth()->user()->city_name ?? auth()->user()->city ?? '' }}</p>
                                     </div>
                                     <div style="background-color: #0077cc; color: #ffffff;"
-                                        class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-xs transition"
+                                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-xs transition"
                                         :class="open ? 'ring-2 ring-primary-500' : 'group-hover:ring-2 group-hover:ring-primary-500'">
                                         {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
                                     </div>
@@ -402,7 +459,7 @@
                 </div>
             </nav>
 
-            <div class="p-6">
+            <div class="p-4 sm:p-6">
                 @hasSection('content')
                     @yield('content')
                 @elseif(isset($slot))
@@ -613,8 +670,9 @@
             @endif
         });
 
-        // Periodic check every 30s
-        setInterval(checkAdminAccountStatus, 30000);
+        // Periodic check every 30s — clear previous interval to avoid accumulation
+        if (window._adminStatusInterval) clearInterval(window._adminStatusInterval);
+        window._adminStatusInterval = setInterval(checkAdminAccountStatus, 30000);
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) checkAdminAccountStatus();
         });
@@ -649,7 +707,11 @@
                 const navbar = document.querySelector('main > nav');
                 const sidebarHeader = document.getElementById('admin-sidebar-header');
                 if (navbar && sidebarHeader) {
-                    sidebarHeader.style.height = navbar.offsetHeight + 'px';
+                    if (window.innerWidth >= 1024) {
+                        sidebarHeader.style.height = navbar.offsetHeight + 'px';
+                    } else {
+                        sidebarHeader.style.height = '';
+                    }
                 }
             }
             syncSidebarHeader();

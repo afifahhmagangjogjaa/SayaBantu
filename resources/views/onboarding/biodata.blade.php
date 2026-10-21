@@ -62,8 +62,13 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                         Alamat Lengkap Domisili <span class="text-red-500">*</span>
                     </label>
-                    <textarea name="address" rows="2" required placeholder="Jl. Nama Jalan, No. Rumah, Kelurahan, Kecamatan"
-                              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('address') border-red-500 @enderror">{{ old('address') }}</textarea>
+                    <x-smart-address-input 
+                        name="address" 
+                        rows="2" 
+                        required 
+                        :value="old('address')"
+                        placeholder="Ketik nama jalan, perumahan, kelurahan, atau gedung..."
+                    />
                     @error('address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 

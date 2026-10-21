@@ -601,8 +601,13 @@
 
                                         <div class="md:col-span-2">
                                             <label class="text-xs font-medium text-gray-700">Alamat Lengkap <span class="text-red-500">*</span></label>
-                                            <textarea wire:model="address" rows="3" placeholder="Jl. Merdeka No. 123..."
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+                                            <div class="mt-1">
+                                                <x-smart-address-input 
+                                                    wire:model="address" 
+                                                    rows="3" 
+                                                    placeholder="Ketik nama jalan, perumahan, kelurahan, atau kota..."
+                                                />
+                                            </div>
                                             @error('address') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
                                     </div>

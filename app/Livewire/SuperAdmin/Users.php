@@ -27,7 +27,7 @@ class Users extends Component
     public $name;
     public $email;
     public $phone;
-    public $role = 'kustomer';
+    public $role = 'customer';
     public $status = 'active';
     public $verified = false;
     public $city_id = null;
@@ -383,7 +383,7 @@ class Users extends Component
         if ($this->roleFilter === 'mitra') {
             $this->role = 'mitra';
         } else {
-            $this->role = 'kustomer';
+            $this->role = 'customer';
         }
         $this->showCreateModal = true;
     }
@@ -395,7 +395,7 @@ class Users extends Component
         $this->email = '';
         $this->phone = '';
         // Default values
-        $this->role = 'kustomer';
+        $this->role = 'customer';
 
         $this->status = 'active';
         $this->verified = 0;
@@ -485,9 +485,9 @@ class Users extends Component
         if ($this->roleFilter === 'mitra') {
             $this->role = 'mitra';
         } elseif ($this->roleFilter === 'customer' || $this->roleFilter === 'kustomer') {
-            $this->role = 'kustomer';
+            $this->role = 'customer';
         } elseif (empty($this->role)) {
-            $this->role = 'kustomer';
+            $this->role = 'customer';
         }
 
         if (!$isEdit) {
@@ -734,14 +734,14 @@ class Users extends Component
                 });
             })
             ->when($this->roleFilter, function ($query) {
-                if (in_array($this->roleFilter, ['kustomer', 'customer'])) {
-                    $query->whereIn('role', ['kustomer', 'customer']);
+                if (in_array($this->roleFilter, ['customer', 'kustomer'])) {
+                    $query->whereIn('role', ['customer', 'kustomer']);
                 } else {
                     $query->where('role', $this->roleFilter);
                 }
             }, function ($query) {
-                // default: show only mitra, kustomer, and customer
-                $query->whereIn('role', ['mitra', 'kustomer', 'customer']);
+                // default: show only mitra and customer
+                $query->whereIn('role', ['mitra', 'customer', 'kustomer']);
             })
             ->when($this->spFilter !== '' && $this->spFilter !== null, function ($query) {
                 if ($this->spFilter === 'has_sp') {
