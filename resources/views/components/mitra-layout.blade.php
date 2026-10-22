@@ -25,6 +25,51 @@
         input[type="password"]::-ms-clear {
             display: none !important;
         }
+
+        .nav-item {
+            position: relative;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item * {
+            pointer-events: none;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(0, 152, 231, 0.12);
+            transform: translate(-50%, -50%);
+            transition: width 0.25s ease-out, height 0.25s ease-out;
+            pointer-events: none;
+        }
+
+        .nav-item:active::before {
+            width: 52px;
+            height: 52px;
+        }
+
+        .nav-item:active {
+            opacity: 0.85;
+        }
+
+        .nav-item svg {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+        }
+
+        .nav-item.active svg {
+            transform: scale(1.08);
+        }
     </style>
 </head>
 
@@ -44,25 +89,25 @@
                     {{ $slot }}
                 </div>
 
-                <!-- Bottom Navigation Bar -->
-                <div class="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-white border-t border-gray-200 shadow-2xl z-50"
-                    style="max-width: 448px; width: 100vw;">
-                    <div class="max-w-md mx-auto flex items-center justify-around px-4 py-2.5">
-                        <a href="{{ route('mitra.dashboard') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.dashboard') && !request()->has('tab') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Bottom Navigation Bar: Fluid full width on all screens -->
+                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40"
+                    style="background-color: #ffffff !important; padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));">
+                    <div class="w-full flex items-center justify-around px-1 sm:px-3 py-1.5 sm:py-2">
+                        <a href="{{ route('mitra.dashboard') }}" wire:navigate
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.dashboard') && !request()->has('tab') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
-                            <span class="text-xs font-bold mt-0.5">Beranda</span>
+                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Beranda</span>
                         </a>
-                        <a href="{{ route('mitra.helps.all') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.all') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('mitra.helps.all') }}" wire:navigate
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.helps.all') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            <span class="text-xs font-bold mt-0.5">Bantuan</span>
+                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Cari</span>
                         </a>
                         @php
                             $activeMitraJobs = 0;
@@ -92,10 +137,10 @@
                             }
                         @endphp
 
-                        <a href="{{ route('mitra.helps.processing') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.processing') || request()->routeIs('mitra.helps.completed') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <div class="relative inline-flex items-center justify-center">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('mitra.helps.processing') }}" wire:navigate
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.helps.processing') || request()->routeIs('mitra.helps.completed') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                                 </svg>
@@ -105,13 +150,13 @@
                                     </span>
                                 @endif
                             </div>
-                            <span class="text-xs font-bold mt-0.5">Pekerjaan</span>
+                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Pekerjaan</span>
                         </a>
 
-                        <a href="{{ route('mitra.chat') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.chat*') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <div class="relative inline-flex items-center justify-center">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('mitra.chat') }}" wire:navigate
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.chat*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
@@ -122,18 +167,20 @@
                                     </span>
                                 @endif
                             </div>
-                            <span class="text-xs font-bold mt-0.5">Chat</span>
+                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Chat</span>
                         </a>
-                        <a href="{{ route('mitra.profile') }}"
-                            class="flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.profile') ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span class="text-xs font-bold mt-0.5">Profil</span>
+                        <a href="{{ route('mitra.profile') }}" wire:navigate
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Profil</span>
                         </a>
                     </div>
-                </div>
+                </nav>
             </div>
         </div>
     </div>
@@ -255,10 +302,25 @@
         // Also expose a global helper for other components to trigger notifications
         window.triggerMitraNotification = function (payload) {
             showMitraNotification(payload || {});
-        }
+        };
+
+    </script>
+    <script data-navigate-once>
+        // Transisi halus dan umpan balik instan (0ms) untuk Bottom Navigation
+        document.addEventListener('click', function (e) {
+            const navItem = e.target.closest('#bottom-nav a.nav-item');
+            if (!navItem) return;
+
+            const container = navItem.closest('#bottom-nav');
+            if (!container) return;
+
+            container.querySelectorAll('a.nav-item').forEach(el => {
+                el.classList.remove('text-primary-600', 'active');
+                el.classList.add('text-gray-400');
+            });
+            navItem.classList.remove('text-gray-400');
+            navItem.classList.add('text-primary-600', 'active');
+        });
     </script>
 </body>
-
-</html>
-
 </html>

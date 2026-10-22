@@ -3,10 +3,22 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'sayabantu') }}</title>
+
+    <!-- PWA & Favicon Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <meta name="theme-color" content="#0284c7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SayaBantu">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -18,6 +30,20 @@
     @stack('styles')
     <style>
         [x-cloak] { display: none !important; }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+            background-color: #f3f4f6;
+        }
         
         /* Sembunyikan tombol mata bawaan Windows / Edge agar tidak dobel */
         input::-ms-reveal,
@@ -73,7 +99,8 @@
         }
 
         #bottom-nav {
-            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Navbar tetap stabil dan tidak meloncat / slide setiap ganti halaman */
+            transform: translate(-50%, 0);
             background-color: #ffffff !important;
             background: #ffffff !important;
             opacity: 1 !important;
@@ -82,7 +109,15 @@
         .nav-item {
             position: relative;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Pastikan elemen di dalam nav-item tidak memblokir event klik anchor */
+        .nav-item * {
+            pointer-events: none;
         }
 
         .nav-item::before {
@@ -93,99 +128,33 @@
             width: 0;
             height: 0;
             border-radius: 50%;
-            background: rgba(0, 152, 231, 0.15);
+            background: rgba(0, 152, 231, 0.12);
             transform: translate(-50%, -50%);
-            transition: width 0.4s, height 0.4s;
+            transition: width 0.25s ease-out, height 0.25s ease-out;
+            pointer-events: none;
         }
 
         .nav-item:active::before {
-            width: 60px;
-            height: 60px;
-        }
-
-        .nav-item:hover {
-            transform: translateY(-3px);
+            width: 52px;
+            height: 52px;
         }
 
         .nav-item:active {
-            transform: translateY(-1px) scale(0.95);
+            opacity: 0.85;
         }
 
         .nav-item svg {
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-item:hover svg {
-            transform: scale(1.15);
-        }
-
-        .nav-item:active svg {
-            transform: scale(0.9);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
         }
 
         .nav-item.active svg {
-            animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(1.08);
         }
 
         .nav-item .nav-label {
-            transition: all 0.2s ease;
-        }
-
-        .nav-item:hover .nav-label {
-            transform: scale(1.05);
-        }
-
-        .nav-fab {
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-fab::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0098e7 0%, #0077cc 100%);
-            transform: translate(-50%, -50%);
-            z-index: -1;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-fab:hover {
-            transform: translateY(-4px) rotate(90deg);
-        }
-
-        .nav-fab:hover::after {
-            transform: translate(-50%, -50%) scale(1.2);
-            box-shadow: 0 8px 20px rgba(0, 152, 231, 0.4);
-        }
-
-        .nav-fab:active {
-            transform: translateY(-2px) rotate(90deg) scale(0.9);
-        }
-
-        .nav-fab svg {
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-fab:hover svg {
-            transform: rotate(-90deg);
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-2px);
-            }
-        }
-
-        .nav-item.active {
-            animation: float 2s ease-in-out infinite;
+            transition: color 0.15s ease;
+            pointer-events: none;
         }
 
         /* Indicator dot for active state */
@@ -199,19 +168,19 @@
             height: 4px;
             border-radius: 50%;
             background: currentColor;
-            animation: bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
         }
     </style>
 </head>
 
 <body class="font-sans antialiased bg-gray-50">
-    <!-- Centered Container -->
-    <div class="min-h-screen flex items-start justify-center bg-gray-100">
-        <!-- Mobile Width Container -->
-        <div class="w-full max-w-md bg-gray-50 relative shadow-2xl">
+    <!-- Centered Container: Full width on mobile, centered frame on tablet/desktop -->
+    <div class="min-h-screen min-h-[100dvh] w-full flex items-start justify-center bg-gray-100 selection:bg-primary-500 selection:text-white">
+        <!-- Mobile Frame: 100% fluid on mobile devices, max-w-md centered on larger screens -->
+        <div class="w-full max-w-md min-h-screen min-h-[100dvh] bg-gray-50 relative flex flex-col shadow-none sm:shadow-2xl sm:border-x sm:border-gray-200/80">
             <!-- Global notification (toast) for customer actions -->
-            <div id="customer-global-notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 pointer-events-none" style="max-width:448px; width:100vw; z-index:99999;">
-                <div id="customer-global-notification-inner" class="mx-auto max-w-md"></div>
+            <div id="customer-global-notification" class="fixed left-1/2 -translate-x-1/2 pointer-events-none w-full max-w-md px-3 z-[99999]" style="top: calc(0.75rem + env(safe-area-inset-top, 0px));">
+                <div id="customer-global-notification-inner" class="w-full"></div>
             </div>
 
             <!-- Floating Top Flash Notification Pop-Up (Instant Render) -->
@@ -220,7 +189,8 @@
                     x-data="{ show: true }"
                     x-show="show"
                     x-init="setTimeout(() => { show = false; }, 3000)"
-                    class="fixed top-4 left-1/2 -translate-x-1/2 z-[999999] max-w-sm w-[92%] pointer-events-auto transition-all duration-300 transform">
+                    class="fixed left-1/2 -translate-x-1/2 z-[999999] max-w-sm w-[92%] pointer-events-auto transition-all duration-300 transform"
+                    style="top: calc(1rem + env(safe-area-inset-top, 0px));">
                     @if (session()->has('error'))
                         <div class="bg-white border border-red-200 text-gray-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 shadow-xs">
@@ -260,8 +230,8 @@
                     }, 3000);
                 </script>
             @endif
-            <!-- Content -->
-            <main class="pb-20">
+            <!-- Content: responsive bottom padding adapting to safe area -->
+            <main class="flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
                 @if($__env->hasSection('content'))
                     @yield('content')
                 @else
@@ -276,35 +246,35 @@
                 @endif
             @endauth
 
-            <!-- Bottom Navigation (styled like mitra layout) -->
+            <!-- Bottom Navigation Bar: Fluid full width on mobile, max-w-md centered on desktop -->
             @auth
-                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-white border-t border-gray-200 shadow-2xl z-40"
-                    style="max-width: 448px; width: 100vw; background-color: #ffffff !important;">
-                    <div class="max-w-md mx-auto flex items-center justify-around px-4 py-2.5">
+                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40"
+                    style="background-color: #ffffff !important; padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));">
+                    <div class="w-full flex items-center justify-around px-1 sm:px-3 py-1.5 sm:py-2">
                         <a href="{{ route('customer.dashboard') }}" wire:navigate
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.dashboard') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('customer.dashboard') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
-                            <span class="nav-label text-xs font-bold mt-0.5">Beranda</span>
+                            <span class="nav-label text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Beranda</span>
                         </a>
 
                         <a href="{{ route('customer.helps.index') }}" wire:navigate
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.helps.*') && !request()->routeIs('customer.helps.create') && !request()->routeIs('customer.helps.history') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('customer.helps.*') && !request()->routeIs('customer.helps.create') && !request()->routeIs('customer.helps.history') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                             </svg>
-                            <span class="nav-label text-xs font-bold mt-0.5">Aktivitas</span>
+                            <span class="nav-label text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Aktivitas</span>
                         </a>
 
                         <a href="{{ route('customer.helps.create') }}" wire:navigate
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.helps.create') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('customer.helps.create') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
-                            <span class="nav-label text-xs font-bold mt-0.5">Buat</span>
+                            <span class="nav-label text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Buat</span>
                         </a>
 
                         @php
@@ -319,9 +289,9 @@
                             }
                         @endphp
                         <a href="{{ route('customer.chat') }}" wire:navigate
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('customer.chat*') || request()->routeIs('chat.*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <div class="relative inline-flex items-center justify-center">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('customer.chat*') || request()->routeIs('chat.*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
@@ -332,7 +302,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <span class="nav-label text-xs font-bold mt-0.5">Chat</span>
+                            <span class="nav-label text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Chat</span>
                         </a>
 
                         @php
@@ -344,9 +314,9 @@
                             );
                         @endphp
                         <a href="{{ route('profile') }}" wire:navigate
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('profile.*') || request()->routeIs('profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <div class="relative inline-flex items-center justify-center">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('profile.*') || request()->routeIs('profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
@@ -357,7 +327,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <span class="nav-label text-xs font-bold mt-0.5">Akun</span>
+                            <span class="nav-label text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Akun</span>
                         </a>
                     </div>
                 </nav>
@@ -371,7 +341,9 @@
     @livewire('customer.realtime-notifications')
 
     <script>
-        let _lastCustomerToast = { key: '', time: 0 };
+        if (!window._customerNotifScriptLoaded) {
+        window._customerNotifScriptLoaded = true;
+        window._lastCustomerToast = window._lastCustomerToast || { key: '', time: 0 };
         function showCustomerNotification(argObj) {
             try {
                 let options = argObj || {};
@@ -390,10 +362,10 @@
                 // Debounce duplicate toast notifications within 2 seconds
                 const toastKey = `${title}:::${message}`;
                 const now = Date.now();
-                if (_lastCustomerToast.key === toastKey && (now - _lastCustomerToast.time) < 2000) {
+                if (window._lastCustomerToast.key === toastKey && (now - window._lastCustomerToast.time) < 2000) {
                     return;
                 }
-                _lastCustomerToast = { key: toastKey, time: now };
+                window._lastCustomerToast = { key: toastKey, time: now };
 
                 console.log('showCustomerNotification called', { title, message, url, timeout, type });
                 const container = document.getElementById('customer-global-notification-inner');
@@ -717,8 +689,11 @@
                 showCustomerNotification(d);
             } catch (err) { console.error('customer-toast handler error', err); }
         });
+        } // end if !_customerNotifScriptLoaded
     </script>
     <script>
+        if (!window._modalBlurScriptLoaded) {
+        window._modalBlurScriptLoaded = true;
         // Toggle blur on bottom nav and any elements with `.blur-on-modal` when a modal is present in DOM.
         function checkConfirmModalAndToggleBlur() {
             try {
@@ -752,22 +727,12 @@
             checkConfirmModalAndToggleBlur();
         });
 
-        // Livewire fires these events after DOM updates
-        window.addEventListener('livewire:load', function () {
+        // Responsif untuk modal & navigasi Livewire 3
+        document.addEventListener('livewire:navigated', function () {
             checkConfirmModalAndToggleBlur();
         });
 
-        window.addEventListener('livewire:update', function () {
-            checkConfirmModalAndToggleBlur();
-        });
-
-        // Also observe mutations to catch cases where Livewire doesn't trigger events
-        try {
-            var observer = new MutationObserver(function () { checkConfirmModalAndToggleBlur(); });
-            observer.observe(document.body, { childList: true, subtree: true });
-        } catch (e) {
-            // ignore
-        }
+        } // end if !_modalBlurScriptLoaded
     </script>
 
     <!-- Modal Notifikasi Verifikasi KTP / Identitas Ditolak -->
@@ -805,6 +770,8 @@
     </div>
 
     <script>
+        if (!window._customerBlockedScriptLoaded) {
+        window._customerBlockedScriptLoaded = true;
         @auth
         function triggerCustomerBlockedModal(isInactive = null) {
             const modal = document.getElementById('blocked-account-modal');
@@ -865,7 +832,6 @@
             .catch(() => {});
         }
 
-        // Check immediately on load, on focus, on click, and every 2.5 seconds
         document.addEventListener('DOMContentLoaded', () => {
             @if(in_array(auth()->user()->status, ['blocked', 'inactive']))
                 triggerCustomerBlockedModal({{ auth()->user()->status === 'inactive' ? 'true' : 'false' }});
@@ -874,7 +840,9 @@
             @endif
         });
 
-        setInterval(checkCustomerAccountStatus, 30000);
+        // Clear any previous interval and set a new one (prevents duplicates on wire:navigate)
+        if (window._customerStatusInterval) clearInterval(window._customerStatusInterval);
+        window._customerStatusInterval = setInterval(checkCustomerAccountStatus, 30000);
         window.addEventListener('focus', checkCustomerAccountStatus);
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) checkCustomerAccountStatus();
@@ -882,6 +850,7 @@
         @else
         function triggerCustomerBlockedModal(isInactive = null) {}
         @endauth
+        } // end if !_customerBlockedScriptLoaded
 
         // Intercept any Livewire request errors
         document.addEventListener('livewire:init', () => {
@@ -1040,6 +1009,92 @@
                 btn.innerHTML = originalHtml;
             });
         };
+    </script>
+
+    <!-- PWA Service Worker & Install Banner -->
+    <div id="pwa-install-banner" class="hidden fixed bottom-20 left-4 right-4 max-w-sm mx-auto bg-gray-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-gray-700/80 z-[99999] flex items-center justify-between gap-3 animate-slide-up">
+        <div class="flex items-center gap-3 min-w-0">
+            <img src="/icons/icon-192x192.png" alt="SayaBantu" class="w-10 h-10 rounded-xl shadow-xs shrink-0">
+            <div class="min-w-0">
+                <h4 class="text-xs font-bold text-white leading-tight truncate">Pasang Aplikasi SayaBantu</h4>
+                <p class="text-[11px] text-gray-300 leading-tight mt-0.5">Akses cepat & instan di HP Anda</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+            <button id="pwa-install-btn" type="button" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-xs transition active:scale-95 cursor-pointer">
+                Install
+            </button>
+            <button id="pwa-dismiss-btn" type="button" class="p-1.5 text-gray-400 hover:text-white rounded-lg transition cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        if (!window._pwaScriptLoaded) {
+        window._pwaScriptLoaded = true;
+        // Registrasi PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((reg) => console.log('✓ Service Worker PWA Aktif:', reg.scope))
+                    .catch((err) => console.log('Service Worker Gagal:', err));
+            });
+        }
+
+        // PWA Install Prompt Handler
+        window._deferredPrompt = window._deferredPrompt || null;
+        const installBanner = document.getElementById('pwa-install-banner');
+        const installBtn = document.getElementById('pwa-install-btn');
+        const dismissBtn = document.getElementById('pwa-dismiss-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window._deferredPrompt = e;
+            const dismissedAt = localStorage.getItem('pwa_dismissed_at');
+            if (!dismissedAt || (Date.now() - parseInt(dismissedAt)) > 86400000) {
+                if (installBanner) installBanner.classList.remove('hidden');
+            }
+        });
+
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (!window._deferredPrompt) return;
+                installBanner.classList.add('hidden');
+                window._deferredPrompt.prompt();
+                const { outcome } = await window._deferredPrompt.userChoice;
+                console.log(`User response to install: ${outcome}`);
+                window._deferredPrompt = null;
+            });
+        }
+
+        if (dismissBtn) {
+            dismissBtn.addEventListener('click', () => {
+                if (installBanner) installBanner.classList.add('hidden');
+                localStorage.setItem('pwa_dismissed_at', Date.now().toString());
+            });
+        }
+        } // end if !_pwaScriptLoaded
+    </script>
+
+    <script data-navigate-once>
+        // Transisi halus dan umpan balik instan (0ms) untuk Bottom Navigation
+        document.addEventListener('click', function (e) {
+            const navItem = e.target.closest('#bottom-nav a.nav-item');
+            if (!navItem) return;
+
+            const container = navItem.closest('#bottom-nav');
+            if (!container) return;
+
+            container.querySelectorAll('a.nav-item').forEach(el => {
+                el.classList.remove('text-primary-600', 'active');
+                el.classList.add('text-gray-400');
+            });
+            navItem.classList.remove('text-gray-400');
+            navItem.classList.add('text-primary-600', 'active');
+        });
     </script>
 </body>
 

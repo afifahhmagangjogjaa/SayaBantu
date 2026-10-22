@@ -3,10 +3,15 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Mastulongmas') }} - Mitra</title>
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,6 +24,20 @@
     @livewireStyles
     <style>
         [x-cloak] { display: none !important; }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+            background-color: #f3f4f6;
+        }
         
         /* Sembunyikan tombol mata bawaan Windows / Edge agar tidak dobel */
         input::-ms-reveal,
@@ -74,13 +93,22 @@
         }
 
         #bottom-nav {
-            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Navbar tetap stabil dan tidak meloncat / slide setiap ganti halaman */
+            transform: translate(-50%, 0);
         }
 
         .nav-item {
             position: relative;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Pastikan elemen di dalam nav-item tidak memblokir event klik anchor */
+        .nav-item * {
+            pointer-events: none;
         }
 
         .nav-item::before {
@@ -91,99 +119,33 @@
             width: 0;
             height: 0;
             border-radius: 50%;
-            background: rgba(0, 152, 231, 0.15);
+            background: rgba(0, 152, 231, 0.12);
             transform: translate(-50%, -50%);
-            transition: width 0.4s, height 0.4s;
+            transition: width 0.25s ease-out, height 0.25s ease-out;
+            pointer-events: none;
         }
 
         .nav-item:active::before {
-            width: 60px;
-            height: 60px;
-        }
-
-        .nav-item:hover {
-            transform: translateY(-3px);
+            width: 52px;
+            height: 52px;
         }
 
         .nav-item:active {
-            transform: translateY(-1px) scale(0.95);
+            opacity: 0.85;
         }
 
         .nav-item svg {
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-item:hover svg {
-            transform: scale(1.15);
-        }
-
-        .nav-item:active svg {
-            transform: scale(0.9);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
         }
 
         .nav-item.active svg {
-            animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(1.08);
         }
 
         .nav-item .nav-label {
-            transition: all 0.2s ease;
-        }
-
-        .nav-item:hover .nav-label {
-            transform: scale(1.05);
-        }
-
-        .nav-fab {
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-fab::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0098e7 0%, #0077cc 100%);
-            transform: translate(-50%, -50%);
-            z-index: -1;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-fab:hover {
-            transform: translateY(-4px) rotate(90deg);
-        }
-
-        .nav-fab:hover::after {
-            transform: translate(-50%, -50%) scale(1.2);
-            box-shadow: 0 8px 20px rgba(0, 152, 231, 0.4);
-        }
-
-        .nav-fab:active {
-            transform: translateY(-2px) rotate(90deg) scale(0.9);
-        }
-
-        .nav-fab svg {
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-fab:hover svg {
-            transform: rotate(-90deg);
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-2px);
-            }
-        }
-
-        .nav-item.active {
-            animation: float 2s ease-in-out infinite;
+            transition: color 0.15s ease;
+            pointer-events: none;
         }
 
         /* Indicator dot for active state */
@@ -197,23 +159,24 @@
             height: 4px;
             border-radius: 50%;
             background: currentColor;
-            animation: bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
         }
     </style>
 </head>
 
 <body class="font-sans antialiased bg-gray-50">
-    <!-- Centered Container -->
-    <div class="min-h-screen flex items-start justify-center bg-gray-100">
-        <!-- Mobile Width Container -->
-        <div class="w-full max-w-md bg-gray-50 relative shadow-2xl">
+    <!-- Centered Container: Full width on mobile, centered on larger screens -->
+    <div class="min-h-screen min-h-[100dvh] w-full flex items-start justify-center bg-gray-100">
+        <!-- Mobile Frame: fluid on mobile, max-w-md centered on tablet+ -->
+        <div class="w-full max-w-md min-h-screen min-h-[100dvh] bg-gray-50 relative flex flex-col shadow-none sm:shadow-2xl sm:border-x sm:border-gray-200/80">
             <!-- Floating Top Flash Notification Pop-Up (Instant Render) -->
             @if (session()->has('message') || session()->has('success') || session()->has('error') || session()->has('status'))
                 <div id="flash-toast"
                     x-data="{ show: true }"
                     x-show="show"
                     x-init="setTimeout(() => { show = false; }, 3000)"
-                    class="fixed top-4 left-1/2 -translate-x-1/2 z-[999999] max-w-sm w-[92%] pointer-events-auto transition-all duration-300 transform">
+                    class="fixed left-1/2 -translate-x-1/2 z-[999999] max-w-sm w-[92%] pointer-events-auto transition-all duration-300 transform"
+                    style="top: calc(1rem + env(safe-area-inset-top, 0px));">
                     @if (session()->has('error'))
                         <div class="bg-white border border-red-200 text-gray-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 shadow-xs">
@@ -255,13 +218,13 @@
             @endif
 
             <!-- Global notification (toast) for mitra actions -->
-            <div id="mitra-global-notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 pointer-events-none" style="max-width:448px; width:100vw; z-index:99999;">
-                <div id="mitra-global-notification-inner" class="mx-auto max-w-md"></div>
+            <div id="mitra-global-notification" class="fixed left-1/2 -translate-x-1/2 pointer-events-none w-full max-w-md px-3 z-[99999]" style="top: calc(0.75rem + env(safe-area-inset-top, 0px));">
+                <div id="mitra-global-notification-inner" class="w-full"></div>
             </div>
             <!-- Content -->
-            <div class="flex flex-col min-h-screen">
-                <!-- Livewire -->
-                <div class="flex-1 pb-20">
+            <div class="flex flex-col flex-1 min-h-screen min-h-[100dvh]">
+                <!-- Livewire slot -->
+                <div class="flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
                     @isset($slot)
                         {{ $slot }}
                     @else
@@ -269,25 +232,25 @@
                     @endisset
                 </div>
 
-                <!-- Bottom Navigation Bar -->
-                <div id="bottom-nav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-white border-t border-gray-200 shadow-2xl z-40"
-                    style="max-width: 448px; width: 100vw; background-color: #ffffff !important;">
-                    <div class="max-w-md mx-auto flex items-center justify-around px-4 py-2.5">
+                <!-- Bottom Navigation Bar: Fluid full width on all screens -->
+                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40"
+                    style="background-color: #ffffff !important; padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));">
+                    <div class="w-full flex items-center justify-around px-1 sm:px-3 py-1.5 sm:py-2">
                         <a href="{{ route('mitra.dashboard') }}" wire:navigate
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.dashboard') && !request()->has('tab') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.dashboard') && !request()->has('tab') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
-                            <span class="text-xs font-bold mt-0.5">Beranda</span>
+                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Beranda</span>
                         </a>
                         <a href="{{ route('mitra.helps.all') }}" wire:navigate
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.all') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.helps.all') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            <span class="text-xs font-bold mt-0.5">Cari</span>
+                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Cari</span>
                         </a>
                         @php
                             $activeMitraJobs = 0;
@@ -296,15 +259,15 @@
                                 try {
                                     $activeMitraJobs = \App\Models\Help::where('mitra_id', auth()->id())
                                         ->whereIn('status', [
-                                            'memperoleh_mitra',
-                                            'taken',
-                                            'partner_on_the_way',
-                                            'partner_arrived',
-                                            'in_progress',
-                                            'sedang_diproses',
-                                            'partner_cancel_requested',
-                                            'diproses_mitra',
-                                            'waiting_customer_confirmation'
+                                             'memperoleh_mitra',
+                                             'taken',
+                                             'partner_on_the_way',
+                                             'partner_arrived',
+                                             'in_progress',
+                                             'sedang_diproses',
+                                             'partner_cancel_requested',
+                                             'diproses_mitra',
+                                             'waiting_customer_confirmation'
                                         ])->count();
                                 } catch (\Throwable $e) {}
 
@@ -318,9 +281,9 @@
                         @endphp
 
                         <a href="{{ route('mitra.helps.processing') }}" wire:navigate
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.helps.processing') || request()->routeIs('mitra.helps.completed') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <div class="relative inline-flex items-center justify-center">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.helps.processing') || request()->routeIs('mitra.helps.completed') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                                 </svg>
@@ -330,13 +293,13 @@
                                     </span>
                                 @endif
                             </div>
-                            <span class="text-xs font-bold mt-0.5">Pekerjaan</span>
+                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Pekerjaan</span>
                         </a>
 
                         <a href="{{ route('mitra.chat') }}" wire:navigate
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.chat*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <div class="relative inline-flex items-center justify-center">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.chat*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
@@ -347,7 +310,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <span class="text-xs font-bold mt-0.5">Chat</span>
+                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Chat</span>
                         </a>
 
                         @php
@@ -359,9 +322,9 @@
                             );
                         @endphp
                         <a href="{{ route('mitra.profile') }}" wire:navigate
-                            class="nav-item flex flex-col items-center py-1.5 {{ request()->routeIs('mitra.profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <div class="relative inline-flex items-center justify-center">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            <div class="relative inline-flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
@@ -372,10 +335,10 @@
                                     </span>
                                 @endif
                             </div>
-                            <span class="text-xs font-bold mt-0.5">Profil</span>
+                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Profil</span>
                         </a>
                     </div>
-                </div>
+                </nav>
             </div>
         </div>
     </div>
@@ -387,7 +350,9 @@
     @livewire('mitra.realtime-notifications')
 
     <script>
-        let _lastMitraNotification = { key: '', time: 0 };
+        if (!window._mitraNotifScriptLoaded) {
+        window._mitraNotifScriptLoaded = true;
+        window._lastMitraNotification = window._lastMitraNotification || { key: '', time: 0 };
         function showMitraNotification(argObj) {
             try {
                 let options = argObj || {};
@@ -405,10 +370,10 @@
                 // Debounce duplicate toast notifications within 2 seconds
                 const toastKey = `${title}:::${message}`;
                 const now = Date.now();
-                if (_lastMitraNotification.key === toastKey && (now - _lastMitraNotification.time) < 2000) {
+                if (window._lastMitraNotification.key === toastKey && (now - window._lastMitraNotification.time) < 2000) {
                     return;
                 }
-                _lastMitraNotification = { key: toastKey, time: now };
+                window._lastMitraNotification = { key: toastKey, time: now };
 
                 console.log('showMitraNotification (text-only) called', { title, message, url, timeout, type });
                 const container = document.getElementById('mitra-global-notification-inner');
@@ -484,6 +449,7 @@
         });
 
         window.triggerMitraNotification = function (payload) { showMitraNotification(payload || {}); }
+        } // end if !_mitraNotifScriptLoaded
     </script>
 
     <!-- Modal Notifikasi Verifikasi KTP / Identitas Ditolak -->
@@ -589,11 +555,14 @@
             @endif
         });
 
-        setInterval(checkAccountStatus, 30000);
+        // Clear any previous interval and set a new one (prevents duplicates on wire:navigate)
+        if (window._mitraStatusInterval) clearInterval(window._mitraStatusInterval);
+        window._mitraStatusInterval = setInterval(checkAccountStatus, 30000);
         window.addEventListener('focus', checkAccountStatus);
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) checkAccountStatus();
         });
+
 
         // Intercept any Livewire request errors
         document.addEventListener('livewire:init', () => {
@@ -626,6 +595,27 @@
                 if (typeof window.playNotifChime === 'function') {
                     window.playNotifChime();
                 }
+            });
+
+            // Livewire flash message toast — show session flash errors/success dari backend
+            Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+                succeed(({ snapshot, effect }) => {
+                    try {
+                        // Check for flash messages in Livewire effects
+                        const dispatches = effect?.dispatches ?? [];
+                        dispatches.forEach(d => {
+                            if (d?.name === 'livewire-flash-error' && d?.params?.[0]) {
+                                if (typeof window.showGlobalFlashToast === 'function') {
+                                    window.showGlobalFlashToast(d.params[0], 'error');
+                                }
+                            } else if (d?.name === 'livewire-flash-success' && d?.params?.[0]) {
+                                if (typeof window.showGlobalFlashToast === 'function') {
+                                    window.showGlobalFlashToast(d.params[0], 'success');
+                                }
+                            }
+                        });
+                    } catch(e) {}
+                });
             });
         });
 
@@ -692,14 +682,15 @@
             }
         }
 
-        // Global interactive toast popup
-        let _lastMitraFlashToast = { msg: '', time: 0 };
+        // Global interactive toast popup - guarded against wire:navigate re-execution
+        window._lastMitraFlashToast = window._lastMitraFlashToast || { msg: '', time: 0 };
+        if (!window.showGlobalFlashToast) {
         window.showGlobalFlashToast = function(message, type = 'success') {
             const now = Date.now();
-            if (_lastMitraFlashToast.msg === message && (now - _lastMitraFlashToast.time) < 2000) {
+            if (window._lastMitraFlashToast.msg === message && (now - window._lastMitraFlashToast.time) < 2000) {
                 return;
             }
-            _lastMitraFlashToast = { msg: message, time: now };
+            window._lastMitraFlashToast = { msg: message, time: now };
 
             let existing = document.getElementById('flash-toast');
             if (existing) existing.remove();
@@ -741,7 +732,8 @@
                     setTimeout(() => toast.remove(), 400);
                 }
             }, 5000);
-        };
+        }; // end showGlobalFlashToast
+        } // end if !window.showGlobalFlashToast
 
         // Asynchronous Email Verification Trigger with "Mengirim..." -> "Terkirim ✓" flow
         window.sendEmailVerification = function(btn, url) {
@@ -834,6 +826,24 @@
                 btn.innerHTML = originalHtml;
             });
         };
+    </script>
+
+    <script data-navigate-once>
+        // Transisi halus dan umpan balik instan (0ms) untuk Bottom Navigation
+        document.addEventListener('click', function (e) {
+            const navItem = e.target.closest('#bottom-nav a.nav-item');
+            if (!navItem) return;
+
+            const container = navItem.closest('#bottom-nav');
+            if (!container) return;
+
+            container.querySelectorAll('a.nav-item').forEach(el => {
+                el.classList.remove('text-primary-600', 'active');
+                el.classList.add('text-gray-400');
+            });
+            navItem.classList.remove('text-gray-400');
+            navItem.classList.add('text-primary-600', 'active');
+        });
     </script>
     @stack('scripts')
 </body>

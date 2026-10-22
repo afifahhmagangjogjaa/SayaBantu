@@ -181,18 +181,13 @@
                         @endif
                     @else
                         <!-- Empty State Tab Masuk -->
-                        <div class="text-center py-16">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl">
-                                💰
-                            </div>
-                            <h3 class="text-base font-bold text-gray-800 mb-1">Belum Ada Saldo Masuk</h3>
-                            <p class="text-xs text-gray-500 max-w-xs mx-auto mb-5 leading-relaxed">
-                                Riwayat top-up dan pengembalian saldo Anda akan muncul di sini.
-                            </p>
-                            <a href="{{ route('customer.topup') }}" class="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
-                                Top Up Saldo Sekarang
-                            </a>
-                        </div>
+                        <x-empty-state 
+                            title="Belum Ada Saldo Masuk" 
+                            description="Riwayat top-up dan pengembalian saldo dompet Anda akan muncul di sini." 
+                            icon="wallet" 
+                            actionText="Top Up Saldo Sekarang" 
+                            :actionUrl="route('customer.topup')" 
+                        />
                     @endif
                 </div>
             @endif
@@ -267,18 +262,13 @@
                         @endif
                     @else
                         <!-- Empty State Tab Keluar -->
-                        <div class="text-center py-16">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-3xl">
-                                📤
-                            </div>
-                            <h3 class="text-base font-bold text-gray-800 mb-1">Belum Ada Saldo Keluar</h3>
-                            <p class="text-xs text-gray-500 max-w-xs mx-auto mb-5 leading-relaxed">
-                                Riwayat pembayaran bantuan untuk mitra akan tercatat secara rapi di sini.
-                            </p>
-                            <a href="{{ route('customer.helps.create') }}" class="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
-                                Buat Permintaan Bantuan
-                            </a>
-                        </div>
+                        <x-empty-state 
+                            title="Belum Ada Saldo Keluar" 
+                            description="Riwayat pembayaran bantuan untuk mitra akan tercatat secara rapi di sini." 
+                            icon="clipboard" 
+                            actionText="Buat Permintaan Bantuan" 
+                            :actionUrl="route('customer.helps.create')" 
+                        />
                     @endif
                 </div>
             @endif

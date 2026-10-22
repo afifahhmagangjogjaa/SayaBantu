@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white" wire:poll.10s>
+<div class="min-h-screen bg-white" wire:poll.20s.visible>
     <style>
         .header-pattern {
             position: relative;
@@ -107,39 +107,36 @@
 
             <!-- Empty State -->
             @if($helps->isEmpty())
-                <div class="text-center py-16 bg-gray-50/60 rounded-2xl border border-gray-100 p-6">
-                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-white flex items-center justify-center shadow-sm">
-                        @if(!empty($search))
-                            <span class="text-2xl">🔍</span>
-                        @elseif($tab === 'diproses')
-                            <span class="text-2xl">⚡</span>
-                        @elseif($tab === 'selesai')
-                            <span class="text-2xl">🎉</span>
-                        @else
-                            <span class="text-2xl">📋</span>
-                        @endif
-                    </div>
-                    @if(!empty($search))
-                        <h3 class="text-sm font-bold text-gray-800">Tidak Ada Hasil Ditemukan</h3>
-                        <p class="text-xs text-gray-500 mt-1 max-w-xs mx-auto">Tidak ditemukan pekerjaan dengan kata kunci "{{ $search }}".</p>
-                        <button type="button" wire:click="$set('search', '')" class="inline-flex items-center gap-1.5 mt-3.5 px-3.5 py-1.5 bg-white text-gray-700 text-xs font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 transition shadow-2xs">
-                            Reset Pencarian
-                        </button>
-                    @elseif($tab === 'diproses')
-                        <h3 class="text-sm font-bold text-gray-800">Tidak Ada Tugas Berjalan</h3>
-                        <p class="text-xs text-gray-500 mt-1 max-w-xs mx-auto">Anda belum mengambil tugas baru. Jelajahi menu Cari untuk menemukan bantuan tersedia!</p>
-                        <a href="{{ route('mitra.helps.all') }}" class="inline-flex items-center gap-1.5 mt-4 px-4 py-2 bg-[#0098e7] text-white text-xs font-semibold rounded-xl shadow-sm hover:bg-[#0086cc] transition">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            Cari Bantuan Tersedia
-                        </a>
-                    @elseif($tab === 'selesai')
-                        <h3 class="text-sm font-bold text-gray-800">Belum Ada Riwayat Selesai</h3>
-                        <p class="text-xs text-gray-500 mt-1">Pekerjaan yang telah berhasil Anda selesaikan akan tercatat rapi di sini.</p>
-                    @else
-                        <h3 class="text-sm font-bold text-gray-800">Tidak Ada Bantuan Dibatalkan</h3>
-                        <p class="text-xs text-gray-500 mt-1">Bagus! Belum ada tugas yang dibatalkan atau ditolak.</p>
-                    @endif
-                </div>
+                @if(!empty($search))
+                    <x-empty-state 
+                        icon="search" 
+                        title="Tidak Ada Hasil Ditemukan" 
+                        description="Tidak ditemukan pekerjaan dengan kata kunci {{ $search }}." 
+                        actionText="Reset Pencarian" 
+                        actionWireClick="$set('search', '')" 
+                        actionType="secondary" 
+                    />
+                @elseif($tab === 'diproses')
+                    <x-empty-state 
+                        icon="clipboard" 
+                        title="Tidak Ada Tugas Berjalan" 
+                        description="Anda belum mengambil tugas baru. Jelajahi menu Cari untuk menemukan bantuan tersedia!" 
+                        actionText="Cari Bantuan Tersedia" 
+                        :actionUrl="route('mitra.helps.all')" 
+                    />
+                @elseif($tab === 'selesai')
+                    <x-empty-state 
+                        icon="check-circle" 
+                        title="Belum Ada Riwayat Selesai" 
+                        description="Pekerjaan yang telah berhasil Anda selesaikan akan tercatat rapi di sini." 
+                    />
+                @else
+                    <x-empty-state 
+                        icon="inbox" 
+                        title="Tidak Ada Bantuan Dibatalkan" 
+                        description="Bagus! Belum ada tugas yang dibatalkan atau ditolak." 
+                    />
+                @endif
             @else
                 <!-- Help Cards List -->
                 <div class="space-y-3">

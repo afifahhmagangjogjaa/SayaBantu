@@ -45,4 +45,17 @@
     .animate-slide-up {
         animation: slideUp 0.3s ease-out;
     }
+
+    /* SayaBantu Signature Gradients & Utility Classes */
+    .bg-brand-gradient {
+        background: linear-gradient(135deg, #0098e7 0%, #0077cc 50%, #0060b0 100%);
+    }
+
+    .bg-brand-gradient-h {
+        background: linear-gradient(to right, #0098e7, #0060b0);
+    }
+
+    .shadow-brand {
+        box-shadow: 0 4px 14px 0 rgba(0, 152, 231, 0.35);
+    }
 }

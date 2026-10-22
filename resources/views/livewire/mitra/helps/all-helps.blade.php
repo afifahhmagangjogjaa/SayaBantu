@@ -1,17 +1,4 @@
-<div class="min-h-screen bg-white"
-    x-data
-    x-init="
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                p => {
-                    $wire.setCoordinates(p.coords.latitude, p.coords.longitude);
-                },
-                err => { console.log('Geolocation init info:', err.message); },
-                { enableHighAccuracy: true, timeout: 8000 }
-            );
-        }
-    "
->
+<div class="min-h-screen bg-white">
     <style>
         :root{
             --brand-500: #0ea5a4;
@@ -340,20 +327,14 @@
                     </div>
                 @empty
                     <!-- Empty State -->
-                    <div class="text-center py-16 bg-white rounded-xl shadow-sm">
-                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                        <p class="text-sm font-semibold text-gray-700">{{ $search ? 'Tidak ada bantuan ditemukan' : 'Belum ada bantuan dalam radius ' . (int) ($maxRadius ?? 10) . ' km' }}</p>
-                        <p class="text-xs text-gray-500 mt-1">
-                            {{ $search ? 'Coba cari dengan kata kunci lain' : 'Cek kembali nanti untuk bantuan baru di sekitar Anda' }}
-                        </p>
-                        @if(!empty($search))
-                            <button type="button" wire:click="$set('search', '')" class="inline-flex items-center gap-1.5 mt-3.5 px-3.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition shadow-2xs">
-                                Reset Pencarian
-                            </button>
-                        @endif
-                    </div>
+                    <x-empty-state 
+                        :icon="$search ? 'search' : 'clipboard'" 
+                        :title="$search ? 'Tidak Ada Bantuan Ditemukan' : 'Belum Ada Bantuan Terdekat'" 
+                        :description="$search ? 'Coba cari dengan kata kunci lain atau bersihkan filter pencarian.' : 'Belum ada bantuan dalam radius ' . (int) ($maxRadius ?? 10) . ' km dari lokasi Anda. Silakan cek kembali beberapa saat lagi.'" 
+                        :actionText="$search ? 'Reset Pencarian' : null" 
+                        actionWireClick="$set('search', '')" 
+                        actionType="secondary" 
+                    />
                 @endforelse
 
                 <!-- Pagination -->
@@ -584,56 +565,18 @@
                 btn.disabled = true;
             }
 
-            let taken = false;
-            const completeTake = (lat = null, lng = null) => {
-                if (taken) return;
-                taken = true;
-                clearTimeout(fallbackTimer);
+            // Langsung ambil bantuan tanpa GPS — backend pakai koordinat kota mitra
+            // GPS browser bisa berbeda kota (misal desktop di Jakarta, kota mitra di Bantul)
+            // Radius check di backend sudah pakai koordinat kota yg benar
+            @this.takeHelp(currentHelpId);
 
-                if (lat && lng) {
-                    console.log('📍 Mengambil bantuan dengan lokasi GPS:', { lat, lng });
-                    @this.takeHelp(currentHelpId, lat, lng);
-                } else {
-                    console.log('📍 Mengambil bantuan (koordinat default dari profil mitra)');
-                    @this.takeHelp(currentHelpId);
-                }
+            closePreviewModal();
 
-                closePreviewModal();
-
-                if (btn) {
+            if (btn) {
+                setTimeout(() => {
                     btn.textContent = originalText;
                     btn.disabled = false;
-                }
-            };
-
-            // Batas maksimal tunggu deteksi GPS adalah 1.8 detik agar tidak pernah stuck/macet
-            const fallbackTimer = setTimeout(() => {
-                console.log('⏱️ Waktu deteksi GPS selesai, langsung mengambil bantuan...');
-                completeTake();
-            }, 1800);
-
-            // Coba ambil lokasi secara cepat jika browser mendukung
-            if (navigator.geolocation) {
-                try {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            completeTake(position.coords.latitude, position.coords.longitude);
-                        },
-                        (error) => {
-                            console.warn('⚠️ Lokasi GPS tidak dapat diakses, mengambil bantuan langsung:', error.message);
-                            completeTake();
-                        },
-                        {
-                            enableHighAccuracy: false,
-                            timeout: 1500,
-                            maximumAge: 300000 // gunakan cache lokasi 5 menit terakhir jika ada
-                        }
-                    );
-                } catch (e) {
-                    completeTake();
-                }
-            } else {
-                completeTake();
+                }, 2000);
             }
         }
 

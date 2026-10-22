@@ -4,7 +4,7 @@
 @endphp
 
 <div x-data="approvalModal()" @confirm-approve.window="openFromEvent($event)" class="space-y-6">
-    <div wire:poll.4s>
+    <div wire:poll.30s.visible>
         <!-- Alerts -->
         @if (session()->has('success'))
             <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-800 flex items-start gap-3 shadow-2xs">
@@ -135,9 +135,9 @@
                                             <div class="min-w-0">
                                                 <div class="text-xs font-semibold text-gray-900 leading-tight truncate max-w-[125px]" title="{{ $transaction->user->name ?? '-' }}">{{ $transaction->user->name ?? '-' }}</div>
                                                 <div class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[125px]" title="{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
-                                                @if(!empty($transaction->user->city->name))
+                                                @if(!empty($transaction->user->city_name ?? $transaction->user->city))
                                                     <div class="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
-                                                        <span>📍 {{ $transaction->user->city->name }}</span>
+                                                        <span>📍 {{ $transaction->user->city_name ?? $transaction->user->city }}</span>
                                                     </div>
                                                 @endif
                                             </div>
@@ -211,16 +211,13 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="px-6 py-12 text-center text-gray-500">
-                                        <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
-                                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                            <p class="text-sm font-bold text-gray-800">Tidak Ada Antrean Approval</p>
-                                            <p class="text-xs text-gray-400 mt-0.5">Semua request top-up telah diproses atau belum ada request baru.</p>
-                                        </div>
+                                    <td colspan="9" class="p-6">
+                                        <x-empty-state 
+                                            icon="check-circle" 
+                                            title="Tidak Ada Antrean Approval" 
+                                            description="Semua pengajuan top-up nasional telah diproses atau belum ada permintaan baru." 
+                                            compact 
+                                        />
                                     </td>
                                 </tr>
                             @endforelse
@@ -326,9 +323,9 @@
                                             <div class="min-w-0">
                                                 <div class="text-xs font-semibold text-gray-900 leading-tight truncate max-w-[125px]" title="{{ $transaction->user->name ?? '-' }}">{{ $transaction->user->name ?? '-' }}</div>
                                                 <div class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[125px]" title="{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}">{{ $transaction->customer_email ?? ($transaction->user->email ?? '-') }}</div>
-                                                @if(!empty($transaction->user->city->name))
+                                                @if(!empty($transaction->user->city_name ?? $transaction->user->city))
                                                     <div class="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
-                                                        <span>📍 {{ $transaction->user->city->name }}</span>
+                                                        <span>📍 {{ $transaction->user->city_name ?? $transaction->user->city }}</span>
                                                     </div>
                                                 @endif
                                             </div>
@@ -400,16 +397,13 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="px-6 py-12 text-center text-gray-500">
-                                        <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
-                                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                                </svg>
-                                            </div>
-                                            <p class="text-sm font-bold text-gray-800">Belum Ada Riwayat</p>
-                                            <p class="text-xs text-gray-400 mt-0.5">Belum ada transaksi yang diproses pada filter ini.</p>
-                                        </div>
+                                    <td colspan="9" class="p-6">
+                                        <x-empty-state 
+                                            icon="wallet" 
+                                            title="Belum Ada Riwayat Transaksi" 
+                                            description="Belum ada transaksi top-up yang diproses pada filter atau periode ini." 
+                                            compact 
+                                        />
                                     </td>
                                 </tr>
                             @endforelse
@@ -723,7 +717,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
-                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                            <select wire:model.live="deleteYear" class="w-full pl-3.5 pr-9 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
                                 @foreach($availableYears ?? [date('Y')] as $yr)
                                     <option value="{{ $yr }}">{{ $yr }}</option>
                                 @endforeach
@@ -732,7 +726,7 @@
 
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Bulan</label>
-                            <select wire:model.live="deleteMonth" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                            <select wire:model.live="deleteMonth" class="w-full pl-3.5 pr-9 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
                                 <option value="1">01 - Januari</option>
                                 <option value="2">02 - Februari</option>
                                 <option value="3">03 - Maret</option>
@@ -772,7 +766,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
-                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                            <select wire:model.live="deleteYear" class="w-full pl-3.5 pr-9 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
                                 @foreach($availableYears ?? [date('Y')] as $yr)
                                     <option value="{{ $yr }}">{{ $yr }}</option>
                                 @endforeach

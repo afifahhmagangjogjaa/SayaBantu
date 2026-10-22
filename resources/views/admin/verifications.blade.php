@@ -1,4 +1,4 @@
-<div wire:poll.4s class="space-y-6">
+<div wire:poll.30s.visible class="space-y-6">
         @if (session()->has('message'))
             <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 flex items-start gap-2">
                 <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -139,11 +139,13 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                                <p class="mt-2 text-sm text-gray-500">Tidak ada data verifikasi</p>
+                            <td colspan="7" class="p-6">
+                                <x-empty-state 
+                                    icon="verified" 
+                                    title="Tidak Ada Pengajuan Verifikasi" 
+                                    description="Semua data pengajuan KTP di wilayah Anda telah selesai diproses atau belum ada pengajuan baru." 
+                                    compact 
+                                />
                             </td>
                         </tr>
                     @endforelse

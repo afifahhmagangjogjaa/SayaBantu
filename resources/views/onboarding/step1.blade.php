@@ -90,8 +90,14 @@
                     <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
                         Alamat Lengkap Domisili <span class="text-red-500">*</span>
                     </label>
-                    <textarea name="address" id="address" rows="2" placeholder="Jalan, nomor rumah, gedung, dll." required
-                        class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium @error('address') border-red-500 @enderror">{{ old('address', $user->address ?? '') }}</textarea>
+                    <x-smart-address-input 
+                        name="address" 
+                        id="address" 
+                        rows="2" 
+                        required 
+                        :value="old('address', $user->address ?? '')"
+                        placeholder="Ketik nama jalan, perumahan, kelurahan, atau gedung..."
+                    />
                     @error('address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 

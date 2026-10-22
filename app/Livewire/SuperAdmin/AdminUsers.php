@@ -116,23 +116,14 @@ class AdminUsers extends Component
 
     public function updatedCityId($id)
     {
-        $this->kecamatan = '';
-        $this->selectedDistrictCode = '';
-        $this->apiDistricts = [];
-        $this->kelurahan = '';
-        $this->selectedVillageCode = '';
-        $this->apiVillages = [];
-
         if (!$id) {
             $this->province = '';
-            $this->selectedCityCode = '';
             return;
         }
 
         $city = City::find($id);
         if ($city) {
             $this->province = $city->province;
-            $this->resolveCityCodeAndFetchDistricts($city);
         }
     }
 
@@ -258,42 +249,10 @@ class AdminUsers extends Component
 
     protected function syncCascadeData()
     {
-        $this->selectedCityCode = '';
-        $this->selectedDistrictCode = '';
-        $this->selectedVillageCode = '';
-        $this->apiDistricts = [];
-        $this->apiVillages = [];
-
         if ($this->city_id) {
             $city = City::find($this->city_id);
             if ($city) {
                 $this->province = $city->province;
-                $this->resolveCityCodeAndFetchDistricts($city);
-
-                if (!empty($this->kecamatan) && !empty($this->apiDistricts)) {
-                    $distApi = collect($this->apiDistricts)->firstWhere('name', strtoupper(trim($this->kecamatan)));
-                    if (!$distApi) {
-                        $distApi = collect($this->apiDistricts)->first(function ($d) {
-                            return str_contains(strtoupper($d['name']), strtoupper(trim($this->kecamatan))) || str_contains(strtoupper(trim($this->kecamatan)), strtoupper($d['name']));
-                        });
-                    }
-                    if ($distApi) {
-                        $this->selectedDistrictCode = $distApi['code'];
-                        $this->fetchVillages($this->selectedDistrictCode);
-
-                        if (!empty($this->kelurahan) && !empty($this->apiVillages)) {
-                            $villApi = collect($this->apiVillages)->firstWhere('name', strtoupper(trim($this->kelurahan)));
-                            if (!$villApi) {
-                                $villApi = collect($this->apiVillages)->first(function ($v) {
-                                    return str_contains(strtoupper($v['name']), strtoupper(trim($this->kelurahan))) || str_contains(strtoupper(trim($this->kelurahan)), strtoupper($v['name']));
-                                });
-                            }
-                            if ($villApi) {
-                                $this->selectedVillageCode = $villApi['code'];
-                            }
-                        }
-                    }
-                }
             }
         }
     }
@@ -318,7 +277,7 @@ class AdminUsers extends Component
         $this->phone = '';
         $this->role = 'admin';
         $this->status = 'active';
-        $this->verified = 0;
+        $this->verified = 1;
         $this->city_id = null;
         $this->managed_city_ids = [];
         $this->address = null;
@@ -403,11 +362,7 @@ class AdminUsers extends Component
 
         // Sanitasi input
         $this->name = preg_replace('/[^a-zA-Z\s]/', '', (string) $this->name);
-        $this->place_of_birth = preg_replace('/[^a-zA-Z\s]/', '', (string) $this->place_of_birth);
-        $this->nik = preg_replace('/[^0-9]/', '', (string) $this->nik);
         $this->phone = preg_replace('/[^0-9]/', '', (string) $this->phone);
-        if ($this->rt) $this->rt = preg_replace('/[^0-9]/', '', (string) $this->rt);
-        if ($this->rw) $this->rw = preg_replace('/[^0-9]/', '', (string) $this->rw);
 
         $isEdit = !empty($this->selectedUser);
 
@@ -416,31 +371,10 @@ class AdminUsers extends Component
             'email' => $emailRules,
             'phone' => ['required', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
             'role' => 'required|string',
-            'verified' => 'required|boolean',
             'city_id' => 'required|exists:cities,id',
-            'managed_city_ids' => 'nullable|array',
+            'managed_city_ids' => 'required|array|min:1',
             'managed_city_ids.*' => 'exists:cities,id',
-            'nik' => [
-                $isEdit ? 'nullable' : 'required',
-                'string',
-                'size:16',
-                'regex:/^[0-9]+$/',
-                ($this->selectedUser ? $this->selectedUser->id : $this->userId) 
-                    ? \Illuminate\Validation\Rule::unique('users', 'nik')->ignore($this->selectedUser ? $this->selectedUser->id : $this->userId) 
-                    : \Illuminate\Validation\Rule::unique('users', 'nik'),
-            ],
-            'place_of_birth' => [$isEdit ? 'nullable' : 'required', 'string', 'max:100', 'regex:/^[a-zA-Z\s]+$/'],
-            'date_of_birth' => $isEdit ? ('nullable|date|before_or_equal:' . now()->subYears(17)->format('Y-m-d')) : ('required|date|before_or_equal:' . now()->subYears(17)->format('Y-m-d')),
-            'gender' => $isEdit ? 'nullable|in:Laki-laki,Perempuan' : 'required|in:Laki-laki,Perempuan',
             'address' => 'nullable|string|max:1000',
-            'kelurahan' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
-            'kecamatan' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
-            'province' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
-            'rt' => 'nullable|string|max:3|regex:/^[0-9]+$/',
-            'rw' => 'nullable|string|max:3|regex:/^[0-9]+$/',
-            'religion' => 'nullable|string|max:50',
-            'marital_status' => 'nullable|string|max:50',
-            'occupation' => 'nullable|string|max:150',
         ];
 
         if ($isEdit) {
@@ -457,51 +391,40 @@ class AdminUsers extends Component
             'phone.min' => 'Nomor HP minimal 10 digit angka.',
             'phone.max' => 'Nomor HP maksimal 13 digit angka.',
             'phone.regex' => 'Nomor HP hanya boleh berisi angka.',
-            'nik.required' => 'NIK wajib diisi.',
-            'nik.size' => 'NIK harus 16 digit angka.',
-            'nik.regex' => 'NIK hanya boleh berisi angka.',
-            'nik.unique' => 'NIK sudah digunakan oleh pengguna lain.',
-            'place_of_birth.required' => 'Tempat lahir wajib diisi.',
-            'place_of_birth.regex' => 'Tempat lahir hanya boleh berisi huruf dan spasi.',
-            'date_of_birth.required' => 'Tanggal lahir wajib diisi.',
-            'date_of_birth.before_or_equal' => 'Usia minimal adalah 17 tahun.',
-            'gender.required' => 'Jenis kelamin wajib dipilih.',
-            'city_id.required' => 'Kota domisili wajib dipilih.',
-            'address.required' => 'Alamat lengkap wajib diisi.',
-            'kelurahan.required' => 'Kelurahan / Desa wajib diisi.',
-            'kelurahan.regex' => 'Kelurahan / Desa hanya boleh berisi huruf.',
-            'kecamatan.required' => 'Kecamatan wajib diisi.',
-            'kecamatan.regex' => 'Kecamatan hanya boleh berisi huruf.',
-            'province.required' => 'Provinsi wajib diisi.',
-            'verified.required' => 'Status verifikasi wajib dipilih.',
-            'verified.boolean' => 'Format status verifikasi tidak valid.',
+            'city_id.required' => 'Kota basis operasional wajib dipilih.',
+            'managed_city_ids.required' => 'Pilih minimal satu kota yang dikelola oleh admin.',
+            'managed_city_ids.min' => 'Pilih minimal satu kota yang dikelola oleh admin.',
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 8 karakter.',
         ];
 
         $this->validate($rules, $messages);
 
+        if (empty($this->province) && !empty($this->city_id)) {
+            $this->province = City::find($this->city_id)?->province;
+        }
+
         $data = [
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
-            'role' => $this->role,
+            'role' => $this->role ?: 'admin',
             'status' => $this->status ?? 'active',
-            'verified' => filter_var($this->verified, FILTER_VALIDATE_BOOLEAN),
+            'verified' => true,
             'city_id' => $this->city_id,
-            'address' => $this->address,
-            'nik' => $this->nik,
-            'place_of_birth' => $this->place_of_birth,
-            'date_of_birth' => $this->date_of_birth,
-            'gender' => $this->gender,
-            'rt' => $this->rt,
-            'rw' => $this->rw,
-            'kelurahan' => $this->kelurahan,
-            'kecamatan' => $this->kecamatan,
-            'province' => $this->province,
-            'religion' => $this->religion,
-            'marital_status' => $this->marital_status,
-            'occupation' => $this->occupation,
+            'province' => $this->province ?: null,
+            'address' => $this->address ?: null,
+            'kelurahan' => null,
+            'kecamatan' => null,
+            'nik' => $this->nik ?: null,
+            'place_of_birth' => null,
+            'date_of_birth' => null,
+            'gender' => null,
+            'rt' => null,
+            'rw' => null,
+            'religion' => null,
+            'marital_status' => null,
+            'occupation' => null,
         ];
 
         // Convert empty string values to null for optional database columns

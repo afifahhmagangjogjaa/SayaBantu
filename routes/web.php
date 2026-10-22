@@ -408,6 +408,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 });
 
 
+// Smart Address Autocomplete API (OpenStreetMap & Photon)
+Route::get('/api/address/autocomplete', [\App\Http\Controllers\Api\AddressController::class, 'search'])->name('api.address.autocomplete');
+
 // Public callback endpoint for withdraw disbursements
 Route::post('/gateway/callback', [\App\Http\Controllers\WithdrawController::class, 'gatewayCallback'])->name('gateway.callback');
 

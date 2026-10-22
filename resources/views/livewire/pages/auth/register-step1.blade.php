@@ -368,8 +368,12 @@ new #[Layout('layouts.guest')] class extends Component {
         <!-- Alamat Domisili -->
         <div>
             <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Alamat Lengkap Domisili <span class="text-red-500">*</span></label>
-            <textarea wire:model="address" id="address" rows="3" placeholder="Jalan, nomor rumah, gedung, dll."
-                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"></textarea>
+            <x-smart-address-input 
+                wire:model="address" 
+                id="address" 
+                rows="3" 
+                placeholder="Ketik nama jalan, perumahan, kelurahan, atau gedung..."
+            />
             <x-input-error :messages="$errors->get('address')" class="mt-1" />
         </div>
 

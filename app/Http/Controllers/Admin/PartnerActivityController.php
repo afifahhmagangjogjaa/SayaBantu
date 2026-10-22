@@ -210,12 +210,7 @@ class PartnerActivityController extends Controller
         // Filter by admin's city if user is admin
         if (auth()->user() && auth()->user()->role === 'admin') {
             $admin = auth()->user();
-            $cityIds = \App\Models\City::where('admin_id', $admin->id)
-                ->pluck('id')
-                ->merge($admin->managedCities()->pluck('cities.id'))
-                ->push($admin->city_id)
-                ->filter()
-                ->unique();
+            $cityIds = collect($admin ? $admin->getAdminCityIds() : []);
                 
             $query->whereHas('user', function ($q) use ($cityIds) {
                 $q->whereIn('city_id', $cityIds);

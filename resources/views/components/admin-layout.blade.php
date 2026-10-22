@@ -118,37 +118,14 @@
             </a>
         </nav>
 
-        <!-- User Profile & Logout -->
-        <div class="absolute bottom-0 w-64 p-4 border-t border-gray-200 bg-white">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <div
-                        class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-medium">
-                        {{ substr(auth()->user()->name, 0, 1) }}
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>
-                        <p class="text-xs text-gray-500">{{ ucfirst(str_replace('_', ' ', auth()->user()->role)) }}</p>
-                    </div>
-                </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="text-gray-400 hover:text-red-600 transition" title="Logout">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                    </button>
-                </form>
-            </div>
-        </div>
+        <!-- User Profile & Logout removed, moved to navbar dropdown -->
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 ml-64 overflow-y-auto min-h-screen">
         <!-- Header -->
         <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
-            <div class="px-8 py-6">
+            <div class="px-8 py-4">
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-lg sm:text-xl font-medium text-gray-900">{{ $title ?? 'Admin Panel' }}</h1>
@@ -156,6 +133,74 @@
                     </div>
                     <div class="flex items-center space-x-4">
                         {{ $headerActions ?? '' }}
+
+                        <!-- User Avatar Dropdown -->
+                        <div class="relative flex items-center border-l border-gray-200 pl-4" x-data="{ open: false }" @click.outside="open = false">
+                            <button
+                                @click="open = !open"
+                                type="button"
+                                class="flex items-center space-x-2.5 group cursor-pointer focus:outline-none"
+                                title="Menu Profil">
+                                <div class="text-right hidden sm:block">
+                                    <p class="text-sm font-medium text-gray-900 group-hover:text-primary-600 transition">{{ auth()->user()->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ ucfirst(str_replace('_', ' ', auth()->user()->role)) }}</p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-sm shadow-xs transition"
+                                    :class="open ? 'ring-2 ring-primary-500' : 'group-hover:ring-2 group-hover:ring-primary-500'">
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                </div>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div
+                                x-show="open"
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-150"
+                                x-transition:enter-start="opacity-0 scale-95 translate-y-1"
+                                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-100"
+                                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 scale-95 translate-y-1"
+                                class="absolute right-0 top-12 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50"
+                                style="transform-origin: top right;">
+
+                                <!-- Header info -->
+                                <div class="px-4 py-3 border-b border-gray-100">
+                                    <p class="text-sm font-semibold text-gray-900 truncate">{{ auth()->user()->name }}</p>
+                                    <p class="text-xs text-gray-400 truncate mt-0.5">{{ auth()->user()->email }}</p>
+                                </div>
+
+                                <!-- Lihat Profil -->
+                                <a href="{{ auth()->user()->role === 'super_admin' ? route('superadmin.password') : route('admin.password') }}"
+                                   @click="open = false"
+                                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition group">
+                                    <div class="w-8 h-8 rounded-xl bg-gray-50 group-hover:bg-primary-50 flex items-center justify-center transition">
+                                        <svg class="w-4 h-4 text-gray-600 group-hover:text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                        </svg>
+                                    </div>
+                                    <span class="font-medium">Lihat Profil</span>
+                                </a>
+
+                                <!-- Divider -->
+                                <div class="my-1 border-t border-gray-100"></div>
+
+                                <!-- Keluar -->
+                                <form method="POST" action="{{ auth()->user()->role === 'super_admin' ? route('logout') : route('admin.logout') }}" class="m-0">
+                                    @csrf
+                                    <button
+                                        type="submit"
+                                        class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition group text-left">
+                                        <div class="w-8 h-8 rounded-xl bg-gray-50 group-hover:bg-red-100 flex items-center justify-center transition">
+                                            <svg class="w-4 h-4 text-gray-500 group-hover:text-red-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                            </svg>
+                                        </div>
+                                        <span class="font-medium">Keluar</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

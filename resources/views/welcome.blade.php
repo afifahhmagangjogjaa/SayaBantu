@@ -33,7 +33,7 @@
         }
 
         .job-item:active {
-            transform: scale(0.98);
+            opacity: 0.9;
         }
 
         @keyframes fadeIn {
@@ -89,7 +89,7 @@
             <div class="bg-gray-200/80 rounded-2xl p-3.5 mb-6 fade-in space-y-2.5 shadow-inner">
                 
                 <!-- Job Item 1 -->
-                <div onclick="window.location='{{ route('login') }}'" 
+                <a href="{{ route('login') }}" 
                      class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
                     <span class="text-sm font-semibold text-gray-800 blur-text">
                         Membersihkan rumput
@@ -97,10 +97,10 @@
                     <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
                         🔒 Login
                     </span>
-                </div>
+                </a>
 
                 <!-- Job Item 2 -->
-                <div onclick="window.location='{{ route('login') }}'" 
+                <a href="{{ route('login') }}" 
                      class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
                     <span class="text-sm font-semibold text-gray-800 blur-text">
                         Membantu angkut pindahan rumah
@@ -108,10 +108,10 @@
                     <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
                         🔒 Login
                     </span>
-                </div>
+                </a>
 
                 <!-- Job Item 3 -->
-                <div onclick="window.location='{{ route('login') }}'" 
+                <a href="{{ route('login') }}" 
                      class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
                     <span class="text-sm font-semibold text-gray-800 blur-text">
                         Membersihkan saluran air
@@ -119,10 +119,10 @@
                     <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
                         🔒 Login
                     </span>
-                </div>
+                </a>
 
                 <!-- Job Item 4 -->
-                <div onclick="window.location='{{ route('login') }}'" 
+                <a href="{{ route('login') }}" 
                      class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
                     <span class="text-sm font-semibold text-gray-800 blur-text">
                         Perbaikan genteng &amp; atap rumah
@@ -130,7 +130,7 @@
                     <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
                         🔒 Login
                     </span>
-                </div>
+                </a>
 
             </div>
 

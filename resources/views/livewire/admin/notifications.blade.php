@@ -136,7 +136,7 @@
          }
      }" 
      @click.away="open = false"
-     wire:poll.4s="loadNotifications">
+     wire:poll.10s="loadNotifications">
     <!-- Notification Bell Button -->
     <button 
         @click="toggle()"

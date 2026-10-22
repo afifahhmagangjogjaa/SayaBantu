@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-100" wire:poll.5s>
+<div class="min-h-screen bg-gray-100" wire:poll.30s.visible>
     <style>
         :root{
             --brand-500: #0ea5a4;
@@ -419,13 +419,13 @@
                             </div>
                         </a>
                     @empty
-                        <div class="text-center py-10 bg-white rounded-xl shadow-sm">
-                            <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            <p class="text-sm font-semibold text-gray-700">Tidak ada permintaan yang menunggu mitra</p>
-                            <p class="text-xs text-gray-500 mt-1">Buat permintaan baru dengan klik tombol <span class="font-semibold">Buat</span></p>
-                        </div>
+                        <x-empty-state 
+                            icon="clipboard" 
+                            title="Belum Ada Permintaan Aktif" 
+                            description="Anda belum memiliki permintaan bantuan yang sedang berjalan atau menunggu mitra." 
+                            actionText="Buat Bantuan Baru" 
+                            :actionUrl="route('customer.helps.create')" 
+                        />
                     @endforelse
                 @endif
 

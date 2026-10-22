@@ -23,7 +23,7 @@
             <!-- Role Filter -->
             <div>
                 <select wire:model.live="roleFilter"
-                    class="w-full px-3 py-2 bg-gray-50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg text-xs text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition cursor-pointer">
+                    class="w-full pl-3 pr-8 py-2 bg-gray-50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg text-xs text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition cursor-pointer">
                     <option value="">Semua Role (Mitra & Customer)</option>
                     <option value="mitra">Hanya Mitra</option>
                     <option value="customer">Hanya Customer</option>
@@ -33,7 +33,7 @@
             <!-- City Filter -->
             <div>
                 <select wire:model.live="cityFilter"
-                    class="w-full px-3 py-2 bg-gray-50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg text-xs text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition cursor-pointer">
+                    class="w-full pl-3 pr-8 py-2 bg-gray-50 hover:bg-white focus:bg-white border border-gray-200 rounded-lg text-xs text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition cursor-pointer">
                     <option value="">Semua Kota</option>
                     @foreach($cities as $city)
                         <option value="{{ $city->id }}">{{ $city->name }}</option>

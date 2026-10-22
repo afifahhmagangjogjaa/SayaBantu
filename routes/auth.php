@@ -38,9 +38,18 @@ Route::middleware('guest')->group(function () {
         ->name('password.request');
 });
 
-// Admin Login - accessible directly (handles authenticated/inactive states cleanly in mount())
-Route::get('admin/login', AdminLogin::class)
-    ->name('admin.login');
+// Admin Login - redirect to main login (single login page for all roles)
+Route::get('admin/login', function () {
+    if (auth()->check()) {
+        $user = auth()->user();
+        if ($user->role === 'super_admin') {
+            return redirect()->route('superadmin.dashboard');
+        } elseif ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+    }
+    return redirect()->route('login');
+})->name('admin.login');
 
 // Admin Forgot Password route: accessible directly (auto-logs out any stale session on mount)
 Route::get('admin/forgot-password', \App\Livewire\Auth\AdminForgotPassword::class)

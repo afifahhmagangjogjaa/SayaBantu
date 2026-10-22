@@ -1,5 +1,5 @@
 <div>
-    <div wire:poll.6s="poll"></div>
+    <div wire:poll.15s="poll"></div>
 
     {{-- MODAL POP-UP MERAH SURAT PERINGATAN MITRA (COMPACT & PROPORTIONAL) --}}
     @if($sanctionModalOpen && $currentSanction)

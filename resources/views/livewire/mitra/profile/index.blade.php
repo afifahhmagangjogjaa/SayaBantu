@@ -53,6 +53,16 @@
                     <p class="text-sm text-white/80 mt-0.5">{{ $user->email }}</p>
 
                     @php
+                        $badge = $user->mitra_badge;
+                    @endphp
+                    <div class="mt-2.5">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/95 text-gray-800 shadow-md border border-white">
+                            <span>{{ $badge['icon'] }}</span>
+                            <span>{{ $badge['label'] }}</span>
+                        </span>
+                    </div>
+
+                    @php
                         $isKtpVerified = (bool) ($user->verified ?? false);
                         $isEmailVerified = $user->hasVerifiedEmail();
                         $isFullyVerified = $isKtpVerified && $isEmailVerified;

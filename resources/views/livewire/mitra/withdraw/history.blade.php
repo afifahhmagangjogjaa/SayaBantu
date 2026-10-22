@@ -63,14 +63,14 @@
                 <!-- 2-TAB SEGMENTED CONTROLLER -->
                 <div class="grid grid-cols-2 gap-1.5 p-1 bg-gray-100/90 rounded-2xl mb-5 border border-gray-200/60">
                     <button type="button" 
-                        @click="currentTab = 'income'; window.history.replaceState(null, null, '?tab=income')"
+                        @click="currentTab = 'income'"
                         :class="currentTab === 'income' ? 'bg-white text-emerald-700 shadow-xs font-bold border border-emerald-100' : 'text-gray-500 hover:text-gray-800 font-medium'"
                         class="py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                         <span class="text-sm">💰</span>
                         <span>Saldo Masuk</span>
                     </button>
                     <button type="button" 
-                        @click="currentTab = 'withdraw'; window.history.replaceState(null, null, '?tab=withdraw')"
+                        @click="currentTab = 'withdraw'"
                         :class="currentTab === 'withdraw' ? 'bg-white text-blue-700 shadow-xs font-bold border border-blue-100' : 'text-gray-500 hover:text-gray-800 font-medium'"
                         class="py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                         <span class="text-sm">🏧</span>
@@ -143,18 +143,13 @@
                             </div>
                         @endif
                     @else
-                        <div class="text-center py-16">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl">
-                                💰
-                            </div>
-                            <h3 class="text-base font-bold text-gray-800 mb-1">Belum Ada Saldo Masuk</h3>
-                            <p class="text-xs text-gray-500 max-w-xs mx-auto mb-5 leading-relaxed">
-                                Selesaikan pekerjaan bantuan untuk mendapatkan penghasilan yang otomatis masuk ke saldo Anda.
-                            </p>
-                            <a href="{{ route('mitra.helps.all') }}" class="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
-                                Cari Bantuan Tersedia
-                            </a>
-                        </div>
+                        <x-empty-state 
+                            title="Belum Ada Saldo Masuk" 
+                            description="Selesaikan pekerjaan bantuan untuk mendapatkan penghasilan yang otomatis masuk ke saldo Anda." 
+                            icon="wallet" 
+                            actionText="Cari Bantuan Tersedia" 
+                            :actionUrl="route('mitra.helps.all')" 
+                        />
                     @endif
                 </div>
 
@@ -343,18 +338,13 @@
                             </div>
                         @endif
                     @else
-                        <div class="text-center py-16">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                </svg>
-                            </div>
-                            <h3 class="text-base font-bold text-gray-800 mb-1">Belum Ada Riwayat Tarik Saldo</h3>
-                            <p class="text-xs text-gray-500 mb-5">Pengajuan penarikan dana Anda akan dicatat di sini</p>
-                            <a href="{{ route('mitra.withdraw.form', ['force' => 1]) }}" class="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
-                                Ajukan Penarikan Dana
-                            </a>
-                        </div>
+                        <x-empty-state 
+                            title="Belum Ada Riwayat Tarik Saldo" 
+                            description="Pengajuan penarikan dana ke rekening bank Anda akan dicatat di sini." 
+                            icon="money" 
+                            actionText="Ajukan Penarikan Dana" 
+                            :actionUrl="route('mitra.withdraw.form', ['force' => 1])" 
+                        />
                     @endif
                 </div>
 

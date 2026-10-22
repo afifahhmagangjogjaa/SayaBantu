@@ -739,26 +739,22 @@
                     @endif
                 @empty
                     @if(!empty($search))
-                        <div class="text-center py-12 bg-white rounded-2xl border border-gray-100 p-6 shadow-xs">
-                            <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-blue-50 text-[#0098e7] flex items-center justify-center">
-                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                            <p class="text-sm font-bold text-gray-800">Permintaan tidak ditemukan</p>
-                            <p class="text-xs text-gray-500 mt-1 max-w-xs mx-auto">Tidak ada hasil yang sesuai dengan kata kunci "<span class="font-semibold text-gray-700">{{ $search }}</span>"</p>
-                            <button type="button" wire:click="resetSearch" class="mt-3.5 inline-flex items-center gap-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition active:scale-95">
-                                Reset Pencarian
-                            </button>
-                        </div>
+                        <x-empty-state 
+                            icon="search" 
+                            title="Permintaan Tidak Ditemukan" 
+                            description="Tidak ada hasil yang sesuai dengan kata kunci pencarian Anda." 
+                            actionText="Reset Pencarian" 
+                            actionWireClick="resetSearch" 
+                            actionType="secondary" 
+                        />
                     @else
-                        <div class="text-center py-10 bg-white rounded-xl shadow-sm">
-                            <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            <p class="text-sm font-semibold text-gray-700">Belum ada permintaan</p>
-                            <p class="text-xs text-gray-500 mt-1">Buat permintaan baru dengan menekan tombol <span class="font-semibold">Tambah</span></p>
-                        </div>
+                        <x-empty-state 
+                            icon="clipboard" 
+                            title="Belum Ada Permintaan Bantuan" 
+                            description="Mulai buat permintaan bantuan baru untuk mendapatkan bantuan dari mitra terdekat." 
+                            actionText="Buat Permintaan Baru" 
+                            :actionUrl="route('customer.helps.create')" 
+                        />
                     @endif
                 @endforelse
                 </div>
@@ -818,21 +814,23 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">
                             <span class="flex items-center">
-                                <svg class="w-3.5 h-3.5 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                 </svg>
-                                Lokasi
+                                Detail Lokasi Bantuan / Patokan
                                 <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
-                        <input type="text" wire:model.defer="editLocation" 
-                            placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 05"
-                            class="w-full px-3.5 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 transition bg-white shadow-sm">
+                        <x-smart-location-input 
+                            wire:model.defer="editLocation" 
+                            id="editLocation"
+                            placeholder="Ketik patokan / nama tempat / jalan..."
+                        />
                         <p class="text-xs text-gray-500 mt-1.5 flex items-center">
                             <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                             </svg>
-                            Alamat singkat, contoh: nama jalan, RT/RW
+                            Alamat singkat / patokan, contoh: nama jalan, RT/RW, dekat toko
                         </p>
                         @error('editLocation') 
                             <span class="text-red-500 text-xs mt-1.5 block flex items-center">
@@ -855,9 +853,12 @@
                                 <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
-                        <textarea wire:model.defer="editFullAddress" rows="3"
-                            placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 05, Kelurahan Mangkang, Kecamatan Semarang Barat, dekat Indomaret, rumah cat hijau"
-                            class="w-full px-3.5 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 transition resize-none bg-white shadow-sm"></textarea>
+                        <x-smart-address-input 
+                            wire:model="editFullAddress" 
+                            id="editFullAddress"
+                            rows="3"
+                            placeholder="Ketik nama jalan, perumahan, kelurahan, atau tempat..."
+                        />
                         <p class="text-xs text-gray-500 mt-1.5 flex items-center">
                             <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
@@ -1421,6 +1422,24 @@
                 console.error('Error updating coordinates:', error);
             }
         }
+
+        window.addEventListener('smart-address-selected', function(e) {
+            const item = e.detail;
+            if (item && item.lat && item.lng && editMap && editMarker) {
+                editMap.flyTo([item.lat, item.lng], 15);
+                editMarker.setLatLng([item.lat, item.lng]);
+                updateEditCoordinates(item.lat, item.lng);
+            }
+        });
+
+        window.addEventListener('smart-location-selected', function(e) {
+            const item = e.detail;
+            if (item && item.lat && item.lng && editMap && editMarker) {
+                editMap.flyTo([item.lat, item.lng], 15);
+                editMarker.setLatLng([item.lat, item.lng]);
+                updateEditCoordinates(item.lat, item.lng);
+            }
+        });
     </script>
 
     <!-- Detail Modal Map Script -->

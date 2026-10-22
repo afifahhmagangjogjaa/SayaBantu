@@ -8,6 +8,18 @@
 
     <title>{{ config('app.name', 'sayabantu') }}</title>
 
+    <!-- PWA & Favicon Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <meta name="theme-color" content="#0284c7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SayaBantu">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
@@ -59,7 +71,7 @@
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-0">
                     <div class="flex items-center">
-                        <a href="{{ $backUrl }}" wire:navigate aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center justify-center">
+                        <a href="{{ $backUrl }}" {{ $backUrl === url('/') ? '' : 'wire:navigate' }} aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>

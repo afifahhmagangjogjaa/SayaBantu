@@ -587,9 +587,13 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
-                            <textarea wire:model="full_address" rows="3"
-                                placeholder="Contoh: Dukuh Sabet, Desa Sumberejo, Kecamatan Balong, Kabupaten Ponorogo, Jawa Timur"
-                                class="w-full px-4 py-3 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-none bg-white"></textarea>
+                            <x-smart-address-input 
+                                wire:model="full_address" 
+                                id="full_address"
+                                cityRef="#city-select"
+                                rows="3"
+                                placeholder="Ketik nama jalan, perumahan, kelurahan, atau tempat..."
+                            />
                             <p class="text-xs text-gray-500 mt-1.5 flex items-center">
                                 <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
@@ -610,16 +614,25 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1.5">
                                 <span class="flex items-center">
-                                    <svg class="w-3.5 h-3.5 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                     </svg>
-                                    Detail Lokasi Bantuan
+                                    Detail Lokasi Bantuan / Patokan
                                     <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
-                            <input type="text" wire:model="location"
-                                placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 05"
-                                class="w-full px-4 py-3 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition bg-white">
+                            <x-smart-location-input 
+                                wire:model="location" 
+                                id="location"
+                                cityRef="#city-select"
+                                placeholder="Ketik patokan / nama tempat / jalan (Contoh: Dekat Toko ELS, Masuk Gang)..."
+                            />
+                            <p class="text-xs text-gray-500 mt-1.5 flex items-center">
+                                <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                                Tuliskan patokan spesifik agar mitra dapat dengan mudah menemukan lokasi Anda
+                            </p>
                             @error('location')
                                 <span class="text-red-500 text-xs mt-1.5 block flex items-center">
                                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -1671,6 +1684,61 @@
                     }
                 });
             }
+
+            // DETEKSI PILIHAN ALAMAT CERDAS -> Geser Pin dan Peta Otomatis
+            window.addEventListener('smart-address-selected', function(e) {
+                const item = e.detail;
+                if (!item || isNaN(item.lat) || isNaN(item.lng)) return;
+
+                if (leafletMapInstance && leafletMarkerInstance) {
+                    leafletMapInstance.flyTo([item.lat, item.lng], 16, {
+                        animate: true,
+                        duration: 1.5
+                    });
+                    leafletMarkerInstance.setLatLng([item.lat, item.lng]);
+                    updateCoordinates(item.lat, item.lng);
+                }
+
+                // Jika terdeteksi kota, sinkronkan dropdown kota jika belum dipilih
+                if (citySelect && item.city) {
+                    const cleanCity = item.city.toLowerCase().replace(/kota|kabupaten/gi, '').trim();
+                    for (let i = 0; i < citySelect.options.length; i++) {
+                        const opt = citySelect.options[i];
+                        if (opt.text.toLowerCase().includes(cleanCity)) {
+                            citySelect.selectedIndex = i;
+                            try {
+                                @this.set('city_id', opt.value);
+                            } catch (err) {
+                                citySelect.dispatchEvent(new Event('change', { bubbles: true }));
+                            }
+                            break;
+                        }
+                    }
+                }
+            });
+
+            // DETEKSI PILIHAN DETAIL LOKASI / PATOKAN CERDAS -> Geser Pin dan Peta Otomatis
+            window.addEventListener('smart-location-selected', function(e) {
+                const item = e.detail;
+                if (!item || isNaN(item.lat) || isNaN(item.lng)) return;
+
+                if (leafletMapInstance && leafletMarkerInstance) {
+                    leafletMapInstance.flyTo([item.lat, item.lng], 16, {
+                        animate: true,
+                        duration: 1.5
+                    });
+                    leafletMarkerInstance.setLatLng([item.lat, item.lng]);
+                    updateCoordinates(item.lat, item.lng);
+                }
+
+                // Jika Alamat Lengkap masih kosong, otomatis isi dengan full_address dari patokan
+                try {
+                    const fullAddr = @this.get('full_address');
+                    if (!fullAddr || fullAddr.trim() === '') {
+                        @this.set('full_address', item.full_address);
+                    }
+                } catch (err) {}
+            });
         }
     </script>
 </div>

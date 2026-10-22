@@ -47,15 +47,7 @@
         .menu-card {
             position: relative;
             overflow: hidden;
-            animation: slideInUp 0.5s ease-out backwards;
         }
-
-        .menu-card:nth-child(1) { animation-delay: 0.1s; }
-        .menu-card:nth-child(2) { animation-delay: 0.15s; }
-        .menu-card:nth-child(3) { animation-delay: 0.2s; }
-        .menu-card:nth-child(4) { animation-delay: 0.25s; }
-        .menu-card:nth-child(5) { animation-delay: 0.3s; }
-        .menu-card:nth-child(6) { animation-delay: 0.35s; }
 
         .menu-card::before {
             content: '';
@@ -76,12 +68,12 @@
         }
 
         .menu-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px -10px rgba(0, 152, 231, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px -6px rgba(0, 152, 231, 0.25);
         }
 
         .menu-card:active {
-            transform: translateY(-2px) scale(0.98);
+            opacity: 0.9;
         }
 
         .icon-gradient {
