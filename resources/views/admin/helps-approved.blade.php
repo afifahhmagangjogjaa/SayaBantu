@@ -36,7 +36,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     @isset($totalHelps)
-                    <select wire:model.live="statusFilter" class="px-3 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white">
+                    <select wire:model.live="statusFilter" class="pl-3 pr-8 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white cursor-pointer font-medium text-gray-700">
                         <option value="">Semua Status</option>
                         <option value="komplain">⚠️ Komplain / Mediasi</option>
                         <option value="menunggu_mitra">Menunggu Mitra</option>

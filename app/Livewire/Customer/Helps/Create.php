@@ -115,7 +115,15 @@ class Create extends Component
                 $zone = $this->computeTimezoneLabelFromCity($city);
                 $this->timezoneLabel = $zone;
                 $this->timezoneIana = $this->ianaForZone($zone);
+                if (!empty($city->latitude) && !empty($city->longitude)) {
+                    $this->latitude = (float) $city->latitude;
+                    $this->longitude = (float) $city->longitude;
+                }
             }
+        }
+        if (empty($this->latitude) || empty($this->longitude)) {
+            $this->latitude = -7.7956;
+            $this->longitude = 110.3695;
         }
 
         if (Schema::hasTable('req_provinces')) {
@@ -143,6 +151,10 @@ class Create extends Component
         $iana = $this->ianaForZone($zone);
         $this->timezoneLabel = $zone;
         $this->timezoneIana = $iana;
+        if (!empty($city->latitude) && !empty($city->longitude)) {
+            $this->latitude = (float) $city->latitude;
+            $this->longitude = (float) $city->longitude;
+        }
         $this->dispatch('help:timezone-changed', zone: $zone, iana: $iana);
     }
 
@@ -593,6 +605,21 @@ class Create extends Component
             $this->messages['auto_cancel_minutes.required'] = 'Batas waktu tunggu pembatalan otomatis wajib ditentukan';
             $this->messages['auto_cancel_minutes.min'] = 'Batas waktu tunggu minimal 30 menit';
             $this->messages['auto_cancel_minutes.max'] = 'Batas waktu tunggu maksimal 180 menit';
+        }
+
+        // Fallback koordinat jika belum dipilih di peta
+        if (empty($this->latitude) || empty($this->longitude)) {
+            if ($this->city_id) {
+                $city = City::find($this->city_id);
+                if ($city && $city->latitude && $city->longitude) {
+                    $this->latitude = (float) $city->latitude;
+                    $this->longitude = (float) $city->longitude;
+                }
+            }
+            if (empty($this->latitude) || empty($this->longitude)) {
+                $this->latitude = -7.7956;
+                $this->longitude = 110.3695;
+            }
         }
 
         $this->validate();

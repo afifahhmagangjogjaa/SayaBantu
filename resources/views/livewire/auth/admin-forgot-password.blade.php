@@ -119,7 +119,7 @@
 
                     <!-- Back to Login Link -->
                     <div class="text-center pt-2">
-                        <a href="{{ route('admin.login') }}" wire:navigate
+                        <a href="{{ route('login') }}" wire:navigate
                             class="text-sm font-semibold text-primary-600 hover:text-primary-700 transition inline-flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />

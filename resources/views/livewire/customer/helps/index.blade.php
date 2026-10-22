@@ -814,21 +814,23 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">
                             <span class="flex items-center">
-                                <svg class="w-3.5 h-3.5 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                 </svg>
-                                Lokasi
+                                Detail Lokasi Bantuan / Patokan
                                 <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
-                        <input type="text" wire:model.defer="editLocation" 
-                            placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 05"
-                            class="w-full px-3.5 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 transition bg-white shadow-sm">
+                        <x-smart-location-input 
+                            wire:model.defer="editLocation" 
+                            id="editLocation"
+                            placeholder="Ketik patokan / nama tempat / jalan..."
+                        />
                         <p class="text-xs text-gray-500 mt-1.5 flex items-center">
                             <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                             </svg>
-                            Alamat singkat, contoh: nama jalan, RT/RW
+                            Alamat singkat / patokan, contoh: nama jalan, RT/RW, dekat toko
                         </p>
                         @error('editLocation') 
                             <span class="text-red-500 text-xs mt-1.5 block flex items-center">
@@ -1420,6 +1422,24 @@
                 console.error('Error updating coordinates:', error);
             }
         }
+
+        window.addEventListener('smart-address-selected', function(e) {
+            const item = e.detail;
+            if (item && item.lat && item.lng && editMap && editMarker) {
+                editMap.flyTo([item.lat, item.lng], 15);
+                editMarker.setLatLng([item.lat, item.lng]);
+                updateEditCoordinates(item.lat, item.lng);
+            }
+        });
+
+        window.addEventListener('smart-location-selected', function(e) {
+            const item = e.detail;
+            if (item && item.lat && item.lng && editMap && editMarker) {
+                editMap.flyTo([item.lat, item.lng], 15);
+                editMarker.setLatLng([item.lat, item.lng]);
+                updateEditCoordinates(item.lat, item.lng);
+            }
+        });
     </script>
 
     <!-- Detail Modal Map Script -->

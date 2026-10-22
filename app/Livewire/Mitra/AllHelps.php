@@ -87,6 +87,7 @@ class AllHelps extends Component
         $effectiveLng = $this->userLng ?: ($user && $user->longitude ? (float) $user->longitude : ($userCity ? (float) $userCity->longitude : null));
 
         $query = Help::query()
+            ->notCancelledByMitra($user?->id)
             ->whereDoesntHave('user', function ($q) {
                 $q->where('is_shadow_banned', true);
             });
@@ -263,7 +264,7 @@ class AllHelps extends Component
 
         if ($checkLat && $checkLng && $help->latitude && $help->longitude) {
             $dist = 6371 * acos(min(1.0, max(-1.0, cos(deg2rad((float)$checkLat)) * cos(deg2rad((float)$help->latitude)) * cos(deg2rad((float)$help->longitude) - deg2rad((float)$checkLng)) + sin(deg2rad((float)$checkLat)) * sin(deg2rad((float)$help->latitude)))));
-            if ($dist > $maxRadius) {
+            if ($dist > $maxRadius && (!$user || !$user->city_id || $user->city_id != $help->city_id)) {
                 $this->dispatch('livewire-flash-error', 'Jarak bantuan ini (' . number_format($dist, 1) . ' km) melebihi batas maksimal radius ' . $maxRadius . ' km.');
                 return;
             }

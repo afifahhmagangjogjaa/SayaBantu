@@ -238,7 +238,9 @@ class HelpDetail extends Component
             \Illuminate\Support\Facades\Log::warning('Failed to record PartnerActivity on help cancelled: ' . $e->getMessage());
         }
 
-        // 2. Lepaskan mitra & kembalikan pesanan ke antrean menunggu mitra baru
+        // 2. Catat pembatalan oleh mitra & lepaskan mitra untuk mencari rekan jasa lain
+        $this->help->recordMitraCancellation($mitraId);
+
         $this->help->update([
             'partner_cancel_prev_status' => $oldStatus,
             'partner_cancel_requested_at' => now(),

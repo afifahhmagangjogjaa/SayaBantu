@@ -99,7 +99,8 @@
         }
 
         #bottom-nav {
-            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Navbar tetap stabil dan tidak meloncat / slide setiap ganti halaman */
+            transform: translate(-50%, 0);
             background-color: #ffffff !important;
             background: #ffffff !important;
             opacity: 1 !important;
@@ -139,7 +140,7 @@
         }
 
         .nav-item:active {
-            transform: scale(0.92);
+            opacity: 0.85;
         }
 
         .nav-item svg {
@@ -1076,6 +1077,24 @@
             });
         }
         } // end if !_pwaScriptLoaded
+    </script>
+
+    <script data-navigate-once>
+        // Transisi halus dan umpan balik instan (0ms) untuk Bottom Navigation
+        document.addEventListener('click', function (e) {
+            const navItem = e.target.closest('#bottom-nav a.nav-item');
+            if (!navItem) return;
+
+            const container = navItem.closest('#bottom-nav');
+            if (!container) return;
+
+            container.querySelectorAll('a.nav-item').forEach(el => {
+                el.classList.remove('text-primary-600', 'active');
+                el.classList.add('text-gray-400');
+            });
+            navItem.classList.remove('text-gray-400');
+            navItem.classList.add('text-primary-600', 'active');
+        });
     </script>
 </body>
 

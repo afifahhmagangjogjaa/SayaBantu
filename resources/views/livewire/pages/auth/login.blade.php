@@ -54,6 +54,52 @@ new #[Layout('layouts.guest')] class extends Component {
         $this->selectedName = $name;
         $this->resetErrorBag();
     }
+
+    /**
+     * Login langsung (1 klik) untuk akun testing.
+     * Langsung autentikasi tanpa perlu klik tombol Masuk lagi.
+     */
+    public function quickLogin(string $email, string $password = 'Sayabantu123!'): void
+    {
+        $this->resetErrorBag();
+
+        // Cek akun ada dan password valid
+        $user = \App\Models\User::where('email', $email)->first();
+        if (!$user) {
+            $this->addError('quickLogin', 'Akun testing tidak ditemukan: ' . $email);
+            return;
+        }
+
+        if (!\Illuminate\Support\Facades\Hash::check($password, $user->password)) {
+            $this->addError('quickLogin', 'Password tidak cocok untuk akun: ' . $email);
+            return;
+        }
+
+        // Cek status akun
+        if ($user->status === 'banned' || $user->is_banned) {
+            session()->flash('error', 'Akun ini diblokir.');
+            return;
+        }
+
+        // Login langsung
+        Auth::login($user, false);
+        Session::regenerate();
+
+        // Redirect sesuai role
+        if ($user->role === 'mitra') {
+            $redirect = route('mitra.dashboard', absolute: false);
+        } elseif (in_array($user->role, ['customer', 'kustomer'])) {
+            $redirect = route('customer.dashboard', absolute: false);
+        } elseif ($user->role === 'admin') {
+            $redirect = route('admin.dashboard', absolute: false);
+        } elseif ($user->role === 'super_admin') {
+            $redirect = route('superadmin.dashboard', absolute: false);
+        } else {
+            $redirect = route('dashboard', absolute: false);
+        }
+
+        $this->redirectIntended(default: $redirect, navigate: false);
+    }
 }; ?>
 
 
@@ -164,153 +210,179 @@ new #[Layout('layouts.guest')] class extends Component {
         </div>
 
         <!-- ========================================================================= -->
-        <!-- AKUN TESTING (KLIK UNTUK MENGISI FORM, BUKAN LANGSUNG MASUK)              -->
+        <!-- AKUN TESTING — 1 KLIK LANGSUNG MASUK                                      -->
         <!-- ========================================================================= -->
-        <div class="mt-6 pt-5 border-t border-dashed border-gray-300" x-data="{ tab: 'customer' }">
+        <div class="mt-6 pt-5 border-t border-dashed border-gray-300" x-data="{ tab: 'customer', loading: null }">
+            <!-- Header -->
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <span class="text-[11px] font-bold uppercase tracking-wider text-gray-700 flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Akun Testing (Sesuai Seeder)
+                        Akun Testing — Login Cepat
                     </span>
-                    <p class="text-[10px] text-gray-500 mt-0.5">Klik akun di bawah untuk mengisi form otomatis, lalu klik tombol Masuk</p>
+                    <p class="text-[10px] text-gray-500 mt-0.5">⚡ Klik 1× untuk langsung masuk ke dashboard</p>
                 </div>
-                <span class="text-[10px] text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full font-semibold">
-                    Password: Sayabantu123!
+                <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd"/></svg>
+                    Sayabantu123!
                 </span>
             </div>
+
+            @error('quickLogin')
+                <div class="mb-2 p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
+                    <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    {{ $message }}
+                </div>
+            @enderror
 
             <!-- Tab Buttons -->
             <div class="flex gap-1.5 p-1 bg-gray-100 rounded-xl mb-3 text-xs font-semibold">
                 <button type="button" @click="tab = 'customer'"
-                    :class="tab === 'customer' ? 'bg-white text-blue-700 shadow-xs' : 'text-gray-600 hover:text-gray-900'"
+                    :class="tab === 'customer' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
                     class="flex-1 py-1.5 px-2 rounded-lg transition text-center flex items-center justify-center gap-1">
-                    <span>👤</span> Customer (5)
+                    <span>👤</span> Customer
                 </button>
                 <button type="button" @click="tab = 'mitra'"
-                    :class="tab === 'mitra' ? 'bg-white text-emerald-700 shadow-xs' : 'text-gray-600 hover:text-gray-900'"
+                    :class="tab === 'mitra' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
                     class="flex-1 py-1.5 px-2 rounded-lg transition text-center flex items-center justify-center gap-1">
-                    <span>🤝</span> Mitra (5)
+                    <span>🤝</span> Mitra
                 </button>
                 <button type="button" @click="tab = 'admin'"
-                    :class="tab === 'admin' ? 'bg-white text-purple-700 shadow-xs' : 'text-gray-600 hover:text-gray-900'"
+                    :class="tab === 'admin' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
                     class="flex-1 py-1.5 px-2 rounded-lg transition text-center flex items-center justify-center gap-1">
-                    <span>🛡️</span> Admin (5)
+                    <span>🛡️</span> Admin
                 </button>
             </div>
 
-            <!-- Tab 1: Customer (5 Akun) -->
+            <!-- Tab 1: Customer -->
             <div x-show="tab === 'customer'" class="space-y-1.5">
                 @php
                     $testCustomers = [
-                        ['name' => 'Siti Nurhaliza', 'area' => 'Jakarta Pusat', 'email' => 'customer@sayabantu.com', 'desc' => 'Customer Terverifikasi'],
-                        ['name' => 'Budi Santoso', 'area' => 'Jakarta Pusat', 'email' => 'budi@example.com', 'desc' => 'Customer Terverifikasi'],
-                        ['name' => 'Dewi Lestari', 'area' => 'Jakarta Pusat', 'email' => 'customer.pending@sayabantu.com', 'desc' => 'Pending Verifikasi'],
-                        ['name' => 'Dewi Rahayu', 'area' => 'Kota Yogyakarta', 'email' => 'dewi.jogja@test.com', 'desc' => 'Saldo Rp 500rb • Terban'],
-                        ['name' => 'Budi Hartono', 'area' => 'Kabupaten Sleman', 'email' => 'budi.sleman@test.com', 'desc' => 'Saldo Rp 300rb • Depok'],
+                        ['name' => 'Dewi Rahayu', 'area' => 'Yogyakarta', 'email' => 'dewi.jogja@test.com', 'bal' => 'Rp 1jt', 'ver' => true, 'loc' => 'Gondokusuman'],
+                        ['name' => 'Budi Hartono', 'area' => 'Sleman', 'email' => 'budi.sleman@test.com', 'bal' => 'Rp 1jt', 'ver' => true, 'loc' => 'Depok'],
+                        ['name' => 'Siti Nurhaliza', 'area' => 'Jakarta Pusat', 'email' => 'customer@sayabantu.com', 'bal' => 'Rp 1jt', 'ver' => true, 'loc' => 'Gambir'],
+                        ['name' => 'Budi Santoso', 'area' => 'Jakarta Pusat', 'email' => 'budi@example.com', 'bal' => 'Rp 1jt', 'ver' => true, 'loc' => 'Gambir'],
+                        ['name' => 'Dewi Lestari', 'area' => 'Jakarta Pusat', 'email' => 'customer.pending@sayabantu.com', 'bal' => 'Rp 0', 'ver' => false, 'loc' => 'Pending Verifikasi KTP'],
                     ];
                 @endphp
                 @foreach ($testCustomers as $c)
                     <button type="button"
-                        @mousedown.prevent
-                        wire:click="fillCredentials('{{ $c['email'] }}', '{{ $c['name'] }}', 'Sayabantu123!')"
-                        @click="
-                            const e = document.getElementById('email');
-                            const p = document.getElementById('password');
-                            if (e) { e.value = '{{ $c['email'] }}'; e.dispatchEvent(new Event('input', { bubbles: true })); }
-                            if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
-                        "
-                        class="w-full p-2.5 rounded-xl border text-left transition active:scale-98 flex items-center justify-between group cursor-pointer
-                            {{ $selectedEmail === $c['email'] ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/40' }}">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <span class="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                                👤
-                            </span>
-                            <div class="truncate">
-                                <p class="text-xs font-bold text-gray-900 group-hover:text-blue-700 truncate">
-                                    {{ $c['name'] }} <span class="text-[10px] text-blue-600 font-semibold">({{ $c['area'] }})</span>
-                                </p>
-                                <p class="text-[11px] text-gray-500 font-mono truncate">{{ $c['email'] }} <span class="text-gray-400 font-sans">• {{ $c['desc'] }}</span></p>
-                            </div>
+                        wire:click="quickLogin('{{ $c['email'] }}')"
+                        wire:loading.attr="disabled"
+                        wire:target="quickLogin('{{ $c['email'] }}')"
+                        @click="loading = '{{ $c['email'] }}'"
+                        class="w-full p-2.5 rounded-xl border text-left transition active:scale-[0.98] flex items-center gap-2.5 group cursor-pointer relative overflow-hidden
+                            {{ $c['ver'] ? 'border-gray-200 bg-white hover:border-blue-400 hover:bg-blue-50/50 hover:shadow-sm' : 'border-dashed border-gray-200 bg-gray-50 opacity-80' }}">
+                        <!-- Loading overlay -->
+                        <div wire:loading wire:target="quickLogin('{{ $c['email'] }}')"
+                            class="absolute inset-0 bg-blue-50/90 flex items-center justify-center z-10 rounded-xl">
+                            <svg class="animate-spin h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <span class="text-xs text-blue-600 font-semibold ml-1.5">Masuk...</span>
                         </div>
+                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 {{ $c['ver'] ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500' }}">
+                            {{ strtoupper(substr($c['name'], 0, 1)) }}
+                        </span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-xs font-bold text-gray-900 group-hover:text-blue-700 truncate">{{ $c['name'] }}</p>
+                                @if($c['ver'])
+                                    <span class="inline-flex text-[9px] font-bold px-1 py-0.5 rounded bg-emerald-100 text-emerald-700 flex-shrink-0">✓ Verified</span>
+                                @else
+                                    <span class="inline-flex text-[9px] font-bold px-1 py-0.5 rounded bg-amber-100 text-amber-700 flex-shrink-0">Pending</span>
+                                @endif
+                            </div>
+                            <p class="text-[10px] text-gray-500 truncate">{{ $c['area'] }} • {{ $c['loc'] }} • Saldo {{ $c['bal'] }}</p>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-blue-500 flex-shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
                     </button>
                 @endforeach
             </div>
 
-            <!-- Tab 2: Mitra (5 Akun) -->
+            <!-- Tab 2: Mitra -->
             <div x-show="tab === 'mitra'" style="display: none;" class="space-y-1.5">
                 @php
                     $testMitras = [
-                        ['name' => 'Rahmat Hidayat', 'area' => 'Jakarta Pusat', 'email' => 'mitra@sayabantu.com', 'status' => 'Aktif', 'badge' => 'bg-emerald-100 text-emerald-800'],
-                        ['name' => 'Ahmad Relawan', 'area' => 'Jakarta Pusat', 'email' => 'ahmad@example.com', 'status' => 'Aktif', 'badge' => 'bg-emerald-100 text-emerald-800'],
-                        ['name' => 'Fajar Pratama', 'area' => 'Jakarta Pusat', 'email' => 'mitra.pending@sayabantu.com', 'status' => 'Pending Approval', 'badge' => 'bg-amber-100 text-amber-800'],
-                        ['name' => 'Hendra Wijaya', 'area' => 'Kota Yogyakarta', 'email' => 'hendra.mitra@test.com', 'status' => 'Aktif', 'badge' => 'bg-emerald-100 text-emerald-800'],
-                        ['name' => 'Rina Susanti', 'area' => 'Kota Yogyakarta', 'email' => 'rina.mitra@test.com', 'status' => 'Aktif', 'badge' => 'bg-emerald-100 text-emerald-800'],
+                        ['name' => 'Hendra Wijaya', 'area' => 'Yogyakarta', 'email' => 'hendra.mitra@test.com', 'bal' => 'Rp 250rb', 'ver' => true, 'loc' => 'Gondokusuman'],
+                        ['name' => 'Rina Susanti', 'area' => 'Yogyakarta', 'email' => 'rina.mitra@test.com', 'bal' => 'Rp 250rb', 'ver' => true, 'loc' => 'Mergangsan'],
+                        ['name' => 'Doni Setiawan', 'area' => 'Sleman', 'email' => 'doni.mitra@test.com', 'bal' => 'Rp 250rb', 'ver' => true, 'loc' => 'Mlati'],
+                        ['name' => 'Rahmat Hidayat', 'area' => 'Jakarta Pusat', 'email' => 'mitra@sayabantu.com', 'bal' => 'Rp 250rb', 'ver' => true, 'loc' => 'Menteng'],
+                        ['name' => 'Ahmad Relawan', 'area' => 'Jakarta Pusat', 'email' => 'ahmad@example.com', 'bal' => 'Rp 250rb', 'ver' => true, 'loc' => 'Senen'],
                     ];
                 @endphp
                 @foreach ($testMitras as $m)
                     <button type="button"
-                        @mousedown.prevent
-                        wire:click="fillCredentials('{{ $m['email'] }}', '{{ $m['name'] }}', 'Sayabantu123!')"
-                        @click="
-                            const e = document.getElementById('email');
-                            const p = document.getElementById('password');
-                            if (e) { e.value = '{{ $m['email'] }}'; e.dispatchEvent(new Event('input', { bubbles: true })); }
-                            if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
-                        "
-                        class="w-full p-2.5 rounded-xl border text-left transition active:scale-98 flex items-center justify-between group cursor-pointer
-                            {{ $selectedEmail === $m['email'] ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200' : 'border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/40' }}">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                                🤝
-                            </span>
-                            <div class="truncate">
-                                <div class="flex items-center gap-1.5">
-                                    <p class="text-xs font-bold text-gray-900 group-hover:text-emerald-700 truncate">{{ $m['name'] }}</p>
-                                    <span class="text-[9px] font-semibold px-1.5 py-0.2 rounded {{ $m['badge'] }}">{{ $m['status'] }}</span>
-                                </div>
-                                <p class="text-[11px] text-gray-500 font-mono truncate">{{ $m['email'] }} <span class="text-gray-400 font-sans">• {{ $m['area'] }}</span></p>
-                            </div>
+                        wire:click="quickLogin('{{ $m['email'] }}')"
+                        wire:loading.attr="disabled"
+                        wire:target="quickLogin('{{ $m['email'] }}')"
+                        class="w-full p-2.5 rounded-xl border text-left transition active:scale-[0.98] flex items-center gap-2.5 group cursor-pointer relative overflow-hidden border-gray-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/50 hover:shadow-sm">
+                        <div wire:loading wire:target="quickLogin('{{ $m['email'] }}')"
+                            class="absolute inset-0 bg-emerald-50/90 flex items-center justify-center z-10 rounded-xl">
+                            <svg class="animate-spin h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <span class="text-xs text-emerald-600 font-semibold ml-1.5">Masuk...</span>
                         </div>
+                        <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                            {{ strtoupper(substr($m['name'], 0, 1)) }}
+                        </span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-xs font-bold text-gray-900 group-hover:text-emerald-700 truncate">{{ $m['name'] }}</p>
+                                <span class="inline-flex text-[9px] font-bold px-1 py-0.5 rounded bg-emerald-100 text-emerald-700 flex-shrink-0">✓ Aktif</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 truncate">{{ $m['area'] }} • {{ $m['loc'] }} • Saldo {{ $m['bal'] }}</p>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-emerald-500 flex-shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
                     </button>
                 @endforeach
             </div>
 
-            <!-- Tab 3: Admin & Super Admin (5 Akun) -->
+            <!-- Tab 3: Admin & Super Admin -->
             <div x-show="tab === 'admin'" style="display: none;" class="space-y-1.5">
                 @php
                     $testAdmins = [
-                        ['name' => 'Super Admin', 'area' => 'Nasional', 'email' => 'superadmin@sayabantu.com', 'role' => 'Super Admin', 'badge' => 'bg-indigo-100 text-indigo-800'],
-                        ['name' => 'Admin Jakarta Pusat', 'area' => 'Kota Jakarta Pusat', 'email' => 'admin.jakarta@sayabantu.com', 'role' => 'Admin Wilayah', 'badge' => 'bg-purple-100 text-purple-800'],
-                        ['name' => 'Admin Kota Bogor', 'area' => 'Kota Bogor', 'email' => 'admin.bogor@sayabantu.com', 'role' => 'Admin Wilayah', 'badge' => 'bg-emerald-100 text-emerald-800'],
-                        ['name' => 'Admin Jakarta Selatan', 'area' => 'Kota Jakarta Selatan', 'email' => 'admin.jaksel@sayabantu.com', 'role' => 'Admin Wilayah', 'badge' => 'bg-blue-100 text-blue-800'],
-                        ['name' => 'Admin Utama', 'area' => 'Operasional Wilayah', 'email' => 'admin@sayabantu.com', 'role' => 'Admin Wilayah', 'badge' => 'bg-purple-100 text-purple-800'],
+                        ['name' => 'Super Admin', 'area' => 'Nasional', 'email' => 'superadmin@sayabantu.com', 'role' => 'Super Admin', 'color' => 'indigo'],
+                        ['name' => 'Admin Jakarta Pusat', 'area' => 'Jakarta Pusat', 'email' => 'admin.jakarta@sayabantu.com', 'role' => 'Admin Wilayah', 'color' => 'purple'],
+                        ['name' => 'Admin DI Yogyakarta', 'area' => 'Yogyakarta', 'email' => 'admin.jogja@test.com', 'role' => 'Admin Wilayah', 'color' => 'purple'],
+                        ['name' => 'Admin Jakarta Selatan', 'area' => 'Jakarta Selatan', 'email' => 'admin.jaksel@sayabantu.com', 'role' => 'Admin Wilayah', 'color' => 'blue'],
+                        ['name' => 'Admin Utama', 'area' => 'Operasional', 'email' => 'admin@sayabantu.com', 'role' => 'Admin', 'color' => 'violet'],
                     ];
                 @endphp
                 @foreach ($testAdmins as $a)
                     <button type="button"
-                        @mousedown.prevent
-                        wire:click="fillCredentials('{{ $a['email'] }}', '{{ $a['name'] }}', 'Sayabantu123!')"
-                        @click="
-                            const e = document.getElementById('email');
-                            const p = document.getElementById('password');
-                            if (e) { e.value = '{{ $a['email'] }}'; e.dispatchEvent(new Event('input', { bubbles: true })); }
-                            if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
-                        "
-                        class="w-full p-2.5 rounded-xl border text-left transition active:scale-98 flex items-center justify-between group cursor-pointer
-                            {{ $selectedEmail === $a['email'] ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200' : 'border-gray-200 bg-white hover:border-purple-300 hover:bg-purple-50/40' }}">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <span class="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                                🛡️
-                            </span>
-                            <div class="truncate">
-                                <div class="flex items-center gap-1.5">
-                                    <p class="text-xs font-bold text-gray-900 group-hover:text-purple-700 truncate">{{ $a['name'] }}</p>
-                                    <span class="text-[9px] font-semibold px-1.5 py-0.2 rounded {{ $a['badge'] }}">{{ $a['role'] }}</span>
-                                </div>
-                                <p class="text-[11px] text-gray-500 font-mono truncate">{{ $a['email'] }} <span class="text-gray-400 font-sans">• {{ $a['area'] }}</span></p>
-                            </div>
+                        wire:click="quickLogin('{{ $a['email'] }}')"
+                        wire:loading.attr="disabled"
+                        wire:target="quickLogin('{{ $a['email'] }}')"
+                        class="w-full p-2.5 rounded-xl border text-left transition active:scale-[0.98] flex items-center gap-2.5 group cursor-pointer relative overflow-hidden border-gray-200 bg-white hover:border-purple-400 hover:bg-purple-50/50 hover:shadow-sm">
+                        <div wire:loading wire:target="quickLogin('{{ $a['email'] }}')"
+                            class="absolute inset-0 bg-purple-50/90 flex items-center justify-center z-10 rounded-xl">
+                            <svg class="animate-spin h-4 w-4 text-purple-500" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <span class="text-xs text-purple-600 font-semibold ml-1.5">Masuk...</span>
                         </div>
+                        <span class="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                            {{ strtoupper(substr($a['name'], 0, 1)) }}
+                        </span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-xs font-bold text-gray-900 group-hover:text-purple-700 truncate">{{ $a['name'] }}</p>
+                                <span class="inline-flex text-[9px] font-bold px-1 py-0.5 rounded bg-purple-100 text-purple-700 flex-shrink-0">{{ $a['role'] }}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 truncate">{{ $a['area'] }} • {{ $a['email'] }}</p>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-purple-500 flex-shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
                     </button>
                 @endforeach
             </div>
@@ -320,11 +392,6 @@ new #[Layout('layouts.guest')] class extends Component {
         <!-- ========================================================================= -->
     </div>
 
-    <!-- Admin Login Link -->
-    <div class="text-center pt-6 pb-2">
-        <a href="/admin/login" class="text-xs font-semibold text-gray-500 hover:text-blue-600 hover:underline transition">
-            Buka Halaman Khusus Admin Login →
-        </a>
-    </div>
+
 </div>
 

@@ -175,99 +175,53 @@
                             <div>
                                 <span class="text-[11px] font-bold uppercase tracking-wider text-gray-700 flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
-                                    Akun Testing Admin (Klik untuk Isi Form)
+                                    Akun Testing Admin — Login Cepat
                                 </span>
-                                <p class="text-[10px] text-gray-500">Klik akun untuk mengisi email & password, lalu klik tombol Masuk</p>
+                                <p class="text-[10px] text-gray-500">⚡ Klik 1× untuk langsung masuk ke dashboard</p>
                             </div>
                             <span class="text-[10px] text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full font-semibold">
-                                Password: Sayabantu123!
+                                Sayabantu123!
                             </span>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
-                            <!-- Super Admin -->
-                            <button type="button"
-                                @mousedown.prevent
-                                wire:click="fillCredentials('superadmin@sayabantu.com', 'Super Admin', 'Sayabantu123!')"
-                                @click="
-                                    const e = document.getElementById('email');
-                                    const p = document.getElementById('password');
-                                    if (e) { e.value = 'superadmin@sayabantu.com'; e.dispatchEvent(new Event('input', { bubbles: true })); }
-                                    if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
-                                "
-                                class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
-                                    {{ $selectedEmail === 'superadmin@sayabantu.com' ? 'border-purple-600 bg-purple-100/90 ring-2 ring-purple-300' : 'border-purple-200 bg-purple-50/70 hover:bg-purple-100/90' }}">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-lg">👑</span>
-                                    <div class="truncate">
-                                        <p class="text-xs font-bold text-purple-900 group-hover:text-purple-700">Super Admin</p>
-                                        <p class="text-[10px] text-purple-700/80 truncate">Akses Penuh Nasional</p>
-                                    </div>
-                                </div>
-                            </button>
+                            @php
+                                $adminAccounts = [
+                                    ['name' => 'Super Admin', 'desc' => 'Akses Penuh Nasional', 'email' => 'superadmin@sayabantu.com', 'icon' => '👑'],
+                                    ['name' => 'Admin DI Yogyakarta', 'desc' => 'Kota Yogya, Sleman, Bantul', 'email' => 'admin.jogja@test.com', 'icon' => '🛡️'],
+                                    ['name' => 'Admin Jakarta Pusat', 'desc' => 'Kota Jakarta Pusat', 'email' => 'admin.jakarta@sayabantu.com', 'icon' => '🛡️'],
+                                    ['name' => 'Admin Jakarta Selatan', 'desc' => 'Kota Jakarta Selatan', 'email' => 'admin.jaksel@sayabantu.com', 'icon' => '🛡️'],
+                                    ['name' => 'Admin Kota Bogor', 'desc' => 'Kota Bogor (Jawa Barat)', 'email' => 'admin.bogor@sayabantu.com', 'icon' => '🛡️'],
+                                    ['name' => 'Admin Utama', 'desc' => 'Operasional Wilayah', 'email' => 'admin@sayabantu.com', 'icon' => '🛡️'],
+                                ];
+                            @endphp
 
-                            <!-- Admin Jakarta Pusat -->
-                            <button type="button"
-                                @mousedown.prevent
-                                wire:click="fillCredentials('admin.jakarta@sayabantu.com', 'Admin Jakarta Pusat', 'Sayabantu123!')"
-                                @click="
-                                    const e = document.getElementById('email');
-                                    const p = document.getElementById('password');
-                                    if (e) { e.value = 'admin.jakarta@sayabantu.com'; e.dispatchEvent(new Event('input', { bubbles: true })); }
-                                    if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
-                                "
-                                class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
-                                    {{ $selectedEmail === 'admin.jakarta@sayabantu.com' ? 'border-blue-600 bg-blue-100/90 ring-2 ring-blue-300' : 'border-blue-200 bg-blue-50/70 hover:bg-blue-100/90' }}">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-lg">🛡️</span>
-                                    <div class="truncate">
-                                        <p class="text-xs font-bold text-blue-900 group-hover:text-blue-700">Admin Jakarta</p>
-                                        <p class="text-[10px] text-blue-700/80 truncate">Kota Jakarta Pusat</p>
+                            @foreach($adminAccounts as $adm)
+                                <button type="button"
+                                    wire:click="quickLogin('{{ $adm['email'] }}')"
+                                    wire:loading.attr="disabled"
+                                    wire:target="quickLogin('{{ $adm['email'] }}')"
+                                    class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer relative overflow-hidden border-gray-200 bg-white hover:border-purple-400 hover:bg-purple-50/60 hover:shadow-xs">
+                                    <div wire:loading wire:target="quickLogin('{{ $adm['email'] }}')"
+                                        class="absolute inset-0 bg-purple-50/95 flex items-center justify-center z-10 rounded-xl">
+                                        <svg class="animate-spin h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                        </svg>
+                                        <span class="text-xs text-purple-700 font-semibold ml-1.5">Masuk...</span>
                                     </div>
-                                </div>
-                            </button>
-
-                            <!-- Admin Kota Bogor -->
-                            <button type="button"
-                                @mousedown.prevent
-                                wire:click="fillCredentials('admin.bogor@sayabantu.com', 'Admin Bogor', 'Sayabantu123!')"
-                                @click="
-                                    const e = document.getElementById('email');
-                                    const p = document.getElementById('password');
-                                    if (e) { e.value = 'admin.bogor@sayabantu.com'; e.dispatchEvent(new Event('input', { bubbles: true })); }
-                                    if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
-                                "
-                                class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
-                                    {{ $selectedEmail === 'admin.bogor@sayabantu.com' ? 'border-emerald-600 bg-emerald-100/90 ring-2 ring-emerald-300' : 'border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/90' }}">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-lg">🛡️</span>
-                                    <div class="truncate">
-                                        <p class="text-xs font-bold text-emerald-900 group-hover:text-emerald-700">Admin Bogor</p>
-                                        <p class="text-[10px] text-emerald-700/80 truncate">Kota Bogor (Jabar)</p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-base">{{ $adm['icon'] }}</span>
+                                        <div class="truncate flex-1 min-w-0">
+                                            <p class="text-xs font-bold text-gray-900 group-hover:text-purple-700 truncate">{{ $adm['name'] }}</p>
+                                            <p class="text-[10px] text-gray-500 truncate">{{ $adm['desc'] }}</p>
+                                        </div>
+                                        <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-purple-500 flex-shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
                                     </div>
-                                </div>
-                            </button>
-
-                            <!-- Admin Jakarta Selatan -->
-                            <button type="button"
-                                @mousedown.prevent
-                                wire:click="fillCredentials('admin.jaksel@sayabantu.com', 'Admin Jakarta Selatan', 'Sayabantu123!')"
-                                @click="
-                                    const e = document.getElementById('email');
-                                    const p = document.getElementById('password');
-                                    if (e) { e.value = 'admin.jaksel@sayabantu.com'; e.dispatchEvent(new Event('input', { bubbles: true })); }
-                                    if (p) { p.value = 'Sayabantu123!'; p.dispatchEvent(new Event('input', { bubbles: true })); }
-                                "
-                                class="p-2.5 rounded-xl border text-left transition active:scale-95 group cursor-pointer
-                                    {{ $selectedEmail === 'admin.jaksel@sayabantu.com' ? 'border-indigo-600 bg-indigo-100/90 ring-2 ring-indigo-300' : 'border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100/90' }}">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-lg">🛡️</span>
-                                    <div class="truncate">
-                                        <p class="text-xs font-bold text-indigo-900 group-hover:text-indigo-700">Admin Jaksel</p>
-                                        <p class="text-[10px] text-indigo-700/80 truncate">Kota Jakarta Selatan</p>
-                                    </div>
-                                </div>
-                            </button>
+                                </button>
+                            @endforeach
                         </div>
                     </div>
                     <!-- ========================================================================= -->

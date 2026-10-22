@@ -21,7 +21,7 @@
                     <div class="relative min-w-[170px] flex-1 sm:flex-initial">
                         <select wire:model.live="filterStatus"
                             style="padding-left: 14px; padding-right: 36px; padding-top: 10px; padding-bottom: 10px; font-size: 14px;"
-                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition appearance-none">
+                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
                             <option value="">Semua Status</option>
                             <option value="menunggu_mitra">Menunggu Mitra</option>
                             <option value="dalam_proses">Sedang Diproses</option>
@@ -30,28 +30,18 @@
                             <option value="dibatalkan">Dibatalkan</option>
                             <option value="rejected">Ditolak</option>
                         </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pointer-events-none" style="padding-right: 14px;">
-                            <svg class="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
                     </div>
 
                     <!-- Per Page Filter -->
                     <div class="relative min-w-[120px] flex-1 sm:flex-initial">
                         <select wire:model.live="perPage"
                             style="padding-left: 14px; padding-right: 36px; padding-top: 10px; padding-bottom: 10px; font-size: 14px;"
-                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition appearance-none">
+                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
                             <option value="10">10 Data</option>
                             <option value="25">25 Data</option>
                             <option value="50">50 Data</option>
                             <option value="100">100 Data</option>
                         </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pointer-events-none" style="padding-right: 14px;">
-                            <svg class="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
                     </div>
                 </div>
             </div>

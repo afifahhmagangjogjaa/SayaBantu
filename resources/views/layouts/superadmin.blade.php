@@ -216,7 +216,6 @@
 
             <nav class="p-4 flex-1 overflow-y-auto" id="superadmin-sidebar-nav">
                 <a href="{{ route('superadmin.dashboard') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.dashboard') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -230,7 +229,6 @@
                 </div>
 
                 <a href="{{ route('superadmin.admin.users') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.admin.users*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -240,7 +238,6 @@
                 </a>
 
                 <a href="{{ route('superadmin.customers') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.customers*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -250,7 +247,6 @@
                 </a>
 
                 <a href="{{ route('superadmin.mitra') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.mitra*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -260,7 +256,6 @@
                 </a>
 
                 <a href="{{ route('superadmin.cities') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.cities*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -272,7 +267,6 @@
                 </a>
 
                 <a href="{{ route('superadmin.categories') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.categories*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -281,7 +275,6 @@
                 </a>
 
                 <a href="{{ route('superadmin.helps.approved') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.helps.approved*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -290,7 +283,6 @@
                 </a>
 
                  <a href="{{ route('superadmin.ratings.index') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.ratings*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
@@ -313,7 +305,6 @@
 
                     <div x-show="open" x-cloak class="mt-1 space-y-1 pl-9 pr-3">
                         <a href="{{ route('superadmin.pengaturan.bantuan.fee-pendapatan') }}"
-                            @click="sidebarOpen = false"
                             class="group flex items-center px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('superadmin.pengaturan.bantuan.fee-pendapatan') ? 'text-primary-700 bg-primary-100/90 font-medium' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' }}">
                             <span class="w-4 h-4 mr-3 flex items-center justify-center flex-shrink-0 {{ request()->routeIs('superadmin.pengaturan.bantuan.fee-pendapatan') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }}">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,7 +315,6 @@
                         </a>
 
                         <a href="{{ route('superadmin.pengaturan.bantuan.biaya-topup') }}"
-                            @click="sidebarOpen = false"
                             class="group flex items-center px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('superadmin.pengaturan.bantuan.biaya-topup') ? 'text-primary-700 bg-primary-100/90 font-medium' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' }}">
                             <span class="w-4 h-4 mr-3 flex items-center justify-center flex-shrink-0 {{ request()->routeIs('superadmin.pengaturan.bantuan.biaya-topup') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }}">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -335,7 +325,6 @@
                         </a>
 
                         <a href="{{ route('superadmin.pengaturan.bantuan.tarif-radius') }}"
-                            @click="sidebarOpen = false"
                             class="group flex items-center px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('superadmin.pengaturan.bantuan.tarif-radius') ? 'text-primary-700 bg-primary-100/90 font-medium' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' }}">
                             <span class="w-4 h-4 mr-3 flex items-center justify-center flex-shrink-0 {{ request()->routeIs('superadmin.pengaturan.bantuan.tarif-radius') ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600' }}">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -349,7 +338,6 @@
                 </div>
 
                 <a href="{{ route('superadmin.settings.banners') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.settings.banners*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -363,7 +351,6 @@
                 </div>
 
                 <a href="{{ route('superadmin.transactions.log') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.transactions.log*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -372,7 +359,6 @@
                 </a>
 
                 <a href="{{ route('superadmin.withdraws.index') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.withdraws*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -381,7 +367,6 @@
                 </a>
 
                 <a href="{{ route('superadmin.topup.approvals') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.topup.approvals*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -390,7 +375,6 @@
                 </a>
 
                 <a href="{{ route('superadmin.activity.logs') }}"
-                    @click="sidebarOpen = false"
                     class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('superadmin.activity.logs*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
                     <svg class="w-5 h-5 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -488,8 +472,7 @@
 
                                     <!-- Lihat Profil -->
                                     <a href="{{ route('superadmin.password') }}"
-                                       @click="open = false"
-                                       class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition group">
+                                        class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition group">
                                         <div class="w-8 h-8 rounded-xl bg-indigo-50 group-hover:bg-indigo-100 flex items-center justify-center transition">
                                             <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>

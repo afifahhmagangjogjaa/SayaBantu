@@ -18,15 +18,7 @@
                         <p class="text-xs text-white/90 mt-0.5">{{ $unreadCount }} belum dibaca</p>
                     </div>
 
-                    @if($unreadCount > 0)
-                        <button type="button" wire:click="markAllAsRead" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center text-white" title="Tandai semua dibaca">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </button>
-                    @else
-                        <div class="w-9"></div>
-                    @endif
+                    <div class="w-9"></div>
                 </div>
             </div>
 
@@ -167,9 +159,7 @@
                                         </div>
                                     </div>
                                 @else
-                                    <div class="flex-shrink-0 mt-1">
-                                        <input type="checkbox" wire:model.live="selected" value="{{ $notification->id }}" class="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 cursor-pointer" aria-label="Pilih notifikasi">
-                                    </div>
+                                    {{-- Checkbox dihapus: pilih lewat tombol Pilih Semua di atas --}}
                                 @endif
 
                                 <div class="flex-shrink-0 mt-0.5">

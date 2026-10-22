@@ -71,7 +71,7 @@
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-0">
                     <div class="flex items-center">
-                        <a href="{{ $backUrl }}" wire:navigate aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center justify-center">
+                        <a href="{{ $backUrl }}" {{ $backUrl === url('/') ? '' : 'wire:navigate' }} aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>

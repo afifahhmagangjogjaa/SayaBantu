@@ -645,7 +645,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
-                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                            <select wire:model.live="deleteYear" class="w-full pl-3.5 pr-9 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
                                 @foreach($availableYears ?? [date('Y')] as $yr)
                                     <option value="{{ $yr }}">{{ $yr }}</option>
                                 @endforeach
@@ -654,7 +654,7 @@
 
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Bulan</label>
-                            <select wire:model.live="deleteMonth" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                            <select wire:model.live="deleteMonth" class="w-full pl-3.5 pr-9 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
                                 <option value="1">01 - Januari</option>
                                 <option value="2">02 - Februari</option>
                                 <option value="3">03 - Maret</option>
@@ -694,7 +694,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
-                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                            <select wire:model.live="deleteYear" class="w-full pl-3.5 pr-9 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
                                 @foreach($availableYears ?? [date('Y')] as $yr)
                                     <option value="{{ $yr }}">{{ $yr }}</option>
                                 @endforeach
