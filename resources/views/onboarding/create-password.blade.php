@@ -1,4 +1,4 @@
-<x-guest-layout>
+﻿<x-guest-layout>
     <style>
         input::-ms-reveal,
         input::-ms-clear {
@@ -71,7 +71,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                             </svg>
                             <!-- Eye Open (Saat Terlihat) -->
-                            <svg id="eye-open-1" class="w-5 h-5 text-[#0098e7] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg id="eye-open-1" class="w-5 h-5 text-[#0066FF] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
@@ -120,7 +120,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                             </svg>
                             <!-- Eye Open (Saat Terlihat) -->
-                            <svg id="eye-open-2" class="w-5 h-5 text-[#0098e7] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg id="eye-open-2" class="w-5 h-5 text-[#0066FF] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
@@ -130,10 +130,10 @@
                     {{-- Status Kecocokan Password --}}
                     <div x-show="confirmPass && confirmPass.length > 0" x-transition class="mt-1.5">
                         <p x-show="newPass === confirmPass" class="text-xs text-emerald-600 flex items-center gap-1 font-medium">
-                            <span>✓</span> <span>Konfirmasi kata sandi cocok.</span>
+                            <span>âœ“</span> <span>Konfirmasi kata sandi cocok.</span>
                         </p>
                         <p x-show="newPass !== confirmPass" class="text-xs text-red-500 flex items-center gap-1 font-medium">
-                            <span>✕</span> <span>Kata sandi tidak cocok.</span>
+                            <span>âœ•</span> <span>Kata sandi tidak cocok.</span>
                         </p>
                     </div>
                 </div>
@@ -145,25 +145,25 @@
                         <div class="flex items-center gap-1.5 transition-colors duration-150" :class="newPass.length >= 8 ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                             <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                   :class="newPass.length >= 8 ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                  x-text="newPass.length >= 8 ? '✓' : '✕'">✕</span>
+                                  x-text="newPass.length >= 8 ? 'âœ“' : 'âœ•'">âœ•</span>
                             <span>Minimal 8 karakter</span>
                         </div>
                         <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[A-Z]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                             <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                   :class="/[A-Z]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                  x-text="/[A-Z]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                  x-text="/[A-Z]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                             <span>Huruf besar (A-Z)</span>
                         </div>
                         <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                             <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                   :class="/[0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                  x-text="/[0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                  x-text="/[0-9]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                             <span>Angka (0-9)</span>
                         </div>
                         <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[^A-Za-z0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                             <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                   :class="/[^A-Za-z0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                  x-text="/[^A-Za-z0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                  x-text="/[^A-Za-z0-9]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                             <span>Karakter khusus / simbol</span>
                         </div>
                     </div>
@@ -174,8 +174,8 @@
                         :disabled="!isValid"
                         :class="!isValid ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-lg active:scale-98'"
                         class="w-full text-white font-bold py-3.5 px-4 rounded-full shadow-md transition text-sm tracking-wide"
-                        style="background-color: #0098e7;">
-                        Simpan Kata Sandi & Lanjutkan →
+                        style="background-color: #0066FF;">
+                        Simpan Kata Sandi & Lanjutkan â†’
                     </button>
                 </div>
             </form>
@@ -194,7 +194,7 @@
 
         <div class="mt-6 pt-4 border-t border-gray-100 text-center">
             <p class="text-[11px] text-gray-400">
-                🔒 Kata sandi Anda dienkripsi secara aman dengan standar keamanan tingkat tinggi.
+                ðŸ”’ Kata sandi Anda dienkripsi secara aman dengan standar keamanan tingkat tinggi.
             </p>
         </div>
     </div>

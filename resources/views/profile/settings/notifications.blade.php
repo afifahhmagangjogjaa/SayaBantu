@@ -1,9 +1,9 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="title">Pengaturan Notifikasi</x-slot>
 
     <div class="min-h-screen bg-gray-50 pb-24">
         <!-- BRImo Header -->
-        <div class="relative bg-gradient-to-br from-[#0098e7] via-[#0077cc] to-[#0060b0] pb-24 overflow-hidden">
+        <div class="relative bg-gradient-to-br from-[#0066FF] via-[#0052CC] to-[#003EA8] pb-24 overflow-hidden">
             <!-- Decorative Circles -->
             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
             <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>

@@ -3,154 +3,134 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>sayabantu - Platform Bantuan Sosial</title>
-    <meta name="description" content="Temukan Bantuan Yang Tersedia. Platform yang menghubungkan mereka yang membutuhkan bantuan dengan para relawan dan mitra profesional.">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>sayabantu.com - Jasa Serabutan, Mudah, Cepat, Terpercaya</title>
+    <meta name="description" content="sayabantu.com - Jasa Serabutan Mudah, Cepat, dan Terpercaya untuk pekerjaan rumah tangga, kebersihan, perbaikan, dan lainnya.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f7f9fa;
-        }
-
-        .blur-text {
-            filter: blur(4px);
-            user-select: none;
-            -webkit-user-select: none;
-            transition: filter 0.3s ease;
-        }
-
-        .job-item {
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .job-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .job-item:active {
-            opacity: 0.9;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
         }
     </style>
 </head>
 
-<body class="antialiased text-gray-900 selection:bg-blue-500 selection:text-white">
-    <div class="min-h-screen flex flex-col justify-between max-w-sm mx-auto bg-white shadow-xl sm:rounded-3xl my-0 sm:my-6 overflow-hidden border border-gray-100">
+<body class="bg-slate-100 min-h-screen text-gray-800 antialiased" x-data="{ role: '{{ request()->query('role', 'customer') }}' }">
+    <!-- Centered Mobile App Container matching Mockup -->
+    <div class="max-w-md mx-auto min-h-screen min-h-[100dvh] flex flex-col justify-between bg-white shadow-xl sm:border-x sm:border-gray-200 relative px-6 py-6 overflow-hidden">
+        
+        <!-- Top Switcher: Customer vs Mitra preview -->
+        <div class="flex items-center justify-between pb-2">
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Tampilan</span>
+            <div class="flex p-1 bg-slate-100 rounded-full text-xs font-semibold gap-1">
+                <button type="button" @click="role = 'customer'"
+                        :class="role === 'customer' ? 'bg-white text-[#0066FF] shadow-xs' : 'text-gray-500 hover:text-gray-800'"
+                        class="px-3 py-1 rounded-full transition flex items-center gap-1">
+                    <span>👤</span> Customer
+                </button>
+                <button type="button" @click="role = 'mitra'"
+                        :class="role === 'mitra' ? 'bg-white text-[#0066FF] shadow-xs' : 'text-gray-500 hover:text-gray-800'"
+                        class="px-3 py-1 rounded-full transition flex items-center gap-1">
+                    <span>🤝</span> Mitra
+                </button>
+            </div>
+        </div>
 
-        <!-- Top Header Bar Sesuai Mockup: BANTUAN / Temukan Bantuan Yang Tersedia -->
-        <header class="pt-8 pb-5 px-6 text-center bg-gray-100/90 border-b border-gray-200/60">
-            <h1 class="text-2xl font-black tracking-wide text-gray-900 uppercase">
-                BANTUAN
-            </h1>
-            <p class="text-sm text-gray-600 font-medium mt-1">
-                Temukan Bantuan Yang Tersedia
-            </p>
-        </header>
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col justify-center items-center text-center my-auto py-4">
+            
+            <!-- Logo sayabantu.com with waving hand -->
+            <div class="mb-2">
+                <x-sayabantu-logo size="xl" :showTagline="true" tagline="Jasa Serabutan, Mudah, Cepat, Terpercaya" />
+            </div>
 
-        <!-- Main Content -->
-        <main class="flex-1 px-5 py-5 flex flex-col justify-between">
+            <!-- Mascot Illustration matching mockup -->
+            <div class="my-5 w-full max-w-[280px] aspect-square rounded-3xl overflow-hidden bg-blue-50/60 p-2 shadow-inner border border-blue-100/80 flex items-center justify-center relative">
+                <img src="{{ asset('images/sayabantu-mascot.jpg') }}" alt="Mascot sayabantu.com" class="w-full h-full object-cover rounded-2xl transform hover:scale-102 transition duration-300">
+            </div>
 
-            <!-- Hero Image / Banner Sesuai Mockup -->
-            <div class="mb-5 fade-in">
-                <div class="w-full h-44 rounded-2xl bg-gradient-to-br from-blue-100 via-sky-50 to-indigo-100 border border-blue-200/70 overflow-hidden relative flex flex-col items-center justify-center p-4 shadow-inner group">
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center text-3xl mb-2 group-hover:scale-105 transition-transform">
-                        🤝
+            <!-- Customer View Badges (Gambar 2: Tampilan Sebelum Login) -->
+            <div x-show="role === 'customer'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" class="w-full">
+                <!-- 3 Feature Badges in boxes with icons -->
+                <div class="grid grid-cols-3 gap-2 w-full my-4">
+                    <div class="p-2.5 bg-blue-50/70 border border-blue-100 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 text-[#0066FF] flex items-center justify-center mb-1 text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        </div>
+                        <span class="text-[11px] font-bold text-gray-800 leading-tight">Aman & Terpercaya</span>
                     </div>
-                    <span class="text-xs font-bold text-blue-900 tracking-wide uppercase">Gotong Royong &amp; Kepedulian</span>
-                    <span class="text-[11px] text-blue-700/80 text-center mt-0.5">Saling membantu untuk sesama di seluruh Indonesia</span>
 
-                    <!-- Decorative elements -->
-                    <div class="absolute -top-6 -right-6 w-20 h-20 bg-blue-400/10 rounded-full blur-xl"></div>
-                    <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-indigo-400/10 rounded-full blur-xl"></div>
+                    <div class="p-2.5 bg-blue-50/70 border border-blue-100 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 text-[#0066FF] flex items-center justify-center mb-1 text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <span class="text-[11px] font-bold text-gray-800 leading-tight">Proses Cepat</span>
+                    </div>
+
+                    <div class="p-2.5 bg-blue-50/70 border border-blue-100 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 text-[#0066FF] flex items-center justify-center mb-1 text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        </div>
+                        <span class="text-[11px] font-bold text-gray-800 leading-tight">Harga Bersaing</span>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Pekerjaan yang tersedia Label -->
-            <div class="mb-2 fade-in">
-                <h2 class="text-base font-bold text-gray-900 tracking-tight">
-                    Pekerjaan yang tersedia:
-                </h2>
-            </div>
-
-            <!-- Gray Container with Blurred Job List Sesuai Mockup -->
-            <div class="bg-gray-200/80 rounded-2xl p-3.5 mb-6 fade-in space-y-2.5 shadow-inner">
-                
-                <!-- Job Item 1 -->
-                <a href="{{ route('login') }}" 
-                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
-                    <span class="text-sm font-semibold text-gray-800 blur-text">
-                        Membersihkan rumput
-                    </span>
-                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
-                        🔒 Login
-                    </span>
-                </a>
-
-                <!-- Job Item 2 -->
-                <a href="{{ route('login') }}" 
-                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
-                    <span class="text-sm font-semibold text-gray-800 blur-text">
-                        Membantu angkut pindahan rumah
-                    </span>
-                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
-                        🔒 Login
-                    </span>
-                </a>
-
-                <!-- Job Item 3 -->
-                <a href="{{ route('login') }}" 
-                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
-                    <span class="text-sm font-semibold text-gray-800 blur-text">
-                        Membersihkan saluran air
-                    </span>
-                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
-                        🔒 Login
-                    </span>
-                </a>
-
-                <!-- Job Item 4 -->
-                <a href="{{ route('login') }}" 
-                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
-                    <span class="text-sm font-semibold text-gray-800 blur-text">
-                        Perbaikan genteng &amp; atap rumah
-                    </span>
-                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
-                        🔒 Login
-                    </span>
-                </a>
-
-            </div>
-
-            <!-- Bottom CTA Buttons Sesuai Mockup -->
-            <div class="mt-auto pt-2 pb-4 fade-in">
-                <!-- Tombol Mulai Berbagi Kebaikan -->
-                <a href="{{ route('login') }}"
-                   class="block w-full py-4 px-6 rounded-2xl bg-gray-300 hover:bg-gray-400/90 text-gray-900 font-bold text-center text-base tracking-wide transition active:scale-98 shadow-sm">
-                    Mulai Berbagi Kebaikan
-                </a>
-
-                <!-- Sub link: Belum punya akun? masuk sekarang -->
-                <div class="text-center mt-3">
-                    <a href="{{ route('login') }}" class="text-xs font-medium text-gray-700 hover:text-blue-600 transition">
-                        Belum punya akun? <span class="font-bold underline">masuk sekarang</span>
+                <!-- Customer Action Buttons -->
+                <div class="space-y-3 w-full mt-4">
+                    <a href="{{ route('login', ['role' => 'customer']) }}"
+                       class="block w-full py-3.5 px-4 bg-[#0066FF] hover:bg-[#0052CC] active:scale-[0.99] text-white font-bold rounded-xl shadow-md hover:shadow-lg transition text-sm">
+                        Mulai Sekarang
                     </a>
+
+                    <div class="pt-1">
+                        <p class="text-xs text-gray-500">
+                            Sudah punya akun?
+                            <a href="{{ route('login', ['role' => 'customer']) }}" class="font-bold text-[#0066FF] hover:underline">
+                                Login
+                            </a>
+                        </p>
+                    </div>
                 </div>
             </div>
 
-        </main>
+            <!-- Mitra View Buttons (Gambar 1: Tampilan Sebelum Login) -->
+            <div x-show="role === 'mitra'" style="display: none;" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" class="w-full">
+                <!-- Mitra Benefits Summary -->
+                <p class="text-xs text-gray-600 mb-4 px-4 font-medium">
+                    Daftar jadi mitra, mulai terima order di sekitar Anda, dan tambah penghasilan setiap hari!
+                </p>
+
+                <!-- Mitra Action Buttons -->
+                <div class="space-y-2.5 w-full mt-2">
+                    <a href="{{ route('login', ['role' => 'mitra']) }}"
+                       class="block w-full py-3.5 px-4 bg-[#0066FF] hover:bg-[#0052CC] active:scale-[0.99] text-white font-bold rounded-xl shadow-md hover:shadow-lg transition text-sm">
+                        Masuk
+                    </a>
+
+                    <a href="{{ route('register.choose-role') }}"
+                       class="block w-full py-3 px-4 bg-white border border-gray-300 hover:bg-gray-50 active:scale-[0.99] text-gray-700 font-bold rounded-xl transition text-sm">
+                        Daftar
+                    </a>
+
+                    <div class="pt-1">
+                        <p class="text-xs text-gray-500">
+                            Sudah punya akun?
+                            <a href="{{ route('login', ['role' => 'mitra']) }}" class="font-bold text-[#0066FF] hover:underline">
+                                Login
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Info -->
+        <div class="pt-2 text-center border-t border-slate-100">
+            <span class="text-[10px] text-gray-400">sayabantu.com • Solusi Jasa Serabutan Terpercaya</span>
+        </div>
 
     </div>
 </body>

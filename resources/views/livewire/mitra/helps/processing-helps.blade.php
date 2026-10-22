@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white" wire:poll.20s.visible>
+﻿<div class="min-h-screen bg-white" wire:poll.20s.visible>
     <style>
         .header-pattern {
             position: relative;
@@ -28,7 +28,7 @@
 
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
             
@@ -61,7 +61,7 @@
                     </button>
 
                     <button type="button" wire:click="switchTab('selesai')"
-                        class="flex-1 text-center py-1.5 px-2 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $tab === 'selesai' ? 'bg-white text-[#0098e7] shadow-md' : 'text-white hover:bg-white/20' }}">
+                        class="flex-1 text-center py-1.5 px-2 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $tab === 'selesai' ? 'bg-white text-[#0066FF] shadow-md' : 'text-white hover:bg-white/20' }}">
                         <span>Selesai</span>
                     </button>
 
@@ -93,7 +93,7 @@
             <div class="mb-4">
                 <div class="relative">
                     <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari bantuan, pelanggan, atau lokasi..."
-                        class="w-full pl-9 pr-9 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-[#0098e7] focus:bg-white focus:outline-none transition">
+                        class="w-full pl-9 pr-9 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-[#0066FF] focus:bg-white focus:outline-none transition">
                     <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
@@ -155,11 +155,11 @@
                                     @else
                                         <span class="text-xl">
                                             @if($tab === 'dibatalkan')
-                                                🚫
+                                                ðŸš«
                                             @elseif($tab === 'selesai')
-                                                ✅
+                                                âœ…
                                             @else
-                                                {{ $help->category?->icon ?? '📦' }}
+                                                {{ $help->category?->icon ?? 'ðŸ“¦' }}
                                             @endif
                                         </span>
                                     @endif
@@ -170,7 +170,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">âš¡ Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap text-emerald-600">
@@ -184,26 +184,26 @@
                                         @if($tab === 'diproses')
                                             @if($help->status === 'waiting_customer_confirmation')
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                                    ⏳ Menunggu Konfirmasi Customer
+                                                    â³ Menunggu Konfirmasi Customer
                                                 </span>
                                                 @php
                                                     $mDeadline = $help->getCustomerConfirmationDeadline();
                                                 @endphp
                                                 @if($mDeadline)
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-orange-50 text-orange-600 border border-orange-200" title="Batas waktu 24 jam untuk pencairan otomatis">
-                                                        ⚡ Cair otomatis {{ $mDeadline->diffForHumans() }}
+                                                        âš¡ Cair otomatis {{ $mDeadline->diffForHumans() }}
                                                     </span>
                                                 @endif
                                             @elseif($help->status === 'partner_cancel_requested')
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                                                    ⚠️ Permintaan Batal Diajukan
+                                                    âš ï¸ Permintaan Batal Diajukan
                                                 </span>
                                             @elseif($help->isScheduled() && !$help->canPartnerStartJourney())
                                                 @php
                                                     $schedDays = (int) now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($help->scheduled_at)->startOfDay(), false);
                                                 @endphp
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                                    ⏳ Terjadwal {{ $schedDays > 0 ? "(H-{$schedDays})" : '(Hari Ini)' }}
+                                                    â³ Terjadwal {{ $schedDays > 0 ? "(H-{$schedDays})" : '(Hari Ini)' }}
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
@@ -213,13 +213,13 @@
                                             <span class="text-xs text-gray-400">{{ optional($help->taken_at)->diffForHumans() ?? optional($help->created_at)->diffForHumans() }}</span>
                                         @elseif($tab === 'selesai')
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-                                                ✓ Selesai
+                                                âœ“ Selesai
                                             </span>
                                             @php
                                                 $customerRatedCard = \App\Models\Rating::hasRated($help->id, auth()->id(), 'mitra_to_customer');
                                             @endphp
                                             @if($customerRatedCard)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-medium">✓ Dinilai</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-medium">âœ“ Dinilai</span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 text-[11px] font-medium">Belum dinilai</span>
                                             @endif
@@ -262,7 +262,7 @@
                                     @endphp
                                     @if($displayDate)
                                         <div class="text-xs text-gray-500 mb-1.5 flex items-center gap-1.5">
-                                            <span>📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</span>
+                                            <span>ðŸ“… {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</span>
                                             @if($help->isUrgent())
                                                 <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">Urgent</span>
                                             @elseif($help->scheduled_at && !($tab === 'diproses' && $help->isScheduled() && !$help->canPartnerStartJourney()))
@@ -271,15 +271,15 @@
                                         </div>
                                     @endif
 
-                                    <p class="text-xs text-gray-600 line-clamp-1 mb-2">📍 {{ $help->location ?? optional($help->city)->name ?? '-' }}</p>
+                                    <p class="text-xs text-gray-600 line-clamp-1 mb-2">ðŸ“ {{ $help->location ?? optional($help->city)->name ?? '-' }}</p>
 
                                     <!-- Bottom Action Strip -->
                                     <div class="flex items-center justify-between gap-3 pt-2 border-t border-gray-100">
-                                        <span class="text-xs text-gray-500 truncate max-w-[150px]">👤 {{ optional($help->user)->name ?? 'Customer' }}</span>
+                                        <span class="text-xs text-gray-500 truncate max-w-[150px]">ðŸ‘¤ {{ optional($help->user)->name ?? 'Customer' }}</span>
                                         <div class="flex items-center gap-1.5">
                                             @if($tab === 'diproses')
                                                 <a href="{{ route('mitra.chat', ['help' => $help->id]) }}" 
-                                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0098e7] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" 
+                                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" 
                                                     title="Chat Customer" aria-label="Chat Customer">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

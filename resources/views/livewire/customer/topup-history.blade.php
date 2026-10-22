@@ -1,9 +1,9 @@
 <div class="min-h-screen bg-white">
     <div class="max-w-md mx-auto">
-        <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+        <!-- Header - SayaBantu Style -->
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
@@ -56,7 +56,7 @@
             <div class="mb-5 flex gap-2 overflow-x-auto pb-2">
                 <button wire:click="filterByStatus('all')"
                     class="px-4 py-2.5 rounded-xl text-sm font-semibold transition whitespace-nowrap {{ $filterStatus === 'all' ? 'text-white' : 'text-gray-600 bg-gray-100' }}"
-                    style="{{ $filterStatus === 'all' ? 'background: linear-gradient(to bottom right, #0098e7, #0060b0);' : '' }}">
+                    style="{{ $filterStatus === 'all' ? 'background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);' : '' }}">
                     Semua
                 </button>
                 <button wire:click="filterByStatus('waiting_approval')"
@@ -113,7 +113,7 @@
                             </div>
                             <button wire:click="viewDetail({{ $transaction->id }})"
                                 class="text-sm font-semibold hover:underline"
-                                style="color: #0098e7;">
+                                style="color: #0066FF;">
                                 Detail →
                             </button>
                         </div>
@@ -136,7 +136,7 @@
                         <p class="text-sm text-gray-500 mb-6">Mulai top-up saldo Anda sekarang</p>
                         <a href="{{ route('customer.topup.request') }}"
                             class="inline-block px-6 py-3 text-white rounded-xl font-semibold hover:shadow-lg transition"
-                            style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
+                            style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
                             Top-Up Saldo
                         </a>
                     </div>

@@ -1,4 +1,4 @@
-<x-guest-layout>
+﻿<x-guest-layout>
     <div class="w-full flex-1 flex flex-col justify-between py-2">
         <div>
             <!-- Header Step 4 -->
@@ -26,7 +26,7 @@
                 <!-- Role Info Banner -->
                 <div class="p-3.5 rounded-2xl flex items-center justify-between {{ $user->role === 'mitra' ? 'bg-green-50 border border-green-200 text-green-900' : 'bg-blue-50 border border-blue-200 text-blue-900' }}">
                     <div class="flex items-center gap-2.5">
-                        <span class="text-xl">{{ $user->role === 'mitra' ? '🤝' : '👤' }}</span>
+                        <span class="text-xl">{{ $user->role === 'mitra' ? 'ðŸ¤' : 'ðŸ‘¤' }}</span>
                         <div>
                             <p class="text-[11px] font-medium text-gray-500">Mendaftar Sebagai:</p>
                             <p class="text-sm font-bold uppercase">{{ $user->role === 'mitra' ? 'Mitra' : 'Customer' }}</p>
@@ -34,7 +34,7 @@
                     </div>
                     @if($user->hasVerifiedEmail())
                     <span class="text-xs px-2.5 py-1 rounded-full font-semibold {{ $user->role === 'mitra' ? 'bg-green-200/80 text-green-800' : 'bg-blue-200/80 text-blue-800' }}">
-                        Email Terverifikasi ✓
+                        Email Terverifikasi âœ“
                     </span>
                     @else
                     <span class="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-100 text-amber-800 border border-amber-200">
@@ -128,7 +128,7 @@
                     </a>
                     <button type="submit"
                         class="flex-1 text-white font-bold py-3.5 rounded-full shadow-md hover:shadow-lg active:scale-98 transition text-base tracking-wide"
-                        style="background-color: #0098e7;">
+                        style="background-color: #0066FF;">
                         Selesai & Masuk
                     </button>
                 </div>
@@ -136,3 +136,4 @@
         </div>
     </div>
 </x-guest-layout>
+

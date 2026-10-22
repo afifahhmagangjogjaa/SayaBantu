@@ -1,4 +1,4 @@
-<x-guest-layout>
+﻿<x-guest-layout>
     <div class="w-full flex-1 flex flex-col justify-between py-2">
         <div>
             <!-- Header Step 1 -->
@@ -170,8 +170,8 @@
                 <div class="pt-5 pb-2">
                     <button type="submit"
                         class="w-full text-white font-bold py-3.5 rounded-full shadow-md hover:shadow-lg active:scale-98 transition text-base tracking-wide cursor-pointer"
-                        style="background-color: #0098e7;">
-                        Lanjutkan ke Foto KTP →
+                        style="background-color: #0066FF;">
+                        Lanjutkan ke Foto KTP â†’
                     </button>
                 </div>
             </form>
@@ -520,3 +520,4 @@
         });
     </script>
 </x-guest-layout>
+

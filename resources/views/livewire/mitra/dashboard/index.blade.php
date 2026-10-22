@@ -51,123 +51,105 @@
         }
     </style>
 
-    <!-- Header Section - BRImo Style -->
-    <div class="px-5 pt-5 pb-20 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-        <!-- Decorative circles (like BRImo) -->
-        <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
-        
-        <div class="relative z-10">
-            <!-- Top Bar -->
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    @php
-                        $__avatar = optional(auth()->user())->profile_photo ?? optional(auth()->user())->photo ?? optional(auth()->user())->profile_photo_path ?? null;
-                    @endphp
-                    <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden ring-2 ring-white/30">
-                        <img src="{{ $__avatar ? asset('storage/' . $__avatar) : asset('images/avatar-placeholder.svg') }}" alt="Avatar" class="w-full h-full object-cover">
-                    </div>
-                    <div>
-                        <p class="text-xs text-white/80">Selamat datang</p>
-                        <h1 class="text-sm font-bold text-white">{{ optional(auth()->user())->name ?? 'Mitra' }}</h1>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'bg-white/10 backdrop-blur-sm p-2 rounded-lg hover:bg-white/20 transition'])
-                </div>
+    <!-- Top Profile Bar matching Gambar 1 (Mitra) -->
+    <div class="px-5 pt-4 pb-3 bg-white border-b border-gray-100 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            @php
+                $__avatar = optional(auth()->user())->profile_photo ?? optional(auth()->user())->photo ?? optional(auth()->user())->profile_photo_path ?? null;
+            @endphp
+            <div class="w-11 h-11 rounded-full bg-blue-50 border-2 border-[#0066FF]/20 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-2xs">
+                <img src="{{ $__avatar ? asset('storage/' . $__avatar) : asset('images/avatar-placeholder.svg') }}" alt="Avatar" class="w-full h-full object-cover">
             </div>
-
-            <!-- Header Content - Info Section -->
-            <div class="mt-4 mb-2">
-                <h2 class="text-white text-lg font-bold mb-1">Dashboard Mitra</h2>
-                <p class="text-white/80 text-sm leading-relaxed">Kelola pekerjaan bantuan dan pendapatan Anda dengan mudah</p>
-                
-                <!-- Quick Stats -->
-                {{-- <div class="flex items-center gap-4 mt-4">
-                    <div class="flex items-center gap-2 text-white/90">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="text-xs font-medium">{{ $availableHelpsCount }} Tersedia</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-white/90">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="text-xs font-medium">Saldo Aktif</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-white/90">
-                        <a href="{{ route('mitra.chat') }}" class="inline-flex items-center gap-2 text-white/90 hover:text-white/100">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-5 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1l-4 4z" />
-                            </svg>
-                            <span class="text-xs font-medium">Chat</span>
-                        </a>
-                    </div>
-                </div> --}}
+            <div>
+                <h1 class="text-sm font-extrabold text-gray-900 leading-tight">{{ optional(auth()->user())->name ?? 'Budi Santoso' }}</h1>
+                <div class="mt-0.5">
+                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Mitra Aktif
+                    </span>
+                </div>
             </div>
         </div>
-    </div>
-    <br>
 
-    <!-- Small account info bar placed above the balance card (over header) -->
-    <div class="px-5 -mt-10 relative z-20">
-        <div class="max-w-full">
-            <div class="inline-flex items-center gap-3 bg-white/10 backdrop-hblur-sm text-white text-sm px-3 py-1 rounded-full shadow-sm">
-                <svg class="w-4 h-4 text-white/90" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 00-6-6z"/></svg>
-                <span>{{ optional(optional(auth()->user())->city)->name ?? (auth()->user()->city ?? '-') }}</span>
-                <span class="opacity-60">•</span>
-                <span>Member sejak {{ optional(auth()->user())->created_at ? optional(auth()->user())->created_at->format('M Y') : '-' }}</span>
-            </div>
+        <div class="flex items-center gap-2">
+            @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition relative'])
         </div>
     </div>
 
-    <!-- Balance Card - BRImo Style (overlapping header) -->
-    <div class="px-5 -mt-20 relative z-20 mb-6">
-        <div class="bg-white rounded-2xl p-4 shadow-xl">
-            <div class="flex items-start justify-between mb-2">
-                <div class="flex-1">
-                    <p class="text-xs text-gray-500 mb-1">Total Saldo</p>
-                    
+    <!-- Saldo Mitra Card (Gambar 1) -->
+    <div class="px-5 pt-4">
+        <div class="bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-2xl p-4 text-white shadow-md relative overflow-hidden">
+            <!-- Decorative circle overlay -->
+            <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full pointer-events-none"></div>
 
-                    <div class="flex items-center gap-2" x-data="{ show: false }">
-                        <h2 class="text-2xl font-bold text-gray-900" x-show="show">
-                            Rp {{ number_format($balance ?? 0, 0, ',', '.') }}
-                        </h2>
-                        <h2 class="text-2xl font-bold text-gray-900" x-show="!show">Rp ••••••</h2>
-                        <button @click="show = !show" class="p-1.5 hover:bg-gray-100 rounded-lg transition" title="Tampilkan / Sembunyikan Saldo">
-                            <!-- Saat Saldo Tersembunyi (Slashed Eye) -->
-                            <svg class="w-4 h-4 text-gray-500" x-show="!show" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                            </svg>
-                            <!-- Saat Saldo Terlihat (Open Eye) -->
-                            <svg class="w-4 h-4 text-[#0098e7]" x-show="show" x-cloak style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="mt-1.5">
-                        <a href="{{ route('mitra.withdraw.history') }}" class="text-[11px] font-semibold flex items-center gap-1 w-max" style="color: #0098e7;">
-                            Lihat riwayat transaksi
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </a>
-                    </div>
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5 text-blue-100 text-xs font-semibold">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    <span>Saldo Mitra</span>
                 </div>
-                <a href="{{ route('mitra.withdraw.form') }}" class="text-white px-4 py-2 rounded-lg text-xs font-semibold transition shadow-md inline-flex items-center gap-1.5" style="background: #0098e7;" title="{{ auth()->check() && !auth()->user()->hasVerifiedEmail() ? 'Perlu verifikasi email untuk tarik saldo' : 'Tarik Saldo' }}">
-                    @if(auth()->check() && !auth()->user()->hasVerifiedEmail())
-                        <svg class="w-3.5 h-3.5 text-amber-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
-                    @endif
-                    <span>Tarik Saldo</span>
+
+                <a href="{{ route('mitra.withdraw.form') }}"
+                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-3.5 py-1.5 rounded-xl transition shadow-xs">
+                    Tarik Saldo
                 </a>
+            </div>
+
+            <div class="flex items-baseline justify-between mt-1">
+                <h2 class="text-2xl font-black tracking-tight text-white">
+                    Rp {{ number_format($balance ?? 0, 0, ',', '.') }}
+                </h2>
+                <a href="{{ route('mitra.withdraw.history') }}" class="text-[11px] text-blue-100 hover:text-white underline font-medium">
+                    Riwayat Transaksi →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 Kotak Metrik Statistik Cepat (Gambar 1) -->
+    <div class="px-5 pt-3">
+        <div class="grid grid-cols-4 gap-2">
+            <!-- 1. Order Selesai -->
+            <div class="bg-white border border-gray-200/90 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs">
+                <div class="w-7 h-7 rounded-xl bg-blue-50 text-[#0066FF] flex items-center justify-center mb-1 text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <span class="text-sm font-black text-gray-900 leading-none">{{ $completedCount ?? 0 }}</span>
+                <span class="text-[10px] text-gray-500 font-semibold mt-1 leading-tight">Order Selesai</span>
+            </div>
+
+            <!-- 2. Order Aktif -->
+            <div class="bg-white border border-gray-200/90 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs">
+                <div class="w-7 h-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-1 text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <span class="text-sm font-black text-gray-900 leading-none">{{ $inProgressCount ?? 0 }}</span>
+                <span class="text-[10px] text-gray-500 font-semibold mt-1 leading-tight">Order Aktif</span>
+            </div>
+
+            <!-- 3. Rating -->
+            <div class="bg-white border border-gray-200/90 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs">
+                <div class="w-7 h-7 rounded-xl bg-yellow-50 text-amber-500 flex items-center justify-center mb-1 text-xs">
+                    ⭐
+                </div>
+                <span class="text-sm font-black text-gray-900 leading-none">{{ $ratingAvg ?? 4.8 }}</span>
+                <span class="text-[10px] text-gray-500 font-semibold mt-1 leading-tight">Rating</span>
+            </div>
+
+            <!-- 4. Total Penghasilan -->
+            <div class="bg-white border border-gray-200/90 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs">
+                <div class="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-1 text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <span class="text-xs font-black text-gray-900 leading-none truncate max-w-full">
+                    @if($totalEarnings >= 1000000)
+                        Rp {{ number_format($totalEarnings / 1000000, 1) }}jt
+                    @else
+                        Rp {{ number_format($totalEarnings / 1000, 0) }}rb
+                    @endif
+                </span>
+                <span class="text-[10px] text-gray-500 font-semibold mt-1 leading-tight">Penghasilan</span>
             </div>
         </div>
     </div>
@@ -219,9 +201,9 @@
         @if($needsBiodata)
             {{-- 1. LENGKAPI BIODATA DULU --}}
             <div class="rounded-2xl p-3.5 text-xs mb-5 flex items-center justify-between gap-3 bg-white"
-                 style="border: 1.5px solid #0098e7; box-shadow: 0 4px 14px rgba(0, 152, 231, 0.15);">
+                 style="border: 1.5px solid #0066FF; box-shadow: 0 4px 14px rgba(0, 102, 255, 0.15);">
                 <div class="flex items-center gap-3 min-w-0">
-                    <div style="background: linear-gradient(135deg, #0098e7 0%, #0077cc 100%); width: 38px; height: 38px; min-width: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
+                    <div style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%); width: 38px; height: 38px; min-width: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);">
                         <svg style="width: 18px; height: 18px; color: #ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
@@ -236,7 +218,7 @@
                 </div>
                 <a href="{{ route('mitra.profile.edit') }}" 
                    class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 cursor-pointer shadow-xs"
-                   style="background: linear-gradient(to right, #0098e7, #0077cc); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
+                   style="background: linear-gradient(to right, #0066FF, #0052cc); box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);">
                     Lengkapi
                 </a>
             </div>
@@ -267,7 +249,7 @@
                 </div>
                 <a href="{{ route('profile.settings.verification') }}" 
                    class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] hover:opacity-95 active:scale-95 cursor-pointer shadow-xs {{ $hasKtpUploaded ? 'text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100' : 'text-white' }}"
-                   @if(!$hasKtpUploaded) style="background: linear-gradient(135deg, #0098e7 0%, #0077cc 100%); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);" @endif>
+                   @if(!$hasKtpUploaded) style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%); box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);" @endif>
                     {{ $hasKtpUploaded ? 'Cek Status' : 'Upload' }}
                 </a>
             </div>
@@ -379,116 +361,74 @@
             </div>
         @endif
 
-        <!-- Bantuan Tersedia Section -->
+        <!-- Order Terdekat Section (Gambar 1) -->
         <div class="mb-5">
             <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                    <h2 class="text-base font-bold text-gray-900">Bantuan Tersedia</h2>
-                    <span class="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">Maks. {{ (int) ($maxRadius ?? 10) }} km</span>
-                </div>
-                <a href="{{ route('mitra.helps.all') }}" class="text-xs font-semibold" style="color: #0098e7;">Lihat Semua →</a>
+                <h2 class="text-sm font-extrabold text-gray-900">Order Terdekat</h2>
+                <a href="{{ route('mitra.helps.all') }}" wire:navigate class="text-xs font-bold text-[#0066FF] hover:underline">
+                    Lihat Semua &gt;
+                </a>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-2.5">
                 @forelse($recommendedHelps as $help)
                     @php 
                         $schedDate = $help->scheduled_at ?? $help->created_at;
+                        $timeStr = $schedDate ? \Carbon\Carbon::parse($schedDate)->format('H:i') : '09:00';
                         $schedLabel = $schedDate ? \Carbon\Carbon::parse($schedDate)->translatedFormat('d M Y, H:i') : '-' ;
-                        $catLabel = $help->category ? $help->category->name : 'Lainnya';
+                        $catName = $help->category ? $help->category->name : 'Jasa Serabutan';
                         $isUrgent = $help->isUrgent();
+                        $addressStr = $help->location ?? $help->full_address ?? ($help->city->name ?? 'Yogyakarta');
                         $cityLabel = $help->city->name ?? '-';
                         $distLabel = isset($help->distance) ? number_format($help->distance, 1) . ' km' : '';
                         $isCancelledByMe = auth()->check() && $help->wasCancelledByMitra(auth()->id());
                     @endphp
-                    <button type="button" onclick="showHelpPreview({{ $help->id }}, '{{ addslashes($help->title) }}', {{ $help->amount }}, '{{ addslashes($schedLabel) }}', '{{ addslashes($catLabel) }}', {{ $isUrgent ? 'true' : 'false' }}, '{{ addslashes($cityLabel) }}', '{{ addslashes($distLabel) }}', {{ $isCancelledByMe ? 'true' : 'false' }})"
-                        class="block w-full text-left bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all {{ $isCancelledByMe ? 'border-l-4 border-l-amber-500 bg-amber-50/20' : ($isUrgent ? 'border-l-4 border-l-red-500' : '') }}">
-                        <div class="flex items-start gap-3">
-                            <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                                @if($help->photo)
-                                    <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center text-lg">
-                                        {{ $help->category?->icon ?? '📦' }}
-                                    </div>
-                                @endif
-                            </div>
+                    <div onclick="showHelpPreview({{ $help->id }}, '{{ addslashes($help->title) }}', {{ $help->amount }}, '{{ addslashes($schedLabel) }}', '{{ addslashes($catName) }}', {{ $isUrgent ? 'true' : 'false' }}, '{{ addslashes($cityLabel) }}', '{{ addslashes($distLabel) }}', {{ $isCancelledByMe ? 'true' : 'false' }})"
+                        class="bg-white border border-gray-200/90 rounded-2xl p-3.5 shadow-2xs hover:shadow-sm hover:border-[#0066FF]/30 transition flex items-center gap-3 cursor-pointer group">
+                        <!-- Category Icon (Colored Circle) -->
+                        <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform
+                            {{ str_contains(strtolower($catName), 'bersih') ? 'bg-blue-50 text-blue-600' :
+                               (str_contains(strtolower($catName), 'pindah') ? 'bg-indigo-50 text-indigo-600' :
+                               (str_contains(strtolower($catName), 'tukang') || str_contains(strtolower($catName), 'bangun') ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600')) }}">
+                            {{ $help->category?->icon ?? '🛠️' }}
+                        </div>
 
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-start justify-between gap-2 mb-1">
-                                    <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                                        <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
-                                        @if($isUrgent)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
-                                            @if($help->auto_cancel_at && $help->status === 'menunggu_mitra')
-                                                @php
-                                                    $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
-                                                    $minsLeft = (int) ceil($secsLeft / 60);
-                                                @endphp
-                                                @if($secsLeft > 0)
-                                                    <span x-data="{
-                                                        target: new Date('{{ $help->auto_cancel_at->toIso8601String() }}').getTime(),
-                                                        label: '{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}',
-                                                        init() {
-                                                            this.update();
-                                                            setInterval(() => this.update(), 5000);
-                                                        },
-                                                        update() {
-                                                            const diff = this.target - Date.now();
-                                                            if (diff <= 0) {
-                                                                this.label = 'Waktu habis';
-                                                                if (window.Livewire) { $wire.$refresh(); }
-                                                                return;
-                                                            }
-                                                            const m = Math.ceil(diff / 60000);
-                                                            this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
-                                                        }
-                                                    }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
-                                                        ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
-                                                    </span>
-                                                @endif
-                                            @endif
-                                        @endif
-                                        @if($isCancelledByMe)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">⚠️ Pernah Dibatalkan</span>
-                                        @endif
-                                    </div>
-                                    <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
-                                </div>
-                                <p class="text-xs text-gray-600 line-clamp-1 mb-1.5">{{ Str::limit($help->description, 60) }}</p>
-                                @if($schedDate)
-                                    <div class="text-xs {{ $isUrgent ? 'text-red-600 font-semibold' : 'text-gray-500' }} mb-1">
-                                        {{ $isUrgent ? '⚡ ' : '📅 ' }}{{ \Carbon\Carbon::parse($schedDate)->translatedFormat('d M Y, H:i') }}
-                                    </div>
-                                @endif
-                                <div class="flex items-center gap-1.5 text-xs text-gray-500 flex-wrap">
-                                    <span class="inline-flex items-center gap-1 font-medium text-gray-700 whitespace-nowrap">
-                                        <span>📍</span>
-                                        <span>{{ $help->city->name ?? '-' }}</span>
-                                    </span>
-                                    @if(isset($help->distance))
-                                        <span class="text-gray-300">•</span>
-                                        <span class="inline-flex items-center font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap text-[11px]">
-                                            {{ number_format($help->distance, 1) }} km dari Anda
-                                        </span>
-                                    @endif
-                                    <span class="text-gray-300">•</span>
-                                    <span class="text-gray-400 whitespace-nowrap">{{ $help->created_at->diffForHumans() }}</span>
-                                </div>
-
-                                @if($isCancelledByMe)
-                                    <div class="mt-2.5 p-2 bg-amber-50 border border-amber-200/80 rounded-lg text-amber-800 text-[11px] flex items-center gap-1.5 font-medium leading-tight">
-                                        <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                        <span>Anda tidak bisa mengambil bantuan ini karena sudah pernah dibatalkan</span>
-                                    </div>
-                                @endif
+                        <!-- Info -->
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-extrabold text-xs text-gray-900 group-hover:text-[#0066FF] truncate transition-colors">{{ $help->title }}</h3>
+                            <p class="text-[11px] text-gray-500 truncate mt-0.5 flex items-center gap-1">
+                                <span>📍</span>
+                                <span>{{ Str::limit($addressStr, 35) }}</span>
+                            </p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs font-black text-gray-900">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                <span class="text-gray-300">•</span>
+                                <span class="text-[10px] text-gray-500 font-medium">⭐ 4.8 | Hari ini, {{ $timeStr }}</span>
                             </div>
                         </div>
-                    </button>
+
+                        <!-- Action Button Ambil (Green pill button matching Gambar 1) -->
+                        <div class="flex-shrink-0" onclick="event.stopPropagation()">
+                            @if($isCancelledByMe)
+                                <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">Dibatalkan</span>
+                            @else
+                                <button type="button"
+                                    onclick="event.stopPropagation()"
+                                    wire:click.stop="takeHelp({{ $help->id }})"
+                                    wire:loading.attr="disabled"
+                                    wire:target="takeHelp({{ $help->id }})"
+                                    class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold text-xs px-4 py-1.5 rounded-full shadow-xs transition flex items-center gap-1 cursor-pointer">
+                                    <span wire:loading.remove wire:target="takeHelp({{ $help->id }})">Ambil</span>
+                                    <span wire:loading wire:target="takeHelp({{ $help->id }})">...</span>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
                 @empty
                     <x-empty-state 
                         icon="clipboard" 
-                        title="Belum Ada Bantuan Terdekat" 
-                        :description="'Belum ada permintaan bantuan dalam radius ' . (int) ($maxRadius ?? 10) . ' km. Kami akan menampilkan bantuan saat ada permintaan baru di sekitar Anda.'" 
+                        title="Belum Ada Order Terdekat" 
+                        :description="'Belum ada permintaan bantuan dalam radius ' . (int) ($maxRadius ?? 10) . ' km saat ini.'" 
                     />
                 @endforelse
             </div>

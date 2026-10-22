@@ -34,6 +34,12 @@ Route::middleware('guest')->group(function () {
     Volt::route('login', 'pages.auth.login')
         ->name('login');
 
+    // Google OAuth Routes
+    Route::get('auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirectToGoogle'])
+        ->name('auth.google');
+    Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])
+        ->name('auth.google.callback');
+
     Volt::route('forgot-password', 'pages.auth.forgot-password')
         ->name('password.request');
 });

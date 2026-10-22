@@ -1,4 +1,4 @@
-<div x-data="{ 
+﻿<div x-data="{ 
     showModal: false,
     redirectUrl: ''
 }" 
@@ -29,7 +29,7 @@ x-on:profile-saved.window="
             
             <button @click="window.location.href = redirectUrl" 
                     class="w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95"
-                    style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
+                    style="background: linear-gradient(to bottom right, #0066FF, #003EA8);">
                 Oke
             </button>
         </div>
@@ -53,7 +53,7 @@ x-on:profile-saved.window="
         <div>
             <label class="block text-sm font-semibold text-gray-900 mb-2">
                 <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" style="color: #0098e7;" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-4 h-4" style="color: #0066FF;" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                     </svg>
                     Nama Lengkap
@@ -126,7 +126,7 @@ x-on:profile-saved.window="
         <div>
             <label class="block text-sm font-semibold text-gray-900 mb-2">
                 <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" style="color: #0098e7;" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-4 h-4" style="color: #0066FF;" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                     </svg>
@@ -233,7 +233,7 @@ x-on:profile-saved.window="
         <div class="pt-2">
             <button type="submit" wire:loading.attr="disabled"
                 class="w-full text-white font-semibold text-sm py-4 rounded-xl hover:shadow-lg transition active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+                style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
                 <span wire:loading.remove wire:target="updateProfileInformation" class="flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>

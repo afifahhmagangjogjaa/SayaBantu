@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
@@ -237,7 +237,7 @@ new #[Layout('layouts.blank')] class extends Component
                                         <span class="text-xs font-bold text-gray-900 truncate block">{{ $email }}</span>
                                     </div>
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">
-                                        ✓ Terverifikasi
+                                        âœ“ Terverifikasi
                                     </span>
                                 </div>
                                 <input type="hidden" wire:model="email">
@@ -317,10 +317,10 @@ new #[Layout('layouts.blank')] class extends Component
                                 {{-- Status Kecocokan Password --}}
                                 <div x-show="confirmPass && confirmPass.length > 0" x-transition class="mt-1.5">
                                     <p x-show="newPass === confirmPass" class="text-xs text-emerald-600 flex items-center gap-1 font-medium">
-                                        <span>✓</span> <span>Konfirmasi kata sandi cocok.</span>
+                                        <span>âœ“</span> <span>Konfirmasi kata sandi cocok.</span>
                                     </p>
                                     <p x-show="newPass !== confirmPass" class="text-xs text-red-500 flex items-center gap-1 font-medium">
-                                        <span>✕</span> <span>Kata sandi tidak cocok.</span>
+                                        <span>âœ•</span> <span>Kata sandi tidak cocok.</span>
                                     </p>
                                 </div>
                             </div>
@@ -332,25 +332,25 @@ new #[Layout('layouts.blank')] class extends Component
                                     <div class="flex items-center gap-1.5 transition-colors duration-150" :class="newPass.length >= 8 ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                                         <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                               :class="newPass.length >= 8 ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                              x-text="newPass.length >= 8 ? '✓' : '✕'">✕</span>
+                                              x-text="newPass.length >= 8 ? 'âœ“' : 'âœ•'">âœ•</span>
                                         <span>Minimal 8 karakter</span>
                                     </div>
                                     <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[A-Z]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                                         <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                               :class="/[A-Z]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                              x-text="/[A-Z]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                              x-text="/[A-Z]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                                         <span>Huruf besar (A-Z)</span>
                                     </div>
                                     <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                                         <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                               :class="/[0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                              x-text="/[0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                              x-text="/[0-9]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                                         <span>Angka (0-9)</span>
                                     </div>
                                     <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[^A-Za-z0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                                         <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                               :class="/[^A-Za-z0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                              x-text="/[^A-Za-z0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                              x-text="/[^A-Za-z0-9]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                                         <span>Karakter khusus / simbol</span>
                                     </div>
                                 </div>
@@ -427,7 +427,7 @@ new #[Layout('layouts.blank')] class extends Component
         }">
             <div class="max-w-md mx-auto min-h-screen flex flex-col bg-white shadow-md">
                 <!-- Customer Header -->
-                <div class="px-5 relative overflow-hidden flex-shrink-0 header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0); padding-top: 32px; padding-bottom: 32px;">
+                <div class="px-5 relative overflow-hidden flex-shrink-0 header-pattern" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8); padding-top: 32px; padding-bottom: 32px;">
                     <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
                     <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
 
@@ -500,7 +500,7 @@ new #[Layout('layouts.blank')] class extends Component
                                         <span class="text-xs font-bold text-gray-900 truncate block">{{ $email }}</span>
                                     </div>
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">
-                                        ✓ Terverifikasi
+                                        âœ“ Terverifikasi
                                     </span>
                                 </div>
                                 <input type="hidden" wire:model="email">
@@ -586,10 +586,10 @@ new #[Layout('layouts.blank')] class extends Component
                                 {{-- Status Kecocokan Password --}}
                                 <div x-show="confirmPass && confirmPass.length > 0" x-transition class="mt-1.5">
                                     <p x-show="newPass === confirmPass" class="text-xs text-emerald-600 flex items-center gap-1 font-medium">
-                                        <span>✓</span> <span>Konfirmasi kata sandi cocok.</span>
+                                        <span>âœ“</span> <span>Konfirmasi kata sandi cocok.</span>
                                     </p>
                                     <p x-show="newPass !== confirmPass" class="text-xs text-red-500 flex items-center gap-1 font-medium">
-                                        <span>✕</span> <span>Kata sandi tidak cocok.</span>
+                                        <span>âœ•</span> <span>Kata sandi tidak cocok.</span>
                                     </p>
                                 </div>
                             </div>
@@ -601,25 +601,25 @@ new #[Layout('layouts.blank')] class extends Component
                                     <div class="flex items-center gap-1.5 transition-colors duration-150" :class="newPass.length >= 8 ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                                         <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                               :class="newPass.length >= 8 ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                              x-text="newPass.length >= 8 ? '✓' : '✕'">✕</span>
+                                              x-text="newPass.length >= 8 ? 'âœ“' : 'âœ•'">âœ•</span>
                                         <span>Minimal 8 karakter</span>
                                     </div>
                                     <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[A-Z]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                                         <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                               :class="/[A-Z]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                              x-text="/[A-Z]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                              x-text="/[A-Z]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                                         <span>Huruf besar (A-Z)</span>
                                     </div>
                                     <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                                         <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                               :class="/[0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                              x-text="/[0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                              x-text="/[0-9]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                                         <span>Angka (0-9)</span>
                                     </div>
                                     <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[^A-Za-z0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                                         <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                               :class="/[^A-Za-z0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                              x-text="/[^A-Za-z0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                              x-text="/[^A-Za-z0-9]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                                         <span>Karakter khusus / simbol</span>
                                     </div>
                                 </div>
@@ -664,3 +664,4 @@ new #[Layout('layouts.blank')] class extends Component
         </div>
     @endif
 </div>
+

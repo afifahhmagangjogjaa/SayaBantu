@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="title">Profile</x-slot>
 
     <style>
@@ -156,10 +156,10 @@
         @endphp
 
         <div class="max-w-md mx-auto">
-            <!-- Header - BRImo Style -->
-            <div class="px-5 pt-5 pb-32 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+            <!-- Header - SayaBantu Style matching Gambar 2 -->
+            <div class="px-5 pt-5 pb-32 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
                 
                 <div class="relative z-10">
                     <div class="flex items-center justify-between text-white mb-8">
@@ -256,21 +256,46 @@
                 </svg>
             </div>
 
-            <!-- Stats Card (overlapping header) -->
+            <!-- Saldo / Wallet Card (overlapping header) matching Gambar 2 -->
             <div class="px-5 -mt-20 relative z-20">
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 stats-card">
-                    <div class="grid grid-cols-3 divide-x divide-gray-100">
-                        <div class="p-4 text-center group cursor-pointer hover:bg-gray-50 transition-colors duration-200 rounded-l-2xl">
-                            <div class="text-2xl font-bold transition-transform duration-300 group-hover:scale-110" style="color: #0098e7;">{{ $totalRequests }}</div>
-                            <p class="text-xs text-gray-600 mt-1">Total Bantuan</p>
+                @php
+                    $userBalance = \App\Models\UserBalance::where('user_id', optional($user)->id)->first();
+                    $customerBalance = $userBalance ? $userBalance->balance : 0;
+                @endphp
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <p class="text-[11px] text-gray-500 font-medium flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                                Saldo Dompet
+                            </p>
+                            <p class="text-xl font-black text-gray-900 tracking-tight mt-0.5">
+                                Rp {{ number_format($customerBalance, 0, ',', '.') }}
+                            </p>
                         </div>
-                        <div class="p-4 text-center group cursor-pointer hover:bg-gray-50 transition-colors duration-200">
-                            <div class="text-2xl font-bold text-amber-600 transition-transform duration-300 group-hover:scale-110">{{ $inProgress }}</div>
-                            <p class="text-xs text-gray-600 mt-1">Diproses</p>
+                        <a href="{{ route('customer.topup') }}"
+                           class="px-4 py-2 rounded-full text-xs font-bold text-white bg-[#0066FF] hover:bg-blue-700 transition shadow-sm flex items-center gap-1 active:scale-95">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Top Up
+                        </a>
+                    </div>
+                    <!-- Quick Stats Mini -->
+                    <div class="grid grid-cols-3 gap-2 pt-3 border-t border-gray-100">
+                        <div class="text-center">
+                            <div class="text-base font-black text-[#0066FF]">{{ $totalRequests }}</div>
+                            <p class="text-[10px] text-gray-500 font-medium mt-0.5">Total Pesanan</p>
                         </div>
-                        <div class="p-4 text-center group cursor-pointer hover:bg-gray-50 transition-colors duration-200 rounded-r-2xl">
-                            <div class="text-2xl font-bold text-green-600 transition-transform duration-300 group-hover:scale-110">{{ $completed }}</div>
-                            <p class="text-xs text-gray-600 mt-1">Selesai</p>
+                        <div class="text-center">
+                            <div class="text-base font-black text-amber-500">{{ $inProgress }}</div>
+                            <p class="text-[10px] text-gray-500 font-medium mt-0.5">Diproses</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-base font-black text-emerald-600">{{ $completed }}</div>
+                            <p class="text-[10px] text-gray-500 font-medium mt-0.5">Selesai</p>
                         </div>
                     </div>
                 </div>
@@ -302,7 +327,7 @@
                             
                             <button @click="show = false" 
                                     class="w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer"
-                                    style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
+                                    style="background: linear-gradient(to bottom right, #0066FF, #003EA8);">
                                 Oke
                             </button>
                         </div>
@@ -345,7 +370,7 @@
                                     </div>
                                 @endif
                                 <p class="mt-2 text-[11px] text-red-700 leading-snug font-medium">
-                                    ⚠️ <strong>PERHATIAN KRITIS:</strong> Akun Anda kini berstatus Surat Peringatan 2. Jika Anda melakukan 1 pelanggaran lagi hingga mencapai <strong>Surat Peringatan 3</strong>, akun Anda akan <strong>otomatis diblokir secara permanen dari sistem</strong>.
+                                    âš ï¸ <strong>PERHATIAN KRITIS:</strong> Akun Anda kini berstatus Surat Peringatan 2. Jika Anda melakukan 1 pelanggaran lagi hingga mencapai <strong>Surat Peringatan 3</strong>, akun Anda akan <strong>otomatis diblokir secara permanen dari sistem</strong>.
                                 </p>
                             </div>
                         </div>
@@ -380,7 +405,7 @@
                         {{-- Sudah Upload KTP & Selfie, Menunggu Verifikasi Admin --}}
                         <div class="bg-blue-50/95 border border-blue-200 rounded-2xl p-4 text-xs text-blue-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
                             <div class="rounded-xl bg-blue-100 text-blue-600 text-lg shadow-2xs" style="width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                                ⏳
+                                â³
                             </div>
                             <div style="flex: 1; min-width: 0;">
                                 <div class="font-bold text-blue-950 text-sm flex items-center gap-2">

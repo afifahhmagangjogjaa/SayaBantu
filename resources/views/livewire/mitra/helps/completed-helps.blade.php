@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white">
+﻿<div class="min-h-screen bg-white">
     <style>
         :root{
             --brand-500: #0ea5a4;
@@ -50,7 +50,7 @@
 
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
             
@@ -91,7 +91,7 @@
                     </a>
 
                     <a href="{{ route('mitra.helps.completed') }}" 
-                        class="inline-flex items-center px-4 py-2 rounded-full text-xs font-semibold transition whitespace-nowrap bg-white text-[#0098e7] shadow-md">
+                        class="inline-flex items-center px-4 py-2 rounded-full text-xs font-semibold transition whitespace-nowrap bg-white text-[#0066FF] shadow-md">
                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -153,7 +153,7 @@
                                                 <img src="{{ asset('storage/' . $help->photo) }}" alt="foto" class="w-full h-full object-cover">
                                             @else
                                                 <div class="w-full h-full flex items-center justify-center text-xl">
-                                                    {{ $help->category?->icon ?? '📦' }}
+                                                    {{ $help->category?->icon ?? 'ðŸ“¦' }}
                                                 </div>
                                             @endif
                                         </div>
@@ -162,16 +162,16 @@
                                             <div class="flex items-center gap-1.5 min-w-0">
                                                 <h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
                                                 @if($help->isUrgent())
-                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">âš¡ Urgent</span>
                                                 @endif
                                             </div>
-                                            <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} • {{ optional($help->updated_at)->format('d M Y') }}</p>
+                                            <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} â€¢ {{ optional($help->updated_at)->format('d M Y') }}</p>
                                             @php
                                                 $displayDate = $help->scheduled_at ?? $help->created_at;
                                             @endphp
                                             @if($displayDate)
                                                 <div class="text-xs {{ $help->isUrgent() ? 'text-red-600 font-semibold' : 'text-gray-500' }} mt-1">
-                                                    {{ $help->isUrgent() ? '⚡ ' : '📅 ' }}{{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}
+                                                    {{ $help->isUrgent() ? 'âš¡ ' : 'ðŸ“… ' }}{{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}
                                                 </div>
                                             @endif
                                         </div>
@@ -194,7 +194,7 @@
                                                         $customerRatedCard = \App\Models\Rating::hasRated($help->id, auth()->id(), 'mitra_to_customer');
                                                     @endphp
                                                     @if($customerRatedCard)
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-xs font-medium mt-2">✓ Dinilai</span>
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-xs font-medium mt-2">âœ“ Dinilai</span>
                                                     @else
                                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 text-xs font-medium mt-2">Belum dinilai</span>
                                                     @endif
@@ -203,7 +203,7 @@
                                         </div>
                                     </div>
 
-                                    <button @click="open = !open" class="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition" style="color: #0098e7;">
+                                    <button @click="open = !open" class="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition" style="color: #0066FF;">
                                         <span x-text="open ? 'Sembunyikan Detail' : 'Lihat Detail'"></span>
                                         <svg :class="open ? 'rotate-180' : ''" class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -316,3 +316,4 @@
         </div>
     </div>
 </div>
+

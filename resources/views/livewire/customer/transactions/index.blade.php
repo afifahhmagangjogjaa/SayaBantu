@@ -1,9 +1,9 @@
 <div class="min-h-screen bg-white">
     <div class="max-w-md mx-auto">
-        <!-- Header - BRImo Style Standar Bawaan -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+        <!-- Header - SayaBantu Style -->
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
@@ -301,7 +301,7 @@
                 @elseif($isTopup)
                     <div class="px-5 pt-6 pb-9 relative overflow-hidden text-white text-center rounded-t-3xl shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                 @else
-                    <div class="px-5 pt-6 pb-9 relative overflow-hidden text-white text-center rounded-t-3xl shrink-0" style="background: linear-gradient(135deg, #0098e7 0%, #0060b0 100%);">
+                    <div class="px-5 pt-6 pb-9 relative overflow-hidden text-white text-center rounded-t-3xl shrink-0" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
                 @endif
                     <!-- Decorative circles -->
                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-12 -mt-12 pointer-events-none"></div>

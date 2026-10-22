@@ -1,4 +1,4 @@
-<x-guest-layout>
+﻿<x-guest-layout>
     <div class="w-full flex-1 flex flex-col justify-between py-2">
         <div>
             <!-- Header Step 2 -->
@@ -40,7 +40,7 @@
                                 </div>
                                 <h3 class="text-sm font-bold text-gray-900 mb-1">Ambil atau Pilih Foto KTP</h3>
                                 <p class="text-xs text-gray-500 mb-3.5">Format JPG, PNG (Maksimal 2MB)</p>
-                                <div class="inline-flex items-center gap-1.5 bg-[#0098e7] hover:bg-[#0086cc] text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-xs transition active:scale-95">
+                                <div class="inline-flex items-center gap-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-xs transition active:scale-95">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                     </svg>
@@ -92,7 +92,7 @@
                         </p>
                         <div class="bg-white rounded-xl p-2.5 border-2 border-green-500 shadow-2xs">
                             <img src="{{ asset('images/contoh-ktp.jpg') }}" alt="Contoh Foto KTP" class="w-full max-h-40 object-contain rounded-lg mx-auto">
-                            <p class="text-[11px] text-green-700 font-bold mt-1.5 text-center">✓ Posisi Lurus, Terang & Tulisan Terbaca Jelas</p>
+                            <p class="text-[11px] text-green-700 font-bold mt-1.5 text-center">âœ“ Posisi Lurus, Terang & Tulisan Terbaca Jelas</p>
                         </div>
                     </div>
                 </div>
@@ -101,11 +101,11 @@
                 <div class="pt-5 pb-2 flex items-center gap-3">
                     <a href="{{ route('onboarding.step1') }}"
                         class="w-28 py-3.5 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full inline-flex items-center justify-center text-sm font-bold text-gray-700 transition cursor-pointer flex-shrink-0">
-                        ← Kembali
+                        â† Kembali
                     </a>
                     <button type="submit"
                         class="flex-1 py-3.5 px-4 text-white font-bold rounded-full shadow-md hover:shadow-lg active:scale-98 transition text-sm tracking-wide inline-flex items-center justify-center gap-1.5 cursor-pointer"
-                        style="background-color: #0098e7;">
+                        style="background-color: #0066FF;">
                         <span>Lanjut ke Selfie</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -139,3 +139,4 @@
         }
     </script>
 </x-guest-layout>
+

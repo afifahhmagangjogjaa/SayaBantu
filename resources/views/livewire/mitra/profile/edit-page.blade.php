@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-white">
+﻿<div class="min-h-screen bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
             
@@ -54,7 +54,7 @@
                         
                         <a href="{{ route('mitra.profile') }}" 
                            class="block w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer text-center"
-                           style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
+                           style="background: linear-gradient(to bottom right, #0066FF, #003EA8);">
                             Oke
                         </a>
                     </div>

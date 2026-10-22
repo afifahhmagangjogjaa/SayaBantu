@@ -1,9 +1,9 @@
-<div class="min-h-screen bg-white">
+﻿<div class="min-h-screen bg-white">
 		<div class="max-w-md mx-auto">
-			<!-- Header - BRImo Style -->
-			<div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-				<div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-				<div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+			<!-- Header - SayaBantu Style -->
+			<div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+				<div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+				<div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
 				
 				<div class="relative z-10">
 					<div class="flex items-center justify-between text-white mb-6">
@@ -69,18 +69,18 @@
 													<img src="{{ asset('storage/' . $help->photo) }}" alt="foto" class="w-full h-full object-cover">
 												@else
 													<div class="w-full h-full flex items-center justify-center text-xl">
-														{{ $help->category?->icon ?? '📦' }}
+														{{ $help->category?->icon ?? 'ðŸ“¦' }}
 													</div>
 												@endif
 											</div>
 
 											<div class="flex-1 min-w-0">
 												<h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
-												<p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} • {{ optional($help->updated_at)->format('d M Y') }}</p>
+												<p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} â€¢ {{ optional($help->updated_at)->format('d M Y') }}</p>
 											</div>
 
 											<div class="text-right flex-shrink-0">
-												<div class="text-sm font-bold" style="color: #0098e7;">Rp {{ number_format($help->amount ?? 0, 0, ',', '.') }}</div>
+												<div class="text-sm font-bold" style="color: #0066FF;">Rp {{ number_format($help->amount ?? 0, 0, ',', '.') }}</div>
 												@if($help->status === 'rejected')
 													<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-semibold mt-1">
 														<svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
@@ -89,7 +89,7 @@
 												@elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
 													@if($help->complaint_resolution === 'refunded')
 														<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold mt-1">
-															✓ Refund Berhasil
+															âœ“ Refund Berhasil
 														</span>
 													@else
 														<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold mt-1">
@@ -105,7 +105,7 @@
 											</div>
 										</div>
 
-										<button @click="open = !open" class="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition" style="color: #0098e7;">
+										<button @click="open = !open" class="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition" style="color: #0066FF;">
 											<span x-text="open ? 'Sembunyikan Detail' : 'Lihat Detail'"></span>
 											<svg :class="open ? 'rotate-180' : ''" class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -132,7 +132,7 @@
 											@if($help->complaint_resolution === 'refunded')
 												<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
 													<h4 class="text-xs font-bold text-emerald-800 mb-1 flex items-center gap-1">
-														✓ Pengembalian Dana (Refund) Disetujui
+														âœ“ Pengembalian Dana (Refund) Disetujui
 													</h4>
 													<p class="text-xs text-emerald-700">Dana sebesar Rp {{ number_format($help->amount + ($help->admin_fee ?? 0), 0, ',', '.') }} telah dikembalikan ke saldo akun Anda.</p>
 													@if($help->complaint_admin_notes)
@@ -142,7 +142,7 @@
 											@elseif($help->complaint_resolution === 'rejected')
 												<div class="bg-gray-50 border border-gray-200 rounded-xl p-3">
 													<h4 class="text-xs font-bold text-gray-800 mb-1 flex items-center gap-1">
-														✕ Komplain Ditolak Admin
+														âœ• Komplain Ditolak Admin
 													</h4>
 													<p class="text-xs text-gray-600">Pekerjaan dinyatakan selesai oleh admin dan dana telah diteruskan ke rekan jasa.</p>
 													@if($help->complaint_admin_notes)
@@ -173,7 +173,7 @@
 														<div class="text-xs text-gray-500 mb-1">Mitra</div>
 														<div class="text-sm text-gray-900">{{ $help->mitra->name }}</div>
 														@if($help->mitra->phone)
-															<a href="tel:{{ $help->mitra->phone }}" class="text-xs font-semibold" style="color: #0098e7;">{{ $help->mitra->phone }}</a>
+															<a href="tel:{{ $help->mitra->phone }}" class="text-xs font-semibold" style="color: #0066FF;">{{ $help->mitra->phone }}</a>
 														@endif
 													</div>
 												@endif
@@ -208,3 +208,4 @@
 		</div>
 	</div>
 </div>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use App\Models\Registration;
 use App\Models\City;
@@ -430,7 +430,7 @@ new #[Layout('layouts.guest')] class extends Component {
         <div class="pt-5 pb-3">
             <button type="submit" wire:loading.attr="disabled"
                 class="w-full bg-primary-500 hover:bg-primary-600 active:scale-98 text-white font-bold py-3.5 rounded-full shadow-md hover:shadow-lg transition text-base tracking-wide disabled:opacity-50"
-                style="background-color: #0098e7;">
+                style="background-color: #0066FF;">
                 <span wire:loading.remove>Lanjutkan</span>
                 <span wire:loading>Memproses...</span>
             </button>

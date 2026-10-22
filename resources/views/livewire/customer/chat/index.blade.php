@@ -1,9 +1,9 @@
 <div wire:poll.5s class="{{ $selected_help_id ? 'h-screen overflow-hidden' : 'min-h-screen' }} bg-white">
     <div class="max-w-md mx-auto {{ $selected_help_id ? 'h-screen flex flex-col overflow-hidden' : '' }}">
         <!-- Header -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden flex-shrink-0" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden flex-shrink-0" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
 
             <div class="relative z-10">
                 @if(!$selected_help_id)

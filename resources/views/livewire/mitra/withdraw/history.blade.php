@@ -1,10 +1,10 @@
-@extends('layouts.mitra')
+﻿@extends('layouts.mitra')
 
 @section('content')
     <div class="min-h-screen bg-white">
         <div class="max-w-md mx-auto">
             <!-- Header - BRImo Style Standar Bawaan -->
-            <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+            <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
                 <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
                 <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
                 
@@ -66,14 +66,14 @@
                         @click="currentTab = 'income'"
                         :class="currentTab === 'income' ? 'bg-white text-emerald-700 shadow-xs font-bold border border-emerald-100' : 'text-gray-500 hover:text-gray-800 font-medium'"
                         class="py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                        <span class="text-sm">💰</span>
+                        <span class="text-sm">ðŸ’°</span>
                         <span>Saldo Masuk</span>
                     </button>
                     <button type="button" 
                         @click="currentTab = 'withdraw'"
                         :class="currentTab === 'withdraw' ? 'bg-white text-blue-700 shadow-xs font-bold border border-blue-100' : 'text-gray-500 hover:text-gray-800 font-medium'"
                         class="py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                        <span class="text-sm">🏧</span>
+                        <span class="text-sm">ðŸ§</span>
                         <span>Tarik Saldo</span>
                     </button>
                 </div>
@@ -89,7 +89,7 @@
                                     <div class="flex items-start justify-between gap-2 mb-2">
                                         <div class="flex items-center gap-2.5">
                                             <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center font-bold text-sm flex-shrink-0">
-                                                📥
+                                                ðŸ“¥
                                             </div>
                                             <div>
                                                 <h3 class="text-sm font-bold text-gray-900">
@@ -105,7 +105,7 @@
                                                     </p>
                                                 @endif
                                                 <p class="text-[11px] text-gray-400 mt-0.5 font-mono">
-                                                    {{ $row->created_at->format('d M Y • H:i') }} WIB
+                                                    {{ $row->created_at->format('d M Y â€¢ H:i') }} WIB
                                                 </p>
                                             </div>
                                         </div>
@@ -115,7 +115,7 @@
                                                 + Rp {{ number_format($row->amount, 0, ',', '.') }}
                                             </span>
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 mt-1">
-                                                ✓ Masuk ke Saldo
+                                                âœ“ Masuk ke Saldo
                                             </span>
                                         </div>
                                     </div>
@@ -164,7 +164,7 @@
                                     <div class="flex items-start justify-between gap-2 mb-2">
                                         <div class="flex items-center gap-2.5">
                                             <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm flex-shrink-0">
-                                                🏧
+                                                ðŸ§
                                             </div>
                                             <div>
                                                 <h3 class="text-sm font-bold text-gray-900">{{ strtoupper($row->bank_code) }}</h3>
@@ -180,19 +180,19 @@
                                             <div class="mt-1">
                                                 @if($row->status === 'pending')
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-yellow-100 text-yellow-800">
-                                                        ⏳ Menunggu
+                                                        â³ Menunggu
                                                     </span>
                                                 @elseif($row->status === 'processing')
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                                                        🔄 Diproses
+                                                        ðŸ”„ Diproses
                                                     </span>
                                                 @elseif($row->status === 'success' || $row->status === 'approved')
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800">
-                                                        ✅ Berhasil
+                                                        âœ… Berhasil
                                                     </span>
                                                 @else
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800">
-                                                        ❌ Ditolak
+                                                        âŒ Ditolak
                                                     </span>
                                                 @endif
                                             </div>
@@ -201,7 +201,7 @@
 
                                     <div class="flex items-center justify-between pt-2.5 mt-2 border-t border-gray-100">
                                         <div>
-                                            <p class="text-[11px] text-gray-400">{{ $row->created_at->format('d M Y • H:i') }} WIB</p>
+                                            <p class="text-[11px] text-gray-400">{{ $row->created_at->format('d M Y â€¢ H:i') }} WIB</p>
                                         </div>
                                         
                                         @if($row->status === 'success' || $row->status === 'approved')
@@ -254,7 +254,7 @@
                                                     </div>
                                                     <div class="flex justify-between text-xs border-t border-gray-200 pt-2.5">
                                                         <span class="text-gray-500">Tanggal Diproses:</span>
-                                                        <span class="text-gray-900">{{ optional($row->processed_at)->format('d M Y • H:i') }} WIB</span>
+                                                        <span class="text-gray-900">{{ optional($row->processed_at)->format('d M Y â€¢ H:i') }} WIB</span>
                                                     </div>
                                                 </div>
 
@@ -310,7 +310,7 @@
                                                     </div>
                                                     <div class="flex justify-between text-xs border-t border-gray-200 pt-2.5">
                                                         <span class="text-gray-500">Tanggal Diproses:</span>
-                                                        <span class="text-gray-900">{{ optional($row->processed_at)->format('d M Y • H:i') }} WIB</span>
+                                                        <span class="text-gray-900">{{ optional($row->processed_at)->format('d M Y â€¢ H:i') }} WIB</span>
                                                     </div>
                                                 </div>
 

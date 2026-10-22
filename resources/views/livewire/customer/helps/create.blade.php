@@ -1,4 +1,4 @@
-<div>
+﻿<div>
     <style>
         :root {
             --brand-500: #0ea5a4;
@@ -58,11 +58,11 @@
 
     <div id="main-content" class="min-h-screen bg-white">
         <div class="max-w-md mx-auto">
-            <!-- Header - BRImo Style -->
-            <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern"
-                style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+            <!-- Header - SayaBantu Style matching Gambar 2 -->
+            <div class="px-5 pt-5 pb-8 relative overflow-hidden"
+                style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
 
                 <div class="relative z-10">
                     <div class="flex items-center justify-between text-white mb-3">
@@ -75,8 +75,8 @@
                         </a>
 
                         <div class="text-center flex-1">
-                            <h1 class="text-lg font-bold">Buat Permintaan Baru</h1>
-                            <p class="text-xs text-white/90 mt-0.5">Isi form di bawah untuk membuat permintaan</p>
+                            <h1 class="text-lg font-bold">Pesan Jasa Baru</h1>
+                            <p class="text-xs text-white/90 mt-0.5">Pilih kategori & tentukan rincian pekerjaan</p>
                         </div>
 
                         <div class="w-9"></div>
@@ -123,7 +123,7 @@
                         <div class="flex flex-col gap-2.5">
                             <a href="{{ route('profile.edit') }}"
                                class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs shadow-md hover:shadow-lg transition flex items-center justify-center gap-2"
-                                style="background: linear-gradient(to right, #0098e7, #0077cc);">
+                                style="background: linear-gradient(to right, #0066FF, #0052CC);">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
@@ -195,7 +195,7 @@
 
                             <a href="{{ route('customer.helps.index') }}"
                                class="w-full py-3 px-4 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 text-white shadow-md hover:opacity-95"
-                               style="background: linear-gradient(to right, #0098e7, #0077cc);">
+                               style="background: linear-gradient(to right, #0066FF, #0052CC);">
                                 Lihat Bantuan Saya
                             </a>
 
@@ -277,7 +277,7 @@
                                     <input type="radio" wire:model.live="help_type" value="urgent" class="sr-only">
                                     <div class="flex items-center justify-between mb-1">
                                         <div class="flex items-center gap-1.5">
-                                            <span class="text-sm">⚡</span>
+                                            <span class="text-sm">âš¡</span>
                                             <span class="text-xs font-bold {{ $help_type === 'urgent' ? 'text-red-600' : 'text-gray-800' }}">Mendesak / Urgent</span>
                                         </div>
                                         <div class="w-4 h-4 rounded-full border flex items-center justify-center {{ $help_type === 'urgent' ? 'border-red-500 bg-red-500' : 'border-gray-300' }}">
@@ -294,7 +294,7 @@
                                     <input type="radio" wire:model.live="help_type" value="scheduled" class="sr-only">
                                     <div class="flex items-center justify-between mb-1">
                                         <div class="flex items-center gap-1.5">
-                                            <span class="text-sm">📅</span>
+                                            <span class="text-sm">ðŸ“…</span>
                                             <span class="text-xs font-bold {{ $help_type === 'scheduled' ? 'text-blue-600' : 'text-gray-800' }}">Terjadwal</span>
                                         </div>
                                         <div class="w-4 h-4 rounded-full border flex items-center justify-center {{ $help_type === 'scheduled' ? 'border-blue-500 bg-blue-500' : 'border-gray-300' }}">
@@ -662,7 +662,7 @@
                             <!-- Koordinat Display -->
                             <div id="coordinates-display"
                                 class="bg-green-50 border border-green-200 rounded-lg p-3 mb-2 hidden">
-                                <p class="text-xs font-semibold text-green-800 mb-1">✓ Lokasi Ditandai:</p>
+                                <p class="text-xs font-semibold text-green-800 mb-1">âœ“ Lokasi Ditandai:</p>
                                 <p class="text-xs text-green-900 font-mono">
                                     Lat: <span id="lat-display" class="font-semibold">-</span>, 
                                     Lng: <span id="lng-display" class="font-semibold">-</span>
@@ -781,7 +781,7 @@
 
                                         <!-- Nama File (Pojok Kiri Bawah) -->
                                         <div class="absolute bottom-2 left-2 max-w-[80%] bg-black/60 backdrop-blur-sm text-white text-[11px] px-2.5 py-1 rounded-md truncate">
-                                            📷 {{ $photo->getClientOriginalName() }}
+                                            ðŸ“· {{ $photo->getClientOriginalName() }}
                                         </div>
                                     </div>
                                     <input type="file" id="photo-input" wire:model="photo" class="hidden" accept="image/png,image/jpeg,image/jpg" />
@@ -914,7 +914,7 @@
                             const iana = zoneIana[zone];
                             const now = new Date();
                             const timeText = formatTimeForZone(now, iana);
-                            tzDisplay.textContent = timeText ? `Waktu lokal: ${zone} — ${timeText}` : `Waktu lokal: ${zone}`;
+                            tzDisplay.textContent = timeText ? `Waktu lokal: ${zone} â€” ${timeText}` : `Waktu lokal: ${zone}`;
                         }
 
                         document.addEventListener('DOMContentLoaded', function() {
@@ -944,7 +944,7 @@
                                     try {
                                         const fmt = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: iana });
                                         const timeText = fmt.format(now);
-                                        if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone} — ${timeText}`;
+                                        if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone} â€” ${timeText}`;
                                     } catch (err) {
                                         if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone}`;
                                     }
@@ -1149,7 +1149,7 @@
                                 @if($topupDeficit > 0)
                                     <button type="button" wire:click="setTopupQuickAmount({{ (int)(ceil($topupDeficit / 1000) * 1000) }})"
                                         style="font-size: 10px; font-weight: 700; color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; padding: 2px 7px; border-radius: 6px; cursor: pointer;">
-                                        ⚡ Pas Kurangnya (Rp {{ number_format(ceil($topupDeficit / 1000) * 1000, 0, ',', '.') }})
+                                        âš¡ Pas Kurangnya (Rp {{ number_format(ceil($topupDeficit / 1000) * 1000, 0, ',', '.') }})
                                     </button>
                                 @endif
                             </div>
@@ -1217,12 +1217,12 @@
                                 @if($qrisEnabled)
                                     <button type="button" wire:click="selectTopupMethod('qris')"
                                         style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ $topupMethod === 'qris' ? '#ffffff' : 'transparent' }}; color: {{ $topupMethod === 'qris' ? '#0284c7' : '#64748b' }}; box-shadow: {{ $topupMethod === 'qris' ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
-                                        📱 QRIS E-Wallet
+                                        ðŸ“± QRIS E-Wallet
                                     </button>
                                 @endif
                                 <button type="button" wire:click="selectTopupMethod('{{ $availableBanks[0]['value'] ?? 'bank_bca' }}')"
                                     style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ str_starts_with($topupMethod, 'bank_') ? '#ffffff' : 'transparent' }}; color: {{ str_starts_with($topupMethod, 'bank_') ? '#0284c7' : '#64748b' }}; box-shadow: {{ str_starts_with($topupMethod, 'bank_') ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
-                                    🏦 Transfer Bank
+                                    ðŸ¦ Transfer Bank
                                 </button>
                             </div>
 
@@ -1261,7 +1261,7 @@
                                                         <button type="button" 
                                                             onclick="event.stopPropagation(); navigator.clipboard.writeText('{{ $bank['account_number'] }}'); alert('Nomor rekening {{ $bank['name'] }} ({{ $bank['account_number'] }}) berhasil disalin!');"
                                                             style="padding: 2px 6px; font-size: 10px; font-weight: 700; background: #e2e8f0; color: #0369a1; border-radius: 4px; border: none; cursor: pointer;">
-                                                            📋 Salin
+                                                            ðŸ“‹ Salin
                                                         </button>
                                                     </div>
                                                     <p style="font-family: monospace; font-size: 12px; font-weight: 800; color: #1e293b; margin: 1px 0 0 0;">{{ $bank['account_number'] }}</p>
@@ -1293,7 +1293,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
                                     </button>
-                                    <p style="font-size: 11px; color: #16a34a; font-weight: 700; margin: 4px 0 0 0;">✓ Bukti transfer siap dikirim</p>
+                                    <p style="font-size: 11px; color: #16a34a; font-weight: 700; margin: 4px 0 0 0;">âœ“ Bukti transfer siap dikirim</p>
                                 </div>
                             @else
                                 <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 64px; border: 2px dashed #cbd5e1; border-radius: 12px; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
@@ -1315,7 +1315,7 @@
 
                         <!-- Catatan -->
                         <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 8px 10px; font-size: 11px; color: #166534; display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 12px;">💡</span>
+                            <span style="font-size: 12px;">ðŸ’¡</span>
                             <p style="margin: 0; line-height: 1.3;">Saldo otomatis diverifikasi & masuk ke akun Anda setelah admin mengecek bukti.</p>
                         </div>
                     @endif
@@ -1347,7 +1347,7 @@
                             Batal
                         </button>
                         <button wire:click="processDirectTopup" type="button" wire:loading.attr="disabled" wire:target="processDirectTopup"
-                            style="flex: 2; height: 44px; border-radius: 12px; border: none; background: linear-gradient(135deg, #0098e7, #0077cc); color: #ffffff; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0, 152, 231, 0.35); transition: opacity 0.2s;"
+                            style="flex: 2; height: 44px; border-radius: 12px; border: none; background: linear-gradient(135deg, #0066FF, #0052CC); color: #ffffff; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0, 152, 231, 0.35); transition: opacity 0.2s;"
                             onmouseover="this.style.opacity='0.95';"
                             onmouseout="this.style.opacity='1';">
                             <span wire:loading.remove wire:target="processDirectTopup" style="display: inline-flex; align-items: center; gap: 6px;">
@@ -1402,7 +1402,7 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Jenis Bantuan</span>
                                 <span class="text-xs font-bold px-2.5 py-1 rounded-full {{ ($confirmHelpType ?? $help_type) === 'urgent' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
-                                    {{ ($confirmHelpType ?? $help_type) === 'urgent' ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}
+                                    {{ ($confirmHelpType ?? $help_type) === 'urgent' ? 'âš¡ Mendesak (Urgent)' : 'ðŸ“… Terjadwal' }}
                                 </span>
                             </div>
                             <div class="flex justify-between items-center">
@@ -1417,7 +1417,7 @@
                                 <div class="flex justify-between items-center pt-2 border-t border-blue-100">
                                     <span class="text-sm text-gray-600">Batas Waktu Tunggu Mitra</span>
                                     <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">
-                                        ⏳ {{ $confirmAutoCancelMinutes ?? $auto_cancel_minutes }} Menit
+                                        â³ {{ $confirmAutoCancelMinutes ?? $auto_cancel_minutes }} Menit
                                     </span>
                                 </div>
                             @endif
@@ -1503,7 +1503,7 @@
                 <div class="flex flex-col gap-2.5">
                     <a href="{{ route('customer.helps.index') }}" 
                        class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs shadow-md hover:shadow-lg transition flex items-center justify-center gap-2"
-                       style="background: linear-gradient(to right, #0098e7, #0077cc);">
+                       style="background: linear-gradient(to right, #0066FF, #0052CC);">
                         <span>Lihat Permintaan Saya</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -1613,7 +1613,7 @@
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                attribution: 'Â© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19,
             }).addTo(leafletMapInstance);
 

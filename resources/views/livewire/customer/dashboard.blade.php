@@ -12,7 +12,6 @@
         /* BRImo-style decorative pattern */
         .header-pattern {
             position: relative;
-            overflow: hidden;
         }
         
         .header-pattern::before {
@@ -24,6 +23,7 @@
             height: 300px;
             background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
             border-radius: 50%;
+            pointer-events: none;
         }
         
         .header-pattern::after {
@@ -35,127 +35,260 @@
             height: 250px;
             background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
             border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .search-dropdown {
+            position: fixed;
+            top: auto;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(384px, calc(100vw - 2rem));
+            z-index: 9999;
+            margin-top: 0;
         }
     </style>
 
-    <!-- Header Section - BRImo Style -->
-    <div class="px-5 pt-5 pb-20 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-        <!-- Decorative circles (like BRImo) -->
-        <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
-        
-        <div class="relative z-10">
-            <!-- Top Bar -->
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    @php
-                        $__avatar = optional(auth()->user())->profile_photo ?? optional(auth()->user())->photo ?? optional(auth()->user())->profile_photo_path ?? null;
-                    @endphp
-                    <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden ring-2 ring-white/30">
-                        <img src="{{ $__avatar ? asset('storage/' . $__avatar) : asset('images/avatar-placeholder.svg') }}" alt="Avatar" class="w-full h-full object-cover">
-                    </div>
-                    <div>
-                        <p class="text-xs text-white/80">Selamat datang</p>
-                        <h1 class="text-sm font-bold text-white">{{ optional(auth()->user())->name ?? 'Pengguna' }}</h1>
-                    </div>
-                </div>
+    <!-- Top Header Bar - Blue gradient matching mockup -->
+    <div class="px-5 pt-6 pb-4 sticky top-0 z-30 header-pattern" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+        <!-- Decorative circles -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12 pointer-events-none"></div>
 
-                <div class="flex items-center gap-2">
-                    @include('components.notification-icon', ['route' => route('customer.notifications.index'), 'class' => 'bg-white/10 backdrop-blur-sm p-2 rounded-lg hover:bg-white/20 transition'])
+        <div class="relative z-10 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                @php
+                    $__avatar = optional(auth()->user())->profile_photo ?? optional(auth()->user())->photo ?? optional(auth()->user())->profile_photo_path ?? null;
+                @endphp
+                <div class="w-11 h-11 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center overflow-hidden shadow-md">
+                    <img src="{{ $__avatar ? asset('storage/' . $__avatar) : asset('images/avatar-placeholder.svg') }}" alt="Avatar" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <p class="text-[11px] text-blue-100 font-medium">Selamat datang 👋</p>
+                    <h1 class="text-base font-extrabold text-white leading-tight">Halo, {{ Str::words(optional(auth()->user())->name ?? 'Customer', 2, '') }}!</h1>
                 </div>
             </div>
 
-            <!-- Header Content - Info Section -->
-            <div class="mt-4 mb-2">
-                <h2 class="text-white text-lg font-bold mb-1">Dashboard Saya</h2>
-                <p class="text-white/80 text-sm leading-relaxed">Kelola permintaan bantuan dan transaksi Anda dengan mudah</p>
-                
-                <!-- Quick Stats -->
-                {{-- <div class="flex items-center gap-4 mt-4">
-                    <div class="flex items-center gap-2 text-white/90">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="text-xs font-medium">{{ $availableHelps->count() }} Bantuan</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-white/90">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="text-xs font-medium">Saldo Aktif</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-white/90">
-                        <a href="{{ route('customer.chat') }}" class="inline-flex items-center gap-2 text-white/90 hover:text-white/100">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-5 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1l-4 4z" />
-                            </svg>
-                            <span class="text-xs font-medium">Chat</span>
-                        </a>
-                    </div>
-                </div> --}}
+            <div class="flex items-center gap-2">
+                @include('components.notification-icon', ['route' => route('customer.notifications.index'), 'class' => 'p-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition backdrop-blur-sm'])
             </div>
         </div>
-    </div>
-    <br>
 
-    <!-- Small account info bar placed above the balance card (over header) -->
-    <div class="px-5 -mt-10 relative z-20">
-        <div class="max-w-full">
-            <div class="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-full shadow-sm">
-                <svg class="w-4 h-4 text-white/90" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 00-6-6z"/></svg>
-                <span>{{ optional(optional(auth()->user())->city)->name ?? (auth()->user()->city ?? '-') }}</span>
-                <span class="opacity-60">•</span>
-                <span>Member sejak {{ optional(auth()->user())->created_at ? optional(auth()->user())->created_at->format('M Y') : '-' }}</span>
+        <!-- Search Bar with live category search -->
+        <div class="relative z-50 mt-3.5" 
+             x-data="{ 
+                focused: false,
+                dropdownTop: 0,
+                updatePos() {
+                    const el = this.$el.querySelector('input');
+                    if (el) {
+                        const rect = el.getBoundingClientRect();
+                        this.dropdownTop = rect.bottom + 8;
+                    }
+                }
+             }"
+             @focusin="focused = true; updatePos()"
+             @focusout="setTimeout(() => { focused = false }, 200)">
+            <div class="flex items-center gap-2.5 w-full bg-white/95 hover:bg-white transition-colors px-4 py-2.5 rounded-full shadow-md">
+                <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                    type="text"
+                    wire:model.live.debounce.300ms="search"
+                    placeholder="Cari kategori jasa..."
+                    class="flex-1 bg-transparent text-xs text-gray-700 placeholder-gray-400 outline-none border-none focus:ring-0"
+                    autocomplete="off"
+                />
+                @if($search)
+                    <button wire:click="clearSearch" class="text-gray-400 hover:text-gray-600 transition" title="Hapus pencarian">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                @else
+                    <span class="px-2 py-0.5 rounded-full bg-[#0066FF] text-[10px] font-bold text-white shadow-sm">Cari</span>
+                @endif
             </div>
+
+            {{-- Dropdown hasil pencarian - pakai fixed positioning agar keluar dari sticky header --}}
+            @if($showSearchResults)
+                <div class="search-dropdown bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
+                     :style="'top: ' + dropdownTop + 'px'"
+                     x-show="focused || {{ $showSearchResults ? 'true' : 'false' }}"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100">
+                    @if($searchResults->isEmpty())
+                        <div class="px-4 py-6 text-center">
+                            <div class="text-3xl mb-2">🔍</div>
+                            <p class="text-sm font-bold text-gray-700">Kategori tidak ditemukan</p>
+                            <p class="text-xs text-gray-400 mt-1">Coba kata kunci lain seperti "rumah", "kesehatan"</p>
+                        </div>
+                    @else
+                        <div class="max-h-72 overflow-y-auto">
+                            <p class="px-4 pt-3 pb-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Kategori Jasa</p>
+                            @foreach($searchResults as $cat)
+                                @php
+                                    $catStyles = [
+                                        1 => 'bg-blue-50 text-blue-600',
+                                        2 => 'bg-rose-50 text-rose-600',
+                                        3 => 'bg-emerald-50 text-emerald-600',
+                                        4 => 'bg-amber-50 text-amber-600',
+                                        5 => 'bg-indigo-50 text-indigo-600',
+                                        6 => 'bg-purple-50 text-purple-600',
+                                        7 => 'bg-orange-50 text-orange-600',
+                                        8 => 'bg-sky-50 text-sky-600',
+                                    ];
+                                    $catStyle = $catStyles[$cat->id] ?? 'bg-gray-50 text-gray-600';
+                                @endphp
+                                <a href="{{ route('customer.helps.create', ['category_id' => $cat->id]) }}"
+                                   class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/60 transition group border-b border-gray-50 last:border-0"
+                                   wire:click="clearSearch">
+                                    <div class="w-10 h-10 rounded-xl {{ $catStyle }} flex items-center justify-center text-lg shrink-0">
+                                        {{ $cat->icon ?? '📦' }}
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm font-bold text-gray-800 group-hover:text-[#0066FF] transition">{{ $cat->name }}</p>
+                                        @if($cat->description)
+                                            <p class="text-xs text-gray-400 truncate mt-0.5">{{ $cat->description }}</p>
+                                        @endif
+                                    </div>
+                                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#0066FF] shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                            @endforeach
+                        </div>
+                        <div class="border-t border-gray-100 px-4 py-3 bg-gray-50/50">
+                            <a href="{{ route('customer.helps.create') }}" wire:click="clearSearch"
+                               class="flex items-center gap-2 text-xs font-bold text-[#0066FF] hover:underline">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                Buat pesanan baru tanpa kategori
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @endif
         </div>
     </div>
 
-    <!-- Balance Card - BRImo Style (overlapping header) -->
-    <div class="px-5 -mt-20 relative z-20 mb-6">
-        <div class="bg-white rounded-2xl p-4 shadow-xl">
-            <div class="flex items-start justify-between mb-2">
-                <div class="flex-1">
-                    <p class="text-xs text-gray-500 mb-1">Total Saldo</p>
-                    
+    <!-- Main Content Body -->
+    <div class="px-5 pt-4 pb-6">
+        <!-- Hero Banner matching Gambar 2 -->
+        <div class="relative overflow-hidden rounded-2xl p-5 mb-5 shadow-lg text-white"
+             style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+            <!-- Decorative circle -->
+            <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+            
+            <div class="relative z-10 flex items-center justify-between gap-3">
+                <div class="flex-1 max-w-[65%]">
+                    <span class="inline-block px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-bold text-white mb-2">
+                        sayabantu.com 🤝
+                    </span>
+                    <h2 class="text-sm font-extrabold leading-snug">
+                        Butuh bantuan untuk pekerjaan kecil hingga besar?
+                    </h2>
+                    <p class="text-[11px] text-blue-100 mt-1 line-clamp-2">
+                        Pesan jasa serabutan cepat, mudah, dan terpercaya kapan saja.
+                    </p>
+                    <a href="{{ route('customer.helps.create') }}"
+                       class="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white text-[#0066FF] hover:bg-blue-50 font-bold text-xs rounded-full shadow-md active:scale-95 transition">
+                        <span>Pesan Sekarang</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
 
-                    <div class="flex items-center gap-2" x-data="{ show: false }">
-                        <h2 class="text-2xl font-bold text-gray-900" x-show="show">
+                <div class="w-24 h-24 shrink-0 flex items-center justify-center">
+                    <img src="{{ asset('images/sayabantu-mascot.jpg') }}" alt="Mascot SayaBantu" class="w-full h-full object-contain rounded-xl drop-shadow-md">
+                </div>
+            </div>
+        </div>
+
+        <!-- Saldo Customer Quick Card matching Gambar 2 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+                        <svg class="w-4 h-4 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <span>Saldo Saya</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 mt-1" x-data="{ show: false }">
+                        <h2 class="text-xl font-black text-gray-900 tracking-tight" x-show="show">
                             Rp {{ number_format($balance ?? 0, 0, ',', '.') }}
                         </h2>
-                        <h2 class="text-2xl font-bold text-gray-900" x-show="!show">Rp ••••••</h2>
-                        <button @click="show = !show" class="p-1.5 hover:bg-gray-100 rounded-lg transition" title="Tampilkan / Sembunyikan Saldo">
-                            <!-- Saat Saldo Tersembunyi (Slashed Eye) -->
-                            <svg class="w-4 h-4 text-gray-500" x-show="!show" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <h2 class="text-xl font-black text-gray-900 tracking-tight" x-show="!show">Rp ••••••</h2>
+                        <button @click="show = !show" class="p-1 hover:bg-gray-100 rounded-lg transition text-gray-400 hover:text-gray-700" title="Tampilkan / Sembunyikan Saldo">
+                            <svg class="w-4 h-4" x-show="!show" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                             </svg>
-                            <!-- Saat Saldo Terlihat (Open Eye) -->
-                            <svg class="w-4 h-4 text-[#0098e7]" x-show="show" x-cloak style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-[#0066FF]" x-show="show" x-cloak style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </button>
                     </div>
                 </div>
-                <a href="{{ route('customer.topup') }}" class="text-white px-4 py-2 rounded-lg text-xs font-semibold transition shadow-md" style="background: #0098e7;">
-                    + Top Up
-                </a>
-            </div>
 
-            <div class="mt-1">
-                <a href="{{ route('customer.transactions.index') }}" class="text-[11px] font-semibold flex items-center gap-1 w-max" style="color: #0098e7;">
-                    Lihat riwayat transaksi
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('customer.topup') }}"
+                       class="px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#0066FF] hover:bg-blue-700 transition shadow-xs flex items-center gap-1 active:scale-95">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>Top Up</span>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Main Content -->
-    <div class="px-5 pt-3 pb-6">
+        <!-- Kategori Jasa Grid matching Gambar 2 -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-extrabold text-gray-900">Kategori Jasa</h3>
+                <a href="{{ route('customer.helps.create') }}" class="text-xs font-bold text-[#0066FF] hover:underline">
+                    Buat Jasa +
+                </a>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2.5">
+                @php
+                    $categoryStyles = [
+                        1 => ['bg' => 'bg-blue-50 text-blue-600 border-blue-100', 'label' => 'Rumah Tangga'],
+                        2 => ['bg' => 'bg-rose-50 text-rose-600 border-rose-100', 'label' => 'Bencana'],
+                        3 => ['bg' => 'bg-emerald-50 text-emerald-600 border-emerald-100', 'label' => 'Kesehatan'],
+                        4 => ['bg' => 'bg-amber-50 text-amber-600 border-amber-100', 'label' => 'Pendidikan'],
+                        5 => ['bg' => 'bg-indigo-50 text-indigo-600 border-indigo-100', 'label' => 'Transportasi'],
+                        6 => ['bg' => 'bg-purple-50 text-purple-600 border-purple-100', 'label' => 'Sosial'],
+                        7 => ['bg' => 'bg-orange-50 text-orange-600 border-orange-100', 'label' => 'Pangan'],
+                        8 => ['bg' => 'bg-sky-50 text-sky-600 border-sky-100', 'label' => 'Lainnya'],
+                    ];
+                @endphp
+
+                @foreach($categories as $cat)
+                    @php
+                        $style = $categoryStyles[$cat->id] ?? ['bg' => 'bg-gray-50 text-gray-700 border-gray-100', 'label' => $cat->name];
+                    @endphp
+                    <a href="{{ route('customer.helps.create', ['category_id' => $cat->id]) }}"
+                       class="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white border border-gray-100 hover:border-[#0066FF]/30 hover:shadow-xs transition group cursor-pointer text-center">
+                        <div class="w-12 h-12 rounded-2xl {{ $style['bg'] }} border flex items-center justify-center text-xl shadow-2xs group-hover:scale-110 transition-transform">
+                            {{ $cat->icon ?? '📦' }}
+                        </div>
+                        <span class="text-[11px] font-semibold text-gray-800 mt-1.5 truncate w-full text-center group-hover:text-[#0066FF]">
+                            {{ $cat->name }}
+                        </span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
         <!-- Card Notifikasi Bertahap (If-Else): Biodata -> KTP -> Email (Hilang 1 per 1 jika sudah terpenuhi) -->
         @php
             $dashUser = auth()->user();
@@ -168,9 +301,9 @@
         @if($needsBiodata)
             {{-- 1. LENGKAPI BIODATA DULU --}}
             <div class="rounded-2xl p-3.5 text-xs mb-5 flex items-center justify-between gap-3 bg-white"
-                 style="border: 1.5px solid #0098e7; box-shadow: 0 4px 14px rgba(0, 152, 231, 0.15);">
+                 style="border: 1.5px solid #0066FF; box-shadow: 0 4px 14px rgba(0, 102, 255, 0.15);">
                 <div class="flex items-center gap-3 min-w-0">
-                    <div style="background: linear-gradient(135deg, #0098e7 0%, #0077cc 100%); width: 38px; height: 38px; min-width: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
+                    <div style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%); width: 38px; height: 38px; min-width: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);">
                         <svg style="width: 18px; height: 18px; color: #ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
@@ -185,7 +318,7 @@
                 </div>
                 <a href="{{ route('profile.edit') }}" 
                    class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 cursor-pointer shadow-xs"
-                   style="background: linear-gradient(to right, #0098e7, #0077cc); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
+                   style="background: linear-gradient(to right, #0066FF, #0052cc); box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);">
                     Lengkapi
                 </a>
             </div>
@@ -216,7 +349,7 @@
                 </div>
                 <a href="{{ route('profile.settings.verification') }}" 
                    class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] hover:opacity-95 active:scale-95 cursor-pointer shadow-xs {{ $hasKtpUploaded ? 'text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100' : 'text-white' }}"
-                   @if(!$hasKtpUploaded) style="background: linear-gradient(135deg, #0098e7 0%, #0077cc 100%); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);" @endif>
+                   @if(!$hasKtpUploaded) style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%); box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);" @endif>
                     {{ $hasKtpUploaded ? 'Cek Status' : 'Upload' }}
                 </a>
             </div>
@@ -328,11 +461,11 @@
             </div>
         @endif
 
-        <!-- Bantuan Saya Section -->
+        <!-- Pesanan Saya Section matching Gambar 2 -->
         <div class="mb-5">
             <div class="flex items-center justify-between mb-3">
-                <h2 class="text-base font-bold text-gray-900">Bantuan Saya</h2>
-                <a href="{{ route('customer.helps.index') }}" class="text-xs font-semibold" style="color: #0098e7;">Lihat Semua →</a>
+                <h2 class="text-sm font-extrabold text-gray-900">Pesanan Saya</h2>
+                <a href="{{ route('customer.helps.index') }}" class="text-xs font-bold text-[#0066FF] hover:underline">Lihat Semua →</a>
             </div>
 
             <div class="space-y-3">
@@ -387,7 +520,7 @@
                                                 @endif
                                             @endif
                                         </div>
-                                        <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                        <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                     </div>
                                     <div class="mb-1.5 flex items-center gap-1.5 flex-wrap">
                                         @if(in_array($help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra']))

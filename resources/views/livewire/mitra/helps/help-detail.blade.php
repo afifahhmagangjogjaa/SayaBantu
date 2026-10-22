@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50"
+﻿<div class="min-h-screen bg-gray-50"
     @if(!$showCompletionModal) wire:poll.8s="loadHelp" @endif
     x-data="{ 
         showNotification: false, 
@@ -12,7 +12,7 @@
             
             // Jika status berubah, tampilkan notifikasi
             if (previousStatus !== currentStatus) {
-                console.log('📍 Status berubah:', {
+                console.log('ðŸ“ Status berubah:', {
                     old: previousStatus,
                     new: currentStatus
                 });
@@ -58,7 +58,7 @@
 
     {{-- Header - BRImo Style --}}
     <div class="px-5 pt-5 pb-8 relative overflow-hidden"
-        style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
 
@@ -116,7 +116,7 @@
                         <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}"
                             class="w-full h-full object-cover rounded-lg">
                     @else
-                        {{ $help->category?->icon ?? '📦' }}
+                        {{ $help->category?->icon ?? 'ðŸ“¦' }}
                     @endif
                 </div>
                 <div class="flex-1">
@@ -124,7 +124,7 @@
                     <div class="flex items-center gap-2">
                         <h2 class="font-semibold text-base text-gray-900 leading-tight">{{ $help->title }}</h2>
                         @if($help->isUrgent())
-                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 flex-shrink-0">⚡ URGENT</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 flex-shrink-0">âš¡ URGENT</span>
                         @endif
                     </div>
                     @php
@@ -372,7 +372,7 @@
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-3 mb-3">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 shrink-0 text-base">
-                        ⚠️
+                        âš ï¸
                     </div>
                     <div class="flex-1 text-xs space-y-1.5">
                         <div class="flex items-center justify-between">
@@ -395,7 +395,7 @@
             <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mt-3 mb-3">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shrink-0 text-base">
-                        ⚖️
+                        âš–ï¸
                     </div>
                     <div class="flex-1 text-xs space-y-1.5">
                         <div class="flex items-center justify-between">
@@ -418,7 +418,7 @@
             <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mt-3 mb-3">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 text-base">
-                        🎉
+                        ðŸŽ‰
                     </div>
                     <div class="flex-1 text-xs space-y-1.5">
                         <div class="flex items-center justify-between">
@@ -471,9 +471,9 @@
                     Jadwal Permintaan
                 </h3>
                 @if($help->isUrgent())
-                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700">⚡ URGENT</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700">âš¡ URGENT</span>
                 @else
-                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">📅 TERJADWAL</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">ðŸ“… TERJADWAL</span>
                 @endif
             </div>
             <p class="text-sm text-gray-700">
@@ -641,7 +641,7 @@
                 <div class="bg-white px-4 py-4 rounded-xl shadow-sm border border-gray-100 mb-3">
                     <button wire:click="markPartnerStarted"
                         class="w-full py-3.5 text-white rounded-xl font-bold text-sm hover:opacity-95 transition flex items-center justify-center gap-2 shadow-sm"
-                        style="background: linear-gradient(135deg, #0098e7, #0077cc); box-shadow: 0 4px 14px rgba(0, 152, 231, 0.35);">
+                        style="background: linear-gradient(135deg, #0066FF, #0052CC); box-shadow: 0 4px 14px rgba(0, 152, 231, 0.35);">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                         </svg>
@@ -717,16 +717,16 @@
                         </svg>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h4 class="font-semibold text-xs text-blue-900">🛵 Sedang Menuju Lokasi Customer</h4>
+                        <h4 class="font-semibold text-xs text-blue-900">ðŸ›µ Sedang Menuju Lokasi Customer</h4>
                         <div class="flex items-center gap-2 mt-1 flex-wrap">
                             @if($distToCust !== null)
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold {{ $isWithinArrivalRange ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-blue-100 text-blue-800 border border-blue-200' }}">
-                                    📍 Jarak: {{ $distToCust >= 1000 ? number_format($distToCust / 1000, 1) . ' km' : round($distToCust) . ' meter' }}
+                                    ðŸ“ Jarak: {{ $distToCust >= 1000 ? number_format($distToCust / 1000, 1) . ' km' : round($distToCust) . ' meter' }}
                                 </span>
                                 @if($isWithinArrivalRange)
                                     <span class="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
                                         <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                                        Dalam Radius (≤ 50m)
+                                        Dalam Radius (â‰¤ 50m)
                                     </span>
                                 @else
                                     <span class="text-[10px] text-gray-500">Maksimal radius tiba: 50m</span>
@@ -749,10 +749,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
-                        📍 Saya Sudah Tiba di Lokasi
+                        ðŸ“ Saya Sudah Tiba di Lokasi
                     </button>
                     <p class="text-xs text-emerald-600 font-semibold text-center mt-2">
-                        ✓ Anda sudah berada dalam radius 50m! Klik tombol di atas untuk konfirmasi kedatangan.
+                        âœ“ Anda sudah berada dalam radius 50m! Klik tombol di atas untuk konfirmasi kedatangan.
                     </p>
                 @elseif($distToCust !== null)
                     {{-- Jarak > 50 meter: Tombol terkunci / belum aktif --}}
@@ -764,7 +764,7 @@
                         <span>Telah Tiba di Lokasi (Terkunci)</span>
                     </button>
                     <p class="text-xs text-gray-500 text-center mt-2 leading-relaxed">
-                        Tombol akan aktif otomatis saat jarak Anda <strong>≤ 50 meter</strong> dari customer.<br>
+                        Tombol akan aktif otomatis saat jarak Anda <strong>â‰¤ 50 meter</strong> dari customer.<br>
                         <span class="text-gray-400">(Saat ini masih berjarak <strong>{{ $distToCust >= 1000 ? number_format($distToCust / 1000, 1) . ' km' : round($distToCust) . ' meter' }}</strong>)</span>
                     </p>
                 @else
@@ -793,7 +793,7 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <h4 class="font-semibold text-xs text-emerald-900">📍 Sudah Tiba di Lokasi</h4>
+                        <h4 class="font-semibold text-xs text-emerald-900">ðŸ“ Sudah Tiba di Lokasi</h4>
                         <p class="text-[11px] text-emerald-700 mt-0.5">Silakan temui customer dan klik tombol <strong>Mulai Pekerjaan</strong> untuk memulai.</p>
                     </div>
                 </div>
@@ -809,7 +809,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    ⚙️ Mulai Pekerjaan
+                    âš™ï¸ Mulai Pekerjaan
                 </button>
                 <p class="text-xs text-gray-500 text-center mt-2">Klik tombol ini setelah Anda siap mengerjakan bantuan</p>
             </div>
@@ -891,7 +891,7 @@
                                 <span class="font-bold text-green-700">Rp {{ number_format($netPayout, 0, ',', '.') }}</span>
                             </div>
                             <div class="text-[11px] text-gray-500 leading-relaxed pt-1 border-t border-gray-100">
-                                💡 <strong>Pencairan Otomatis:</strong> Jika customer tidak merespon dalam 24 jam 
+                                ðŸ’¡ <strong>Pencairan Otomatis:</strong> Jika customer tidak merespon dalam 24 jam 
                                 @if($mitraDeadline)
                                     (maksimal <span class="font-semibold text-gray-700">{{ $mitraDeadline->isoFormat('dddd, D MMMM Y HH:mm') }} WIB</span>),
                                 @endif
@@ -1229,7 +1229,7 @@
                     </p>
                     <div class="mb-4 p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-center">
                         <p class="text-xs text-amber-800 font-medium">
-                            ⚠️ <strong>Perhatian:</strong> Pembatalan akan dicatat ke rekam jejak performa akun Anda dan dapat dikenakan sanksi jika terlalu sering.
+                            âš ï¸ <strong>Perhatian:</strong> Pembatalan akan dicatat ke rekam jejak performa akun Anda dan dapat dikenakan sanksi jika terlalu sering.
                         </p>
                     </div>
 
@@ -1351,7 +1351,7 @@
                                     <img src="{{ $previewBeforeUrl }}" alt="Preview Before" class="h-full w-full object-contain">
                                 @else
                                     <div class="text-white text-xs p-2 text-center">
-                                        <p class="font-bold text-emerald-400">✓ Foto Awal Terpilih</p>
+                                        <p class="font-bold text-emerald-400">âœ“ Foto Awal Terpilih</p>
                                     </div>
                                 @endif
                                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
@@ -1416,7 +1416,7 @@
                                     <img src="{{ $previewUrl }}" alt="Preview Bukti" class="h-full w-full object-contain">
                                 @else
                                     <div class="text-white text-xs p-2 text-center">
-                                        <p class="font-bold text-emerald-400">✓ Foto Selesai Terpilih</p>
+                                        <p class="font-bold text-emerald-400">âœ“ Foto Selesai Terpilih</p>
                                         <p class="text-[10px] text-gray-300 mt-0.5">{{ is_object($completion_photo) && method_exists($completion_photo, 'getClientOriginalName') ? $completion_photo->getClientOriginalName() : 'Foto bukti' }}</p>
                                     </div>
                                 @endif

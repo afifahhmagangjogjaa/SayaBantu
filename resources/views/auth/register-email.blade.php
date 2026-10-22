@@ -1,42 +1,22 @@
-<x-guest-layout>
-    <div class="w-full flex-1 flex flex-col justify-between py-2"
+﻿<x-guest-layout>
+    <div class="w-full flex-1 flex flex-col justify-between"
         x-data="{
             showPass: false,
             showConfirmPass: false,
+            role: '{{ $role ?? 'customer' }}',
             nameVal: '{{ old('name', '') }}',
             emailVal: '{{ old('email', '') }}',
             newPass: '',
             confirmPass: '',
-            get score() {
-                let p = this.newPass || '';
-                if (!p) return 0;
-                let s = 0;
-                if (p.length >= 8) s++;
-                if (p.length >= 10) s++;
-                if (/[A-Z]/.test(p)) s++;
-                if (/[0-9]/.test(p)) s++;
-                if (/[^A-Za-z0-9]/.test(p)) s++;
-                return s;
-            },
-            get isValid() {
-                let p = this.newPass || '';
-                let c = this.confirmPass || '';
-                let hasMin = p.length >= 8;
-                let hasUpper = /[A-Z]/.test(p);
-                let hasNum = /[0-9]/.test(p);
-                let hasSpecial = /[^A-Za-z0-9]/.test(p);
-                let isMatch = p.length > 0 && p === c;
-                let hasName = this.nameVal && this.nameVal.trim().length > 0;
-                let hasEmail = this.emailVal && this.emailVal.trim().length > 0;
-                return hasName && hasEmail && hasMin && hasUpper && hasNum && hasSpecial && isMatch;
-            }
         }">
         <div>
-            <!-- Header Register -->
-            <div class="pt-2 mb-6 text-center">
-                <h2 class="text-2xl font-bold text-gray-900 mb-1.5 tracking-tight">Daftar Akun Baru</h2>
-                <p class="text-xs text-gray-500 font-medium">
-                    Lengkapi data untuk mendaftar sebagai <span class="font-bold text-blue-600">{{ $role === 'mitra' ? 'Mitra' : 'Customer' }}</span>
+            <!-- Header Register matching mockups -->
+            <div class="pt-1 mb-5">
+                <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">
+                    {{ $role === 'mitra' ? 'Daftar Menjadi Mitra' : 'Daftar Akun' }}
+                </h2>
+                <p class="text-xs text-gray-400 mt-1">
+                    {{ $role === 'mitra' ? 'Bergabung bersama kami dan dapatkan banyak peluang kerja.' : 'Buat akun untuk mulai menggunakan layanan sayabantu.com' }}
                 </p>
             </div>
 
@@ -101,7 +81,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
                             </svg>
                             <!-- Eye Open (Saat Terlihat) -->
-                            <svg x-show="showPass" class="w-5 h-5 text-[#0098e7]" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+                            <svg x-show="showPass" class="w-5 h-5 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
@@ -148,7 +128,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
                             </svg>
                             <!-- Eye Open (Saat Terlihat) -->
-                            <svg x-show="showConfirmPass" class="w-5 h-5 text-[#0098e7]" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+                            <svg x-show="showConfirmPass" class="w-5 h-5 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
@@ -158,10 +138,10 @@
                     {{-- Status Kecocokan Password --}}
                     <div x-show="confirmPass && confirmPass.length > 0" x-transition class="mt-1.5">
                         <p x-show="newPass === confirmPass" class="text-xs text-emerald-600 flex items-center gap-1 font-medium">
-                            <span>✓</span> <span>Konfirmasi kata sandi cocok.</span>
+                            <span>âœ“</span> <span>Konfirmasi kata sandi cocok.</span>
                         </p>
                         <p x-show="newPass !== confirmPass" class="text-xs text-red-500 flex items-center gap-1 font-medium">
-                            <span>✕</span> <span>Kata sandi tidak cocok.</span>
+                            <span>âœ•</span> <span>Kata sandi tidak cocok.</span>
                         </p>
                     </div>
                 </div>
@@ -173,45 +153,47 @@
                         <div class="flex items-center gap-1.5 transition-colors duration-150" :class="newPass.length >= 8 ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                             <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                   :class="newPass.length >= 8 ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                  x-text="newPass.length >= 8 ? '✓' : '✕'">✕</span>
+                                  x-text="newPass.length >= 8 ? 'âœ“' : 'âœ•'">âœ•</span>
                             <span>Minimal 8 karakter</span>
                         </div>
                         <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[A-Z]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                             <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                   :class="/[A-Z]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                  x-text="/[A-Z]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                  x-text="/[A-Z]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                             <span>Huruf besar (A-Z)</span>
                         </div>
                         <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                             <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                   :class="/[0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                  x-text="/[0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                  x-text="/[0-9]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                             <span>Angka (0-9)</span>
                         </div>
                         <div class="flex items-center gap-1.5 transition-colors duration-150" :class="/[^A-Za-z0-9]/.test(newPass) ? 'text-emerald-600 font-semibold' : 'text-gray-500'">
                             <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all font-bold"
                                   :class="/[^A-Za-z0-9]/.test(newPass) ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'"
-                                  x-text="/[^A-Za-z0-9]/.test(newPass) ? '✓' : '✕'">✕</span>
+                                  x-text="/[^A-Za-z0-9]/.test(newPass) ? 'âœ“' : 'âœ•'">âœ•</span>
                             <span>Karakter khusus / simbol</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="pt-3">
+                <div class="pt-2">
                     <button type="submit"
-                        :disabled="!isValid"
-                        :class="!isValid ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-lg active:scale-98'"
-                        class="w-full text-white font-bold py-3.5 px-4 rounded-full shadow-md transition text-sm tracking-wide"
-                        style="background-color: #0098e7;">
-                        Daftar Sekarang →
+                        class="w-full text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:bg-[#0052CC] active:scale-[0.99] transition text-sm tracking-wide bg-[#0066FF]">
+                        Daftar
                     </button>
+                    <p class="text-[11px] text-gray-400 text-center mt-3 leading-relaxed">
+                        Dengan mendaftar, Anda menyetujui
+                        <a href="#" class="text-[#0066FF] hover:underline">Syarat & Ketentuan</a> dan
+                        <a href="#" class="text-[#0066FF] hover:underline">Kebijakan Privasi</a> kami.
+                    </p>
                 </div>
             </form>
         </div>
 
-        <div class="mt-8 pt-4 border-t border-gray-100 text-center">
-            <p class="text-xs text-gray-500 font-medium">
-                Sudah punya akun? <a href="{{ route('login') }}" class="font-bold text-blue-600 hover:underline">Masuk ke Akun</a>
+        <div class="mt-6 pt-3 text-center">
+            <p class="text-xs text-gray-500">
+                Sudah punya akun? <a href="{{ route('login', ['role' => $role]) }}" class="font-bold text-[#0066FF] hover:underline">Login</a>
             </p>
         </div>
     </div>

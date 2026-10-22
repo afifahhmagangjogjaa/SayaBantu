@@ -18,16 +18,24 @@ class AllHelps extends Component
     use WithPagination;
 
     protected $queryString = [
+        'tab' => ['except' => 'semua'],
         'search' => ['except' => ''],
         'filterStatus' => ['except' => 'all'],
         'sortBy' => ['except' => 'latest'],
     ];
 
+    public string $tab = 'semua'; // semua, tersedia, proses, selesai
     public $search = '';
     public $filterStatus = 'all'; // all, menunggu_mitra
     public $sortBy = 'latest'; // latest, oldest, nearby, price_high, price_low
     public $userLat = null;
     public $userLng = null;
+
+    public function setTab(string $tab): void
+    {
+        $this->tab = in_array($tab, ['semua', 'tersedia', 'proses', 'selesai']) ? $tab : 'semua';
+        $this->resetPage();
+    }
 
     public function mount()
     {
@@ -119,12 +127,31 @@ class AllHelps extends Component
             }
         }
 
-        // Filter berdasarkan status
-        if ($this->filterStatus === 'menunggu_mitra') {
+        // Filter berdasarkan tab (Gambar 1: Semua, Tersedia, Dalam Proses, Selesai)
+        $inProgressStatuses = [
+            'taken', 'partner_on_the_way', 'partner_arrived', 'in_progress', 
+            'sedang_diproses', 'diproses_mitra', 'waiting_customer_confirmation'
+        ];
+
+        if ($this->tab === 'tersedia') {
             $query->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+        } elseif ($this->tab === 'proses') {
+            $query->where('mitra_id', $user?->id)->whereIn('status', $inProgressStatuses);
+        } elseif ($this->tab === 'selesai') {
+            $query->where('mitra_id', $user?->id)->whereIn('status', ['selesai', 'completed']);
         } else {
-            // Tampilkan semua bantuan dari semua customer
-            $query->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+            // 'semua'
+            $query->where(function($q) use ($user, $inProgressStatuses) {
+                $q->where(function($sq) use ($user) {
+                    $sq->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+                });
+                if ($user) {
+                    $q->orWhere(function($sq) use ($user, $inProgressStatuses) {
+                        $sq->where('mitra_id', $user->id)
+                           ->whereIn('status', array_merge($inProgressStatuses, ['selesai', 'completed']));
+                    });
+                }
+            });
         }
 
         // Search berdasarkan judul, deskripsi, lokasi, alamat, nama pelanggan, kota, atau kategori

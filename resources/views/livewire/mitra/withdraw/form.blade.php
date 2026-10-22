@@ -1,10 +1,10 @@
-@extends('layouts.mitra')
+﻿@extends('layouts.mitra')
 
 @section('content')
     <div class="min-h-screen bg-gray-50">
         <div class="max-w-md mx-auto">
             <!-- Header (consistent with other pages) -->
-            <div class="px-5 pt-4 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+            <div class="px-5 pt-4 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
                 <div class="absolute top-0 right-0 w-28 h-28 bg-white/5 rounded-full -mr-12 -mt-12"></div>
                 <div class="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full -ml-8 -mb-8"></div>
 
@@ -176,7 +176,7 @@
                         </div>
                         <div id="amount-feedback" class="mt-1.5 text-xs text-gray-500">
                             @if(!$user->hasVerifiedEmail())
-                                <span class="text-amber-600 font-medium">⚠️ Verifikasi email diperlukan untuk menarik saldo</span>
+                                <span class="text-amber-600 font-medium">âš ï¸ Verifikasi email diperlukan untuk menarik saldo</span>
                             @else
                                 Minimum penarikan adalah <span class="font-semibold">Rp 10.000</span>
                             @endif
@@ -277,7 +277,7 @@
                     if (!amountInput || !feedback) return;
 
                     if (!isEmailVerified) {
-                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ Anda harus memverifikasi email terlebih dahulu</span>';
+                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">âš ï¸ Anda harus memverifikasi email terlebih dahulu</span>';
                         if (submitBtn) {
                             submitBtn.disabled = true;
                             submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
@@ -289,7 +289,7 @@
                     const val = parseInt(amountInput.value.replace(/\D/g, '')) || 0;
 
                     if (userBalance < 10000) {
-                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ Saldo tidak mencukupi (minimal Rp 10.000)</span>';
+                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">âš ï¸ Saldo tidak mencukupi (minimal Rp 10.000)</span>';
                         if (submitBtn) {
                             submitBtn.disabled = true;
                             submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
@@ -299,7 +299,7 @@
                     }
 
                     if (val > userBalance) {
-                        feedback.innerHTML = `<span class="text-red-600 font-semibold">❌ Melebihi saldo tersedia (Maksimal Rp ${userBalance.toLocaleString('id-ID')})</span>`;
+                        feedback.innerHTML = `<span class="text-red-600 font-semibold">âŒ Melebihi saldo tersedia (Maksimal Rp ${userBalance.toLocaleString('id-ID')})</span>`;
                         if (submitBtn) {
                             submitBtn.disabled = true;
                             submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-red-300 cursor-not-allowed';
@@ -307,7 +307,7 @@
                         }
                         return false;
                     } else if (val > 0 && val < 10000) {
-                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ Minimal penarikan adalah Rp 10.000</span>';
+                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">âš ï¸ Minimal penarikan adalah Rp 10.000</span>';
                         if (submitBtn) {
                             submitBtn.disabled = true;
                             submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
@@ -315,7 +315,7 @@
                         }
                         return false;
                     } else if (val >= 10000) {
-                        feedback.innerHTML = `<span class="text-green-600 font-semibold">✓ Nominal valid: Rp ${val.toLocaleString('id-ID')}</span>`;
+                        feedback.innerHTML = `<span class="text-green-600 font-semibold">âœ“ Nominal valid: Rp ${val.toLocaleString('id-ID')}</span>`;
                         if (submitBtn) {
                             submitBtn.disabled = false;
                             submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-blue-600 hover:bg-blue-700 cursor-pointer';

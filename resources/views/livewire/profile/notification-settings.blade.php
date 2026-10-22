@@ -1,4 +1,4 @@
-<div class="space-y-4" x-data="{
+﻿<div class="space-y-4" x-data="{
     playNotif() { window.playNotifChime(); },
     playRing() { window.playRingChime(); },
     vibrate() { window.triggerVibrate(); }
@@ -25,7 +25,7 @@
         </div>
         <button type="button" wire:click="updateSetting('generalNotification')"
             onclick="if('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission();"
-            style="background-color: {{ $generalNotification ? '#0098e7' : '#cbd5e1' }}; width: 44px; height: 24px;"
+            style="background-color: {{ $generalNotification ? '#0066FF' : '#cbd5e1' }}; width: 44px; height: 24px;"
             class="relative inline-flex flex-shrink-0 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none shadow-inner">
             <span style="transform: translateX({{ $generalNotification ? '22px' : '2px' }});"
                 class="inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200"></span>
@@ -37,15 +37,15 @@
         <div class="pr-4">
             <div class="flex items-center gap-2">
                 <span class="font-semibold text-sm text-gray-900 block">Suara Notifikasi</span>
-                <button type="button" @click="playNotif()" class="px-2 py-0.5 text-[11px] bg-blue-50 text-[#0098e7] rounded-md font-medium hover:bg-blue-100 transition flex items-center gap-1">
-                    🔊 Uji Suara
+                <button type="button" @click="playNotif()" class="px-2 py-0.5 text-[11px] bg-blue-50 text-[#0066FF] rounded-md font-medium hover:bg-blue-100 transition flex items-center gap-1">
+                    ðŸ”Š Uji Suara
                 </button>
             </div>
             <span class="text-xs text-gray-400">Bunyikan nada saat ada notifikasi masuk</span>
         </div>
         <button type="button" wire:click="updateSetting('sound')"
             @click="playNotif()"
-            style="background-color: {{ $sound ? '#0098e7' : '#cbd5e1' }}; width: 44px; height: 24px;"
+            style="background-color: {{ $sound ? '#0066FF' : '#cbd5e1' }}; width: 44px; height: 24px;"
             class="relative inline-flex flex-shrink-0 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none shadow-inner">
             <span style="transform: translateX({{ $sound ? '22px' : '2px' }});"
                 class="inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200"></span>
@@ -57,15 +57,15 @@
         <div class="pr-4">
             <div class="flex items-center gap-2">
                 <span class="font-semibold text-sm text-gray-900 block">Nada Panggilan</span>
-                <button type="button" @click="playRing()" class="px-2 py-0.5 text-[11px] bg-blue-50 text-[#0098e7] rounded-md font-medium hover:bg-blue-100 transition flex items-center gap-1">
-                    📞 Uji Dering
+                <button type="button" @click="playRing()" class="px-2 py-0.5 text-[11px] bg-blue-50 text-[#0066FF] rounded-md font-medium hover:bg-blue-100 transition flex items-center gap-1">
+                    ðŸ“ž Uji Dering
                 </button>
             </div>
             <span class="text-xs text-gray-400">Bunyi dering panggilan bantuan darurat</span>
         </div>
         <button type="button" wire:click="updateSetting('soundCall')"
             @click="playRing()"
-            style="background-color: {{ $soundCall ? '#0098e7' : '#cbd5e1' }}; width: 44px; height: 24px;"
+            style="background-color: {{ $soundCall ? '#0066FF' : '#cbd5e1' }}; width: 44px; height: 24px;"
             class="relative inline-flex flex-shrink-0 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none shadow-inner">
             <span style="transform: translateX({{ $soundCall ? '22px' : '2px' }});"
                 class="inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200"></span>
@@ -80,7 +80,7 @@
         </div>
         <button type="button" wire:click="updateSetting('vibrate')"
             @click="vibrate()"
-            style="background-color: {{ $vibrate ? '#0098e7' : '#cbd5e1' }}; width: 44px; height: 24px;"
+            style="background-color: {{ $vibrate ? '#0066FF' : '#cbd5e1' }}; width: 44px; height: 24px;"
             class="relative inline-flex flex-shrink-0 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none shadow-inner">
             <span style="transform: translateX({{ $vibrate ? '22px' : '2px' }});"
                 class="inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200"></span>
@@ -94,7 +94,7 @@
             <span class="text-xs text-gray-400">Notifikasi top up, penarikan saldo, & pencairan</span>
         </div>
         <button type="button" wire:click="updateSetting('transactionUpdate')"
-            style="background-color: {{ $transactionUpdate ? '#0098e7' : '#cbd5e1' }}; width: 44px; height: 24px;"
+            style="background-color: {{ $transactionUpdate ? '#0066FF' : '#cbd5e1' }}; width: 44px; height: 24px;"
             class="relative inline-flex flex-shrink-0 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none shadow-inner">
             <span style="transform: translateX({{ $transactionUpdate ? '22px' : '2px' }});"
                 class="inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200"></span>
@@ -108,7 +108,7 @@
             <span class="text-xs text-gray-400">Pengingat jadwal dan status bantuan yang sedang berjalan</span>
         </div>
         <button type="button" wire:click="updateSetting('expenseReminder')"
-            style="background-color: {{ $expenseReminder ? '#0098e7' : '#cbd5e1' }}; width: 44px; height: 24px;"
+            style="background-color: {{ $expenseReminder ? '#0066FF' : '#cbd5e1' }}; width: 44px; height: 24px;"
             class="relative inline-flex flex-shrink-0 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none shadow-inner">
             <span style="transform: translateX({{ $expenseReminder ? '22px' : '2px' }});"
                 class="inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200"></span>
@@ -122,7 +122,7 @@
             <span class="text-xs text-gray-400">Info promo, update sistem, dan fitur terbaru</span>
         </div>
         <button type="button" wire:click="updateSetting('budgetNotifications')"
-            style="background-color: {{ $budgetNotifications ? '#0098e7' : '#cbd5e1' }}; width: 44px; height: 24px;"
+            style="background-color: {{ $budgetNotifications ? '#0066FF' : '#cbd5e1' }}; width: 44px; height: 24px;"
             class="relative inline-flex flex-shrink-0 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none shadow-inner">
             <span style="transform: translateX({{ $budgetNotifications ? '22px' : '2px' }});"
                 class="inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200"></span>
@@ -136,7 +136,7 @@
             <span class="text-xs text-gray-400">Peringatan saat saldo dompet hampir habis</span>
         </div>
         <button type="button" wire:click="updateSetting('lowBalanceAlerts')"
-            style="background-color: {{ $lowBalanceAlerts ? '#0098e7' : '#cbd5e1' }}; width: 44px; height: 24px;"
+            style="background-color: {{ $lowBalanceAlerts ? '#0066FF' : '#cbd5e1' }}; width: 44px; height: 24px;"
             class="relative inline-flex flex-shrink-0 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none shadow-inner">
             <span style="transform: translateX({{ $lowBalanceAlerts ? '22px' : '2px' }});"
                 class="inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200"></span>
