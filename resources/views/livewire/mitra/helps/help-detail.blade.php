@@ -622,7 +622,7 @@
         {{-- GPS Simulator (toggle via GPS_SIMULATOR env) --}}
         @if (config('app.gps_simulator', true) &&
                 $help->mitra_id === auth()->id() &&
-                !in_array($help->status, ['selesai', 'dibatalkan']))
+                ! ($help->isSelesai() || $help->isDibatalkan()))
             @if($help->canPartnerStartJourney() || !$help->isMemperolehMitra())
                 <div class="mb-3">
                     <livewire:mitra.gps-simulator :help-id="$help->id" :key="'gps-simulator-' . $help->id" />

@@ -13,7 +13,7 @@
 
     @if($inline)
         {{-- Inline rating area used inside help detail modal --}}
-        @if($help && !$alreadyRated && in_array($help->status, ['completed', 'selesai']))
+        @if($help && !$alreadyRated && $help->isSelesai())
             <div class="mt-4 pt-3 border-t">
                 <div class="flex items-center justify-between mb-1">
                     <h4 class="font-semibold text-sm">Beri Rating dan Ulasan untuk Customer</h4>
@@ -48,7 +48,7 @@
             <div class="mt-4 pt-3 border-t p-3 bg-gray-50 rounded-lg text-sm text-gray-600">Anda sudah memberikan rating untuk customer ini</div>
         @endif
     @else
-        @if(!$alreadyRated && in_array($help->status, ['completed', 'selesai']))
+        @if(!$alreadyRated && $help->isSelesai())
             <button 
                 wire:click="openModal" 
                 class="w-full px-6 py-3 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition flex items-center justify-center gap-2">

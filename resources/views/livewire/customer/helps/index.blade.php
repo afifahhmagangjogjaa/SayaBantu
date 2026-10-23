@@ -353,7 +353,7 @@
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(56,189,248,0.08); color:#0284c7; border:1px solid rgba(3,105,161,0.08);">
                                                 @if($help->status === 'memperoleh_mitra')
                                                     Mitra Ditemukan
-                                                @elseif($help->status === 'taken')
+                                                @elseif($help->isMemperolehMitra())
                                                     Diambil Mitra
                                                 @elseif($help->status === 'partner_on_the_way')
                                                     Rekan Jasa Menuju Lokasi

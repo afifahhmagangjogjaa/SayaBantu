@@ -525,7 +525,7 @@
                                     <div class="mb-1.5 flex items-center gap-1.5 flex-wrap">
                                         @if(in_array($help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra']))
                                             <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">Menunggu Mitra</span>
-                                        @elseif(in_array($help->status, ['taken', 'memperoleh_mitra']))
+                                        @elseif($help->isMemperolehMitra())
                                             <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">Mitra Ditemukan</span>
                                         @elseif($help->status === 'partner_on_the_way')
                                             <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-cyan-50 text-cyan-700 border border-cyan-200">Mitra Menuju Lokasi</span>

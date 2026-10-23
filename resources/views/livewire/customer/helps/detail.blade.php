@@ -615,8 +615,8 @@
                     ]
                 };
 
-                $isScheduledWaiting = $help->isScheduled() && !$help->canPartnerStartJourney() && in_array($help->status, ['taken', 'memperoleh_mitra']);
-                $isTrackable = in_array($help->status, ['partner_on_the_way', 'partner_arrived']) || ($help->status === 'taken' && $help->canPartnerStartJourney());
+                $isScheduledWaiting = $help->isScheduled() && !$help->canPartnerStartJourney() && $help->isMemperolehMitra();
+                $isTrackable = in_array($help->status, ['partner_on_the_way', 'partner_arrived']) || ($help->isMemperolehMitra() && $help->canPartnerStartJourney());
             @endphp
 
             <!-- Status Card (Layout Bawaan Sesuai Timeline Bawah) -->
@@ -753,12 +753,12 @@
                 $statuses = [
                     [ 'key' => 'payment', 'title' => 'Pembayaran', 'time' => $help->created_at, 'active' => in_array($help->status, ['menunggu_pembayaran','mencari_mitra','menunggu_mitra','memperoleh_mitra','taken','partner_on_the_way','partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => $help->status === 'menunggu_pembayaran' ],
                     [ 'key' => 'searching', 'title' => 'Mencari Rekan Jasa', 'time' => $help->mitra_assigned_at ?? $help->taken_at, 'active' => in_array($help->status, ['mencari_mitra','menunggu_mitra','memperoleh_mitra','taken','partner_on_the_way','partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => in_array($help->status, ['mencari_mitra','menunggu_mitra','memperoleh_mitra']) ],
-                    [ 'key' => 'accepted', 'title' => 'Menunggu Rekan Jasa berangkat', 'time' => $help->taken_at, 'active' => in_array($help->status, ['taken','partner_on_the_way','partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => $help->status === 'taken' ],
+                    [ 'key' => 'accepted', 'title' => 'Menunggu Rekan Jasa berangkat', 'time' => $help->taken_at, 'active' => in_array($help->status, ['taken','partner_on_the_way','partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => $help->isMemperolehMitra() ],
                     [ 'key' => 'on_the_way', 'title' => 'Rekan Jasa menuju ke lokasi', 'time' => $help->partner_started_moving_at, 'active' => in_array($help->status, ['partner_on_the_way','partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => $help->status === 'partner_on_the_way' ],
                     [ 'key' => 'arrived', 'title' => 'Rekan Jasa tiba di lokasi', 'time' => $help->partner_arrived_at, 'active' => in_array($help->status, ['partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => $help->status === 'partner_arrived' ],
                     [ 'key' => 'in_progress', 'title' => 'Pelayanan dalam proses', 'time' => $help->service_started_at, 'active' => in_array($help->status, ['in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => in_array($help->status, ['in_progress','sedang_diproses']) ],
                     [ 'key' => 'waiting_confirmation', 'title' => 'Menunggu konfirmasi Anda', 'time' => $help->service_completed_at, 'active' => in_array($help->status, ['waiting_customer_confirmation','selesai','completed']), 'current' => $help->status === 'waiting_customer_confirmation' ],
-                    [ 'key' => 'completed', 'title' => 'Pesanan selesai', 'time' => $help->completed_at, 'active' => in_array($help->status, ['selesai','completed']), 'current' => in_array($help->status, ['selesai','completed']) ]
+                    [ 'key' => 'completed', 'title' => 'Pesanan selesai', 'time' => $help->completed_at, 'active' => $help->isSelesai(), 'current' => $help->isSelesai() ]
                 ];
             @endphp
 

@@ -293,7 +293,7 @@
                                         </div>
 
                                         {{-- Rating form for mitra -> customer (only for completed helps) --}}
-                                        @if($help->status === 'selesai' && $help->user && !\App\Models\Rating::hasRated($help->id, auth()->id(), 'mitra_to_customer'))
+                                        @if($help->isSelesai() && $help->user && !\App\Models\Rating::hasRated($help->id, auth()->id(), 'mitra_to_customer'))
                                             <div class="pt-3 border-t border-gray-100">
                                                 @livewire('mitra.rate-customer', ['helpId' => $help->id, 'inline' => true], key('mitra-rate-' . $help->id))
                                             </div>

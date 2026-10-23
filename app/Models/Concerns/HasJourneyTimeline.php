@@ -33,7 +33,7 @@ trait HasJourneyTimeline
         }
 
         // Hanya berlaku saat mitra sudah ditugaskan tetapi belum berangkat/bekerja
-        if (!in_array($this->status, ['taken', 'memperoleh_mitra'])) {
+        if (! $this->isMemperolehMitra()) {
             return false;
         }
 
@@ -156,7 +156,7 @@ trait HasJourneyTimeline
         }
 
         // Hanya berlaku saat status taken, memperoleh_mitra, atau partner_on_the_way
-        if (!in_array($this->status, ['taken', 'memperoleh_mitra', 'partner_on_the_way'])) {
+        if (! ($this->isMemperolehMitra() || $this->status === 'partner_on_the_way')) {
             return false;
         }
 
