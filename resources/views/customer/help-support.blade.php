@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="title">Bantuan & Dukungan</x-slot>
 
     <div class="min-h-screen bg-gray-50 pb-24">

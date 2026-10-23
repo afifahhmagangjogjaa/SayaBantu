@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="title">Ubah Kata Sandi</x-slot>
 
     <style>

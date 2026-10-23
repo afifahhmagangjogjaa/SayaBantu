@@ -1,4 +1,4 @@
-﻿<div class="min-h-screen bg-gray-50"
+<div class="min-h-screen bg-gray-50"
     @if(!$showCompletionModal) wire:poll.8s="loadHelp" @endif
     x-data="{ 
         showNotification: false, 

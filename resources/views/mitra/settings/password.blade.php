@@ -1,4 +1,4 @@
-﻿<x-mitra-layout>
+<x-mitra-layout>
     <x-slot name="title">Ubah Kata Sandi</x-slot>
 
     <style>

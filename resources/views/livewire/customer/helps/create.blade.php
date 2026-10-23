@@ -1,4 +1,4 @@
-﻿<div>
+<div>
     <style>
         :root {
             --brand-500: #0ea5a4;

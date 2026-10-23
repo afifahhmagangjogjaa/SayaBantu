@@ -1,4 +1,4 @@
-﻿<div class="min-h-screen bg-white" wire:poll.20s.visible>
+<div class="min-h-screen bg-white" wire:poll.20s.visible>
     <style>
         .header-pattern {
             position: relative;

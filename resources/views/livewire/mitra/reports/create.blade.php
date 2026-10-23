@@ -1,4 +1,4 @@
-﻿<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-gray-50">
     <!-- Header - BRImo style -->
     <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>

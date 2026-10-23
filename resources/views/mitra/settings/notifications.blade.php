@@ -1,4 +1,4 @@
-﻿<x-mitra-layout>
+<x-mitra-layout>
     <x-slot name="title">Pengaturan Notifikasi</x-slot>
 
     <div class="min-h-screen bg-gray-50 pb-24">

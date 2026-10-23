@@ -1,4 +1,4 @@
-﻿@php
+@php
     $isMitra = auth()->check() && auth()->user()->role === 'mitra';
     $layoutComponent = $isMitra ? 'mitra-layout' : 'app-layout';
     $notificationRoute = $isMitra ? route('mitra.notifications.index') : route('customer.notifications.index');

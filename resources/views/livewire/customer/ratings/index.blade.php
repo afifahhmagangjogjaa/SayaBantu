@@ -1,4 +1,4 @@
-﻿<div class="min-h-screen bg-white">
+<div class="min-h-screen bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - SayaBantu Style -->
         <div class="px-4 pt-4 pb-12 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">

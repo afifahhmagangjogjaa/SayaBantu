@@ -1,4 +1,4 @@
-﻿<div>
+<div>
     @if (session()->has('error'))
         <div class="mb-4 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700 text-xs flex items-center gap-2">
             <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

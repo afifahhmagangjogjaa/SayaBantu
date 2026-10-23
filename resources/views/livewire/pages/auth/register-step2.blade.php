@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use App\Models\Registration;
 use Illuminate\Support\Facades\Session;

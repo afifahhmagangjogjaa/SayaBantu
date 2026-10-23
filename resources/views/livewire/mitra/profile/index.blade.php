@@ -1,4 +1,4 @@
-﻿<div class="min-h-screen bg-white">
+<div class="min-h-screen bg-white">
     @php
         // Mitra stats
         $totalHelped = $totalHelped ?? \App\Models\Help::where('mitra_id', $user->id)->count();

@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="title">Edit Profile</x-slot>
 
     <div class="min-h-screen bg-white">

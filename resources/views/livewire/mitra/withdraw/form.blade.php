@@ -1,4 +1,4 @@
-﻿@extends('layouts.mitra')
+@extends('layouts.mitra')
 
 @section('content')
     <div class="min-h-screen bg-gray-50">

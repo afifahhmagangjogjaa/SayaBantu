@@ -1,4 +1,4 @@
-﻿<div class="min-h-screen bg-white">
+<div class="min-h-screen bg-white">
     <style>
         :root{
             --brand-500: #0ea5a4;

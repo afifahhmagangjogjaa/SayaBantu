@@ -1,4 +1,4 @@
-﻿<x-guest-layout>
+<x-guest-layout>
     <div class="w-full flex-1 flex flex-col justify-between py-2 text-center" x-data="verifyEmailPage()">
         <div>
             <!-- 1. Dynamic Icon (Email Envelope -> Green Checkmark on Verified) -->

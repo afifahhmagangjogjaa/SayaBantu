@@ -1,4 +1,4 @@
-﻿<div wire:poll.5s class="{{ $selected_help_id ? 'h-screen overflow-hidden' : 'min-h-screen' }} bg-white">
+<div wire:poll.5s class="{{ $selected_help_id ? 'h-screen overflow-hidden' : 'min-h-screen' }} bg-white">
     <div class="max-w-md mx-auto {{ $selected_help_id ? 'h-screen flex flex-col overflow-hidden' : '' }}">
         <!-- Header -->
         <div class="px-5 pt-5 pb-8 relative overflow-hidden flex-shrink-0" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
