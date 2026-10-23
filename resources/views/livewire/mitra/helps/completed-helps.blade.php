@@ -153,7 +153,7 @@
                                                 <img src="{{ asset('storage/' . $help->photo) }}" alt="foto" class="w-full h-full object-cover">
                                             @else
                                                 <div class="w-full h-full flex items-center justify-center text-xl">
-                                                    {{ $help->category?->icon ?? 'ðŸ“¦' }}
+                                                    {{ $help->category?->icon ?? '📦' }}
                                                 </div>
                                             @endif
                                         </div>
@@ -162,16 +162,16 @@
                                             <div class="flex items-center gap-1.5 min-w-0">
                                                 <h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
                                                 @if($help->isUrgent())
-                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">âš¡ Urgent</span>
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
                                                 @endif
                                             </div>
-                                            <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} â€¢ {{ optional($help->updated_at)->format('d M Y') }}</p>
+                                            <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} • {{ optional($help->updated_at)->format('d M Y') }}</p>
                                             @php
                                                 $displayDate = $help->scheduled_at ?? $help->created_at;
                                             @endphp
                                             @if($displayDate)
                                                 <div class="text-xs {{ $help->isUrgent() ? 'text-red-600 font-semibold' : 'text-gray-500' }} mt-1">
-                                                    {{ $help->isUrgent() ? 'âš¡ ' : 'ðŸ“… ' }}{{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}
+                                                    {{ $help->isUrgent() ? '⚡ ' : '📅 ' }}{{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}
                                                 </div>
                                             @endif
                                         </div>
@@ -194,7 +194,7 @@
                                                         $customerRatedCard = \App\Models\Rating::hasRated($help->id, auth()->id(), 'mitra_to_customer');
                                                     @endphp
                                                     @if($customerRatedCard)
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-xs font-medium mt-2">âœ“ Dinilai</span>
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-xs font-medium mt-2">✓ Dinilai</span>
                                                     @else
                                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 text-xs font-medium mt-2">Belum dinilai</span>
                                                     @endif

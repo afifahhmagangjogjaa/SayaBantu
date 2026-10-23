@@ -6,14 +6,15 @@ use App\Http\Controllers\OnboardingController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
-// Landing/Welcome page (for guest)
+// Public landing page
+Route::view('/', 'welcome')->name('home');
 Route::view('/welcome', 'welcome')->name('welcome');
 
 // Rejected registration page (public)
 Route::get('/rejected/{registration}', [\App\Http\Controllers\Auth\RejectedController::class, 'show'])->name('auth.rejected');
 
-// Public routes - Home page with helps listing
-Route::view('/', 'home')->name('home');
+// Public page with the existing helps listing
+Route::view('/bantuan', 'home')->name('public.helps');
 
 // =========================================================================
 // 1. REGISTRASI AWAL (HANYA INPUT EMAIL)

@@ -19,7 +19,7 @@ class EnsureOnboardingCompleted
             }
 
             // Jika belum selesai onboarding dan bukan rute onboarding atau logout
-            if (!$user->is_completed && !$request->routeIs('onboarding.*') && !$request->routeIs('logout')) {
+            if (!$user->is_completed && !$request->routeIs('onboarding.*') && !$request->routeIs('logout') && !$request->routeIs('register.choose-role')) {
                 if (empty($user->password)) {
                     return redirect()->route('onboarding.password');
                 }

@@ -56,6 +56,23 @@ class UpdateProfileInformationForm extends Component
         $this->gender = $user->gender;
     }
 
+    public function selectCityByName(?string $cityName): void
+    {
+        if (empty($cityName)) return;
+
+        $cleanTarget = strtolower(trim(preg_replace('/\b(KOTA|KABUPATEN|KAB)\b/i', '', $cityName)));
+        $cities = \App\Models\City::where('is_active', true)->get();
+
+        $matched = $cities->first(function ($c) use ($cleanTarget) {
+            $cleanName = strtolower(trim(preg_replace('/\b(KOTA|KABUPATEN|KAB)\b/i', '', $c->name)));
+            return $cleanName === $cleanTarget || str_contains($cleanName, $cleanTarget) || str_contains($cleanTarget, $cleanName);
+        });
+
+        if ($matched) {
+            $this->city_id = $matched->id;
+        }
+    }
+
     public function updateProfileInformation()
     {
         $this->name = preg_replace('/[^a-zA-Z\s]/', '', (string) $this->name);

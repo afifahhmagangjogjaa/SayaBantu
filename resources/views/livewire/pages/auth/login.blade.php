@@ -92,31 +92,18 @@ new #[Layout('layouts.guest')] class extends Component {
     }
 }; ?>
 
-<div class="w-full flex-1 flex flex-col justify-between" x-data="{ role: @entangle('role'), testOpen: true }">
+<div class="w-full flex-1 flex flex-col justify-between" x-data="{ testOpen: false, demoRole: 'customer' }">
     <div>
         <!-- Top Logo sayabantu.com -->
-        <div class="pt-2 pb-4 text-center">
+        <div class="pt-1 pb-3 text-center">
             <x-sayabantu-logo size="lg" />
             
-            <!-- Dynamic Title matching Mockup: 'Masuk ke akun Mitra' or 'Masuk ke akun Anda' -->
-            <h2 class="text-xl font-extrabold text-gray-900 mt-5 tracking-tight"
-                x-text="role === 'mitra' ? 'Masuk ke akun Mitra' : 'Masuk ke akun Anda'">
+            <h2 class="text-xl font-extrabold text-gray-900 mt-4 tracking-tight">
+                Masuk ke Akun Anda
             </h2>
-            <p class="text-xs text-gray-400 mt-1" x-text="role === 'mitra' ? 'Buka peluang kerja dan tambah penghasilan Anda' : 'Dapatkan bantuan serabutan cepat dan terpercaya'"></p>
-
-            <!-- Role Selector Pills -->
-            <div class="mt-4 p-1 bg-slate-100 rounded-xl flex items-center gap-1 max-w-[280px] mx-auto text-xs font-semibold">
-                <button type="button" @click="role = 'customer'; $wire.setRole('customer')"
-                        :class="role === 'customer' ? 'bg-white text-[#0066FF] shadow-xs' : 'text-gray-500 hover:text-gray-800'"
-                        class="flex-1 py-1.5 px-3 rounded-lg transition text-center flex items-center justify-center gap-1.5">
-                    <span>👤</span> Customer
-                </button>
-                <button type="button" @click="role = 'mitra'; $wire.setRole('mitra')"
-                        :class="role === 'mitra' ? 'bg-white text-[#0066FF] shadow-xs' : 'text-gray-500 hover:text-gray-800'"
-                        class="flex-1 py-1.5 px-3 rounded-lg transition text-center flex items-center justify-center gap-1.5">
-                    <span>🤝</span> Mitra
-                </button>
-            </div>
+            <p class="text-xs text-gray-500 mt-1">
+                Jasa Serabutan, Mudah, Cepat, Terpercaya
+            </p>
         </div>
 
         <!-- Session Status / Alert -->
@@ -131,10 +118,10 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         @endif
 
-        <form wire:submit="login" class="space-y-4 mt-2">
+        <form wire:submit="login" class="space-y-4 mt-1">
             <!-- Nomor HP / Email -->
             <div>
-                <label for="email" class="block text-xs font-semibold text-gray-700 mb-1.5">
+                <label for="email" class="block text-xs font-bold text-gray-700 mb-1.5">
                     Nomor HP / Email
                 </label>
                 <div class="relative">
@@ -145,16 +132,24 @@ new #[Layout('layouts.guest')] class extends Component {
                     </div>
                     <input wire:model="form.email" id="email" type="text" name="email" required
                         autocomplete="username" placeholder="Contoh: 08123456789 atau email"
-                        class="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:border-[#0066FF] focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-normal">
+                        class="w-full pl-10 pr-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-4 focus:ring-blue-100 transition shadow-2xs font-medium">
                 </div>
                 <x-input-error :messages="$errors->get('form.email')" class="mt-1.5" />
             </div>
 
             <!-- Password -->
             <div>
-                <label for="password" class="block text-xs font-semibold text-gray-700 mb-1.5">
-                    Password
-                </label>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label for="password" class="block text-xs font-bold text-gray-700">
+                        Password
+                    </label>
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}"
+                            class="text-[11px] font-semibold text-[#0066FF] hover:underline">
+                            Lupa password?
+                        </a>
+                    @endif
+                </div>
                 <div class="relative" x-data="{ show: false }">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,10 +158,10 @@ new #[Layout('layouts.guest')] class extends Component {
                     </div>
                     <input wire:model="form.password" id="password" x-bind:type="show ? 'text' : 'password'" name="password" required
                         autocomplete="current-password" placeholder="••••••••"
-                        class="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:border-[#0066FF] focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-normal">
+                        class="w-full pl-10 pr-12 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-4 focus:ring-blue-100 transition shadow-2xs font-medium">
                     
                     <button type="button" @click="show = !show"
-                        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none">
+                        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
                         <svg x-show="show" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -180,10 +175,10 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
 
             <!-- Login Button -->
-            <div class="pt-1">
+            <div class="pt-2">
                 <button type="submit" wire:loading.attr="disabled" wire:target="login"
-                    class="w-full bg-[#0066FF] hover:bg-[#0052CC] active:scale-[0.99] text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition text-sm tracking-wide disabled:opacity-60 flex items-center justify-center gap-2">
-                    <svg wire:loading wire:target="login" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    class="w-full bg-[#0066FF] hover:bg-[#0055D4] active:scale-[0.98] text-white font-bold py-3.5 sm:py-4 rounded-full shadow-md shadow-blue-500/25 transition text-base tracking-wide disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer">
+                    <svg wire:loading wire:target="login" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                     </svg>
@@ -191,16 +186,6 @@ new #[Layout('layouts.guest')] class extends Component {
                     <span wire:loading wire:target="login">Memproses...</span>
                 </button>
             </div>
-
-            <!-- Forgot Password Link -->
-            @if (Route::has('password.request'))
-                <div class="text-center pt-0.5">
-                    <a href="{{ route('password.request') }}" wire:navigate
-                        class="text-xs font-semibold text-[#0066FF] hover:underline">
-                        Lupa password?
-                    </a>
-                </div>
-            @endif
         </form>
 
         <!-- Divider matching mockup: 'atau' -->
@@ -211,8 +196,8 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <!-- Google Login Button matching mockup -->
         <div>
-            <a :href="'{{ route('auth.google') }}?role=' + role"
-                class="w-full py-3 px-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-center text-xs transition active:scale-[0.99] flex items-center justify-center gap-2 shadow-2xs cursor-pointer">
+            <a href="{{ route('auth.google') }}"
+                class="w-full py-3.5 px-4 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-bold text-center text-sm transition active:scale-[0.98] flex items-center justify-center gap-2.5 shadow-2xs cursor-pointer">
                 <!-- Google G colored SVG logo -->
                 <svg class="w-4 h-4" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -226,27 +211,33 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <!-- Register Link matching mockup -->
         <div class="mt-4 text-center">
-            <p class="text-xs text-gray-500">
+            <p class="text-xs sm:text-sm text-gray-500 font-medium">
                 Belum punya akun?
-                <a href="{{ route('register.choose-role') }}" wire:navigate class="font-bold text-[#0066FF] hover:underline">
+                <a href="{{ route('register.choose-role') }}" class="font-bold text-[#0066FF] hover:underline ml-1">
                     Daftar
                 </a>
             </p>
         </div>
 
         <!-- ========================================================================= -->
-        <!-- AKUN TESTING — 1 KLIK LANGSUNG MASUK (DIPERTAHANKAN SESUAI PERMINTAAN)    -->
+        <!-- AKUN TESTING — 1 KLIK LANGSUNG MASUK (DROPDOWN / DRAWER BERSIH)           -->
         <!-- ========================================================================= -->
-        <div class="mt-6 pt-4 border-t border-slate-200">
-            <div class="flex items-center justify-between mb-2.5">
+        <div class="mt-6 pt-3 border-t border-slate-100">
+            <button type="button" @click="testOpen = !testOpen"
+                    class="w-full flex items-center justify-between text-xs font-bold text-gray-700 hover:text-[#0066FF] py-1 transition cursor-pointer">
                 <div class="flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-xs font-bold text-gray-800">Akun Testing (1-Klik Masuk)</span>
+                    <span>Akun Demo / Testing</span>
                 </div>
-                <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold">
-                    Sayabantu123!
-                </span>
-            </div>
+                <div class="flex items-center gap-1 text-[11px] text-gray-400 font-normal">
+                    <span x-text="testOpen ? 'Sembunyikan' : 'Buka Demo'"></span>
+                    <svg class="w-3.5 h-3.5 transform transition-transform" :class="testOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+            </button>
+
+            <div x-show="testOpen" x-transition class="mt-2.5">
 
             @error('quickLogin')
                 <div class="mb-2 p-2 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
@@ -257,25 +248,25 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <!-- Testing Tab Selector -->
             <div class="flex gap-1 p-1 bg-slate-100 rounded-xl mb-2.5 text-xs font-semibold">
-                <button type="button" @click="role = 'customer'"
-                    :class="role === 'customer' ? 'bg-white text-blue-700 shadow-2xs' : 'text-gray-500 hover:text-gray-800'"
+                <button type="button" @click="demoRole = 'customer'"
+                    :class="demoRole === 'customer' ? 'bg-white text-blue-700 shadow-2xs' : 'text-gray-500 hover:text-gray-800'"
                     class="flex-1 py-1 px-2 rounded-lg transition text-center flex items-center justify-center gap-1">
                     <span>👤</span> Customer
                 </button>
-                <button type="button" @click="role = 'mitra'"
-                    :class="role === 'mitra' ? 'bg-white text-emerald-700 shadow-2xs' : 'text-gray-500 hover:text-gray-800'"
+                <button type="button" @click="demoRole = 'mitra'"
+                    :class="demoRole === 'mitra' ? 'bg-white text-emerald-700 shadow-2xs' : 'text-gray-500 hover:text-gray-800'"
                     class="flex-1 py-1 px-2 rounded-lg transition text-center flex items-center justify-center gap-1">
                     <span>🤝</span> Mitra
                 </button>
-                <button type="button" @click="role = 'admin'"
-                    :class="role === 'admin' ? 'bg-white text-purple-700 shadow-2xs' : 'text-gray-500 hover:text-gray-800'"
+                <button type="button" @click="demoRole = 'admin'"
+                    :class="demoRole === 'admin' ? 'bg-white text-purple-700 shadow-2xs' : 'text-gray-500 hover:text-gray-800'"
                     class="flex-1 py-1 px-2 rounded-lg transition text-center flex items-center justify-center gap-1">
                     <span>🛡️</span> Admin
                 </button>
             </div>
 
             <!-- Tab 1: Customer -->
-            <div x-show="role === 'customer'" class="space-y-1.5">
+            <div x-show="demoRole === 'customer'" class="space-y-1.5">
                 @php
                     $testCustomers = [
                         ['name' => 'Dewi Rahayu', 'area' => 'Yogyakarta', 'email' => 'dewi.jogja@test.com', 'bal' => 'Rp 1jt', 'ver' => true, 'loc' => 'Gondokusuman'],
@@ -313,7 +304,7 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
 
             <!-- Tab 2: Mitra -->
-            <div x-show="role === 'mitra'" style="display: none;" class="space-y-1.5">
+            <div x-show="demoRole === 'mitra'" class="space-y-1.5">
                 @php
                     $testMitras = [
                         ['name' => 'Budi Santoso', 'area' => 'Yogyakarta', 'email' => 'budi.mitra@test.com', 'bal' => 'Rp 250rb', 'loc' => 'Mitra Aktif (⭐ 4.8)'],
@@ -352,7 +343,7 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
 
             <!-- Tab 3: Admin & Super Admin -->
-            <div x-show="role === 'admin'" style="display: none;" class="space-y-1.5">
+            <div x-show="demoRole === 'admin'" class="space-y-1.5">
                 @php
                     $testAdmins = [
                         ['name' => 'Super Admin', 'area' => 'Nasional', 'email' => 'superadmin@sayabantu.com', 'role' => 'Super Admin'],
@@ -387,6 +378,7 @@ new #[Layout('layouts.guest')] class extends Component {
                         <span class="text-[10px] font-semibold text-purple-700 px-2 py-1 rounded-lg bg-purple-50 group-hover:bg-purple-600 group-hover:text-white transition">Masuk →</span>
                     </button>
                 @endforeach
+            </div>
             </div>
         </div>
         <!-- ========================================================================= -->

@@ -370,7 +370,7 @@
                                     </div>
                                 @endif
                                 <p class="mt-2 text-[11px] text-red-700 leading-snug font-medium">
-                                    âš ï¸ <strong>PERHATIAN KRITIS:</strong> Akun Anda kini berstatus Surat Peringatan 2. Jika Anda melakukan 1 pelanggaran lagi hingga mencapai <strong>Surat Peringatan 3</strong>, akun Anda akan <strong>otomatis diblokir secara permanen dari sistem</strong>.
+                                    ⚠️ï¸ <strong>PERHATIAN KRITIS:</strong> Akun Anda kini berstatus Surat Peringatan 2. Jika Anda melakukan 1 pelanggaran lagi hingga mencapai <strong>Surat Peringatan 3</strong>, akun Anda akan <strong>otomatis diblokir secara permanen dari sistem</strong>.
                                 </p>
                             </div>
                         </div>

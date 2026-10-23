@@ -20,7 +20,7 @@
 
             <!-- Title & Subtitle -->
             <h2 class="text-2xl font-extrabold text-gray-900 mb-1.5 tracking-tight"
-                x-text="isVerified ? 'Email Berhasil Diverifikasi! ðŸŽ‰' : 'Periksa Inbox Email Anda'">
+                x-text="isVerified ? 'Email Berhasil Diverifikasi! 🎉' : 'Periksa Inbox Email Anda'">
                 Periksa Inbox Email Anda
             </h2>
             

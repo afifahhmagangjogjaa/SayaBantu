@@ -20,9 +20,10 @@
     <meta name="apple-mobile-web-app-title" content="SayaBantu">
     <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <!-- Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -47,19 +48,25 @@
     </style>
 </head>
 
-<body class="font-sans antialiased bg-slate-100 min-h-screen text-gray-800">
-    <!-- Centered Mobile Frame container matching modern mockup -->
-    <div class="max-w-md mx-auto min-h-screen min-h-[100dvh] flex flex-col bg-white shadow-xl sm:border-x sm:border-gray-200 relative">
+<body class="min-h-screen min-h-[100dvh] bg-slate-100 font-sans text-slate-900 antialiased flex flex-col items-center justify-center sm:py-6 sm:px-4">
+    <!-- Centered Mobile Frame container matching modern mockup and landing page -->
+    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-auto sm:min-h-[780px] sm:max-h-[92vh] bg-white sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-y-auto overflow-x-hidden">
         @php
             $currentRoute = request()->route() ? request()->route()->getName() : '';
-            $isModernAuth = in_array($currentRoute, ['login', 'admin.login', 'password.request', 'password.reset', 'register.choose-role', 'register']);
+            $isModernAuth = in_array($currentRoute, [
+                'login', 'admin.login', 'password.request', 'password.reset',
+                'register.choose-role', 'register',
+                'onboarding.step1', 'onboarding.step2', 'onboarding.step3', 'onboarding.step4',
+                'onboarding.biodata', 'onboarding.password', 'verification.notice'
+            ]);
             $backUrl = match($currentRoute) {
-                'register.step4' => route('register.step3'),
-                'register.step3' => route('register.step2'),
-                'register.step2' => route('register.step1'),
-                'register.step1' => route('register.choose-role'),
-                'register.choose-role' => route('login'),
+                'onboarding.step4' => route('onboarding.step3'),
+                'onboarding.step3' => route('onboarding.step2'),
+                'onboarding.step2' => route('onboarding.step1'),
+                'onboarding.step1', 'onboarding.biodata' => route('register', ['role' => session('reg_account.role', 'customer')]),
+                'onboarding.password' => route('onboarding.step4'),
                 'register' => route('register.choose-role'),
+                'register.choose-role' => route('login'),
                 'password.request', 'password.reset' => route('login'),
                 'login', 'admin.login' => url('/'),
                 default => url('/'),
@@ -68,9 +75,9 @@
 
         @if($isModernAuth)
             <!-- Clean Modern Mobile Top Bar matching mockups -->
-            <div class="px-5 pt-4 pb-2 flex items-center justify-between z-10">
-                <a href="{{ $backUrl }}" {{ $backUrl === url('/') ? '' : 'wire:navigate' }}
-                   class="w-10 h-10 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-100 active:scale-95 transition"
+            <div class="px-5 pt-4 pb-2 flex items-center justify-between z-10 shrink-0">
+                <a href="{{ $backUrl }}"
+                   class="w-10 h-10 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-100 active:scale-95 transition cursor-pointer"
                    aria-label="Kembali">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
@@ -79,7 +86,7 @@
                 <div class="flex-1"></div>
             </div>
 
-            <div class="px-6 pb-8 flex-1 flex flex-col">
+            <div class="px-6 pb-6 flex-1 flex flex-col">
                 {{ $slot }}
             </div>
         @else

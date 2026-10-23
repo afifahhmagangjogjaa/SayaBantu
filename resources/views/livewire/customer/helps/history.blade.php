@@ -69,14 +69,14 @@
 													<img src="{{ asset('storage/' . $help->photo) }}" alt="foto" class="w-full h-full object-cover">
 												@else
 													<div class="w-full h-full flex items-center justify-center text-xl">
-														{{ $help->category?->icon ?? 'ðŸ“¦' }}
+														{{ $help->category?->icon ?? '📦' }}
 													</div>
 												@endif
 											</div>
 
 											<div class="flex-1 min-w-0">
 												<h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
-												<p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} â€¢ {{ optional($help->updated_at)->format('d M Y') }}</p>
+												<p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} • {{ optional($help->updated_at)->format('d M Y') }}</p>
 											</div>
 
 											<div class="text-right flex-shrink-0">
@@ -89,7 +89,7 @@
 												@elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
 													@if($help->complaint_resolution === 'refunded')
 														<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold mt-1">
-															âœ“ Refund Berhasil
+															✓ Refund Berhasil
 														</span>
 													@else
 														<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold mt-1">
@@ -132,7 +132,7 @@
 											@if($help->complaint_resolution === 'refunded')
 												<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
 													<h4 class="text-xs font-bold text-emerald-800 mb-1 flex items-center gap-1">
-														âœ“ Pengembalian Dana (Refund) Disetujui
+														✓ Pengembalian Dana (Refund) Disetujui
 													</h4>
 													<p class="text-xs text-emerald-700">Dana sebesar Rp {{ number_format($help->amount + ($help->admin_fee ?? 0), 0, ',', '.') }} telah dikembalikan ke saldo akun Anda.</p>
 													@if($help->complaint_admin_notes)
@@ -142,7 +142,7 @@
 											@elseif($help->complaint_resolution === 'rejected')
 												<div class="bg-gray-50 border border-gray-200 rounded-xl p-3">
 													<h4 class="text-xs font-bold text-gray-800 mb-1 flex items-center gap-1">
-														âœ• Komplain Ditolak Admin
+														✕ Komplain Ditolak Admin
 													</h4>
 													<p class="text-xs text-gray-600">Pekerjaan dinyatakan selesai oleh admin dan dana telah diteruskan ke rekan jasa.</p>
 													@if($help->complaint_admin_notes)

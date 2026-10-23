@@ -43,14 +43,14 @@
             autocomplete="off"
             @if($required) required @endif
             {{ $attributes->merge([
-                'class' => 'w-full pl-10 pr-12 py-3 text-sm rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition bg-white text-gray-800 placeholder-gray-400 shadow-xs'
+                'class' => 'w-full pl-10 pr-12 py-3 text-sm font-medium rounded-xl border border-gray-200 bg-gray-50/70 focus:bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs'
             ]) }}
         />
 
         <!-- Right Side Icons: Loading & Clear Button -->
         <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-1.5 z-10 pointer-events-auto">
             <!-- Loading Spinner -->
-            <div x-show="isLoading" x-cloak class="text-blue-500 animate-spin">
+            <div x-show="isLoading" x-cloak class="text-blue-500 animate-spin p-1">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -63,7 +63,7 @@
                 x-show="query.length > 0 && !isLoading" 
                 @click="clear()"
                 title="Hapus"
-                class="text-gray-400 hover:text-gray-600 transition p-1 rounded-md hover:bg-gray-100 focus:outline-none"
+                class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100 focus:outline-none"
             >
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -115,27 +115,28 @@
         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
         x-transition:leave-end="opacity-0 translate-y-1 scale-98"
         x-cloak
-        class="absolute left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-xl border border-blue-100/90 overflow-hidden z-50 divide-y divide-gray-100 max-h-72 overflow-y-auto"
-        style="backdrop-filter: blur(8px);"
+        class="absolute left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-2xl border border-blue-100/90 overflow-hidden z-50 divide-y divide-gray-100 max-h-72 overflow-y-auto"
+        style="backdrop-filter: blur(10px);"
     >
         <!-- Dropdown Header -->
-        <div class="px-3.5 py-2 bg-gradient-to-r from-blue-50/80 to-cyan-50/60 flex items-center justify-between text-xs text-blue-900 font-semibold border-b border-blue-100">
+        <div class="px-3.5 py-2.5 bg-gradient-to-r from-blue-50/80 to-cyan-50/60 flex items-center justify-between text-xs text-blue-900 font-semibold border-b border-blue-100/80">
             <span class="flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                 </svg>
                 Rekomendasi Patokan & Tempat Terdekat
             </span>
-            <span class="text-[10px] text-blue-600 font-normal">Pilih patokan</span>
+            <span class="text-[10px] text-blue-600/90 bg-blue-100/70 px-2 py-0.5 rounded-full font-medium">Pilih patokan</span>
         </div>
 
         <!-- Suggestion Items -->
         <template x-for="(item, idx) in suggestions" :key="idx">
             <div 
-                @click="select(item)"
+                @mousedown.prevent="select(item)"
+                @click.prevent="select(item)"
                 @mouseenter="highlightedIndex = idx"
                 class="px-4 py-2.5 flex items-start gap-3 cursor-pointer transition-colors duration-150 text-left"
-                :class="highlightedIndex === idx ? 'bg-blue-50/90 text-blue-950 border-l-4 border-blue-500 pl-3' : 'hover:bg-gray-50 text-gray-800'"
+                :class="highlightedIndex === idx ? 'bg-blue-50/90 text-blue-950 border-l-4 border-blue-500 pl-3' : 'hover:bg-gray-50/80 text-gray-800'"
             >
                 <!-- Location Pin Icon -->
                 <div 
@@ -155,7 +156,7 @@
 
                 <!-- Action Badge -->
                 <div class="self-center flex-shrink-0">
-                    <span class="text-[10px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded-md">
+                    <span class="text-[10px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">
                         Pilih
                     </span>
                 </div>
@@ -172,6 +173,7 @@
             suggestions: [],
             isLoading: false,
             isOpen: false,
+            isSelecting: false,
             highlightedIndex: -1,
             abortController: null,
             lastSmartAddressTitle: '',
@@ -181,7 +183,7 @@
                 if (config.wireModel && typeof this.$wire !== 'undefined') {
                     this.query = this.$wire.get(config.wireModel) || '';
                     this.$watch('$wire.' + config.wireModel, (newVal) => {
-                        if (newVal !== this.query) {
+                        if (newVal !== this.query && !this.isSelecting) {
                             this.query = newVal || '';
                         }
                     });
@@ -205,7 +207,7 @@
             },
 
             onFocus() {
-                if (this.suggestions.length > 0) {
+                if (!this.isSelecting && this.suggestions.length > 0) {
                     this.isOpen = true;
                 }
             },
@@ -227,6 +229,12 @@
             },
 
             async search() {
+                if (this.isSelecting) {
+                    this.isOpen = false;
+                    this.suggestions = [];
+                    return;
+                }
+
                 const trimmed = (this.query || '').trim();
                 
                 // Keep Livewire model synchronized while typing
@@ -251,8 +259,11 @@
                     if (config.cityRef) {
                         const cityEl = document.querySelector(config.cityRef);
                         if (cityEl) {
-                            cityParam = cityEl.options ? (cityEl.options[cityEl.selectedIndex]?.text || '') : cityEl.value;
-                            cityParam = cityParam.replace(/\(.*\)/, '').replace(/Kota|Kabupaten/i, '').trim();
+                            const val = cityEl.value ? cityEl.value.trim() : '';
+                            const txt = cityEl.options ? (cityEl.options[cityEl.selectedIndex]?.text || '') : (cityEl.value || '');
+                            if (val && !txt.includes('--') && !txt.toLowerCase().includes('pilih') && !txt.toLowerCase().includes('memuat')) {
+                                cityParam = txt.replace(/\(.*\)/, '').replace(/Kota|Kabupaten/i, '').trim();
+                            }
                         }
                     }
 
@@ -273,8 +284,10 @@
 
                     if (response.ok) {
                         const data = await response.json();
-                        this.suggestions = Array.isArray(data) ? data : [];
-                        this.isOpen = this.suggestions.length > 0;
+                        if (!this.isSelecting) {
+                            this.suggestions = Array.isArray(data) ? data : [];
+                            this.isOpen = this.suggestions.length > 0;
+                        }
                     }
                 } catch (err) {
                     if (err.name !== 'AbortError') {
@@ -303,6 +316,10 @@
             },
 
             select(item) {
+                if (this.abortController) {
+                    this.abortController.abort();
+                }
+
                 // Buat deskripsi lokasi yang ramah patokan
                 let locText = item.title;
                 if (item.subtitle && !item.title.toLowerCase().includes(item.subtitle.toLowerCase())) {
@@ -310,8 +327,6 @@
                 }
 
                 this.applyLocation(locText);
-                this.isOpen = false;
-                this.suggestions = [];
 
                 // Broadcast custom event agar peta ikut terpusat ke lokasi patokan
                 window.dispatchEvent(new CustomEvent('smart-location-selected', {
@@ -320,14 +335,23 @@
             },
 
             applyLocation(text) {
+                if (this.abortController) {
+                    this.abortController.abort();
+                }
+                this.isSelecting = true;
+                this.isOpen = false;
+                this.suggestions = [];
                 this.query = text;
                 this.syncValue(text);
 
                 if (this.$refs.input) {
                     this.$refs.input.value = text;
-                    this.$refs.input.dispatchEvent(new Event('input', { bubbles: true }));
                     this.$refs.input.dispatchEvent(new Event('change', { bubbles: true }));
                 }
+
+                setTimeout(() => {
+                    this.isSelecting = false;
+                }, 500);
             },
 
             syncValue(val) {

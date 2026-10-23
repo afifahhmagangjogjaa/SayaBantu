@@ -1,4 +1,4 @@
-﻿<div class="space-y-4" x-data="{
+<div class="space-y-4" x-data="{
     playNotif() { window.playNotifChime(); },
     playRing() { window.playRingChime(); },
     vibrate() { window.triggerVibrate(); }
@@ -38,7 +38,8 @@
             <div class="flex items-center gap-2">
                 <span class="font-semibold text-sm text-gray-900 block">Suara Notifikasi</span>
                 <button type="button" @click="playNotif()" class="px-2 py-0.5 text-[11px] bg-blue-50 text-[#0066FF] rounded-md font-medium hover:bg-blue-100 transition flex items-center gap-1">
-                    ðŸ”Š Uji Suara
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                    <span>Uji Suara</span>
                 </button>
             </div>
             <span class="text-xs text-gray-400">Bunyikan nada saat ada notifikasi masuk</span>
@@ -58,7 +59,8 @@
             <div class="flex items-center gap-2">
                 <span class="font-semibold text-sm text-gray-900 block">Nada Panggilan</span>
                 <button type="button" @click="playRing()" class="px-2 py-0.5 text-[11px] bg-blue-50 text-[#0066FF] rounded-md font-medium hover:bg-blue-100 transition flex items-center gap-1">
-                    ðŸ“ž Uji Dering
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    <span>Uji Dering</span>
                 </button>
             </div>
             <span class="text-xs text-gray-400">Bunyi dering panggilan bantuan darurat</span>

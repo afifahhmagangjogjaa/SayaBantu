@@ -246,15 +246,15 @@
                             <h4 class="text-sm font-semibold text-blue-900 mb-1">Tips Laporan yang Baik</h4>
                             <ul class="text-xs text-blue-700 space-y-1">
                                 <li class="flex items-start gap-2">
-                                    <span class="text-blue-500 mt-0.5">â€¢</span>
+                                    <span class="text-blue-500 mt-0.5">•</span>
                                     <span>Berikan informasi selengkap mungkin</span>
                                 </li>
                                 <li class="flex items-start gap-2">
-                                    <span class="text-blue-500 mt-0.5">â€¢</span>
+                                    <span class="text-blue-500 mt-0.5">•</span>
                                     <span>Sertakan kronologi kejadian secara berurutan</span>
                                 </li>
                                 <li class="flex items-start gap-2">
-                                    <span class="text-blue-500 mt-0.5">â€¢</span>
+                                    <span class="text-blue-500 mt-0.5">•</span>
                                     <span>Gunakan bahasa yang jelas dan mudah dipahami</span>
                                 </li>
                             </ul>
@@ -332,7 +332,7 @@
                                 </div>
                                 @if($isRes)
                                     <span class="px-2.5 py-1 text-[11px] font-bold text-emerald-800 bg-emerald-100 rounded-full flex-shrink-0">
-                                        âœ… Selesai
+                                        ✓ Selesai
                                     </span>
                                 @elseif($isRej)
                                     <span class="px-2.5 py-1 text-[11px] font-bold text-red-800 bg-red-100 rounded-full flex-shrink-0">

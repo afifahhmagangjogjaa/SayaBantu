@@ -1,4 +1,4 @@
-﻿<div x-data="{ 
+<div x-data="{ 
     showModal: false,
     redirectUrl: ''
 }" 
@@ -184,7 +184,7 @@ x-on:profile-saved.window="
                     <span class="text-red-500 font-bold">*</span>
                 </span>
             </label>
-            <select wire:model="city_id" required
+            <select wire:model="city_id" id="profile_city_id" required
                 class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white">
                 <option value="">-- Pilih Kota --</option>
                 @foreach($cities as $city)
@@ -215,6 +215,7 @@ x-on:profile-saved.window="
             <x-smart-address-input 
                 wire:model="address" 
                 id="profile_address"
+                cityRef="#profile_city_id"
                 rows="3"
                 required
                 placeholder="Ketik nama jalan, kelurahan, kecamatan, atau kota..."
@@ -250,4 +251,13 @@ x-on:profile-saved.window="
             </button>
         </div>
     </form>
+
+    <script>
+        window.addEventListener('smart-address-selected', function(ev) {
+            const item = ev.detail;
+            if (item && item.city && typeof @this !== 'undefined') {
+                @this.selectCityByName(item.city);
+            }
+        });
+    </script>
 </div>

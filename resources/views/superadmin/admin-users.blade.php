@@ -465,8 +465,12 @@
                                     <label class="block text-xs font-semibold text-gray-700 mb-1.5">
                                         Alamat Kantor / Catatan Posko Wilayah <span class="text-gray-400 font-normal">(Opsional)</span>
                                     </label>
-                                    <textarea wire:model="address" rows="2" placeholder="Contoh: Kantor Operasional Cabang, Jl. Malioboro No. 12..."
-                                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition"></textarea>
+                                    <x-smart-address-input 
+                                        wire:model="address" 
+                                        id="admin_office_address" 
+                                        rows="2" 
+                                        placeholder="Ketik alamat kantor posko, gedung, atau nama jalan..." 
+                                    />
                                 </div>
                             </div>
                         </div>

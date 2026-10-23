@@ -1,4 +1,4 @@
-﻿<x-guest-layout>
+<x-guest-layout>
     <div class="w-full flex-1 flex flex-col justify-between py-2">
         <div>
             <!-- Header -->
@@ -146,7 +146,7 @@
                         </p>
                         <div class="bg-white rounded-xl p-2.5 border-2 border-green-500 shadow-2xs">
                             <img src="{{ asset('images/contoh-ktp.jpg') }}" alt="Contoh Foto KTP" class="w-full max-h-36 object-contain rounded-lg mx-auto">
-                            <p class="text-[11px] text-green-700 font-bold mt-1.5 text-center">âœ“ Posisi Lurus, Terang & Tulisan Terbaca Jelas</p>
+                            <p class="text-[11px] text-green-700 font-bold mt-1.5 text-center">✓ Posisi Lurus, Terang & Tulisan Terbaca Jelas</p>
                         </div>
                     </div>
                 </div>
@@ -223,7 +223,7 @@
                             <div class="aspect-square bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden mb-2">
                                 <img src="{{ asset('images/contoh-selfie-benar.jpg') }}" alt="Contoh Selfie Benar" class="w-full h-full object-cover rounded-xl">
                             </div>
-                            <p class="text-xs text-green-700 font-bold text-center">âœ“ Benar</p>
+                            <p class="text-xs text-green-700 font-bold text-center">✓ Benar</p>
                             <p class="text-[10px] text-gray-500 text-center mt-0.5">Wajah & KTP jelas</p>
                         </div>
 
@@ -232,7 +232,7 @@
                             <div class="aspect-square bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden mb-2">
                                 <img src="{{ asset('images/contoh-selfie-salah.jpg') }}" alt="Contoh Selfie Salah" class="w-full h-full object-cover rounded-xl">
                             </div>
-                            <p class="text-xs text-red-700 font-bold text-center">âœ— Salah</p>
+                            <p class="text-xs text-red-700 font-bold text-center">✕ Salah</p>
                             <p class="text-[10px] text-gray-500 text-center mt-0.5">Blur atau gelap</p>
                         </div>
                     </div>

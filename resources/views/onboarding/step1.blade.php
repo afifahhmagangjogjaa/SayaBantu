@@ -1,4 +1,4 @@
-﻿<x-guest-layout>
+<x-guest-layout>
     <div class="w-full flex-1 flex flex-col justify-between py-2">
         <div>
             <!-- Header Step 1 -->
@@ -93,6 +93,7 @@
                     <x-smart-address-input 
                         name="address" 
                         id="address" 
+                        cityRef="#city_id"
                         rows="2" 
                         required 
                         :value="old('address', $user->address ?? '')"
@@ -169,9 +170,8 @@
                 <!-- Submit Button -->
                 <div class="pt-5 pb-2">
                     <button type="submit"
-                        class="w-full text-white font-bold py-3.5 rounded-full shadow-md hover:shadow-lg active:scale-98 transition text-base tracking-wide cursor-pointer"
-                        style="background-color: #0066FF;">
-                        Lanjutkan ke Foto KTP â†’
+                        class="w-full text-white font-bold py-3.5 sm:py-4 rounded-full shadow-md shadow-blue-500/25 hover:bg-[#0055D4] active:scale-[0.98] transition text-base tracking-wide bg-[#0066FF] cursor-pointer">
+                        Lanjutkan ke Foto KTP →
                     </button>
                 </div>
             </form>
@@ -517,6 +517,27 @@
             if (provSelect && provSelect.value) {
                 handleProvinceChange(initialCityId, initialKecamatan, initialKelurahan);
             }
+
+            // Auto-select province and city if available from smart address selection
+            window.addEventListener('smart-address-selected', (e) => {
+                const item = e.detail;
+                if (!item) return;
+
+                const provSelect = document.getElementById('province');
+                const citySelect = document.getElementById('city_id');
+                
+                if (item.province && provSelect) {
+                    const cleanItemProv = item.province.toLowerCase().replace(/daerah|istimewa|khusus|ibukota|provinsi|di|dki/g, '').trim();
+                    for (let i = 0; i < provSelect.options.length; i++) {
+                        const optText = provSelect.options[i].text.toLowerCase().replace(/daerah|istimewa|khusus|ibukota|provinsi|di|dki/g, '').trim();
+                        if (optText && (optText.includes(cleanItemProv) || cleanItemProv.includes(optText))) {
+                            provSelect.selectedIndex = i;
+                            handleProvinceChange();
+                            break;
+                        }
+                    }
+                }
+            });
         });
     </script>
 </x-guest-layout>

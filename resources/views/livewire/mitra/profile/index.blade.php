@@ -209,7 +209,7 @@
                                 </div>
                             @endif
                             <p class="mt-2 text-[11px] text-red-700 leading-snug font-medium">
-                                âš ï¸ <strong>PERHATIAN KRITIS:</strong> Akun Mitra Anda kini berstatus Surat Peringatan 2. Jika Anda melakukan 1 pelanggaran lagi hingga mencapai <strong>Surat Peringatan 3</strong>, akun Mitra Anda akan <strong>otomatis dinonaktifkan/diblokir permanen dari sistem</strong>.
+                                ⚠️ï¸ <strong>PERHATIAN KRITIS:</strong> Akun Mitra Anda kini berstatus Surat Peringatan 2. Jika Anda melakukan 1 pelanggaran lagi hingga mencapai <strong>Surat Peringatan 3</strong>, akun Mitra Anda akan <strong>otomatis dinonaktifkan/diblokir permanen dari sistem</strong>.
                             </p>
                         </div>
                     </div>

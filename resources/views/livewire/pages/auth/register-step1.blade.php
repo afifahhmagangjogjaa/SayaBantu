@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use App\Models\Registration;
 use App\Models\City;
@@ -34,6 +34,24 @@ new #[Layout('layouts.guest')] class extends Component {
             $tglLahir = (int) substr($value, 6, 2);
             // Jika tanggal > 40, berarti perempuan
             $this->gender = $tglLahir > 40 ? 'Perempuan' : 'Laki-laki';
+        }
+    }
+
+    // Auto-select city from smart address search
+    public function selectCityByName(?string $cityName, ?string $provinceName = null): void
+    {
+        if (empty($cityName)) return;
+
+        $cleanTarget = strtolower(trim(preg_replace('/\b(KOTA|KABUPATEN|KAB)\b/i', '', $cityName)));
+        
+        $matched = collect($this->cities)->first(function ($c) use ($cleanTarget) {
+            $cleanName = strtolower(trim(preg_replace('/\b(KOTA|KABUPATEN|KAB)\b/i', '', $c->name)));
+            return $cleanName === $cleanTarget || str_contains($cleanName, $cleanTarget) || str_contains($cleanTarget, $cleanName);
+        });
+
+        if ($matched) {
+            $this->city_id = $matched->id;
+            $this->updatedCityId($matched->id);
         }
     }
 
@@ -371,6 +389,7 @@ new #[Layout('layouts.guest')] class extends Component {
             <x-smart-address-input 
                 wire:model="address" 
                 id="address" 
+                cityRef="#city_id"
                 rows="3" 
                 placeholder="Ketik nama jalan, perumahan, kelurahan, atau gedung..."
             />
@@ -467,6 +486,14 @@ new #[Layout('layouts.guest')] class extends Component {
 
             document.addEventListener('clear-registration-step1', () => {
                 try { fields.forEach(name => localStorage.removeItem(prefix + name)); } catch (e) {}
+            });
+
+            // Listen to smart address selection and auto-match city in Livewire
+            window.addEventListener('smart-address-selected', (ev) => {
+                const item = ev.detail;
+                if (item && item.city && typeof @this !== 'undefined') {
+                    @this.selectCityByName(item.city, item.province || '');
+                }
             });
         })();
     </script>

@@ -17,15 +17,29 @@ class AddressController extends Controller
         $q = trim($request->get('q', ''));
         $cityBias = trim($request->get('city', ''));
 
+        // Filter out placeholder city labels like "-- Pilih ..."
+        if (preg_match('/(--|pilih|memuat)/i', $cityBias)) {
+            $cityBias = '';
+        }
+
         if (mb_strlen($q) < 3) {
             return response()->json([]);
         }
 
         $cacheKey = 'address_suggest_' . md5(strtolower($q . '|' . $cityBias));
 
-        $results = Cache::remember($cacheKey, 86400, function () use ($q, $cityBias) {
-            return $this->fetchFromNominatim($q, $cityBias) ?: $this->fetchFromPhoton($q, $cityBias);
-        });
+        if (Cache::has($cacheKey)) {
+            $cached = Cache::get($cacheKey);
+            if (!empty($cached) && is_array($cached)) {
+                return response()->json($cached);
+            }
+        }
+
+        $results = $this->fetchFromNominatim($q, $cityBias) ?: $this->fetchFromPhoton($q, $cityBias);
+
+        if (!empty($results)) {
+            Cache::put($cacheKey, $results, 86400);
+        }
 
         return response()->json($results ?: []);
     }

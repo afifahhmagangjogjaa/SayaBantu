@@ -36,14 +36,14 @@
             @keydown.escape="isOpen = false"
             @if($required) required @endif
             {{ $attributes->merge([
-                'class' => 'w-full px-4 py-3 text-sm rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition resize-none bg-white text-gray-800 placeholder-gray-400 pr-12 shadow-xs'
+                'class' => 'w-full px-4 py-3 text-sm font-medium rounded-xl border border-gray-200 bg-gray-50/70 focus:bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs resize-none pr-12 leading-relaxed'
             ]) }}
         ></textarea>
 
         <!-- Right Side Icons: Loading & Clear Button -->
         <div class="absolute right-3 top-3 flex items-center space-x-1.5 z-10 pointer-events-auto">
             <!-- Loading Spinner -->
-            <div x-show="isLoading" x-cloak class="text-blue-500 animate-spin">
+            <div x-show="isLoading" x-cloak class="text-blue-500 animate-spin p-1">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -56,13 +56,24 @@
                 x-show="query.length > 0 && !isLoading" 
                 @click="clear()"
                 title="Hapus / Reset"
-                class="text-gray-400 hover:text-gray-600 transition p-1 rounded-md hover:bg-gray-100 focus:outline-none"
+                class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100 focus:outline-none"
             >
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
+    </div>
+
+    <!-- Micro Hint: Pencarian Alamat Cerdas -->
+    <div class="flex items-center justify-between text-[11px] text-gray-400 mt-1 px-1">
+        <span class="flex items-center gap-1 text-blue-600/80 font-medium">
+            <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+            </svg>
+            Pencarian Cerdas Aktif
+        </span>
+        <span class="text-gray-400">Ketik min. 3 huruf untuk rekomendasi</span>
     </div>
 
     <!-- Autocomplete Dropdown List -->
@@ -75,27 +86,28 @@
         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
         x-transition:leave-end="opacity-0 translate-y-1 scale-98"
         x-cloak
-        class="absolute left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-xl border border-blue-100/80 overflow-hidden z-50 divide-y divide-gray-100 max-h-72 overflow-y-auto"
-        style="backdrop-filter: blur(8px);"
+        class="absolute left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-2xl border border-blue-100/90 overflow-hidden z-50 divide-y divide-gray-100 max-h-72 overflow-y-auto"
+        style="backdrop-filter: blur(10px);"
     >
         <!-- Dropdown Header -->
-        <div class="px-3.5 py-2 bg-gradient-to-r from-blue-50/70 to-indigo-50/50 flex items-center justify-between text-xs text-blue-800 font-semibold border-b border-blue-100">
+        <div class="px-3.5 py-2.5 bg-gradient-to-r from-blue-50/80 to-indigo-50/60 flex items-center justify-between text-xs text-blue-900 font-semibold border-b border-blue-100/80">
             <span class="flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                 </svg>
                 Rekomendasi Alamat Cerdas
             </span>
-            <span class="text-[10px] text-blue-500 font-normal">Pilih salah satu</span>
+            <span class="text-[10px] text-blue-600/90 bg-blue-100/70 px-2 py-0.5 rounded-full font-medium">Pilih salah satu</span>
         </div>
 
         <!-- Suggestion Items -->
         <template x-for="(item, idx) in suggestions" :key="idx">
             <div 
-                @click="select(item)"
+                @mousedown.prevent="select(item)"
+                @click.prevent="select(item)"
                 @mouseenter="highlightedIndex = idx"
                 class="px-4 py-3 flex items-start gap-3 cursor-pointer transition-colors duration-150 text-left"
-                :class="highlightedIndex === idx ? 'bg-blue-50/90 text-blue-950 border-l-4 border-blue-500 pl-3' : 'hover:bg-gray-50 text-gray-800'"
+                :class="highlightedIndex === idx ? 'bg-blue-50/90 text-blue-950 border-l-4 border-blue-500 pl-3' : 'hover:bg-gray-50/80 text-gray-800'"
             >
                 <!-- Location Pin Icon -->
                 <div 
@@ -132,6 +144,7 @@
             suggestions: [],
             isLoading: false,
             isOpen: false,
+            isSelecting: false,
             highlightedIndex: -1,
             abortController: null,
 
@@ -140,7 +153,7 @@
                 if (config.wireModel && typeof this.$wire !== 'undefined') {
                     this.query = this.$wire.get(config.wireModel) || '';
                     this.$watch('$wire.' + config.wireModel, (newVal) => {
-                        if (newVal !== this.query) {
+                        if (newVal !== this.query && !this.isSelecting) {
                             this.query = newVal || '';
                         }
                     });
@@ -152,6 +165,13 @@
             },
 
             async search() {
+                // If a selection just occurred, suppress search completely
+                if (this.isSelecting) {
+                    this.isOpen = false;
+                    this.suggestions = [];
+                    return;
+                }
+
                 const trimmed = (this.query || '').trim();
                 
                 // Keep Livewire model synchronized while typing
@@ -178,9 +198,11 @@
                     if (config.cityRef) {
                         const cityEl = document.querySelector(config.cityRef);
                         if (cityEl) {
-                            cityParam = cityEl.options ? (cityEl.options[cityEl.selectedIndex]?.text || '') : cityEl.value;
-                            // Clean up '(Province)' suffix if present
-                            cityParam = cityParam.replace(/\(.*\)/, '').replace(/Kota|Kabupaten/i, '').trim();
+                            const val = cityEl.value ? cityEl.value.trim() : '';
+                            const txt = cityEl.options ? (cityEl.options[cityEl.selectedIndex]?.text || '') : (cityEl.value || '');
+                            if (val && !txt.includes('--') && !txt.toLowerCase().includes('pilih') && !txt.toLowerCase().includes('memuat')) {
+                                cityParam = txt.replace(/\(.*\)/, '').replace(/Kota|Kabupaten/i, '').trim();
+                            }
                         }
                     }
 
@@ -197,8 +219,11 @@
 
                     if (response.ok) {
                         const data = await response.json();
-                        this.suggestions = Array.isArray(data) ? data : [];
-                        this.isOpen = this.suggestions.length > 0;
+                        // Only open if user did NOT select an item while request was pending
+                        if (!this.isSelecting) {
+                            this.suggestions = Array.isArray(data) ? data : [];
+                            this.isOpen = this.suggestions.length > 0;
+                        }
                     }
                 } catch (err) {
                     if (err.name !== 'AbortError') {
@@ -227,6 +252,15 @@
             },
 
             select(item) {
+                // Abort any in-flight search request immediately
+                if (this.abortController) {
+                    this.abortController.abort();
+                }
+
+                // Activate selection lock to prevent search() from reopening
+                this.isSelecting = true;
+                this.isOpen = false;
+                this.suggestions = [];
                 this.query = item.full_address;
 
                 // Sync with Livewire
@@ -234,35 +268,42 @@
                     this.$wire.set(config.wireModel, item.full_address);
                 }
 
-                // Trigger standard events for forms
+                // Trigger standard change event for HTML forms (DO NOT dispatch input to avoid debounce re-trigger)
                 if (this.$refs.input) {
                     this.$refs.input.value = item.full_address;
-                    this.$refs.input.dispatchEvent(new Event('input', { bubbles: true }));
                     this.$refs.input.dispatchEvent(new Event('change', { bubbles: true }));
                 }
-
-                this.isOpen = false;
-                this.suggestions = [];
 
                 // Broadcast custom event for Leaflet maps, city selects, etc.
                 window.dispatchEvent(new CustomEvent('smart-address-selected', {
                     detail: item
                 }));
+
+                // Reset lock after debounce window passes
+                setTimeout(() => {
+                    this.isSelecting = false;
+                }, 500);
             },
 
             clear() {
+                if (this.abortController) {
+                    this.abortController.abort();
+                }
+                this.isSelecting = true;
                 this.query = '';
                 if (config.wireModel && typeof this.$wire !== 'undefined') {
                     this.$wire.set(config.wireModel, '');
                 }
                 if (this.$refs.input) {
                     this.$refs.input.value = '';
-                    this.$refs.input.dispatchEvent(new Event('input', { bubbles: true }));
                     this.$refs.input.dispatchEvent(new Event('change', { bubbles: true }));
                     this.$refs.input.focus();
                 }
                 this.isOpen = false;
                 this.suggestions = [];
+                setTimeout(() => {
+                    this.isSelecting = false;
+                }, 400);
             }
         };
     }

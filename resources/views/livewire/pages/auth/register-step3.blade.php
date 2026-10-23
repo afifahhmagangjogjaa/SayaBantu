@@ -189,7 +189,7 @@ new #[Layout('layouts.guest')] class extends Component {
                         <div class="aspect-square bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden mb-2">
                             <img src="{{ asset('images/contoh-selfie-benar.jpg') }}" alt="Contoh Selfie Benar" class="w-full h-full object-cover rounded-xl">
                         </div>
-                        <p class="text-xs text-green-700 font-bold text-center">âœ“ Benar</p>
+                        <p class="text-xs text-green-700 font-bold text-center">✓ Benar</p>
                         <p class="text-[11px] text-gray-500 text-center mt-0.5">Wajah & KTP jelas</p>
                     </div>
 
@@ -198,7 +198,7 @@ new #[Layout('layouts.guest')] class extends Component {
                         <div class="aspect-square bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden mb-2">
                             <img src="{{ asset('images/contoh-selfie-salah.jpg') }}" alt="Contoh Selfie Salah" class="w-full h-full object-cover rounded-xl">
                         </div>
-                        <p class="text-xs text-red-700 font-bold text-center">âœ— Salah</p>
+                        <p class="text-xs text-red-700 font-bold text-center">✕ Salah</p>
                         <p class="text-[11px] text-gray-500 text-center mt-0.5">Blur atau gelap</p>
                     </div>
                 </div>

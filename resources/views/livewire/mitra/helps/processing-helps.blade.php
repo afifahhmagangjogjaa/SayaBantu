@@ -155,11 +155,11 @@
                                     @else
                                         <span class="text-xl">
                                             @if($tab === 'dibatalkan')
-                                                ðŸš«
+                                                🚫
                                             @elseif($tab === 'selesai')
-                                                âœ…
+                                                ✓
                                             @else
-                                                {{ $help->category?->icon ?? 'ðŸ“¦' }}
+                                                {{ $help->category?->icon ?? '📦' }}
                                             @endif
                                         </span>
                                     @endif
@@ -170,7 +170,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">âš¡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap text-emerald-600">
@@ -191,12 +191,12 @@
                                                 @endphp
                                                 @if($mDeadline)
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-orange-50 text-orange-600 border border-orange-200" title="Batas waktu 24 jam untuk pencairan otomatis">
-                                                        âš¡ Cair otomatis {{ $mDeadline->diffForHumans() }}
+                                                        ⚡ Cair otomatis {{ $mDeadline->diffForHumans() }}
                                                     </span>
                                                 @endif
                                             @elseif($help->status === 'partner_cancel_requested')
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                                                    âš ï¸ Permintaan Batal Diajukan
+                                                    ⚠️ï¸ Permintaan Batal Diajukan
                                                 </span>
                                             @elseif($help->isScheduled() && !$help->canPartnerStartJourney())
                                                 @php
@@ -213,13 +213,13 @@
                                             <span class="text-xs text-gray-400">{{ optional($help->taken_at)->diffForHumans() ?? optional($help->created_at)->diffForHumans() }}</span>
                                         @elseif($tab === 'selesai')
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-                                                âœ“ Selesai
+                                                ✓ Selesai
                                             </span>
                                             @php
                                                 $customerRatedCard = \App\Models\Rating::hasRated($help->id, auth()->id(), 'mitra_to_customer');
                                             @endphp
                                             @if($customerRatedCard)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-medium">âœ“ Dinilai</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-medium">✓ Dinilai</span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 text-[11px] font-medium">Belum dinilai</span>
                                             @endif
@@ -262,7 +262,7 @@
                                     @endphp
                                     @if($displayDate)
                                         <div class="text-xs text-gray-500 mb-1.5 flex items-center gap-1.5">
-                                            <span>ðŸ“… {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</span>
+                                            <span>📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</span>
                                             @if($help->isUrgent())
                                                 <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">Urgent</span>
                                             @elseif($help->scheduled_at && !($tab === 'diproses' && $help->isScheduled() && !$help->canPartnerStartJourney()))
@@ -271,11 +271,11 @@
                                         </div>
                                     @endif
 
-                                    <p class="text-xs text-gray-600 line-clamp-1 mb-2">ðŸ“ {{ $help->location ?? optional($help->city)->name ?? '-' }}</p>
+                                    <p class="text-xs text-gray-600 line-clamp-1 mb-2"><svg class="w-3.5 h-3.5 inline text-gray-400 -mt-0.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->location ?? optional($help->city)->name ?? '-' }}</p>
 
                                     <!-- Bottom Action Strip -->
                                     <div class="flex items-center justify-between gap-3 pt-2 border-t border-gray-100">
-                                        <span class="text-xs text-gray-500 truncate max-w-[150px]">ðŸ‘¤ {{ optional($help->user)->name ?? 'Customer' }}</span>
+                                        <span class="text-xs text-gray-500 truncate max-w-[150px]">👤 {{ optional($help->user)->name ?? 'Customer' }}</span>
                                         <div class="flex items-center gap-1.5">
                                             @if($tab === 'diproses')
                                                 <a href="{{ route('mitra.chat', ['help' => $help->id]) }}" 

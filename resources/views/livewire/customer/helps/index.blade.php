@@ -236,7 +236,7 @@
                                         <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-xl">
-                                            {{ $help->category?->icon ?? 'ðŸ“¦' }}
+                                            {{ $help->category?->icon ?? '📦' }}
                                         </div>
                                     @endif
                                 </div>
@@ -246,7 +246,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-bold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">âš¡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
                                                 @if($help->auto_cancel_at && in_array($help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra']))
                                                     @php
                                                         $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
@@ -284,15 +284,15 @@
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                                             Menunggu Mitra
                                         </span>
-                                        <span class="text-gray-300">â€¢</span>
+                                        <span class="text-gray-300">•</span>
                                         <span class="text-xs text-gray-400">{{ optional($help->created_at)->diffForHumans() }}</span>
                                     </div>
 
                                     @if(!empty($help->partner_cancel_requested_at))
                                         <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-                                            <p class="font-semibold text-amber-900">âš ï¸ Rekan Jasa Berhalangan:</p>
+                                            <p class="font-semibold text-amber-900">⚠️ï¸ Rekan Jasa Berhalangan:</p>
                                             <p class="italic text-[11px] text-amber-800">"{{ $help->partner_cancel_reason ?: 'Kendala darurat di jalan' }}"</p>
-                                            <p class="text-[10px] text-amber-700 mt-1 font-medium">âš¡ Sistem otomatis mencari Rekan Jasa pengganti.</p>
+                                            <p class="text-[10px] text-amber-700 mt-1 font-medium">⚡ Sistem otomatis mencari Rekan Jasa pengganti.</p>
                                         </div>
                                     @endif
 
@@ -301,11 +301,11 @@
                                         $displayDate = $help->scheduled_at ?? $help->created_at;
                                     @endphp
                                     @if($displayDate)
-                                        <div class="text-xs text-gray-500 bg-gray-50/80 px-2.5 py-1 rounded-lg border border-gray-100 inline-block mb-3">ðŸ“… {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
+                                        <div class="text-xs text-gray-500 bg-gray-50/80 px-2.5 py-1 rounded-lg border border-gray-100 inline-block mb-3">📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
                                     @endif
 
                                     <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
-                                        <span class="text-xs text-gray-500 font-medium">ðŸ“ {{ $help->city->name ?? '-' }}</span>
+                                        <span class="text-xs text-gray-500 font-medium"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
                                         <div class="flex items-center gap-1.5">
                                             <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">Detail</a>
@@ -325,7 +325,7 @@
                                         <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-lg">
-                                            {{ $help->category?->icon ?? 'ðŸ“¦' }}
+                                            {{ $help->category?->icon ?? '📦' }}
                                         </div>
                                     @endif
                                 </div>
@@ -335,7 +335,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">âš¡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -376,11 +376,11 @@
                                         $displayDate = $help->scheduled_at ?? $help->created_at;
                                     @endphp
                                     @if($displayDate)
-                                        <div class="text-xs text-gray-500 mb-2">ðŸ“… {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
+                                        <div class="text-xs text-gray-500 mb-2">📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
                                     @endif
 
                                     <div class="flex items-center gap-3">
-                                        <span class="text-xs text-gray-500">ðŸ“ {{ $help->city->name ?? '-' }}</span>
+                                        <span class="text-xs text-gray-500"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
                                         <div class="flex items-center gap-2">
                                             @if($help->mitra)
@@ -419,7 +419,7 @@
                                         <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-lg">
-                                            {{ $help->category?->icon ?? 'ðŸ“¦' }}
+                                            {{ $help->category?->icon ?? '📦' }}
                                         </div>
                                     @endif
                                 </div>
@@ -429,7 +429,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">âš¡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -455,11 +455,11 @@
                                         $displayDate = $help->scheduled_at ?? $help->created_at;
                                     @endphp
                                     @if($displayDate)
-                                        <div class="text-xs text-gray-500 mb-2">ðŸ“… {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
+                                        <div class="text-xs text-gray-500 mb-2">📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
                                     @endif
 
                                     <div class="flex items-center gap-3">
-                                        <span class="text-xs text-gray-500">ðŸ“ {{ $help->city->name ?? '-' }}</span>
+                                        <span class="text-xs text-gray-500"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
                                         <div class="flex items-center gap-2">
                                             @if($help->mitra)
@@ -506,7 +506,7 @@
                                             <img src="{{ asset('storage/' . $help->photo) }}" alt="foto" class="w-full h-full object-cover">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center text-xl">
-                                                {{ $help->category?->icon ?? 'ðŸ“¦' }}
+                                                {{ $help->category?->icon ?? '📦' }}
                                             </div>
                                         @endif
                                     </div>
@@ -515,10 +515,10 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">âš¡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
                                             @endif
                                         </div>
-                                        <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} â€¢ {{ optional($help->updated_at)->format('d M Y') }}</p>
+                                        <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} • {{ optional($help->updated_at)->format('d M Y') }}</p>
                                     </div>
 
                                     <div class="text-right flex-shrink-0">
@@ -631,7 +631,7 @@
                                     @endif
 
                                     <div class="flex items-center gap-2">
-                                        <span class="text-xs text-gray-500">ðŸ“ {{ $help->city->name ?? '-' }}</span>
+                                        <span class="text-xs text-gray-500"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
                                         <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
                                             Detail
@@ -655,7 +655,7 @@
                                     <div class="flex items-start justify-between gap-2">
                                         <div class="min-w-0">
                                             <p class="font-semibold text-gray-900 text-sm truncate">{{ $help->title }}</p>
-                                            <p class="text-xs text-gray-400 mt-0.5">{{ optional($help->category)->name }} â€¢ {{ optional($help->city)->name }}</p>
+                                            <p class="text-xs text-gray-400 mt-0.5">{{ optional($help->category)->name }} • {{ optional($help->city)->name }}</p>
                                         </div>
                                         @if(in_array($help->status, ['rejected', 'ditolak']))
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-100 whitespace-nowrap">Ditolak Admin</span>
@@ -695,7 +695,7 @@
                                     @elseif($help->photo)
                                         <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
                                     @else
-                                        <span class="text-xl">âš ï¸</span>
+                                        <span class="text-xl">⚠️ï¸</span>
                                     @endif
                                 </div>
 
@@ -704,7 +704,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">âš¡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap text-red-600">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -713,15 +713,15 @@
                                     <div class="flex items-center gap-2 mb-2 flex-wrap">
                                         @if($help->complaint_resolution === 'refunded')
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
-                                                âœ“ Refund Disetujui
+                                                ✓ Refund Disetujui
                                             </span>
                                         @elseif($help->complaint_resolution === 'rejected')
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
-                                                âœ• Komplain Ditolak
+                                                ✕ Komplain Ditolak
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 animate-pulse">
-                                                âš ï¸ Dalam Mediasi Admin
+                                                ⚠️ï¸ Dalam Mediasi Admin
                                             </span>
                                         @endif
                                         <span class="text-xs text-gray-400">{{ optional($help->complaint_submitted_at ?? $help->updated_at)->diffForHumans() }}</span>
@@ -734,7 +734,7 @@
                                     @endif
 
                                     <div class="flex items-center gap-3">
-                                        <span class="text-xs text-gray-500">ðŸ“ {{ $help->city->name ?? '-' }}</span>
+                                        <span class="text-xs text-gray-500"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
                                         <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition shadow-xs">
                                             Detail Mediasi
@@ -1223,7 +1223,7 @@
                                 @if($delHelp->photo)
                                     <img src="{{ asset('storage/' . $delHelp->photo) }}" alt="Foto" class="w-full h-full object-cover">
                                 @else
-                                    <span class="text-lg">{{ $delHelp->category?->icon ?? 'ðŸ“¦' }}</span>
+                                    <span class="text-lg">{{ $delHelp->category?->icon ?? '📦' }}</span>
                                 @endif
                             </div>
                             <div class="flex-1 min-w-0">

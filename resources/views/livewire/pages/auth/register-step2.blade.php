@@ -190,7 +190,7 @@ new #[Layout('layouts.guest')] class extends Component {
                     </p>
                     <div class="bg-white rounded-xl p-2.5 border-2 border-green-500 shadow-2xs">
                         <img src="{{ asset('images/contoh-ktp.jpg') }}" alt="Contoh Foto KTP" class="w-full max-h-40 object-contain rounded-lg mx-auto">
-                        <p class="text-[11px] text-green-700 font-bold mt-1.5 text-center">âœ“ Posisi Lurus, Terang & Tulisan Terbaca Jelas</p>
+                        <p class="text-[11px] text-green-700 font-bold mt-1.5 text-center">✓ Posisi Lurus, Terang & Tulisan Terbaca Jelas</p>
                     </div>
                 </div>
             </div>

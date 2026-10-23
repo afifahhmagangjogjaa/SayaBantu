@@ -33,7 +33,7 @@
             @if (session()->has('message'))
                 <div class="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-xs font-medium text-green-700 flex items-center justify-between">
                     <span>{{ session('message') }}</span>
-                    <button type="button" class="text-green-500 hover:text-green-700" onclick="this.parentElement.remove()">âœ•</button>
+                    <button type="button" class="text-green-500 hover:text-green-700" onclick="this.parentElement.remove()">✕</button>
                 </div>
             @endif
 
@@ -45,7 +45,7 @@
                         </svg>
                         <span>{{ session('error') }}</span>
                     </div>
-                    <button type="button" class="text-red-500 hover:text-red-700 ml-2" onclick="this.parentElement.remove()">âœ•</button>
+                    <button type="button" class="text-red-500 hover:text-red-700 ml-2" onclick="this.parentElement.remove()">✕</button>
                 </div>
             @endif
 
@@ -80,7 +80,7 @@
                             Hapus
                         </button>
                         <button type="button" wire:click="clearSelection" class="p-1 text-gray-400 hover:text-gray-600 text-xs">
-                            âœ•
+                            ✕
                         </button>
                     </div>
                 @elseif(count($selectableIds) > 0)
@@ -104,12 +104,12 @@
                             if ($isSanction) {
                                 $warningLevel = (int) ($data['warning_level'] ?? 1);
                                 if ($warningLevel === 0) {
-                                    $titleText = 'âœ… Surat Peringatan Dicabut';
+                                    $titleText = '✓ Surat Peringatan Dicabut';
                                     $bodyText = $data['message'] ?? 'Surat Peringatan pada akun Anda telah resmi dicabut oleh Admin. Status akun Anda kini kembali normal. Ketuk Lihat Detail Surat untuk membaca surat pencabutan selengkapnya.';
                                 } else {
                                     $titleText = match ($warningLevel) {
-                                        1 => 'âš ï¸ Surat Peringatan 1',
-                                        2 => 'âš ï¸ Surat Peringatan 2',
+                                        1 => '⚠️ï¸ Surat Peringatan 1',
+                                        2 => '⚠️ï¸ Surat Peringatan 2',
                                         3 => 'â›” Surat Peringatan 3 - Akun Dinonaktifkan',
                                         default => 'Surat Peringatan Resmi',
                                     };

@@ -277,7 +277,7 @@
                                     <input type="radio" wire:model.live="help_type" value="urgent" class="sr-only">
                                     <div class="flex items-center justify-between mb-1">
                                         <div class="flex items-center gap-1.5">
-                                            <span class="text-sm">âš¡</span>
+                                            <span class="text-sm">⚡</span>
                                             <span class="text-xs font-bold {{ $help_type === 'urgent' ? 'text-red-600' : 'text-gray-800' }}">Mendesak / Urgent</span>
                                         </div>
                                         <div class="w-4 h-4 rounded-full border flex items-center justify-center {{ $help_type === 'urgent' ? 'border-red-500 bg-red-500' : 'border-gray-300' }}">
@@ -294,7 +294,7 @@
                                     <input type="radio" wire:model.live="help_type" value="scheduled" class="sr-only">
                                     <div class="flex items-center justify-between mb-1">
                                         <div class="flex items-center gap-1.5">
-                                            <span class="text-sm">ðŸ“…</span>
+                                            <span class="text-sm">📅</span>
                                             <span class="text-xs font-bold {{ $help_type === 'scheduled' ? 'text-blue-600' : 'text-gray-800' }}">Terjadwal</span>
                                         </div>
                                         <div class="w-4 h-4 rounded-full border flex items-center justify-center {{ $help_type === 'scheduled' ? 'border-blue-500 bg-blue-500' : 'border-gray-300' }}">
@@ -662,7 +662,7 @@
                             <!-- Koordinat Display -->
                             <div id="coordinates-display"
                                 class="bg-green-50 border border-green-200 rounded-lg p-3 mb-2 hidden">
-                                <p class="text-xs font-semibold text-green-800 mb-1">âœ“ Lokasi Ditandai:</p>
+                                <p class="text-xs font-semibold text-green-800 mb-1">✓ Lokasi Ditandai:</p>
                                 <p class="text-xs text-green-900 font-mono">
                                     Lat: <span id="lat-display" class="font-semibold">-</span>, 
                                     Lng: <span id="lng-display" class="font-semibold">-</span>
@@ -781,7 +781,7 @@
 
                                         <!-- Nama File (Pojok Kiri Bawah) -->
                                         <div class="absolute bottom-2 left-2 max-w-[80%] bg-black/60 backdrop-blur-sm text-white text-[11px] px-2.5 py-1 rounded-md truncate">
-                                            ðŸ“· {{ $photo->getClientOriginalName() }}
+                                            📷 {{ $photo->getClientOriginalName() }}
                                         </div>
                                     </div>
                                     <input type="file" id="photo-input" wire:model="photo" class="hidden" accept="image/png,image/jpeg,image/jpg" />
@@ -1149,7 +1149,7 @@
                                 @if($topupDeficit > 0)
                                     <button type="button" wire:click="setTopupQuickAmount({{ (int)(ceil($topupDeficit / 1000) * 1000) }})"
                                         style="font-size: 10px; font-weight: 700; color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; padding: 2px 7px; border-radius: 6px; cursor: pointer;">
-                                        âš¡ Pas Kurangnya (Rp {{ number_format(ceil($topupDeficit / 1000) * 1000, 0, ',', '.') }})
+                                        ⚡ Pas Kurangnya (Rp {{ number_format(ceil($topupDeficit / 1000) * 1000, 0, ',', '.') }})
                                     </button>
                                 @endif
                             </div>
@@ -1217,12 +1217,12 @@
                                 @if($qrisEnabled)
                                     <button type="button" wire:click="selectTopupMethod('qris')"
                                         style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ $topupMethod === 'qris' ? '#ffffff' : 'transparent' }}; color: {{ $topupMethod === 'qris' ? '#0284c7' : '#64748b' }}; box-shadow: {{ $topupMethod === 'qris' ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
-                                        ðŸ“± QRIS E-Wallet
+                                        📱 QRIS E-Wallet
                                     </button>
                                 @endif
                                 <button type="button" wire:click="selectTopupMethod('{{ $availableBanks[0]['value'] ?? 'bank_bca' }}')"
                                     style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ str_starts_with($topupMethod, 'bank_') ? '#ffffff' : 'transparent' }}; color: {{ str_starts_with($topupMethod, 'bank_') ? '#0284c7' : '#64748b' }}; box-shadow: {{ str_starts_with($topupMethod, 'bank_') ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
-                                    ðŸ¦ Transfer Bank
+                                    <span class="inline-flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> Transfer Bank</span>
                                 </button>
                             </div>
 
@@ -1261,7 +1261,7 @@
                                                         <button type="button" 
                                                             onclick="event.stopPropagation(); navigator.clipboard.writeText('{{ $bank['account_number'] }}'); alert('Nomor rekening {{ $bank['name'] }} ({{ $bank['account_number'] }}) berhasil disalin!');"
                                                             style="padding: 2px 6px; font-size: 10px; font-weight: 700; background: #e2e8f0; color: #0369a1; border-radius: 4px; border: none; cursor: pointer;">
-                                                            ðŸ“‹ Salin
+                                                            📋 Salin
                                                         </button>
                                                     </div>
                                                     <p style="font-family: monospace; font-size: 12px; font-weight: 800; color: #1e293b; margin: 1px 0 0 0;">{{ $bank['account_number'] }}</p>
@@ -1293,7 +1293,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
                                     </button>
-                                    <p style="font-size: 11px; color: #16a34a; font-weight: 700; margin: 4px 0 0 0;">âœ“ Bukti transfer siap dikirim</p>
+                                    <p style="font-size: 11px; color: #16a34a; font-weight: 700; margin: 4px 0 0 0;">✓ Bukti transfer siap dikirim</p>
                                 </div>
                             @else
                                 <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 64px; border: 2px dashed #cbd5e1; border-radius: 12px; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
@@ -1315,7 +1315,7 @@
 
                         <!-- Catatan -->
                         <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 8px 10px; font-size: 11px; color: #166534; display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 12px;">ðŸ’¡</span>
+                            <span style="font-size: 12px;">💡</span>
                             <p style="margin: 0; line-height: 1.3;">Saldo otomatis diverifikasi & masuk ke akun Anda setelah admin mengecek bukti.</p>
                         </div>
                     @endif
@@ -1402,7 +1402,7 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Jenis Bantuan</span>
                                 <span class="text-xs font-bold px-2.5 py-1 rounded-full {{ ($confirmHelpType ?? $help_type) === 'urgent' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
-                                    {{ ($confirmHelpType ?? $help_type) === 'urgent' ? 'âš¡ Mendesak (Urgent)' : 'ðŸ“… Terjadwal' }}
+                                    {{ ($confirmHelpType ?? $help_type) === 'urgent' ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}
                                 </span>
                             </div>
                             <div class="flex justify-between items-center">

@@ -176,7 +176,7 @@
                         </div>
                         <div id="amount-feedback" class="mt-1.5 text-xs text-gray-500">
                             @if(!$user->hasVerifiedEmail())
-                                <span class="text-amber-600 font-medium">âš ï¸ Verifikasi email diperlukan untuk menarik saldo</span>
+                                <span class="text-amber-600 font-medium">⚠️ï¸ Verifikasi email diperlukan untuk menarik saldo</span>
                             @else
                                 Minimum penarikan adalah <span class="font-semibold">Rp 10.000</span>
                             @endif
@@ -277,7 +277,7 @@
                     if (!amountInput || !feedback) return;
 
                     if (!isEmailVerified) {
-                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">âš ï¸ Anda harus memverifikasi email terlebih dahulu</span>';
+                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ï¸ Anda harus memverifikasi email terlebih dahulu</span>';
                         if (submitBtn) {
                             submitBtn.disabled = true;
                             submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
@@ -289,7 +289,7 @@
                     const val = parseInt(amountInput.value.replace(/\D/g, '')) || 0;
 
                     if (userBalance < 10000) {
-                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">âš ï¸ Saldo tidak mencukupi (minimal Rp 10.000)</span>';
+                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ï¸ Saldo tidak mencukupi (minimal Rp 10.000)</span>';
                         if (submitBtn) {
                             submitBtn.disabled = true;
                             submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
@@ -307,7 +307,7 @@
                         }
                         return false;
                     } else if (val > 0 && val < 10000) {
-                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">âš ï¸ Minimal penarikan adalah Rp 10.000</span>';
+                        feedback.innerHTML = '<span class="text-amber-600 font-semibold">⚠️ï¸ Minimal penarikan adalah Rp 10.000</span>';
                         if (submitBtn) {
                             submitBtn.disabled = true;
                             submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-gray-300 cursor-not-allowed text-gray-500';
@@ -315,7 +315,7 @@
                         }
                         return false;
                     } else if (val >= 10000) {
-                        feedback.innerHTML = `<span class="text-green-600 font-semibold">âœ“ Nominal valid: Rp ${val.toLocaleString('id-ID')}</span>`;
+                        feedback.innerHTML = `<span class="text-green-600 font-semibold">✓ Nominal valid: Rp ${val.toLocaleString('id-ID')}</span>`;
                         if (submitBtn) {
                             submitBtn.disabled = false;
                             submitBtn.className = 'flex-1 px-4 py-2.5 text-xs font-bold rounded-xl shadow-sm transition-all text-white bg-blue-600 hover:bg-blue-700 cursor-pointer';

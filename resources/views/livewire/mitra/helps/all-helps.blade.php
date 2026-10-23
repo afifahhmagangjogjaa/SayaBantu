@@ -178,7 +178,7 @@
                                     <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-lg">
-                                        {{ $help->category?->icon ?? 'ðŸ“¦' }}
+                                        {{ $help->category?->icon ?? '📦' }}
                                     </div>
                                 @endif
                             </div>
@@ -188,7 +188,7 @@
                                     <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
                                         <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                         @if($isUrgent)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">âš¡ Urgent</span>
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
                                             @if($help->auto_cancel_at && $help->status === 'menunggu_mitra')
                                                 @php
                                                     $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
@@ -219,7 +219,7 @@
                                             @endif
                                         @endif
                                         @if($isCancelledByMe)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">âš ï¸ Pernah Dibatalkan</span>
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">⚠️ï¸ Pernah Dibatalkan</span>
                                         @endif
                                     </div>
                                     <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -245,18 +245,18 @@
                                 @endphp
                                 @if($schedDate)
                                     <div class="text-xs {{ $isUrgent ? 'text-red-600 font-semibold' : 'text-gray-500' }} mb-2">
-                                        {{ $isUrgent ? 'âš¡ ' : 'ðŸ“… ' }}{{ \Carbon\Carbon::parse($schedDate)->translatedFormat('d M Y, H:i') }}
+                                        {{ $isUrgent ? '⚡ ' : '📅 ' }}{{ \Carbon\Carbon::parse($schedDate)->translatedFormat('d M Y, H:i') }}
                                     </div>
                                 @endif
 
                                 <!-- Lokasi & Radius Jarak -->
                                 <div class="flex items-center gap-1.5 text-xs text-gray-500 mb-3 flex-wrap">
                                     <span class="inline-flex items-center gap-1 font-medium text-gray-700 whitespace-nowrap">
-                                        <span>ðŸ“</span>
+                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                         <span>{{ $help->city->name ?? '-' }}</span>
                                     </span>
                                     @if(isset($help->distance))
-                                        <span class="text-gray-300">â€¢</span>
+                                        <span class="text-gray-300">•</span>
                                         <span class="inline-flex items-center font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap text-[11px]">
                                             {{ number_format($help->distance, 1) }} km dari Anda
                                         </span>
@@ -367,7 +367,7 @@
                         <span class="text-gray-500 font-medium">Lokasi & Jarak</span>
                         <div class="flex items-center gap-1.5 font-semibold text-gray-800 justify-end">
                             <span id="previewCity">-</span>
-                            <span id="previewDistanceDot" class="text-gray-300 hidden">â€¢</span>
+                            <span id="previewDistanceDot" class="text-gray-300 hidden">•</span>
                             <span id="previewDistance" class="hidden text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap"></span>
                         </div>
                     </div>
