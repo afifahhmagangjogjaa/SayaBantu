@@ -70,7 +70,7 @@ class Users extends Component
     public function fetchProvinces()
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get('https://wilayah.id/api/provinces.json');
+            $response = \App\Support\ExternalHttp::client()->get('https://wilayah.id/api/provinces.json');
             if ($response->successful()) {
                 $this->apiProvinces = $response->json('data') ?? [];
             }
@@ -82,7 +82,7 @@ class Users extends Component
     public function fetchCities($provinceCode)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/regencies/{$provinceCode}.json");
+            $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/regencies/{$provinceCode}.json");
             if ($response->successful()) {
                 $this->apiCities = $response->json('data') ?? [];
             }
@@ -102,7 +102,7 @@ class Users extends Component
             }
 
             $cleanCode = (strlen($cityCode) === 4 && !str_contains($cityCode, '.')) ? substr($cityCode, 0, 2) . '.' . substr($cityCode, 2, 2) : $cityCode;
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/districts/{$cleanCode}.json");
+            $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/districts/{$cleanCode}.json");
             if ($response->successful()) {
                 $this->apiDistricts = $response->json('data') ?? [];
             }
@@ -114,7 +114,7 @@ class Users extends Component
     public function fetchVillages($districtCode)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/villages/{$districtCode}.json");
+            $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/villages/{$districtCode}.json");
             if ($response->successful()) {
                 $this->apiVillages = $response->json('data') ?? [];
             }

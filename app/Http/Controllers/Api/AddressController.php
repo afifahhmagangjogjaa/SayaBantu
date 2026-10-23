@@ -70,7 +70,7 @@ class AddressController extends Controller
             $searchQuery = !empty($biasParts) ? "{$q}, " . implode(', ', $biasParts) : $q;
             $encodedQuery = urlencode($searchQuery);
 
-            $response = Http::withoutVerifying()
+            $response = \App\Support\ExternalHttp::client()
                 ->withHeaders([
                     'User-Agent' => 'SayaBantu-App/1.0 (contact@sayabantu.id)',
                     'Accept-Language' => 'id,en;q=0.9',
@@ -82,7 +82,7 @@ class AddressController extends Controller
             if ((!$response->successful() || empty($response->json())) && !empty($biasParts)) {
                 $searchQuery = $cityBias ? "{$q}, {$cityBias}" : $q;
                 $encodedQuery = urlencode($searchQuery);
-                $response = Http::withoutVerifying()
+                $response = \App\Support\ExternalHttp::client()
                     ->withHeaders([
                         'User-Agent' => 'SayaBantu-App/1.0 (contact@sayabantu.id)',
                         'Accept-Language' => 'id,en;q=0.9',
@@ -172,7 +172,7 @@ class AddressController extends Controller
             $searchQuery = !empty($biasParts) ? "{$q} " . implode(' ', $biasParts) : $q;
             $encodedQuery = urlencode($searchQuery);
 
-            $response = Http::withoutVerifying()
+            $response = \App\Support\ExternalHttp::client()
                 ->timeout(4)
                 ->get("https://photon.komoot.io/api/?q={$encodedQuery}&limit=6&lang=default");
 

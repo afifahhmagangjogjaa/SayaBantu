@@ -53,4 +53,13 @@ return [
         'verify_tls' => env('WILAYAH_VERIFY_TLS', true),
     ],
 
+    /*
+    | Klien HTTP umum untuk API pihak ketiga (Nominatim/Photon).
+    | Kosongkan (null) agar verifikasi TLS aktif di production dan mengikuti
+    | perilaku lama (tanpa verifikasi) di environment local.
+    */
+    'external' => [
+        'verify_tls' => env('EXTERNAL_VERIFY_TLS'),
+    ],
+
 ];
