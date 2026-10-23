@@ -106,9 +106,6 @@ class Dashboard extends Component
         $help = Help::findOrFail($helpId);
 
         if ($help->isExpired() || $help->status !== 'menunggu_mitra') {
-            if ($help->isExpired()) {
-                Help::cancelExpiredUrgentHelps();
-            }
             session()->flash('error', 'Maaf, batas waktu pencarian mitra untuk bantuan ini sudah habis atau bantuan sudah tidak tersedia.');
             return;
         }
@@ -216,11 +213,6 @@ class Dashboard extends Component
     {
         $user = auth()->user();
         \App\Services\KtpVerificationNoticeService::ensurePromptNotification($user);
-
-        try {
-            Help::cancelExpiredUrgentHelps();
-            Help::autoConfirmExpiredCustomerHelps();
-        } catch (\Throwable $e) {}
 
         $userBalance = UserBalance::where('user_id', $user->id)->first();
         $balance = $userBalance ? $userBalance->balance : 0;

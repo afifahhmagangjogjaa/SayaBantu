@@ -85,10 +85,6 @@ class AllHelps extends Component
         $user = auth()->user();
         \App\Services\KtpVerificationNoticeService::ensurePromptNotification($user);
 
-        try {
-            Help::cancelExpiredUrgentHelps();
-        } catch (\Throwable $e) {}
-
         $isMitraShadowBanned = $user ? $user->isShadowBanned() : false;
 
         $userCity = ($user && $user->city_id) ? \App\Models\City::find($user->city_id) : null;
@@ -258,9 +254,6 @@ class AllHelps extends Component
         $help = Help::with('user')->findOrFail($helpId);
 
         if ($help->isExpired() || $help->status !== 'menunggu_mitra') {
-            if ($help->isExpired()) {
-                Help::cancelExpiredUrgentHelps();
-            }
             $this->dispatch('livewire-flash-error', 'Maaf, batas waktu pencarian mitra untuk bantuan ini sudah habis atau bantuan sudah tidak tersedia.');
             return;
         }

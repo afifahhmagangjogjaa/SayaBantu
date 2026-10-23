@@ -83,10 +83,6 @@ class ProcessingHelps extends Component
     {
         $user = auth()->user();
 
-        try {
-            Help::autoConfirmExpiredCustomerHelps();
-        } catch (\Throwable $e) {}
-
         $query = Help::where('mitra_id', $user->id)
             ->with(['user', 'city', 'category', 'rating']);
 

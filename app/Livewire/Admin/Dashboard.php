@@ -13,10 +13,6 @@ class Dashboard extends Component
 {
     public function render()
     {
-        try {
-            Help::cancelExpiredUrgentHelps();
-            Help::autoConfirmExpiredCustomerHelps();
-        } catch (\Throwable $e) {}
 
         // If current user is an admin, scope metrics to their assigned city
         if (auth()->user() && auth()->user()->role === 'admin') {

@@ -84,10 +84,6 @@ class Dashboard extends Component
     {
         $user = auth()->user();
 
-        try {
-            Help::cancelExpiredUrgentHelps();
-            Help::autoConfirmExpiredCustomerHelps();
-        } catch (\Throwable $e) {}
 
         $stats = [];
 
