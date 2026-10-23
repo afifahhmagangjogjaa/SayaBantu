@@ -12,6 +12,7 @@ use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
+use App\Enums\HelpStatus;
 
 #[Layout('layouts.mitra')]
 class Dashboard extends Component
@@ -157,7 +158,7 @@ class Dashboard extends Component
 
         $help->update([
             'mitra_id' => auth()->id(),
-            'status' => 'taken',
+            'status' => HelpStatus::MEMPEROLEH_MITRA->value,
             'taken_at' => now(),
         ]);
 
@@ -258,7 +259,7 @@ class Dashboard extends Component
             ->count();
 
         $completedCount = Help::where('mitra_id', $user->id)
-            ->whereIn('status', ['selesai', 'completed'])
+            ->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI))
             ->count();
 
         // Data berdasarkan tab
@@ -304,7 +305,7 @@ class Dashboard extends Component
                 ->paginate(10);
         } else { // selesai
             $helps = Help::where('mitra_id', $user->id)
-                ->whereIn('status', ['selesai', 'completed'])
+                ->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI))
                 ->with(['user', 'city', 'category'])
                 ->latest()
                 ->paginate(10);

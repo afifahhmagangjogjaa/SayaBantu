@@ -37,24 +37,6 @@ new #[Layout('layouts.guest')] class extends Component {
         }
     }
 
-    // Auto-select city from smart address search
-    public function selectCityByName(?string $cityName, ?string $provinceName = null): void
-    {
-        if (empty($cityName)) return;
-
-        $cleanTarget = strtolower(trim(preg_replace('/\b(KOTA|KABUPATEN|KAB)\b/i', '', $cityName)));
-        
-        $matched = collect($this->cities)->first(function ($c) use ($cleanTarget) {
-            $cleanName = strtolower(trim(preg_replace('/\b(KOTA|KABUPATEN|KAB)\b/i', '', $c->name)));
-            return $cleanName === $cleanTarget || str_contains($cleanName, $cleanTarget) || str_contains($cleanTarget, $cleanName);
-        });
-
-        if ($matched) {
-            $this->city_id = $matched->id;
-            $this->updatedCityId($matched->id);
-        }
-    }
-
     public function fetchProvinces()
     {
         try {
@@ -83,19 +65,11 @@ new #[Layout('layouts.guest')] class extends Component {
     {
         try {
             // 1. Cek dari master lokal terlebih dahulu (Instan 0ms & 100% Offline)
-            $masterFile = database_path('data/districts_master.json');
-            if (file_exists($masterFile)) {
-                $master = json_decode(file_get_contents($masterFile), true) ?: [];
-                if (isset($master[$cityCode]) && !empty($master[$cityCode])) {
-                    $this->apiDistricts = $master[$cityCode];
-                    return;
-                }
-                if ($this->city_id && isset($master[$this->city_id]) && !empty($master[$this->city_id])) {
-                    $this->apiDistricts = $master[$this->city_id];
-                    return;
-                }
-                if ($this->city && isset($master[strtoupper(trim($this->city))]) && !empty($master[strtoupper(trim($this->city))])) {
-                    $this->apiDistricts = $master[strtoupper(trim($this->city))];
+            $master = \App\Support\JsonMaster::districts();
+            foreach ([$cityCode, $this->city_id, $this->city ? strtoupper(trim($this->city)) : null] as $lookupKey) {
+                $found = \App\Support\JsonMaster::find($master, $lookupKey);
+                if ($found !== []) {
+                    $this->apiDistricts = $found;
                     return;
                 }
             }

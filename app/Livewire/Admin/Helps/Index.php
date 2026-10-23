@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use App\Models\Help;
+use App\Enums\HelpStatus;
 
 class Index extends Component
 {
@@ -38,14 +39,14 @@ class Index extends Component
     public function approveHelp($id)
     {
         $help = Help::findOrFail($id);
-        $help->update(['status' => 'menunggu_mitra']);
+        $help->update(['status' => HelpStatus::MENUNGGU_MITRA->value]);
         session()->flash('message', 'Bantuan berhasil disetujui');
     }
 
     public function rejectHelp($id)
     {
         $help = Help::findOrFail($id);
-        $help->update(['status' => 'rejected']);
+        $help->update(['status' => HelpStatus::REJECTED->value]);
         session()->flash('message', 'Bantuan ditolak');
     }
 

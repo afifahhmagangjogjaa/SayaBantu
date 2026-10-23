@@ -8,6 +8,7 @@ use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Enums\HelpStatus;
 
 #[Layout('layouts.mitra')]
 class HelpDetail extends Component
@@ -245,7 +246,7 @@ class HelpDetail extends Component
             'partner_cancel_prev_status' => $oldStatus,
             'partner_cancel_requested_at' => now(),
             'partner_cancel_reason' => $reason,
-            'status' => 'menunggu_mitra',
+            'status' => HelpStatus::MENUNGGU_MITRA->value,
             'mitra_id' => null,
             'partner_current_lat' => null,
             'partner_current_lng' => null,
@@ -347,7 +348,7 @@ class HelpDetail extends Component
 
         $oldStatus = $this->help->status;
         $this->help->update([
-            'status' => 'partner_on_the_way',
+            'status' => HelpStatus::PARTNER_ON_THE_WAY->value,
             'partner_started_at' => now(),
             'partner_started_moving_at' => now(),
         ]);
@@ -392,7 +393,7 @@ class HelpDetail extends Component
 
         $oldStatus = $this->help->status;
         $this->help->update([
-            'status' => 'partner_arrived',
+            'status' => HelpStatus::PARTNER_ARRIVED->value,
             'partner_arrived_at' => now(),
         ]);
 
@@ -437,7 +438,7 @@ class HelpDetail extends Component
         $oldStatus = $this->help->status;
         // Ubah status ke in_progress dan set service_started_at
         $this->help->update([
-            'status' => 'in_progress',
+            'status' => HelpStatus::IN_PROGRESS->value,
             'service_started_at' => now(),
         ]);
 
@@ -500,7 +501,7 @@ class HelpDetail extends Component
         ]);
 
         $updateData = [
-            'status' => 'waiting_customer_confirmation',
+            'status' => HelpStatus::WAITING_CUSTOMER_CONFIRMATION->value,
             'service_completed_at' => now(),
         ];
 

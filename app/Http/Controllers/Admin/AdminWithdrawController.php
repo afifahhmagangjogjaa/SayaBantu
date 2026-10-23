@@ -154,7 +154,7 @@ class AdminWithdrawController extends Controller
             'failed' => (clone $countsQuery)->where('status', WithdrawRequest::STATUS_FAILED)->count(),
         ];
 
-        $yearsQuery = WithdrawRequest::selectRaw('YEAR(created_at) as year')->distinct();
+        $yearsQuery = WithdrawRequest::selectRaw(\App\Support\Sql::yearExpression())->distinct();
         if (auth()->user() && auth()->user()->role === 'admin') {
             $managedCityIds = auth()->user()->getAdminCityIds();
             if (!empty($managedCityIds)) {

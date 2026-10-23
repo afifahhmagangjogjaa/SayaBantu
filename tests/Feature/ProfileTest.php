@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Profile\UpdateProfileInformationForm;
+use App\Models\City;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Livewire\Volt\Volt;
 use Tests\TestCase;
 
@@ -11,62 +14,100 @@ class ProfileTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function user(array $attributes = []): User
+    {
+        return User::factory()->create(array_merge([
+            'role' => 'customer',
+            'status' => 'active',
+            'verified' => true,
+            'is_completed' => true,
+            'email_verified_at' => now(),
+        ], $attributes));
+    }
+
+    private function validProfileData(User $user, City $city): array
+    {
+        return [
+            'name' => 'Nama Baru',
+            'email' => $user->email,
+            'nik' => '3402123456780001',
+            'phone' => '081234567890',
+            'city_id' => $city->id,
+            'address' => 'Jl. Contoh No. 1',
+            'gender' => 'Laki-laki',
+        ];
+    }
+
     public function test_profile_page_is_displayed(): void
     {
-        $user = User::factory()->create();
+        $user = $this->user(['name' => 'Budi Santoso']);
 
-        $response = $this->actingAs($user)->get('/profile');
-
-        $response
+        $this->actingAs($user)
+            ->get('/profile')
             ->assertOk()
-            ->assertSeeVolt('profile.update-profile-information-form')
-            ->assertSeeVolt('profile.update-password-form')
-            ->assertSeeVolt('profile.delete-user-form');
+            ->assertSee('Budi Santoso');
+    }
+
+    public function test_profile_edit_page_renders_the_update_form(): void
+    {
+        $user = $this->user();
+
+        $this->actingAs($user)
+            ->get('/profile/edit')
+            ->assertOk()
+            ->assertSeeLivewire(UpdateProfileInformationForm::class);
     }
 
     public function test_profile_information_can_be_updated(): void
     {
-        $user = User::factory()->create();
+        $user = $this->user();
+        $city = City::create(['name' => 'Kota Test', 'is_active' => true]);
 
         $this->actingAs($user);
 
-        $component = Volt::test('profile.update-profile-information-form')
-            ->set('name', 'Test User')
-            ->set('email', 'test@example.com')
-            ->call('updateProfileInformation');
-
-        $component
-            ->assertHasNoErrors()
-            ->assertNoRedirect();
+        Livewire::test(UpdateProfileInformationForm::class)
+            ->set('name', 'Nama Baru')
+            ->set('nik', '3402123456780001')
+            ->set('phone', '081234567890')
+            ->set('city_id', $city->id)
+            ->set('address', 'Jl. Contoh No. 1')
+            ->set('gender', 'Laki-laki')
+            ->call('updateProfileInformation')
+            ->assertHasNoErrors();
 
         $user->refresh();
 
-        $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
-        $this->assertNull($user->email_verified_at);
+        $this->assertSame('Nama Baru', $user->name);
+        $this->assertSame('3402123456780001', $user->nik);
+        $this->assertSame('081234567890', $user->phone);
+        $this->assertSame($city->id, $user->city_id);
     }
 
-    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
+    public function test_nik_used_by_another_account_is_rejected(): void
     {
-        $user = User::factory()->create();
+        $city = City::create(['name' => 'Kota Test', 'is_active' => true]);
+        $other = $this->user(['email' => 'lain@example.test', 'nik' => '3402123456780009']);
 
+        $user = $this->user(['email' => 'saya@example.test']);
         $this->actingAs($user);
 
-        $component = Volt::test('profile.update-profile-information-form')
-            ->set('name', 'Test User')
-            ->set('email', $user->email)
-            ->call('updateProfileInformation');
+        Livewire::test(UpdateProfileInformationForm::class)
+            ->set('name', 'Nama Baru')
+            ->set('nik', '3402123456780009')
+            ->set('phone', '081234567890')
+            ->set('city_id', $city->id)
+            ->set('address', 'Jl. Contoh No. 1')
+            ->set('gender', 'Laki-laki')
+            ->call('updateProfileInformation')
+            ->assertHasErrors('nik');
 
-        $component
-            ->assertHasNoErrors()
-            ->assertNoRedirect();
-
-        $this->assertNotNull($user->refresh()->email_verified_at);
+        $this->assertSame('3402123456780009', $other->fresh()->nik);
+        $this->assertNotSame('3402123456780009', $user->fresh()->nik);
     }
 
     public function test_user_can_delete_their_account(): void
     {
-        $user = User::factory()->create();
+        $user = $this->user();
 
         $this->actingAs($user);
 
@@ -84,7 +125,7 @@ class ProfileTest extends TestCase
 
     public function test_correct_password_must_be_provided_to_delete_account(): void
     {
-        $user = User::factory()->create();
+        $user = $this->user();
 
         $this->actingAs($user);
 

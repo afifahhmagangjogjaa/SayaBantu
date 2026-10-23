@@ -49,7 +49,7 @@ class TopupRejected extends Notification
             ->line('Nominal: Rp ' . number_format($this->transaction->amount, 0, ',', '.'))
             ->line('Alasan Penolakan: ' . $this->transaction->rejection_reason)
             ->line('Silakan periksa kembali bukti transfer Anda dan ajukan request baru.')
-            ->action('Buat Request Baru', route('customer.topup.request'))
+            ->action('Buat Request Baru', route('customer.topup'))
             ->line('Jika ada pertanyaan, silakan hubungi customer service kami.');
     }
 

@@ -41,7 +41,7 @@
     @endif
 
     {{-- Banner Pembatalan (Hanya jika pembatalan manual, bukan refund mediasi) --}}
-    @if(((in_array($help->status, ['dibatalkan', 'cancelled']) && empty($help->complaint_resolution)) || $help->customer_cancel_reason || $help->partner_cancel_reason))
+    @if((($help->isDibatalkan() && empty($help->complaint_resolution)) || $help->customer_cancel_reason || $help->partner_cancel_reason))
         <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 flex items-start gap-3 shadow-xs">
             <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold shrink-0">
                 ⚠️

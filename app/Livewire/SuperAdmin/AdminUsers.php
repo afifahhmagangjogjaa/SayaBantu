@@ -93,13 +93,11 @@ class AdminUsers extends Component
     public function fetchDistricts($cityCode)
     {
         try {
-            $masterFile = database_path('data/districts_master.json');
-            if (file_exists($masterFile)) {
-                $master = json_decode(file_get_contents($masterFile), true) ?: [];
-                if (isset($master[$cityCode]) && !empty($master[$cityCode])) {
-                    $this->apiDistricts = $master[$cityCode];
-                    return;
-                }
+            $master = \App\Support\JsonMaster::districts();
+            $found = \App\Support\JsonMaster::find($master, $cityCode);
+            if ($found !== []) {
+                $this->apiDistricts = $found;
+                return;
             }
 
             $cleanCode = (strlen($cityCode) === 4 && !str_contains($cityCode, '.')) ? substr($cityCode, 0, 2) . '.' . substr($cityCode, 2, 2) : $cityCode;

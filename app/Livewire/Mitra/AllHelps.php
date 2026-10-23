@@ -11,6 +11,7 @@ use App\Services\LocationTrackingService;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Schema;
+use App\Enums\HelpStatus;
 
 #[Layout('layouts.mitra')]
 class AllHelps extends Component
@@ -138,7 +139,7 @@ class AllHelps extends Component
         } elseif ($this->tab === 'proses') {
             $query->where('mitra_id', $user?->id)->whereIn('status', $inProgressStatuses);
         } elseif ($this->tab === 'selesai') {
-            $query->where('mitra_id', $user?->id)->whereIn('status', ['selesai', 'completed']);
+            $query->where('mitra_id', $user?->id)->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI));
         } else {
             // 'semua'
             $query->where(function($q) use ($user, $inProgressStatuses) {
@@ -148,7 +149,7 @@ class AllHelps extends Component
                 if ($user) {
                     $q->orWhere(function($sq) use ($user, $inProgressStatuses) {
                         $sq->where('mitra_id', $user->id)
-                           ->whereIn('status', array_merge($inProgressStatuses, ['selesai', 'completed']));
+                           ->whereIn('status', array_merge($inProgressStatuses, HelpStatus::expand(HelpStatus::SELESAI)));
                     });
                 }
             });
@@ -299,7 +300,7 @@ class AllHelps extends Component
 
         $help->update([
             'mitra_id' => auth()->id(),
-            'status' => 'taken',
+            'status' => HelpStatus::MEMPEROLEH_MITRA->value,
             'taken_at' => now(),
         ]);
 

@@ -433,7 +433,7 @@ class TopupApproval extends Component
         $availableYears = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->where($baseCityScope)
-            ->selectRaw('YEAR(created_at) as year')
+            ->selectRaw(\App\Support\Sql::yearExpression())
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year')

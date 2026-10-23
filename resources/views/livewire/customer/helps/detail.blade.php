@@ -250,7 +250,7 @@
         @endif
 
         {{-- Banner Notifikasi Jika Pesanan Dibatalkan Customer atau Ditolak Admin (Kecuali jika dibatalkan karena refund mediasi) --}}
-        @if(in_array($help->status, ['dibatalkan', 'cancelled']) && empty($help->complaint_resolution))
+        @if($help->isDibatalkan() && empty($help->complaint_resolution))
             <div class="mt-3 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 shadow-2xs">
                 <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-red-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -645,7 +645,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 </svg>
-                            @elseif(in_array($help->status, ['selesai', 'completed']))
+                            @elseif($help->isSelesai())
                                 <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
@@ -683,7 +683,7 @@
                             @else
                                 <span class="w-1.5 h-1.5 rounded-full {{ $statusTheme['dot'] }}"></span>
                             @endif
-                            <span>{{ in_array($help->status, ['mencari_mitra', 'menunggu_mitra', 'memperoleh_mitra']) ? 'Mencari' : (in_array($help->status, ['selesai', 'completed']) ? 'Selesai' : (in_array($help->status, ['dibatalkan', 'cancelled']) ? ($help->complaint_resolution === 'refunded' ? 'Refund' : 'Batal') : (in_array($help->status, ['komplain', 'disputed']) ? 'Mediasi' : 'Aktif'))) }}</span>
+                            <span>{{ in_array($help->status, ['mencari_mitra', 'menunggu_mitra', 'memperoleh_mitra']) ? 'Mencari' : ($help->isSelesai() ? 'Selesai' : ($help->isDibatalkan() ? ($help->complaint_resolution === 'refunded' ? 'Refund' : 'Batal') : (in_array($help->status, ['komplain', 'disputed']) ? 'Mediasi' : 'Aktif'))) }}</span>
                         </span>
                     @endif
                 </div>
@@ -1156,7 +1156,7 @@
         {{-- Rating Form --}}
 
         {{-- Rating Form --}}
-        @if(in_array($help->status, ['selesai', 'completed']))
+        @if($help->isSelesai())
             @php
                 $customerRating = \App\Models\Rating::where('help_id', $help->id)
                     ->where('rater_id', auth()->id())

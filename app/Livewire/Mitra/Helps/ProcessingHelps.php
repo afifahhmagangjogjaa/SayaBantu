@@ -6,6 +6,7 @@ use App\Models\Help;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
+use App\Enums\HelpStatus;
 
 #[Layout('layouts.mitra')]
 class ProcessingHelps extends Component
@@ -67,7 +68,7 @@ class ProcessingHelps extends Component
         }
 
         $help->update([
-            'status' => 'waiting_customer_confirmation',
+            'status' => HelpStatus::WAITING_CUSTOMER_CONFIRMATION->value,
         ]);
 
         if (!$help->service_completed_at) {

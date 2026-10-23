@@ -110,10 +110,8 @@ class OnboardingController extends Controller
         }
 
         $cities = City::where('is_active', true)->orderBy('name', 'asc')->get();
-        $masterDistrictsFile = database_path('data/districts_master.json');
-        $allDistricts = file_exists($masterDistrictsFile) ? json_decode(file_get_contents($masterDistrictsFile), true) : [];
-        $masterVillagesFile = database_path('data/villages_master.json');
-        $allVillages = file_exists($masterVillagesFile) ? json_decode(file_get_contents($masterVillagesFile), true) : [];
+        $allDistricts = \App\Support\JsonMaster::districts();
+        $allVillages = \App\Support\JsonMaster::villages();
         return view('onboarding.step1', compact('user', 'cities', 'allDistricts', 'allVillages'));
     }
 
@@ -553,17 +551,11 @@ class OnboardingController extends Controller
         }
 
         // 1. Cek dari master lokal terlebih dahulu (Instan & 100% Offline)
-        $masterFile = database_path('data/districts_master.json');
-        if (file_exists($masterFile)) {
-            $master = json_decode(file_get_contents($masterFile), true) ?: [];
-            if ($cityId && isset($master[$cityId])) {
-                return response()->json(['success' => true, 'data' => $master[$cityId]]);
-            }
-            if ($city && !empty($city->code) && isset($master[$city->code])) {
-                return response()->json(['success' => true, 'data' => $master[$city->code]]);
-            }
-            if ($cityName && isset($master[strtoupper(trim($cityName))])) {
-                return response()->json(['success' => true, 'data' => $master[strtoupper(trim($cityName))]]);
+        $master = \App\Support\JsonMaster::districts();
+        foreach ([$cityId, $city?->code, $cityName ? strtoupper(trim($cityName)) : null] as $lookupKey) {
+            $found = \App\Support\JsonMaster::find($master, $lookupKey);
+            if ($found !== []) {
+                return response()->json(['success' => true, 'data' => $found]);
             }
         }
 

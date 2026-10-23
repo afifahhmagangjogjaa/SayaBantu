@@ -180,7 +180,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m11-6V7a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2z" />
                             </svg>
                             <span class="text-xs text-gray-600 font-medium">
-                                Pesanan telah {{ in_array($selected_help->status, ['selesai', 'completed']) ? 'selesai' : 'dibatalkan' }}. Percakapan ini telah diarsipkan (hanya-baca).
+                                Pesanan telah {{ $selected_help->isSelesai() ? 'selesai' : 'dibatalkan' }}. Percakapan ini telah diarsipkan (hanya-baca).
                             </span>
                         </div>
                     @elseif($selected_help && in_array($selected_help->status, ['partner_cancel_requested', 'cancel_requested']))

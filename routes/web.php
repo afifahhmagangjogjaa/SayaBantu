@@ -201,11 +201,12 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
         // Transactions
         Route::get('/transactions', \App\Livewire\Customer\Transactions\Index::class)->name('transactions.index');
 
-        // Top Up Saldo
+        // Top Up Saldo — satu URL kanonik: /customer/topup.
+        // URL lain dipertahankan sebagai redirect supaya tautan lama tidak 404.
         Route::get('/topup', \App\Livewire\Customer\TopupRequest::class)->name('topup');
-        Route::get('/top-up', \App\Livewire\Customer\TopupRequest::class);
-        Route::get('/topup/request', \App\Livewire\Customer\TopupRequest::class)->name('topup.request');
         Route::get('/topup/history', \App\Livewire\Customer\TopupHistory::class)->name('topup.history');
+        Route::redirect('/topup/request', '/customer/topup');
+        Route::redirect('/top-up', '/customer/topup');
         Route::redirect('/topup/instant', '/customer/topup');
         Route::redirect('/topup/midtrans', '/customer/topup');
 
@@ -416,7 +417,3 @@ Route::get('/api/address/autocomplete', [\App\Http\Controllers\Api\AddressContro
 Route::post('/gateway/callback', [\App\Http\Controllers\WithdrawController::class, 'gatewayCallback'])->name('gateway.callback');
 
 require __DIR__ . '/auth.php';
-
-Route::get('/livewire/update', function () {
-    return redirect()->back();
-});
