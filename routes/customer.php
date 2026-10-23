@@ -41,7 +41,7 @@ Route::middleware(['auth', 'onboarded', 'customer'])
         Route::view('/help-support', 'customer.help-support')->name('help-support');
 
         // Tracking
-        Route::get('/helps/{id}/tracking', [\App\Http\Controllers\Api\HelpTrackingController::class, 'tracking'])->name('customer.helps.tracking');
+        Route::get('/helps/{id}/tracking', [\App\Http\Controllers\Api\HelpTrackingController::class, 'tracking'])->name('helps.tracking');
 
         // Help details JSON
         Route::get('/helps/{id}/json', [\App\Http\Controllers\Api\HelpTrackingController::class, 'json'])->name('helps.json');
