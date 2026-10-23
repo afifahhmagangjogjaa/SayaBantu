@@ -345,7 +345,6 @@
                 }
                 window._lastMitraNotification = { key: toastKey, time: now };
 
-                console.log('showMitraNotification (text-only) called', { title, message, url, timeout, type });
                 const container = document.getElementById('mitra-global-notification-inner');
                 if (!container) { console.warn('mitra-global-notification-inner not found'); return; }
                 container.innerHTML = '';
@@ -410,7 +409,6 @@
         });
 
         window.addEventListener('help-new-message', function (e) {
-            console.log('help-new-message received', e && e.detail ? e.detail : e);
             const helpId = e && e.detail && e.detail.helpId ? e.detail.helpId : null;
             const from = e && e.detail && e.detail.from ? e.detail.from : 'Customer';
             const message = e && e.detail && e.detail.message ? e.detail.message : '';

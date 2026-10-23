@@ -15,21 +15,10 @@
     x-init="
         // Update tracking data setiap kali Livewire refresh
         Livewire.hook('morph.updated', () => {
-            const oldLat = trackingData.partnerLat;
-            const oldLng = trackingData.partnerLng;
-            
             trackingData.partnerLat = {{ !empty($help->partner_current_lat) ? (float)$help->partner_current_lat : (!empty($help->mitra?->latitude) ? (float)$help->mitra->latitude : (!empty($help->latitude) ? (float)$help->latitude : -6.2088)) }};
             trackingData.partnerLng = {{ !empty($help->partner_current_lng) ? (float)$help->partner_current_lng : (!empty($help->mitra?->longitude) ? (float)$help->mitra->longitude : (!empty($help->longitude) ? (float)$help->longitude : 106.8456)) }};
             trackingData.customerLat = {{ !empty($help->latitude) ? (float)$help->latitude : -6.2088 }};
             trackingData.customerLng = {{ !empty($help->longitude) ? (float)$help->longitude : 106.8456 }};
-            
-            // Log perubahan lokasi
-            if (oldLat !== trackingData.partnerLat || oldLng !== trackingData.partnerLng) {
-                console.log('📍 Lokasi mitra diperbarui:', {
-                    old: { lat: oldLat, lng: oldLng },
-                    new: { lat: trackingData.partnerLat, lng: trackingData.partnerLng }
-                });
-            }
             
             // Trigger update ke peta jika modal terbuka
             if (window.updateMapFromAlpine) {
@@ -1753,7 +1742,6 @@
     
     <script>
         (function() {
-            console.log('🚀 Map script loaded');
             
             let map;
             let partnerMarker;
@@ -1784,7 +1772,6 @@
             function waitAndInit() {
                 // Jika map sudah ada, skip init (cegah reinit saat Livewire polling)
                 if (map) {
-                    console.log('✅ Map already initialized, skipping...');
                     return;
                 }
                 
@@ -1794,15 +1781,8 @@
                 const hasAlpine = typeof Alpine !== 'undefined';
                 const hasContainer = document.getElementById('tracking-map') !== null;
                 
-                console.log(`⏳ Attempt ${initAttempts}/${maxAttempts}:`, { 
-                    Leaflet: hasLeaflet, 
-                    Alpine: hasAlpine,
-                    Container: hasContainer,
-                    mapExists: !!map
-                });
                 
                 if (hasLeaflet && hasAlpine && hasContainer) {
-                    console.log('✅ All dependencies ready! Initializing map...');
                     setTimeout(() => {
                         try {
                             initializeMap();
@@ -1822,11 +1802,9 @@
             function initializeMap() {
                 // Cegah double init
                 if (map) {
-                    console.log('⚠️ Map already exists, skipping initialization');
                     return;
                 }
                 
-                console.log('🗺️ Starting map initialization...');
                 
                 // Get tracking data from Alpine
                 let trackingData;
@@ -1856,16 +1834,11 @@
             if (isNaN(partnerLat) || !partnerLat) partnerLat = customerLat;
             if (isNaN(partnerLng) || !partnerLng) partnerLng = customerLng;
 
-            console.log('📍 Koordinat aktif:', { 
-                partner: { lat: partnerLat, lng: partnerLng },
-                customer: { lat: customerLat, lng: customerLng }
-            });
 
             // Initialize map centered between partner and customer
             const centerLat = (partnerLat + customerLat) / 2;
             const centerLng = (partnerLng + customerLng) / 2;
 
-            console.log('🎯 Center peta:', { lat: centerLat, lng: centerLng });
 
             try {
                 // Initialize map without the default Leaflet prefix in attribution
@@ -1873,7 +1846,6 @@
                     zoomControl: true,
                     attributionControl: false
                 }).setView([centerLat, centerLng], 14);
-                console.log('✓ Map object created');
             } catch (err) {
                 console.error('❌ Error creating map:', err);
                 showError('Gagal membuat peta');
@@ -1893,7 +1865,6 @@
                 } catch (err) {
                     console.warn('Unable to set attribution prefix:', err);
                 }
-                console.log('✓ Tiles loaded');
             } catch (err) {
                 console.error('❌ Error loading tiles:', err);
                 showError('Gagal memuat tiles peta');
@@ -1941,13 +1912,11 @@
                     icon: partnerIcon,
                     title: trackingData.partnerName
                 }).addTo(map);
-                console.log('✓ Partner marker created');
 
                 customerMarker = L.marker([customerLat, customerLng], { 
                     icon: customerIcon,
                     title: 'Lokasi Anda'
                 }).addTo(map);
-                console.log('✓ Customer marker created');
 
                 // Add popups
                 partnerMarker.bindPopup(`
@@ -1972,7 +1941,6 @@
             // Calculate and display route
             try {
                 calculateRoute(partnerLat, partnerLng, customerLat, customerLng);
-                console.log('✓ Route calculation started');
             } catch (err) {
                 console.error('⚠️ Warning: Route calculation failed:', err);
                 // Continue anyway, map will still work without route
@@ -1989,7 +1957,6 @@
                     ]);
                     map.fitBounds(bounds, { padding: [50, 50] });
                 }
-                console.log('✓ Map bounds set');
             } catch (err) {
                 console.error('❌ Error setting bounds:', err);
             }
@@ -1998,7 +1965,6 @@
             const loadingEl = document.getElementById('map-loading');
             if (loadingEl) {
                 loadingEl.style.display = 'none';
-                console.log('✓ Loading overlay hidden');
             }
             
             mapInitialized = true;
@@ -2007,12 +1973,10 @@
             setTimeout(() => {
                 if (map) {
                     map.invalidateSize();
-                    console.log('🔄 Map size recalculated');
                 }
             }, 100);
 
             // Update akan otomatis dari Livewire polling + Alpine hook
-            console.log('✅ Map initialization complete! Auto-update enabled via Livewire polling (5s).');
         }
 
             function calculateRoute(fromLat, fromLng, toLat, toLng) {
@@ -2148,7 +2112,6 @@
             // Fungsi untuk update peta dari Livewire event
             window.updateMapFromTracking = function(data) {
                 if (!map || !partnerMarker) {
-                    console.log('⚠️ Map or marker not ready yet');
                     return;
                 }
                 
@@ -2157,17 +2120,12 @@
                 const customerLat = parseFloat(data.customerLat);
                 const customerLng = parseFloat(data.customerLng);
 
-                console.log('📍 Updating map from Livewire:', { 
-                    partner: { lat: newLat, lng: newLng },
-                    customer: { lat: customerLat, lng: customerLng }
-                });
 
                 if (newLat && newLng && !isNaN(newLat) && !isNaN(newLng) && partnerMarker) {
                     const currentLatLng = partnerMarker.getLatLng();
                     
                     // Hanya update jika posisi berubah
                     if (Math.abs(currentLatLng.lat - newLat) > 0.0001 || Math.abs(currentLatLng.lng - newLng) > 0.0001) {
-                        console.log('🚶 Partner bergerak dari', currentLatLng, 'ke', {lat: newLat, lng: newLng});
                         
                         // Animate marker movement
                         animateMarker(partnerMarker, [newLat, newLng]);
@@ -2178,8 +2136,6 @@
                                 calculateRoute(newLat, newLng, customerLat, customerLng);
                             }
                         }, 1000);
-                    } else {
-                        console.log('📍 Partner masih di posisi yang sama');
                     }
                 }
             };
@@ -2231,14 +2187,12 @@
             // Initialize map when modal opens (listen to Livewire)
             document.addEventListener('livewire:init', () => {
                 Livewire.on('mapModalOpened', () => {
-                    console.log('📢 Map modal opened');
                     initAttempts = 0; // Reset counter
                     setTimeout(waitAndInit, 100);
                 });
                 
                 // Listen untuk tracking data updates dari Livewire
                 Livewire.on('tracking-data-updated', (event) => {
-                    console.log('📡 Tracking data updated event received:', event);
                     if (map && mapInitialized) {
                         window.updateMapFromTracking(event);
                     }
@@ -2251,14 +2205,12 @@
                 
                 // Jika modal ada dan map belum di-init
                 if (modalElement && !map) {
-                    console.log('📢 Modal detected in DOM, initializing...');
                     initAttempts = 0; // Reset counter
                     setTimeout(waitAndInit, 100);
                 }
                 
                 // Jika modal tidak ada tapi map masih ada, cleanup
                 if (!modalElement && map) {
-                    console.log('🧹 Modal closed, cleaning up map...');
                     try {
                         map.remove();
                         map = null;
@@ -2287,7 +2239,6 @@
             function startPolling(helpId) {
                 if (!helpId) return;
                 if (pollingInterval) return; // already running
-                console.log('🔁 Starting tracking polling for help', helpId);
                 // immediate fetch
                 fetchAndUpdate(helpId);
                 pollingInterval = setInterval(() => fetchAndUpdate(helpId), POLL_MS);
@@ -2297,7 +2248,6 @@
                 if (pollingInterval) {
                     clearInterval(pollingInterval);
                     pollingInterval = null;
-                    console.log('⏹️ Stopped tracking polling');
                 }
             }
 

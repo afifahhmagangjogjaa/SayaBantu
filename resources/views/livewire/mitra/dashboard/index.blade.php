@@ -801,10 +801,8 @@
                 clearTimeout(fallbackTimer);
 
                 if (lat && lng) {
-                    console.log('📍 Mengambil bantuan dengan lokasi GPS:', { lat, lng });
                     @this.takeHelp(currentHelpId, lat, lng);
                 } else {
-                    console.log('📍 Mengambil bantuan (koordinat default dari profil mitra)');
                     @this.takeHelp(currentHelpId);
                 }
 
@@ -818,7 +816,6 @@
 
             // Batas maksimal tunggu deteksi GPS adalah 1.8 detik agar tidak pernah stuck/macet
             const fallbackTimer = setTimeout(() => {
-                console.log('⏱️ Waktu deteksi GPS selesai, langsung mengambil bantuan...');
                 completeTake();
             }, 1800);
 

@@ -492,7 +492,6 @@
                 var cancelFallback = modal.querySelector('#cancel-reject-fallback');
                 var overlayFallback = modal.querySelector('#withdraw-reject-fallback-overlay');
 
-                console.log('initSuperadminWithdrawModal: openRejectBtn=', !!openRejectBtn, 'fallback=', !!fallback, 'overlay=', !!overlayFallback);
 
                 function showFallback() {
                     if (!fallback) return;
@@ -507,8 +506,6 @@
 
                 if (openRejectBtn) {
                     openRejectBtn.addEventListener('click', function (e) {
-                        // always show fallback as a guarantee when button clicked
-                        try { console.log('open-reject-local clicked'); } catch (err) {}
                         showFallback();
                         try { window.dispatchEvent(new CustomEvent('open-reject')); } catch (err) {}
                     });

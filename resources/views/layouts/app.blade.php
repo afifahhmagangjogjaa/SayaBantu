@@ -364,7 +364,6 @@
                 }
                 window._lastCustomerToast = { key: toastKey, time: now };
 
-                console.log('showCustomerNotification called', { title, message, url, timeout, type });
                 const container = document.getElementById('customer-global-notification-inner');
                 if (!container) { console.warn('customer-global-notification-inner not found'); return; }
                 container.innerHTML = '';
@@ -522,7 +521,6 @@
 
         // Listen for various help status updates
         window.addEventListener('help-new-message', function (e) {
-            console.log('customer help-new-message received', e && e.detail ? e.detail : e);
             const helpId = e && e.detail && e.detail.helpId ? e.detail.helpId : null;
             const from = e && e.detail && e.detail.from ? e.detail.from : 'Mitra';
             const message = e && e.detail && e.detail.message ? e.detail.message : '';
@@ -531,14 +529,12 @@
         });
 
         window.addEventListener('help-taken', function (e) {
-            console.log('🎯 help-taken event received!', e.detail);
             const helpId = e && e.detail && (e.detail.helpId ?? e.detail.help_id) ? (e.detail.helpId ?? e.detail.help_id) : null;
             const helpTitle = e && e.detail && (e.detail.helpTitle ?? e.detail.help_title) ? (e.detail.helpTitle ?? e.detail.help_title) : null;
             const mitraName = e && e.detail && (e.detail.mitraName ?? e.detail.mitra_name) ? (e.detail.mitraName ?? e.detail.mitra_name) : 'Mitra';
             const url = helpId ? customerHelpDetailTemplate.replace('REPLACE_ID', helpId) : '#';
             const message = e && e.detail && e.detail.message ? e.detail.message : (helpTitle ? `${mitraName} telah mengambil bantuan Anda: ${helpTitle}` : `${mitraName} telah mengambil bantuan Anda. Ketuk untuk melihat detail.`);
             const title = helpTitle ? `Bantuan: ${helpTitle}` : '\u2705 Bantuan Diambil!';
-            console.log('🔔 Showing toast notification for help taken', { title, message });
             showCustomerNotification({ 
                 title, 
                 message, 
@@ -598,7 +594,6 @@
 
         window.addEventListener('help-status-update', function (e) {
             try {
-                console.log('help-status-update raw event:', e);
 
                 const detail = e && e.detail ? e.detail : {};
 
@@ -669,7 +664,6 @@
                 const title = notifTitle || defaultTitle;
                 const message = payloadMessage || fallbackMessage;
 
-                console.log('help-status-update parsed:', { helpId, helpTitle, mitraName, status, message, type, title, url });
 
                 showCustomerNotification({ title, message, url, type, timeout: 7000 });
             } catch (err) { console.error('help-status-update handler error', err); }
@@ -1035,9 +1029,7 @@
         // Registrasi PWA Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then((reg) => console.log('✓ Service Worker PWA Aktif:', reg.scope))
-                    .catch((err) => console.log('Service Worker Gagal:', err));
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
             });
         }
 
@@ -1062,7 +1054,6 @@
                 installBanner.classList.add('hidden');
                 window._deferredPrompt.prompt();
                 const { outcome } = await window._deferredPrompt.userChoice;
-                console.log(`User response to install: ${outcome}`);
                 window._deferredPrompt = null;
             });
         }

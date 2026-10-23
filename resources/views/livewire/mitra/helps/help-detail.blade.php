@@ -12,10 +12,6 @@
             
             // Jika status berubah, tampilkan notifikasi
             if (previousStatus !== currentStatus) {
-                console.log('📍 Status berubah:', {
-                    old: previousStatus,
-                    new: currentStatus
-                });
                 
                 notificationMessage = 'Status pesanan diperbarui';
                 showNotification = true;

@@ -1337,7 +1337,6 @@
                 try {
                     editMap.remove();
                 } catch(e) {
-                    console.log('Error removing map:', e);
                 }
                 editMap = null;
                 editMarker = null;
@@ -1378,15 +1377,10 @@
                 });
 
                 if (navigator.geolocation && !parsedLat && !parsedLng) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const pos = [position.coords.latitude, position.coords.longitude];
-                            editMap.setView(pos, 13);
-                        },
-                        () => {
-                            console.log('Geolocation not available, using default location');
-                        }
-                    );
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        const pos = [position.coords.latitude, position.coords.longitude];
+                        editMap.setView(pos, 13);
+                    });
                 }
             } catch(error) {
                 console.error('Error initializing map:', error);
@@ -1475,7 +1469,7 @@
             const parsedLng = lng ? parseFloat(lng) : null;
 
             if (detailMap) {
-                try { detailMap.remove(); } catch(e) { console.log('remove detail map error', e); }
+                try { detailMap.remove(); } catch(e) {}
                 detailMap = null;
                 detailMarker = null;
             }
@@ -1491,7 +1485,6 @@
                         center = [parseFloat(json[0].lat), parseFloat(json[0].lon)];
                     }
                 } catch(e) {
-                    console.log('Geocode failed:', e);
                 }
             }
 
