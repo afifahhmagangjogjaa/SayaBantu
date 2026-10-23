@@ -6,7 +6,6 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use App\Models\PartnerActivity;
-use App\Models\User;
 
 #[Layout('layouts.superadmin', ['title' => 'Log Aktivitas', 'breadcrumb' => 'Super Admin'])]
 class ActivityLogs extends Component

@@ -70,7 +70,6 @@ default di `.env.example` adalah `false`.
 
 | Proses | Perintah | Kenapa perlu |
 |---|---|---|
-| Queue worker | `php artisan queue:work` | Notifikasi memakai `ShouldQueue`; tanpa worker, notifikasi menumpuk di tabel `jobs` |
 | Scheduler | `php artisan schedule:run` tiap menit (cron) atau `php artisan schedule:work` saat dev | `helps:auto-confirm` (tiap 10 menit) dan `helps:auto-cancel` (tiap menit) |
 
 Di server, tambahkan cron:
@@ -78,6 +77,10 @@ Di server, tambahkan cron:
 ```cron
 * * * * * cd /path/to/sayabantu && php artisan schedule:run >> /dev/null 2>&1
 ```
+
+Queue worker **belum dibutuhkan**: saat ini semua notifikasi dikirim sinkron (tidak ada
+job yang di-dispatch). `QUEUE_CONNECTION` tetap diisi karena suatu saat bisa dipakai —
+kalau nanti notifikasi dijadikan `ShouldQueue`, jalankan `php artisan queue:work`.
 
 ---
 

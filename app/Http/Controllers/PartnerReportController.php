@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\PartnerReport;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PartnerReportController extends Controller

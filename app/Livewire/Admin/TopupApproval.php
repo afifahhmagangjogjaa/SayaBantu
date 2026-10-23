@@ -3,8 +3,6 @@
 namespace App\Livewire\Admin;
 
 use App\Models\BalanceTransaction;
-use App\Models\User;
-use App\Models\UserBalance;
 use App\Notifications\TopupApproved;
 use App\Notifications\TopupRejected;
 use Livewire\Component;

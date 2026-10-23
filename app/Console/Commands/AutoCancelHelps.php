@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\HelpStatus;
 use App\Models\Help;
 use Illuminate\Console\Command;
 
