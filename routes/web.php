@@ -415,20 +415,6 @@ Route::get('/api/address/autocomplete', [\App\Http\Controllers\Api\AddressContro
 // Public callback endpoint for withdraw disbursements
 Route::post('/gateway/callback', [\App\Http\Controllers\WithdrawController::class, 'gatewayCallback'])->name('gateway.callback');
 
-// Sync balance dev route
-if (config('app.debug')) {
-    Route::get('/dev-sync-balance', function () {
-        $userId = auth()->id();
-        if (!$userId) return "Silakan login dulu.";
-
-        $newBalance = \App\Models\UserBalance::recalculateForUser($userId);
-
-        return "✅ Saldo disinkronkan secara akurat.<br>"
-            . "Saldo sekarang: <b>Rp " . number_format($newBalance, 0, ',', '.') . "</b><br><br>"
-            . "<a href='/customer/dashboard'>Kembali ke Dashboard</a>";
-    });
-}
-
 require __DIR__ . '/auth.php';
 
 Route::get('/livewire/update', function () {

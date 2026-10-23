@@ -93,7 +93,17 @@ class AdminUsers extends Component
     public function fetchDistricts($cityCode)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/districts/{$cityCode}.json");
+            $masterFile = database_path('data/districts_master.json');
+            if (file_exists($masterFile)) {
+                $master = json_decode(file_get_contents($masterFile), true) ?: [];
+                if (isset($master[$cityCode]) && !empty($master[$cityCode])) {
+                    $this->apiDistricts = $master[$cityCode];
+                    return;
+                }
+            }
+
+            $cleanCode = (strlen($cityCode) === 4 && !str_contains($cityCode, '.')) ? substr($cityCode, 0, 2) . '.' . substr($cityCode, 2, 2) : $cityCode;
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/districts/{$cleanCode}.json");
             if ($response->successful()) {
                 $this->apiDistricts = $response->json('data') ?? [];
             }

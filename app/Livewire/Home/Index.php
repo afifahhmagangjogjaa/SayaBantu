@@ -17,8 +17,7 @@ class Index extends Component
     public function render()
     {
         $helps = Help::with(['user', 'city', 'mitra'])
-            ->where('status', 'approved')
-            ->whereNull('mitra_id')
+            ->available()
             ->when($this->selectedCity, function ($query) {
                 $query->where('city_id', $this->selectedCity);
             })

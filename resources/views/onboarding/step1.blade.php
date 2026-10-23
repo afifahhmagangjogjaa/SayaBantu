@@ -85,23 +85,6 @@
                     @error('phone') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Alamat Lengkap Domisili -->
-                <div>
-                    <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Alamat Lengkap Domisili <span class="text-red-500">*</span>
-                    </label>
-                    <x-smart-address-input 
-                        name="address" 
-                        id="address" 
-                        cityRef="#city_id"
-                        rows="2" 
-                        required 
-                        :value="old('address', $user->address ?? '')"
-                        placeholder="Ketik nama jalan, perumahan, kelurahan, atau gedung..."
-                    />
-                    @error('address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
                 @php
                     $provinces = $cities->pluck('province')->filter()->unique()->values();
                     $savedProvince = old('province', $user->province ?? '');
@@ -165,6 +148,23 @@
                         <option value="">-- Pilih Kecamatan Domisili Terlebih Dahulu --</option>
                     </select>
                     @error('kelurahan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <!-- 5. ALAMAT LENGKAP DOMISILI -->
+                <div>
+                    <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                        Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) <span class="text-red-500">*</span>
+                    </label>
+                    <x-smart-address-input 
+                        name="address" 
+                        id="address" 
+                        cityRef="#city_id"
+                        rows="2" 
+                        required 
+                        :value="old('address', $user->address ?? '')"
+                        placeholder="Ketik nama jalan, nomor rumah, RT/RW, atau gunakan saran cerdas..."
+                    />
+                    @error('address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <!-- Submit Button -->
@@ -519,20 +519,55 @@
             }
 
             // Auto-select province and city if available from smart address selection
-            window.addEventListener('smart-address-selected', (e) => {
+            window.addEventListener('smart-address-selected', async (e) => {
                 const item = e.detail;
                 if (!item) return;
 
                 const provSelect = document.getElementById('province');
                 const citySelect = document.getElementById('city_id');
-                
-                if (item.province && provSelect) {
-                    const cleanItemProv = item.province.toLowerCase().replace(/daerah|istimewa|khusus|ibukota|provinsi|di|dki/g, '').trim();
+                if (!provSelect || !citySelect) return;
+
+                // 1. If user already selected a city and it matches or user picked it, don't wipe it out!
+                if (citySelect.value && citySelect.selectedIndex > 0) {
+                    const currentCityName = (citySelect.options[citySelect.selectedIndex]?.text || '').toLowerCase();
+                    const itemCity = (item.city || '').toLowerCase();
+                    if (itemCity && (currentCityName.includes(itemCity) || itemCity.includes(currentCityName.replace(/kota|kabupaten/g, '').trim()))) {
+                        return; // Keep existing selection intact!
+                    }
+                }
+
+                // 2. Try to find a matching city in allCities
+                let matchingCity = null;
+                const cleanItemCity = (item.city || '').toLowerCase().replace(/kota|kabupaten|kab|adm|administrasi/g, '').trim();
+                const cleanItemProv = (item.province || '').toLowerCase().replace(/daerah|istimewa|khusus|ibukota|provinsi|di|dki/g, '').trim();
+
+                if (cleanItemCity) {
+                    matchingCity = allCities.find(c => {
+                        const cName = (c.name || '').toLowerCase().replace(/kota|kabupaten|kab|adm|administrasi/g, '').trim();
+                        const pName = (c.province || '').toLowerCase().replace(/daerah|istimewa|khusus|ibukota|provinsi|di|dki/g, '').trim();
+                        const isCityMatch = cName.includes(cleanItemCity) || cleanItemCity.includes(cName);
+                        if (!isCityMatch) return false;
+                        if (cleanItemProv && pName) {
+                            return pName.includes(cleanItemProv) || cleanItemProv.includes(pName);
+                        }
+                        return true;
+                    });
+                }
+
+                if (matchingCity) {
+                    for (let i = 0; i < provSelect.options.length; i++) {
+                        if (provSelect.options[i].value === matchingCity.province) {
+                            provSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                    await handleProvinceChange(matchingCity.id, item.district || null, null);
+                } else if (cleanItemProv && (!provSelect.value || provSelect.selectedIndex <= 0)) {
                     for (let i = 0; i < provSelect.options.length; i++) {
                         const optText = provSelect.options[i].text.toLowerCase().replace(/daerah|istimewa|khusus|ibukota|provinsi|di|dki/g, '').trim();
                         if (optText && (optText.includes(cleanItemProv) || cleanItemProv.includes(optText))) {
                             provSelect.selectedIndex = i;
-                            handleProvinceChange();
+                            await handleProvinceChange();
                             break;
                         }
                     }

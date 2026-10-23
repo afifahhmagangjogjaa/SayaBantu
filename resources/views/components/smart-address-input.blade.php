@@ -206,11 +206,31 @@
                         }
                     }
 
+                    let provinceParam = '';
+                    const provEl = document.querySelector('#province') || document.querySelector('[name="province"]');
+                    if (provEl) {
+                        const pVal = provEl.value ? provEl.value.trim() : '';
+                        const pTxt = provEl.options ? (provEl.options[provEl.selectedIndex]?.text || '') : (provEl.value || '');
+                        if (pVal && !pTxt.includes('--') && !pTxt.toLowerCase().includes('pilih')) {
+                            provinceParam = pTxt.replace(/\(.*\)/, '').replace(/Provinsi|Propinsi/i, '').trim();
+                        }
+                    }
+
+                    let districtParam = '';
+                    const distEl = document.querySelector('#kecamatan') || document.querySelector('[name="kecamatan"]');
+                    if (distEl) {
+                        const dVal = distEl.value ? distEl.value.trim() : '';
+                        const dTxt = distEl.options ? (distEl.options[distEl.selectedIndex]?.text || '') : (distEl.value || '');
+                        if (dVal && !dTxt.includes('--') && !dTxt.toLowerCase().includes('pilih') && !dTxt.toLowerCase().includes('memuat')) {
+                            districtParam = dTxt.replace(/\(.*\)/, '').replace(/Kecamatan/i, '').trim();
+                        }
+                    }
+
                     const url = new URL('/api/address/autocomplete', window.location.origin);
                     url.searchParams.set('q', trimmed);
-                    if (cityParam) {
-                        url.searchParams.set('city', cityParam);
-                    }
+                    if (cityParam) url.searchParams.set('city', cityParam);
+                    if (provinceParam) url.searchParams.set('province', provinceParam);
+                    if (districtParam) url.searchParams.set('district', districtParam);
 
                     const response = await fetch(url.toString(), {
                         signal: this.abortController.signal,

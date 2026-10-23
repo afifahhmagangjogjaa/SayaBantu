@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\HelpStatus;
 
 class Help extends Model
 {
@@ -207,22 +208,71 @@ class Help extends Model
 
     public function scopeApproved($query)
     {
-        return $query->where('status', 'approved');
+        return $query->whereIn('status', HelpStatus::availableValues());
     }
 
     public function scopeAvailable($query)
     {
-        return $query->where('status', 'approved')->whereNull('mitra_id');
+        return $query->whereIn('status', HelpStatus::availableValues())->whereNull('mitra_id');
     }
 
     public function scopeTaken($query)
     {
-        return $query->whereIn('status', ['taken', 'in_progress']);
+        return $query->whereIn('status', HelpStatus::activeValues());
     }
 
     public function scopeCompleted($query)
     {
-        return $query->where('status', 'completed');
+        return $query->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI));
+    }
+
+    /**
+     * Bantuan yang sedang aktif ditangani mitra (belum tuntas).
+     */
+    public function scopeActive($query)
+    {
+        return $query->whereIn('status', HelpStatus::activeValues());
+    }
+
+    /**
+     * Bantuan yang sudah berakhir (selesai / dibatalkan / ditolak).
+     */
+    public function scopeFinished($query)
+    {
+        return $query->whereIn('status', HelpStatus::finalValues());
+    }
+
+    /**
+     * Filter berdasarkan satu atau banyak status, sekaligus mengenali nilai
+     * legacy ('taken', 'completed', 'cancelled', 'approved', ...).
+     *
+     * Contoh: Help::withStatus(HelpStatus::SELESAI, HelpStatus::DIBATALKAN)
+     */
+    public function scopeWithStatus($query, string|HelpStatus|array ...$statuses)
+    {
+        $flat = [];
+        foreach ($statuses as $status) {
+            foreach ((array) $status as $item) {
+                $flat[] = $item instanceof HelpStatus ? $item->value : (string) $item;
+            }
+        }
+
+        return $query->whereIn('status', HelpStatus::expand($flat));
+    }
+
+    public function statusEnum(): ?HelpStatus
+    {
+        return HelpStatus::resolve($this->status);
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return HelpStatus::labelFor($this->status);
+    }
+
+    public function getStatusBadgeClassAttribute(): string
+    {
+        return HelpStatus::badgeClassFor($this->status);
     }
 
     public function isUrgent(): bool

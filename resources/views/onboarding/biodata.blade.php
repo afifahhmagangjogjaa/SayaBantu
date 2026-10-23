@@ -48,7 +48,7 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                         Kota Domisili <span class="text-red-500">*</span>
                     </label>
-                    <select name="city_id" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('city_id') border-red-500 @enderror">
+                    <select name="city_id" id="city_id" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('city_id') border-red-500 @enderror">
                         <option value="">Pilih Kota Domisili</option>
                         @foreach($cities as $city)
                             <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
@@ -60,14 +60,16 @@
                 <!-- Alamat Lengkap Domisili -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        Alamat Lengkap Domisili <span class="text-red-500">*</span>
+                        Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) <span class="text-red-500">*</span>
                     </label>
                     <x-smart-address-input 
                         name="address" 
+                        id="address"
+                        cityRef="#city_id"
                         rows="2" 
                         required 
                         :value="old('address')"
-                        placeholder="Ketik nama jalan, perumahan, kelurahan, atau gedung..."
+                        placeholder="Ketik nama jalan, nomor rumah, RT/RW, atau gunakan saran cerdas..."
                     />
                     @error('address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>

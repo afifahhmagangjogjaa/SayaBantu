@@ -614,8 +614,9 @@ class OnboardingController extends Controller
         }
 
         if ($code) {
+            $cleanCode = (strlen($code) === 4 && !str_contains($code, '.')) ? substr($code, 0, 2) . '.' . substr($code, 2, 2) : $code;
             try {
-                $distRes = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(6)->get("https://wilayah.id/api/districts/{$code}.json");
+                $distRes = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(6)->get("https://wilayah.id/api/districts/{$cleanCode}.json");
                 if ($distRes->successful()) {
                     return response()->json(['success' => true, 'data' => $distRes->json('data') ?? []]);
                 }

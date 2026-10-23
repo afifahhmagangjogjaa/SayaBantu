@@ -753,8 +753,7 @@ class Index extends Component
         } elseif ($user->isMitra()) {
                 if (request()->routeIs('helps.available')) {
                 // Mitra melihat bantuan yang available
-                $helps = Help::where('status', 'approved')
-                    ->whereNull('mitra_id')
+                $helps = Help::available()
                     ->with(['user', 'city'])
                         ->withCount('chatMessages')
                     ->when($this->search !== '', function ($query) {

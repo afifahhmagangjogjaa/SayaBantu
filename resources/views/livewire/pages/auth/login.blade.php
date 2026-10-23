@@ -247,6 +247,11 @@ new #[Layout('layouts.guest')] class extends Component {
             @enderror
 
             <!-- Testing Tab Selector -->
+            <div class="mb-2 px-3 py-1.5 bg-blue-50/90 border border-blue-100 rounded-xl flex items-center justify-between text-[11px] text-blue-900 font-medium">
+                <span>Password semua akun: <code class="font-bold text-[#0066FF] bg-white px-1.5 py-0.5 rounded border border-blue-200">Sayabantu123!</code></span>
+                <span class="text-blue-600 font-semibold">1 Klik Masuk</span>
+            </div>
+
             <div class="flex gap-1 p-1 bg-slate-100 rounded-xl mb-2.5 text-xs font-semibold">
                 <button type="button" @click="demoRole = 'customer'"
                     :class="demoRole === 'customer' ? 'bg-white text-blue-700 shadow-2xs' : 'text-gray-500 hover:text-gray-800'"
