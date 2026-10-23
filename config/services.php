@@ -43,4 +43,14 @@ return [
         'maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
     ],
 
+    /*
+    | API wilayah (wilayah.id) untuk dropdown kecamatan/kelurahan.
+    | verify_tls sebaiknya true; hanya dimatikan bila mesin lokal tidak punya
+    | CA bundle yang valid. Master data lokal tetap dipakai lebih dulu.
+    */
+    'wilayah' => [
+        'base_url' => env('WILAYAH_API_URL', 'https://wilayah.id/api'),
+        'verify_tls' => env('WILAYAH_VERIFY_TLS', true),
+    ],
+
 ];

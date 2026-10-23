@@ -89,8 +89,8 @@ Route::middleware('auth')->group(function () {
 });
 
 // Helper Public API Wilayah Proxy
-Route::get('/api/wilayah/districts', [OnboardingController::class, 'getDistricts'])->name('api.wilayah.districts');
-Route::get('/api/wilayah/villages', [OnboardingController::class, 'getVillages'])->name('api.wilayah.villages');
+Route::get('/api/wilayah/districts', [\App\Http\Controllers\Api\RegionController::class, 'getDistricts'])->name('api.wilayah.districts');
+Route::get('/api/wilayah/villages', [\App\Http\Controllers\Api\RegionController::class, 'getVillages'])->name('api.wilayah.villages');
 
 // =========================================================================
 // 3. ONBOARDING (4 STEP DATA DIRI & DOKUMEN KTP)
