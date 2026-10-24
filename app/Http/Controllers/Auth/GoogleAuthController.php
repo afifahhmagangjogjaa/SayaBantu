@@ -10,7 +10,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleAuthController extends Controller
@@ -206,7 +205,10 @@ class GoogleAuthController extends Controller
             'avatar' => $profile['avatar'],
             'role' => $role,
             'email_verified_at' => now(),
-            'password' => bcrypt(Str::random(24)),
+            // Password sengaja null: onboarding akan meminta user membuat kata
+            // sandi sendiri, sehingga akun tetap bisa dipakai tanpa Google dan
+            // halaman "Ubah Kata Sandi" tidak meminta sandi yang tidak diketahui.
+            'password' => null,
             'status' => 'active',
         ]);
 

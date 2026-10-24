@@ -5,6 +5,8 @@ namespace Tests\Feature\Auth;
 use App\Models\Registration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Mockery;
@@ -82,6 +84,7 @@ class GoogleAuthTest extends TestCase
         $this->assertFalse((bool) $user->is_completed);
         $this->assertNotNull($user->email_verified_at);
         $this->assertSame('google-2', $user->google_id);
+        $this->assertNull($user->password, 'Password Google-created user harus kosong agar onboarding meminta kata sandi');
         $this->assertAuthenticatedAs($user);
     }
 
@@ -184,6 +187,7 @@ class GoogleAuthTest extends TestCase
         $this->assertSame('google-9', $user->google_id);
         $this->assertSame('active', $user->status);
         $this->assertFalse((bool) $user->is_completed);
+        $this->assertNull($user->password);
         $this->assertAuthenticatedAs($user);
         $this->assertNull(session('google_pending'));
     }
@@ -260,5 +264,62 @@ class GoogleAuthTest extends TestCase
 
         $this->assertSame(1, User::where('email', 'sudah-ada@example.com')->count());
         $this->assertAuthenticatedAs($existing);
+    }
+
+    public function test_user_google_diarahkan_membuat_kata_sandi_sebelum_masuk_dashboard(): void
+    {
+        $this->fakeGoogle('google-14', 'buat-sandi@example.com');
+
+        $this->withSession(['oauth_intended_role' => 'customer'])
+            ->get(route('auth.google.callback'));
+
+        $user = User::where('email', 'buat-sandi@example.com')->first();
+        $this->assertNotNull($user);
+        $this->assertNull($user->password);
+
+        // Middleware onboarded harus memaksa langkah buat kata sandi lebih dulu.
+        $this->get(route('customer.dashboard'))->assertRedirect(route('onboarding.password'));
+
+        $this->get(route('onboarding.password'))
+            ->assertOk()
+            ->assertSee('name="password_confirmation"', false);
+    }
+
+    public function test_setelah_membuat_kata_sandi_akun_bisa_login_tanpa_google(): void
+    {
+        $this->fakeGoogle('google-15', 'punya-sandi@example.com');
+
+        $this->withSession(['oauth_intended_role' => 'customer'])
+            ->get(route('auth.google.callback'));
+
+        $this->post(route('onboarding.password.store'), [
+            'password' => 'Rahasia#123',
+            'password_confirmation' => 'Rahasia#123',
+        ])->assertRedirect(route('onboarding.step1'));
+
+        $user = User::where('email', 'punya-sandi@example.com')->first()->refresh();
+
+        $this->assertNotNull($user->password);
+        $this->assertTrue(Hash::check('Rahasia#123', $user->password));
+        $this->assertTrue((bool) Auth::validate([
+            'email' => 'punya-sandi@example.com',
+            'password' => 'Rahasia#123',
+        ]));
+    }
+
+    public function test_login_google_berikutnya_tetap_berjalan_walau_password_masih_kosong(): void
+    {
+        $user = $this->user('customer', [
+            'email' => 'tanpa-sandi@example.com',
+            'password' => null,
+            'google_id' => 'google-16',
+        ]);
+
+        $this->fakeGoogle('google-16', 'tanpa-sandi@example.com');
+
+        $this->get(route('auth.google.callback'))
+            ->assertRedirect(route('customer.dashboard'));
+
+        $this->assertAuthenticatedAs($user);
     }
 }
