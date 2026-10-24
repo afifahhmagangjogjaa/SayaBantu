@@ -25,6 +25,17 @@
     <style>
         [x-cloak] { display: none !important; }
 
+        /* Sembunyikan scrollbar di seluruh aplikasi untuk mobile-feel */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        html, body, * {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+
         html {
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
@@ -164,11 +175,9 @@
     </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-50">
-    <!-- Centered Container: Full width on mobile, centered on larger screens -->
-    <div class="min-h-screen min-h-[100dvh] w-full flex items-start justify-center bg-gray-100">
-        <!-- Mobile Frame: fluid on mobile, max-w-md centered on tablet+ -->
-        <div class="w-full max-w-md min-h-screen min-h-[100dvh] bg-gray-50 relative flex flex-col shadow-none sm:shadow-2xl sm:border-x sm:border-gray-200/80">
+<body class="font-sans antialiased bg-slate-100 flex flex-col items-center justify-center sm:py-6 sm:px-4 min-h-screen min-h-[100dvh]">
+    <!-- Centered Mobile Frame container matching login page -->
+    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-auto sm:min-h-[840px] sm:max-h-[92vh] bg-gray-50 sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-hidden">
             <!-- Floating Top Flash Notification Pop-Up (Instant Render) -->
             @if (session()->has('message') || session()->has('success') || session()->has('error') || session()->has('status'))
                 <div id="flash-toast"
@@ -224,7 +233,7 @@
             <!-- Content -->
             <div class="flex flex-col flex-1 min-h-screen min-h-[100dvh]">
                 <!-- Livewire slot -->
-                <div class="flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
+                <div class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
                     @isset($slot)
                         {{ $slot }}
                     @else
@@ -233,7 +242,7 @@
                 </div>
 
                 <!-- Bottom Navigation Bar matching Gambar 1 Mockup: Beranda, Order, Penghasilan, Profil -->
-                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40"
+                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40 sm:rounded-b-[36px]"
                     style="background-color: #ffffff !important; padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));">
                     <div class="w-full flex items-center justify-around px-2 py-2">
                         <!-- 1. Beranda -->
