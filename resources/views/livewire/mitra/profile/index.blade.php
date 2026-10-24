@@ -9,7 +9,7 @@
 
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-32 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        <div class="px-5 pt-5 pb-32 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
             
@@ -120,7 +120,7 @@
             <div class="bg-white rounded-2xl shadow-xl border border-gray-100">
                 <div class="grid grid-cols-3 divide-x divide-gray-100">
                     <div class="p-4 text-center group cursor-pointer hover:bg-gray-50 transition-colors duration-200 rounded-l-2xl">
-                        <div class="text-2xl font-bold transition-transform duration-300 group-hover:scale-110" style="color: #0098e7;">{{ $totalHelped }}</div>
+                        <div class="text-2xl font-bold transition-transform duration-300 group-hover:scale-110" style="color: #0066FF;">{{ $totalHelped }}</div>
                         <p class="text-xs text-gray-600 mt-1">Total Bantuan</p>
                     </div>
                     <div class="p-4 text-center group cursor-pointer hover:bg-gray-50 transition-colors duration-200">
@@ -166,7 +166,7 @@
                         
                         <button @click="show = false" 
                                 class="w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer"
-                                style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
+                                style="background: linear-gradient(to bottom right, #0066FF, #003EA8);">
                             Oke
                         </button>
                     </div>
@@ -209,7 +209,7 @@
                                 </div>
                             @endif
                             <p class="mt-2 text-[11px] text-red-700 leading-snug font-medium">
-                                ⚠️ <strong>PERHATIAN KRITIS:</strong> Akun Mitra Anda kini berstatus Surat Peringatan 2. Jika Anda melakukan 1 pelanggaran lagi hingga mencapai <strong>Surat Peringatan 3</strong>, akun Mitra Anda akan <strong>otomatis dinonaktifkan/diblokir permanen dari sistem</strong>.
+                                ⚠️ï¸ <strong>PERHATIAN KRITIS:</strong> Akun Mitra Anda kini berstatus Surat Peringatan 2. Jika Anda melakukan 1 pelanggaran lagi hingga mencapai <strong>Surat Peringatan 3</strong>, akun Mitra Anda akan <strong>otomatis dinonaktifkan/diblokir permanen dari sistem</strong>.
                             </p>
                         </div>
                     </div>
@@ -244,7 +244,7 @@
                     {{-- Sudah Upload KTP & Selfie, Menunggu Verifikasi Admin --}}
                     <div class="bg-blue-50/95 border border-blue-200 rounded-2xl p-4 text-xs text-blue-900 shadow-xs mb-4" style="display: flex; align-items: flex-start; gap: 14px;">
                         <div class="rounded-xl bg-blue-100 text-blue-600 text-lg shadow-2xs" style="width: 40px; height: 40px; min-width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                            ⏳
+                            â³
                         </div>
                         <div style="flex: 1; min-width: 0;">
                             <div class="flex items-center gap-2 mb-1">
@@ -289,7 +289,7 @@
                     </div>
                     <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                            <span class="font-semibold text-gray-900 text-sm truncate">Verifikasi KTP & Identitas</span>
+                            <span class="font-semibold text-gray-900 text-sm leading-snug">Verifikasi KTP & Identitas</span>
                             @if(auth()->user()->verified ?? false)
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 whitespace-nowrap flex-shrink-0">Terverifikasi</span>
                             @elseif(!empty(auth()->user()->ktp_photo) && !empty(auth()->user()->selfie_photo))
@@ -298,7 +298,7 @@
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 whitespace-nowrap flex-shrink-0">Belum Upload</span>
                             @endif
                         </div>
-                        <p class="text-xs text-gray-500 truncate mt-0.5">Upload & kelola foto KTP serta foto selfie</p>
+                        <p class="text-xs text-gray-500 leading-snug mt-0.5">Upload & kelola foto KTP serta foto selfie</p>
                     </div>
                     <svg class="text-gray-400 flex-shrink-0" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

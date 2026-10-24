@@ -111,7 +111,7 @@ class LocationTrackingService
         $oldStatus = $help->status;
 
         // Logic update status berdasarkan jarak
-        if (in_array($help->status, ['memperoleh_mitra', 'taken'])) {
+        if ($help->isMemperolehMitra()) {
             // Jika mitra bergerak lebih dari 20 meter dari titik awal
             if ($distanceFromInitial >= self::MOVING_THRESHOLD) {
                 $help->status = 'partner_on_the_way';
@@ -129,7 +129,7 @@ class LocationTrackingService
         // Jika mitra dalam perjalanan, status 'partner_arrived' utamanya dikonfirmasi manual
         // oleh mitra lewat tombol "Saya Sudah Tiba di Lokasi" saat radius <= 50 meter.
         // Fallback auto-arrived hanya aktif jika mitra sudah berada sangat dekat (<= 10 meter).
-        if (in_array($help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way']) && $distanceToCustomer !== null) {
+        if (($help->isMemperolehMitra() || $help->status === 'partner_on_the_way') && $distanceToCustomer !== null) {
             if ($distanceToCustomer <= 10) {
                 $help->status = 'partner_arrived';
                 $help->partner_arrived_at = now();

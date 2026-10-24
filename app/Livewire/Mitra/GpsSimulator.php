@@ -6,6 +6,7 @@ use App\Models\Help;
 use App\Services\LocationTrackingService;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
+use App\Enums\HelpStatus;
 
 class GpsSimulator extends Component
 {
@@ -132,7 +133,7 @@ class GpsSimulator extends Component
         $oldStatus = $help->status;
         $this->locationService->setInitialLocation($help, $this->currentLat, $this->currentLng);
         $help->update([
-            'status' => 'partner_on_the_way',
+            'status' => HelpStatus::PARTNER_ON_THE_WAY->value,
             'partner_started_moving_at' => now(),
             'partner_arrived_at' => null,
             'partner_current_lat' => $this->currentLat,
@@ -228,7 +229,7 @@ class GpsSimulator extends Component
             if ($isArrived) {
                 $oldStatus = $help->status;
                 $help->update([
-                    'status' => 'partner_arrived',
+                    'status' => HelpStatus::PARTNER_ARRIVED->value,
                     'partner_arrived_at' => now(),
                     'partner_current_lat' => $this->currentLat,
                     'partner_current_lng' => $this->currentLng,
@@ -294,7 +295,7 @@ class GpsSimulator extends Component
         
         $oldStatus = $help->status;
         $help->update([
-            'status' => 'partner_arrived',
+            'status' => HelpStatus::PARTNER_ARRIVED->value,
             'partner_arrived_at' => now(),
             'partner_current_lat' => $this->currentLat,
             'partner_current_lng' => $this->currentLng,

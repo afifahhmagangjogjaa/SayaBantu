@@ -12,10 +12,6 @@
             
             // Jika status berubah, tampilkan notifikasi
             if (previousStatus !== currentStatus) {
-                console.log('📍 Status berubah:', {
-                    old: previousStatus,
-                    new: currentStatus
-                });
                 
                 notificationMessage = 'Status pesanan diperbarui';
                 showNotification = true;
@@ -58,7 +54,7 @@
 
     {{-- Header - BRImo Style --}}
     <div class="px-5 pt-5 pb-8 relative overflow-hidden"
-        style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
 
@@ -319,7 +315,7 @@
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5 min-w-0 flex-1">
                     <div class="w-9 h-9 rounded-xl {{ $mitraStatusTheme['icon_bg'] }} flex items-center justify-center shrink-0">
-                        @if(in_array($help->status, ['memperoleh_mitra', 'taken']))
+                        @if($help->isMemperolehMitra())
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -337,7 +333,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
-                        @elseif(in_array($help->status, ['selesai', 'completed']))
+                        @elseif($help->isSelesai())
                             <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -372,7 +368,7 @@
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-3 mb-3">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 shrink-0 text-base">
-                        ⚠️
+                        ⚠️ï¸
                     </div>
                     <div class="flex-1 text-xs space-y-1.5">
                         <div class="flex items-center justify-between">
@@ -437,7 +433,7 @@
                     </div>
                 </div>
             </div>
-        @elseif(in_array($help->status, ['dibatalkan', 'cancelled']))
+        @elseif($help->isDibatalkan())
             <div class="bg-red-50 border border-red-200 rounded-xl p-4 mt-3 mb-3">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
@@ -626,8 +622,8 @@
         {{-- GPS Simulator (toggle via GPS_SIMULATOR env) --}}
         @if (config('app.gps_simulator', true) &&
                 $help->mitra_id === auth()->id() &&
-                !in_array($help->status, ['selesai', 'dibatalkan']))
-            @if($help->canPartnerStartJourney() || !in_array($help->status, ['memperoleh_mitra', 'taken']))
+                ! ($help->isSelesai() || $help->isDibatalkan()))
+            @if($help->canPartnerStartJourney() || !$help->isMemperolehMitra())
                 <div class="mb-3">
                     <livewire:mitra.gps-simulator :help-id="$help->id" :key="'gps-simulator-' . $help->id" />
                 </div>
@@ -636,12 +632,12 @@
 
         {{-- Update Status Section --}}
 
-        @if (in_array($help->status, ['memperoleh_mitra', 'taken']))
+        @if ($help->isMemperolehMitra())
             @if ($help->canPartnerStartJourney())
                 <div class="bg-white px-4 py-4 rounded-xl shadow-sm border border-gray-100 mb-3">
                     <button wire:click="markPartnerStarted"
                         class="w-full py-3.5 text-white rounded-xl font-bold text-sm hover:opacity-95 transition flex items-center justify-center gap-2 shadow-sm"
-                        style="background: linear-gradient(135deg, #0098e7, #0077cc); box-shadow: 0 4px 14px rgba(0, 152, 231, 0.35);">
+                        style="background: linear-gradient(135deg, #0066FF, #0052CC); box-shadow: 0 4px 14px rgba(0, 152, 231, 0.35);">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                         </svg>
@@ -721,7 +717,7 @@
                         <div class="flex items-center gap-2 mt-1 flex-wrap">
                             @if($distToCust !== null)
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold {{ $isWithinArrivalRange ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-blue-100 text-blue-800 border border-blue-200' }}">
-                                    📍 Jarak: {{ $distToCust >= 1000 ? number_format($distToCust / 1000, 1) . ' km' : round($distToCust) . ' meter' }}
+                                    Jarak: {{ $distToCust >= 1000 ? number_format($distToCust / 1000, 1) . ' km' : round($distToCust) . ' meter' }}
                                 </span>
                                 @if($isWithinArrivalRange)
                                     <span class="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
@@ -749,7 +745,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
-                        📍 Saya Sudah Tiba di Lokasi
+                        Saya Sudah Tiba di Lokasi
                     </button>
                     <p class="text-xs text-emerald-600 font-semibold text-center mt-2">
                         ✓ Anda sudah berada dalam radius 50m! Klik tombol di atas untuk konfirmasi kedatangan.
@@ -793,7 +789,7 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <h4 class="font-semibold text-xs text-emerald-900">📍 Sudah Tiba di Lokasi</h4>
+                        <h4 class="font-semibold text-xs text-emerald-900">Sudah Tiba di Lokasi</h4>
                         <p class="text-[11px] text-emerald-700 mt-0.5">Silakan temui customer dan klik tombol <strong>Mulai Pekerjaan</strong> untuk memulai.</p>
                     </div>
                 </div>
@@ -809,7 +805,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    ⚙️ Mulai Pekerjaan
+                    Mulai Pekerjaan
                 </button>
                 <p class="text-xs text-gray-500 text-center mt-2">Klik tombol ini setelah Anda siap mengerjakan bantuan</p>
             </div>
@@ -1075,7 +1071,7 @@
         @endif
 
         {{-- Rating Customer Form --}}
-        @if (in_array($help->status, ['selesai', 'completed']))
+        @if ($help->isSelesai())
             @php
                 $mitraRating = \App\Models\Rating::where('help_id', $help->id)
                     ->where('rater_id', auth()->id())
@@ -1229,7 +1225,7 @@
                     </p>
                     <div class="mb-4 p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-center">
                         <p class="text-xs text-amber-800 font-medium">
-                            ⚠️ <strong>Perhatian:</strong> Pembatalan akan dicatat ke rekam jejak performa akun Anda dan dapat dikenakan sanksi jika terlalu sering.
+                            ⚠️ï¸ <strong>Perhatian:</strong> Pembatalan akan dicatat ke rekam jejak performa akun Anda dan dapat dikenakan sanksi jika terlalu sering.
                         </p>
                     </div>
 

@@ -4,7 +4,6 @@ namespace App\Livewire\Admin\Helps;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
 use App\Models\Help;
 
 class Approved extends Component

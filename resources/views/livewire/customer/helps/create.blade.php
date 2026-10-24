@@ -58,11 +58,11 @@
 
     <div id="main-content" class="min-h-screen bg-white">
         <div class="max-w-md mx-auto">
-            <!-- Header - BRImo Style -->
-            <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern"
-                style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+            <!-- Header - SayaBantu Style matching Gambar 2 -->
+            <div class="px-5 pt-5 pb-8 relative overflow-hidden"
+                style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
 
                 <div class="relative z-10">
                     <div class="flex items-center justify-between text-white mb-3">
@@ -75,8 +75,8 @@
                         </a>
 
                         <div class="text-center flex-1">
-                            <h1 class="text-lg font-bold">Buat Permintaan Baru</h1>
-                            <p class="text-xs text-white/90 mt-0.5">Isi form di bawah untuk membuat permintaan</p>
+                            <h1 class="text-lg font-bold">Pesan Jasa Baru</h1>
+                            <p class="text-xs text-white/90 mt-0.5">Pilih kategori & tentukan rincian pekerjaan</p>
                         </div>
 
                         <div class="w-9"></div>
@@ -123,7 +123,7 @@
                         <div class="flex flex-col gap-2.5">
                             <a href="{{ route('profile.edit') }}"
                                class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs shadow-md hover:shadow-lg transition flex items-center justify-center gap-2"
-                                style="background: linear-gradient(to right, #0098e7, #0077cc);">
+                                style="background: linear-gradient(to right, #0066FF, #0052CC);">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
@@ -195,7 +195,7 @@
 
                             <a href="{{ route('customer.helps.index') }}"
                                class="w-full py-3 px-4 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 text-white shadow-md hover:opacity-95"
-                               style="background: linear-gradient(to right, #0098e7, #0077cc);">
+                               style="background: linear-gradient(to right, #0066FF, #0052CC);">
                                 Lihat Bantuan Saya
                             </a>
 
@@ -914,7 +914,7 @@
                             const iana = zoneIana[zone];
                             const now = new Date();
                             const timeText = formatTimeForZone(now, iana);
-                            tzDisplay.textContent = timeText ? `Waktu lokal: ${zone} — ${timeText}` : `Waktu lokal: ${zone}`;
+                            tzDisplay.textContent = timeText ? `Waktu lokal: ${zone} â€” ${timeText}` : `Waktu lokal: ${zone}`;
                         }
 
                         document.addEventListener('DOMContentLoaded', function() {
@@ -944,7 +944,7 @@
                                     try {
                                         const fmt = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: iana });
                                         const timeText = fmt.format(now);
-                                        if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone} — ${timeText}`;
+                                        if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone} â€” ${timeText}`;
                                     } catch (err) {
                                         if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone}`;
                                     }
@@ -1222,7 +1222,7 @@
                                 @endif
                                 <button type="button" wire:click="selectTopupMethod('{{ $availableBanks[0]['value'] ?? 'bank_bca' }}')"
                                     style="padding: 7px 0; text-align: center; font-size: 12px; font-weight: 700; border-radius: 7px; border: none; cursor: pointer; transition: all 0.2s; background: {{ str_starts_with($topupMethod, 'bank_') ? '#ffffff' : 'transparent' }}; color: {{ str_starts_with($topupMethod, 'bank_') ? '#0284c7' : '#64748b' }}; box-shadow: {{ str_starts_with($topupMethod, 'bank_') ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }};">
-                                    🏦 Transfer Bank
+                                    <span class="inline-flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> Transfer Bank</span>
                                 </button>
                             </div>
 
@@ -1347,7 +1347,7 @@
                             Batal
                         </button>
                         <button wire:click="processDirectTopup" type="button" wire:loading.attr="disabled" wire:target="processDirectTopup"
-                            style="flex: 2; height: 44px; border-radius: 12px; border: none; background: linear-gradient(135deg, #0098e7, #0077cc); color: #ffffff; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0, 152, 231, 0.35); transition: opacity 0.2s;"
+                            style="flex: 2; height: 44px; border-radius: 12px; border: none; background: linear-gradient(135deg, #0066FF, #0052CC); color: #ffffff; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0, 152, 231, 0.35); transition: opacity 0.2s;"
                             onmouseover="this.style.opacity='0.95';"
                             onmouseout="this.style.opacity='1';">
                             <span wire:loading.remove wire:target="processDirectTopup" style="display: inline-flex; align-items: center; gap: 6px;">
@@ -1417,7 +1417,7 @@
                                 <div class="flex justify-between items-center pt-2 border-t border-blue-100">
                                     <span class="text-sm text-gray-600">Batas Waktu Tunggu Mitra</span>
                                     <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">
-                                        ⏳ {{ $confirmAutoCancelMinutes ?? $auto_cancel_minutes }} Menit
+                                        â³ {{ $confirmAutoCancelMinutes ?? $auto_cancel_minutes }} Menit
                                     </span>
                                 </div>
                             @endif
@@ -1503,7 +1503,7 @@
                 <div class="flex flex-col gap-2.5">
                     <a href="{{ route('customer.helps.index') }}" 
                        class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs shadow-md hover:shadow-lg transition flex items-center justify-center gap-2"
-                       style="background: linear-gradient(to right, #0098e7, #0077cc);">
+                       style="background: linear-gradient(to right, #0066FF, #0052CC);">
                         <span>Lihat Permintaan Saya</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -1613,7 +1613,7 @@
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                attribution: 'Â© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19,
             }).addTo(leafletMapInstance);
 

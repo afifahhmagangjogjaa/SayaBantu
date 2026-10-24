@@ -79,12 +79,12 @@ new #[Layout('layouts.guest')] class extends Component {
 
     <!-- Actions (Mepet ke Bawah) -->
     <div class="mt-auto pt-5 space-y-2.5">
-        <button wire:click="startRegistration" type="button" class="w-full bg-primary-500 hover:bg-primary-600 active:scale-98 text-white font-bold py-3.5 rounded-full shadow transition text-base tracking-wide" style="background-color: #0098e7;">
+        <button wire:click="startRegistration" type="button" class="w-full bg-primary-500 hover:bg-primary-600 active:scale-98 text-white font-bold py-3.5 rounded-full shadow transition text-base tracking-wide" style="background-color: #0066FF;">
             Mulai Pendaftaran
         </button>
 
         <div class="text-center pt-0.5">
-            <p class="text-sm text-gray-600">Sudah punya akun? <a href="{{ route('login') }}" wire:navigate class="text-primary-600 font-bold hover:underline" style="color: #0077cc;">Login</a></p>
+            <p class="text-sm text-gray-600">Sudah punya akun? <a href="{{ route('login') }}" wire:navigate class="text-primary-600 font-bold hover:underline" style="color: #0052CC;">Login</a></p>
         </div>
     </div>
 </div>

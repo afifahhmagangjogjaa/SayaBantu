@@ -15,21 +15,10 @@
     x-init="
         // Update tracking data setiap kali Livewire refresh
         Livewire.hook('morph.updated', () => {
-            const oldLat = trackingData.partnerLat;
-            const oldLng = trackingData.partnerLng;
-            
             trackingData.partnerLat = {{ !empty($help->partner_current_lat) ? (float)$help->partner_current_lat : (!empty($help->mitra?->latitude) ? (float)$help->mitra->latitude : (!empty($help->latitude) ? (float)$help->latitude : -6.2088)) }};
             trackingData.partnerLng = {{ !empty($help->partner_current_lng) ? (float)$help->partner_current_lng : (!empty($help->mitra?->longitude) ? (float)$help->mitra->longitude : (!empty($help->longitude) ? (float)$help->longitude : 106.8456)) }};
             trackingData.customerLat = {{ !empty($help->latitude) ? (float)$help->latitude : -6.2088 }};
             trackingData.customerLng = {{ !empty($help->longitude) ? (float)$help->longitude : 106.8456 }};
-            
-            // Log perubahan lokasi
-            if (oldLat !== trackingData.partnerLat || oldLng !== trackingData.partnerLng) {
-                console.log('📍 Lokasi mitra diperbarui:', {
-                    old: { lat: oldLat, lng: oldLng },
-                    new: { lat: trackingData.partnerLat, lng: trackingData.partnerLng }
-                });
-            }
             
             // Trigger update ke peta jika modal terbuka
             if (window.updateMapFromAlpine) {
@@ -85,10 +74,10 @@
         </div>
     </div>
 
-    {{-- Header - match other customer pages (gradient BRImo style) --}}
-    <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-        <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+    {{-- Header - SayaBantu style matching Gambar 2 --}}
+    <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+        <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
 
         <div class="relative z-10 max-w-md mx-auto">
             <div class="flex items-center justify-between text-white mb-6">
@@ -250,7 +239,7 @@
         @endif
 
         {{-- Banner Notifikasi Jika Pesanan Dibatalkan Customer atau Ditolak Admin (Kecuali jika dibatalkan karena refund mediasi) --}}
-        @if(in_array($help->status, ['dibatalkan', 'cancelled']) && empty($help->complaint_resolution))
+        @if($help->isDibatalkan() && empty($help->complaint_resolution))
             <div class="mt-3 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 shadow-2xs">
                 <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-red-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -626,8 +615,8 @@
                     ]
                 };
 
-                $isScheduledWaiting = $help->isScheduled() && !$help->canPartnerStartJourney() && in_array($help->status, ['taken', 'memperoleh_mitra']);
-                $isTrackable = in_array($help->status, ['partner_on_the_way', 'partner_arrived']) || ($help->status === 'taken' && $help->canPartnerStartJourney());
+                $isScheduledWaiting = $help->isScheduled() && !$help->canPartnerStartJourney() && $help->isMemperolehMitra();
+                $isTrackable = in_array($help->status, ['partner_on_the_way', 'partner_arrived']) || ($help->isMemperolehMitra() && $help->canPartnerStartJourney());
             @endphp
 
             <!-- Status Card (Layout Bawaan Sesuai Timeline Bawah) -->
@@ -645,7 +634,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 </svg>
-                            @elseif(in_array($help->status, ['selesai', 'completed']))
+                            @elseif($help->isSelesai())
                                 <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
@@ -683,7 +672,7 @@
                             @else
                                 <span class="w-1.5 h-1.5 rounded-full {{ $statusTheme['dot'] }}"></span>
                             @endif
-                            <span>{{ in_array($help->status, ['mencari_mitra', 'menunggu_mitra', 'memperoleh_mitra']) ? 'Mencari' : (in_array($help->status, ['selesai', 'completed']) ? 'Selesai' : (in_array($help->status, ['dibatalkan', 'cancelled']) ? ($help->complaint_resolution === 'refunded' ? 'Refund' : 'Batal') : (in_array($help->status, ['komplain', 'disputed']) ? 'Mediasi' : 'Aktif'))) }}</span>
+                            <span>{{ in_array($help->status, ['mencari_mitra', 'menunggu_mitra', 'memperoleh_mitra']) ? 'Mencari' : ($help->isSelesai() ? 'Selesai' : ($help->isDibatalkan() ? ($help->complaint_resolution === 'refunded' ? 'Refund' : 'Batal') : (in_array($help->status, ['komplain', 'disputed']) ? 'Mediasi' : 'Aktif'))) }}</span>
                         </span>
                     @endif
                 </div>
@@ -764,12 +753,12 @@
                 $statuses = [
                     [ 'key' => 'payment', 'title' => 'Pembayaran', 'time' => $help->created_at, 'active' => in_array($help->status, ['menunggu_pembayaran','mencari_mitra','menunggu_mitra','memperoleh_mitra','taken','partner_on_the_way','partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => $help->status === 'menunggu_pembayaran' ],
                     [ 'key' => 'searching', 'title' => 'Mencari Rekan Jasa', 'time' => $help->mitra_assigned_at ?? $help->taken_at, 'active' => in_array($help->status, ['mencari_mitra','menunggu_mitra','memperoleh_mitra','taken','partner_on_the_way','partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => in_array($help->status, ['mencari_mitra','menunggu_mitra','memperoleh_mitra']) ],
-                    [ 'key' => 'accepted', 'title' => 'Menunggu Rekan Jasa berangkat', 'time' => $help->taken_at, 'active' => in_array($help->status, ['taken','partner_on_the_way','partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => $help->status === 'taken' ],
+                    [ 'key' => 'accepted', 'title' => 'Menunggu Rekan Jasa berangkat', 'time' => $help->taken_at, 'active' => in_array($help->status, ['taken','partner_on_the_way','partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => $help->isMemperolehMitra() ],
                     [ 'key' => 'on_the_way', 'title' => 'Rekan Jasa menuju ke lokasi', 'time' => $help->partner_started_moving_at, 'active' => in_array($help->status, ['partner_on_the_way','partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => $help->status === 'partner_on_the_way' ],
                     [ 'key' => 'arrived', 'title' => 'Rekan Jasa tiba di lokasi', 'time' => $help->partner_arrived_at, 'active' => in_array($help->status, ['partner_arrived','in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => $help->status === 'partner_arrived' ],
                     [ 'key' => 'in_progress', 'title' => 'Pelayanan dalam proses', 'time' => $help->service_started_at, 'active' => in_array($help->status, ['in_progress','sedang_diproses','waiting_customer_confirmation','selesai','completed']), 'current' => in_array($help->status, ['in_progress','sedang_diproses']) ],
                     [ 'key' => 'waiting_confirmation', 'title' => 'Menunggu konfirmasi Anda', 'time' => $help->service_completed_at, 'active' => in_array($help->status, ['waiting_customer_confirmation','selesai','completed']), 'current' => $help->status === 'waiting_customer_confirmation' ],
-                    [ 'key' => 'completed', 'title' => 'Pesanan selesai', 'time' => $help->completed_at, 'active' => in_array($help->status, ['selesai','completed']), 'current' => in_array($help->status, ['selesai','completed']) ]
+                    [ 'key' => 'completed', 'title' => 'Pesanan selesai', 'time' => $help->completed_at, 'active' => $help->isSelesai(), 'current' => $help->isSelesai() ]
                 ];
             @endphp
 
@@ -1156,7 +1145,7 @@
         {{-- Rating Form --}}
 
         {{-- Rating Form --}}
-        @if(in_array($help->status, ['selesai', 'completed']))
+        @if($help->isSelesai())
             @php
                 $customerRating = \App\Models\Rating::where('help_id', $help->id)
                     ->where('rater_id', auth()->id())
@@ -1753,7 +1742,6 @@
     
     <script>
         (function() {
-            console.log('🚀 Map script loaded');
             
             let map;
             let partnerMarker;
@@ -1784,7 +1772,6 @@
             function waitAndInit() {
                 // Jika map sudah ada, skip init (cegah reinit saat Livewire polling)
                 if (map) {
-                    console.log('✅ Map already initialized, skipping...');
                     return;
                 }
                 
@@ -1794,15 +1781,8 @@
                 const hasAlpine = typeof Alpine !== 'undefined';
                 const hasContainer = document.getElementById('tracking-map') !== null;
                 
-                console.log(`⏳ Attempt ${initAttempts}/${maxAttempts}:`, { 
-                    Leaflet: hasLeaflet, 
-                    Alpine: hasAlpine,
-                    Container: hasContainer,
-                    mapExists: !!map
-                });
                 
                 if (hasLeaflet && hasAlpine && hasContainer) {
-                    console.log('✅ All dependencies ready! Initializing map...');
                     setTimeout(() => {
                         try {
                             initializeMap();
@@ -1822,11 +1802,9 @@
             function initializeMap() {
                 // Cegah double init
                 if (map) {
-                    console.log('⚠️ Map already exists, skipping initialization');
                     return;
                 }
                 
-                console.log('🗺️ Starting map initialization...');
                 
                 // Get tracking data from Alpine
                 let trackingData;
@@ -1856,16 +1834,11 @@
             if (isNaN(partnerLat) || !partnerLat) partnerLat = customerLat;
             if (isNaN(partnerLng) || !partnerLng) partnerLng = customerLng;
 
-            console.log('📍 Koordinat aktif:', { 
-                partner: { lat: partnerLat, lng: partnerLng },
-                customer: { lat: customerLat, lng: customerLng }
-            });
 
             // Initialize map centered between partner and customer
             const centerLat = (partnerLat + customerLat) / 2;
             const centerLng = (partnerLng + customerLng) / 2;
 
-            console.log('🎯 Center peta:', { lat: centerLat, lng: centerLng });
 
             try {
                 // Initialize map without the default Leaflet prefix in attribution
@@ -1873,7 +1846,6 @@
                     zoomControl: true,
                     attributionControl: false
                 }).setView([centerLat, centerLng], 14);
-                console.log('✓ Map object created');
             } catch (err) {
                 console.error('❌ Error creating map:', err);
                 showError('Gagal membuat peta');
@@ -1893,7 +1865,6 @@
                 } catch (err) {
                     console.warn('Unable to set attribution prefix:', err);
                 }
-                console.log('✓ Tiles loaded');
             } catch (err) {
                 console.error('❌ Error loading tiles:', err);
                 showError('Gagal memuat tiles peta');
@@ -1941,13 +1912,11 @@
                     icon: partnerIcon,
                     title: trackingData.partnerName
                 }).addTo(map);
-                console.log('✓ Partner marker created');
 
                 customerMarker = L.marker([customerLat, customerLng], { 
                     icon: customerIcon,
                     title: 'Lokasi Anda'
                 }).addTo(map);
-                console.log('✓ Customer marker created');
 
                 // Add popups
                 partnerMarker.bindPopup(`
@@ -1972,7 +1941,6 @@
             // Calculate and display route
             try {
                 calculateRoute(partnerLat, partnerLng, customerLat, customerLng);
-                console.log('✓ Route calculation started');
             } catch (err) {
                 console.error('⚠️ Warning: Route calculation failed:', err);
                 // Continue anyway, map will still work without route
@@ -1989,7 +1957,6 @@
                     ]);
                     map.fitBounds(bounds, { padding: [50, 50] });
                 }
-                console.log('✓ Map bounds set');
             } catch (err) {
                 console.error('❌ Error setting bounds:', err);
             }
@@ -1998,7 +1965,6 @@
             const loadingEl = document.getElementById('map-loading');
             if (loadingEl) {
                 loadingEl.style.display = 'none';
-                console.log('✓ Loading overlay hidden');
             }
             
             mapInitialized = true;
@@ -2007,12 +1973,10 @@
             setTimeout(() => {
                 if (map) {
                     map.invalidateSize();
-                    console.log('🔄 Map size recalculated');
                 }
             }, 100);
 
             // Update akan otomatis dari Livewire polling + Alpine hook
-            console.log('✅ Map initialization complete! Auto-update enabled via Livewire polling (5s).');
         }
 
             function calculateRoute(fromLat, fromLng, toLat, toLng) {
@@ -2148,7 +2112,6 @@
             // Fungsi untuk update peta dari Livewire event
             window.updateMapFromTracking = function(data) {
                 if (!map || !partnerMarker) {
-                    console.log('⚠️ Map or marker not ready yet');
                     return;
                 }
                 
@@ -2157,17 +2120,12 @@
                 const customerLat = parseFloat(data.customerLat);
                 const customerLng = parseFloat(data.customerLng);
 
-                console.log('📍 Updating map from Livewire:', { 
-                    partner: { lat: newLat, lng: newLng },
-                    customer: { lat: customerLat, lng: customerLng }
-                });
 
                 if (newLat && newLng && !isNaN(newLat) && !isNaN(newLng) && partnerMarker) {
                     const currentLatLng = partnerMarker.getLatLng();
                     
                     // Hanya update jika posisi berubah
                     if (Math.abs(currentLatLng.lat - newLat) > 0.0001 || Math.abs(currentLatLng.lng - newLng) > 0.0001) {
-                        console.log('🚶 Partner bergerak dari', currentLatLng, 'ke', {lat: newLat, lng: newLng});
                         
                         // Animate marker movement
                         animateMarker(partnerMarker, [newLat, newLng]);
@@ -2178,8 +2136,6 @@
                                 calculateRoute(newLat, newLng, customerLat, customerLng);
                             }
                         }, 1000);
-                    } else {
-                        console.log('📍 Partner masih di posisi yang sama');
                     }
                 }
             };
@@ -2231,14 +2187,12 @@
             // Initialize map when modal opens (listen to Livewire)
             document.addEventListener('livewire:init', () => {
                 Livewire.on('mapModalOpened', () => {
-                    console.log('📢 Map modal opened');
                     initAttempts = 0; // Reset counter
                     setTimeout(waitAndInit, 100);
                 });
                 
                 // Listen untuk tracking data updates dari Livewire
                 Livewire.on('tracking-data-updated', (event) => {
-                    console.log('📡 Tracking data updated event received:', event);
                     if (map && mapInitialized) {
                         window.updateMapFromTracking(event);
                     }
@@ -2251,14 +2205,12 @@
                 
                 // Jika modal ada dan map belum di-init
                 if (modalElement && !map) {
-                    console.log('📢 Modal detected in DOM, initializing...');
                     initAttempts = 0; // Reset counter
                     setTimeout(waitAndInit, 100);
                 }
                 
                 // Jika modal tidak ada tapi map masih ada, cleanup
                 if (!modalElement && map) {
-                    console.log('🧹 Modal closed, cleaning up map...');
                     try {
                         map.remove();
                         map = null;
@@ -2287,7 +2239,6 @@
             function startPolling(helpId) {
                 if (!helpId) return;
                 if (pollingInterval) return; // already running
-                console.log('🔁 Starting tracking polling for help', helpId);
                 // immediate fetch
                 fetchAndUpdate(helpId);
                 pollingInterval = setInterval(() => fetchAndUpdate(helpId), POLL_MS);
@@ -2297,7 +2248,6 @@
                 if (pollingInterval) {
                     clearInterval(pollingInterval);
                     pollingInterval = null;
-                    console.log('⏹️ Stopped tracking polling');
                 }
             }
 

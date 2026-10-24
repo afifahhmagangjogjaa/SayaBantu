@@ -2,35 +2,93 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Volt\Volt;
 use Tests\TestCase;
 
+/**
+ * Registrasi di aplikasi ini multi-step: /register hanya gerbang awal,
+ * data akun disimpan di session lalu dilanjutkan ke onboarding.
+ */
 class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_registration_screen_can_be_rendered(): void
+    public function test_register_redirects_to_role_selection_by_default(): void
     {
-        $response = $this->get('/register');
-
-        $response
-            ->assertOk()
-            ->assertSeeVolt('pages.auth.register');
+        $this->get('/register')->assertRedirect(route('register.choose-role'));
     }
 
-    public function test_new_users_can_register(): void
+    public function test_role_selection_screen_can_be_rendered(): void
     {
-        $component = Volt::test('pages.auth.register')
-            ->set('name', 'Test User')
-            ->set('email', 'test@example.com')
-            ->set('password', 'password')
-            ->set('password_confirmation', 'password');
+        $this->get('/register/choose-role')
+            ->assertOk()
+            ->assertSeeVolt('pages.auth.register-choose-role');
+    }
 
-        $component->call('register');
+    public function test_email_registration_form_can_be_rendered_for_selected_role(): void
+    {
+        $this->get('/register?role=customer')
+            ->assertOk()
+            ->assertViewIs('auth.register-email');
+    }
 
-        $component->assertRedirect(route('dashboard', absolute: false));
+    public function test_registration_step_pages_are_reachable(): void
+    {
+        // Regresi: dulu halaman step1 fatal karena method selectCityByName() terdeklarasi dua kali.
+        $this->get('/register/step1')->assertOk();
 
-        $this->assertAuthenticated();
+        // step2 tanpa data sesi registrasi akan diarahkan, bukan error 500.
+        $this->get('/register/step2')->assertStatus(302);
+    }
+
+    public function test_account_data_is_stored_in_session_and_forwarded_to_onboarding(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'role' => 'customer',
+        ]);
+
+        $response->assertRedirect(route('onboarding.step1'));
+        $response->assertSessionHas('reg_account');
+
+        $this->assertSame('test@example.com', session('reg_account')['email']);
+        $this->assertSame('customer', session('reg_account')['role']);
+
+        // Akun baru dibuat di step terakhir onboarding, bukan di sini.
+        $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
+        $this->assertGuest();
+    }
+
+    public function test_weak_password_is_rejected(): void
+    {
+        $response = $this->from('/register?role=customer')->post('/register', [
+            'name' => 'Test User',
+            'email' => 'weak@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'role' => 'customer',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+        $this->assertGuest();
+    }
+
+    public function test_duplicate_email_is_rejected(): void
+    {
+        User::factory()->create(['email' => 'taken@example.com']);
+
+        $response = $this->from('/register?role=customer')->post('/register', [
+            'name' => 'Test User',
+            'email' => 'taken@example.com',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'role' => 'customer',
+        ]);
+
+        $response->assertSessionHasErrors('email');
     }
 }

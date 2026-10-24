@@ -41,7 +41,7 @@
     @endif
 
     {{-- Banner Pembatalan (Hanya jika pembatalan manual, bukan refund mediasi) --}}
-    @if(((in_array($help->status, ['dibatalkan', 'cancelled']) && empty($help->complaint_resolution)) || $help->customer_cancel_reason || $help->partner_cancel_reason))
+    @if((($help->isDibatalkan() && empty($help->complaint_resolution)) || $help->customer_cancel_reason || $help->partner_cancel_reason))
         <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 flex items-start gap-3 shadow-xs">
             <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold shrink-0">
                 ⚠️
@@ -134,11 +134,11 @@
                             </button>
                         @elseif(in_array($help->status, ['partner_on_the_way', 'taken', 'in_progress', 'sedang_diproses']))
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200">Aktif / Berlangsung</span>
-                        @elseif($help->status === 'selesai')
+                        @elseif($help->isSelesai())
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">Selesai</span>
                         @elseif($help->status === 'rejected')
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Ditolak</span>
-                        @elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
+                        @elseif($help->isDibatalkan())
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Dibatalkan</span>
                         @else
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">{{ ucfirst(str_replace('_', ' ', $help->status)) }}</span>

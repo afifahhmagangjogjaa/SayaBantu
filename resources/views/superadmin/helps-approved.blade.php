@@ -97,13 +97,13 @@
                                         {{ in_array($help->status, ['komplain', 'disputed']) ? 'bg-red-100 text-red-800 border border-red-300 animate-pulse' :
                                           ($help->status === 'menunggu_mitra' ? 'bg-amber-100 text-amber-800' : 
                                           ($help->status === 'partner_on_the_way' || $help->status === 'waiting_customer_confirmation' ? 'bg-blue-100 text-blue-800' : 
-                                          ($help->status === 'selesai' || $help->status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 
-                                          ($help->status === 'rejected' || $help->status === 'dibatalkan' || $help->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
+                                          ($help->isSelesai() ? 'bg-emerald-100 text-emerald-800' : 
+                                          ($help->status === 'rejected' || $help->isDibatalkan() ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
                                         @if(in_array($help->status, ['komplain', 'disputed']))
                                             ⚠️ Mediasi Komplain
                                         @elseif($help->status === 'rejected')
                                             Ditolak
-                                        @elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
+                                        @elseif($help->isDibatalkan())
                                             Dibatalkan
                                         @else
                                             {{ str_replace('_', ' ', $help->status) }}
@@ -216,13 +216,13 @@
                         {{ in_array($detailHelp->status, ['komplain', 'disputed']) ? 'bg-red-100 text-red-800 border border-red-300 animate-pulse' :
                           ($detailHelp->status === 'menunggu_mitra' ? 'bg-amber-100 text-amber-800' :
                           ($detailHelp->status === 'partner_on_the_way' || $detailHelp->status === 'waiting_customer_confirmation' ? 'bg-blue-100 text-blue-800' :
-                          ($detailHelp->status === 'selesai' || $detailHelp->status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
-                          ($detailHelp->status === 'rejected' || $detailHelp->status === 'dibatalkan' || $detailHelp->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
+                          ($detailHelp->isSelesai() ? 'bg-emerald-100 text-emerald-800' :
+                          ($detailHelp->status === 'rejected' || $detailHelp->isDibatalkan() ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
                         @if(in_array($detailHelp->status, ['komplain', 'disputed']))
                             ⚠️ Mediasi Komplain
                         @elseif($detailHelp->status === 'rejected')
                             Ditolak
-                        @elseif($detailHelp->status === 'dibatalkan' || $detailHelp->status === 'cancelled')
+                        @elseif($detailHelp->isDibatalkan())
                             Dibatalkan
                         @else
                             {{ str_replace('_', ' ', $detailHelp->status) }}

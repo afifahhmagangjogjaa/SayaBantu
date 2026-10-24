@@ -20,9 +20,10 @@
     <meta name="apple-mobile-web-app-title" content="SayaBantu">
     <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <!-- Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -30,6 +31,11 @@
     @stack('styles')
     <style>
         [x-cloak] { display: none !important; }
+
+        /* Saat banner install PWA tampil, beri ruang bawah ekstra agar tidak menutupi konten form */
+        body.pwa-banner-open main {
+            padding-bottom: calc(9.5rem + env(safe-area-inset-bottom, 0px));
+        }
 
         html {
             -webkit-text-size-adjust: 100%;
@@ -250,33 +256,28 @@
             @auth
                 <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40"
                     style="background-color: #ffffff !important; padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));">
-                    <div class="w-full flex items-center justify-around px-1 sm:px-3 py-1.5 sm:py-2">
+                    <div class="w-full flex items-center justify-around px-2 py-2">
+                        <!-- Beranda -->
                         <a href="{{ route('customer.dashboard') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('customer.dashboard') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 transition-colors {{ request()->routeIs('customer.dashboard') ? 'text-[#0066FF] font-bold active' : 'text-gray-400 hover:text-gray-700' }}">
+                            <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="{{ request()->routeIs('customer.dashboard') ? '2.5' : '1.8' }}"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
-                            <span class="nav-label text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Beranda</span>
+                            <span class="nav-label text-[11px] tracking-tight truncate max-w-full text-center mt-1">Beranda</span>
                         </a>
 
+                        <!-- Pesanan -->
                         <a href="{{ route('customer.helps.index') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('customer.helps.*') && !request()->routeIs('customer.helps.create') && !request()->routeIs('customer.helps.history') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }}">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 transition-colors {{ request()->routeIs('customer.helps.*') && !request()->routeIs('customer.helps.create') ? 'text-[#0066FF] font-bold active' : 'text-gray-400 hover:text-gray-700' }}">
+                            <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="{{ request()->routeIs('customer.helps.*') && !request()->routeIs('customer.helps.create') ? '2.5' : '1.8' }}"
                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                             </svg>
-                            <span class="nav-label text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Aktivitas</span>
+                            <span class="nav-label text-[11px] tracking-tight truncate max-w-full text-center mt-1">Pesanan</span>
                         </a>
 
-                        <a href="{{ route('customer.helps.create') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('customer.helps.create') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                            <span class="nav-label text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Buat</span>
-                        </a>
-
+                        <!-- Chat -->
                         @php
                             $unreadCustomerChats = 0;
                             if (auth()->check()) {
@@ -289,10 +290,10 @@
                             }
                         @endphp
                         <a href="{{ route('customer.chat') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('customer.chat*') || request()->routeIs('chat.*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 transition-colors {{ request()->routeIs('customer.chat*') || request()->routeIs('chat.*') ? 'text-[#0066FF] font-bold active' : 'text-gray-400 hover:text-gray-700' }}">
                             <div class="relative inline-flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="{{ request()->routeIs('customer.chat*') || request()->routeIs('chat.*') ? '2.5' : '1.8' }}"
                                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
                                 @if($unreadCustomerChats > 0)
@@ -302,9 +303,10 @@
                                     </span>
                                 @endif
                             </div>
-                            <span class="nav-label text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Chat</span>
+                            <span class="nav-label text-[11px] tracking-tight truncate max-w-full text-center mt-1">Chat</span>
                         </a>
 
+                        <!-- Profil -->
                         @php
                             $u = auth()->user();
                             $needsProfileAttention = $u && (
@@ -314,10 +316,10 @@
                             );
                         @endphp
                         <a href="{{ route('profile') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('profile.*') || request()->routeIs('profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 transition-colors {{ request()->routeIs('profile.*') || request()->routeIs('profile') ? 'text-[#0066FF] font-bold active' : 'text-gray-400 hover:text-gray-700' }}">
                             <div class="relative inline-flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="{{ request()->routeIs('profile.*') || request()->routeIs('profile') ? '2.5' : '1.8' }}"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                                 @if($needsProfileAttention)
@@ -327,7 +329,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <span class="nav-label text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Akun</span>
+                            <span class="nav-label text-[11px] tracking-tight truncate max-w-full text-center mt-1">Profil</span>
                         </a>
                     </div>
                 </nav>
@@ -367,7 +369,6 @@
                 }
                 window._lastCustomerToast = { key: toastKey, time: now };
 
-                console.log('showCustomerNotification called', { title, message, url, timeout, type });
                 const container = document.getElementById('customer-global-notification-inner');
                 if (!container) { console.warn('customer-global-notification-inner not found'); return; }
                 container.innerHTML = '';
@@ -525,7 +526,6 @@
 
         // Listen for various help status updates
         window.addEventListener('help-new-message', function (e) {
-            console.log('customer help-new-message received', e && e.detail ? e.detail : e);
             const helpId = e && e.detail && e.detail.helpId ? e.detail.helpId : null;
             const from = e && e.detail && e.detail.from ? e.detail.from : 'Mitra';
             const message = e && e.detail && e.detail.message ? e.detail.message : '';
@@ -534,14 +534,12 @@
         });
 
         window.addEventListener('help-taken', function (e) {
-            console.log('🎯 help-taken event received!', e.detail);
             const helpId = e && e.detail && (e.detail.helpId ?? e.detail.help_id) ? (e.detail.helpId ?? e.detail.help_id) : null;
             const helpTitle = e && e.detail && (e.detail.helpTitle ?? e.detail.help_title) ? (e.detail.helpTitle ?? e.detail.help_title) : null;
             const mitraName = e && e.detail && (e.detail.mitraName ?? e.detail.mitra_name) ? (e.detail.mitraName ?? e.detail.mitra_name) : 'Mitra';
             const url = helpId ? customerHelpDetailTemplate.replace('REPLACE_ID', helpId) : '#';
             const message = e && e.detail && e.detail.message ? e.detail.message : (helpTitle ? `${mitraName} telah mengambil bantuan Anda: ${helpTitle}` : `${mitraName} telah mengambil bantuan Anda. Ketuk untuk melihat detail.`);
             const title = helpTitle ? `Bantuan: ${helpTitle}` : '\u2705 Bantuan Diambil!';
-            console.log('🔔 Showing toast notification for help taken', { title, message });
             showCustomerNotification({ 
                 title, 
                 message, 
@@ -601,7 +599,6 @@
 
         window.addEventListener('help-status-update', function (e) {
             try {
-                console.log('help-status-update raw event:', e);
 
                 const detail = e && e.detail ? e.detail : {};
 
@@ -672,7 +669,6 @@
                 const title = notifTitle || defaultTitle;
                 const message = payloadMessage || fallbackMessage;
 
-                console.log('help-status-update parsed:', { helpId, helpTitle, mitraName, status, message, type, title, url });
 
                 showCustomerNotification({ title, message, url, type, timeout: 7000 });
             } catch (err) { console.error('help-status-update handler error', err); }
@@ -1013,11 +1009,11 @@
 
     <!-- PWA Service Worker & Install Banner -->
     <div id="pwa-install-banner" class="hidden fixed bottom-20 left-4 right-4 max-w-sm mx-auto bg-gray-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-gray-700/80 z-[99999] flex items-center justify-between gap-3 animate-slide-up">
-        <div class="flex items-center gap-3 min-w-0">
-            <img src="/icons/icon-192x192.png" alt="SayaBantu" class="w-10 h-10 rounded-xl shadow-xs shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <img src="/icons/icon-192x192.png" alt="SayaBantu" class="w-9 h-9 rounded-xl shadow-xs shrink-0">
             <div class="min-w-0">
-                <h4 class="text-xs font-bold text-white leading-tight truncate">Pasang Aplikasi SayaBantu</h4>
-                <p class="text-[11px] text-gray-300 leading-tight mt-0.5">Akses cepat & instan di HP Anda</p>
+                <h4 class="text-xs font-bold text-white leading-tight line-clamp-2">Pasang Aplikasi SayaBantu</h4>
+                <p class="text-[11px] text-gray-300 leading-tight mt-0.5 hidden min-[360px]:block">Akses cepat & instan di HP Anda</p>
             </div>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
@@ -1038,9 +1034,7 @@
         // Registrasi PWA Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then((reg) => console.log('✓ Service Worker PWA Aktif:', reg.scope))
-                    .catch((err) => console.log('Service Worker Gagal:', err));
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
             });
         }
 
@@ -1055,7 +1049,11 @@
             window._deferredPrompt = e;
             const dismissedAt = localStorage.getItem('pwa_dismissed_at');
             if (!dismissedAt || (Date.now() - parseInt(dismissedAt)) > 86400000) {
-                if (installBanner) installBanner.classList.remove('hidden');
+                if (installBanner) {
+                    installBanner.classList.remove('hidden');
+                    // Beri ruang ekstra di bawah konten agar banner tidak menutupi form.
+                    document.body.classList.add('pwa-banner-open');
+                }
             }
         });
 
@@ -1063,9 +1061,9 @@
             installBtn.addEventListener('click', async () => {
                 if (!window._deferredPrompt) return;
                 installBanner.classList.add('hidden');
+                document.body.classList.remove('pwa-banner-open');
                 window._deferredPrompt.prompt();
                 const { outcome } = await window._deferredPrompt.userChoice;
-                console.log(`User response to install: ${outcome}`);
                 window._deferredPrompt = null;
             });
         }
@@ -1073,6 +1071,7 @@
         if (dismissBtn) {
             dismissBtn.addEventListener('click', () => {
                 if (installBanner) installBanner.classList.add('hidden');
+                document.body.classList.remove('pwa-banner-open');
                 localStorage.setItem('pwa_dismissed_at', Date.now().toString());
             });
         }

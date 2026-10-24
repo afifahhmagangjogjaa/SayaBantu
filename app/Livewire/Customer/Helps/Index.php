@@ -691,14 +691,8 @@ class Index extends Component
     {
         $user = auth()->user();
 
-        // Auto-confirm bantuan yang sudah lewat 24 jam menunggu konfirmasi
-        try {
-            Help::autoConfirmExpiredCustomerHelps();
-        } catch (\Throwable $e) {}
-
-        try {
-            Help::cancelExpiredUrgentHelps();
-        } catch (\Throwable $e) {}
+        // Auto-confirm bantuan yang sudah lewat 24 jam menunggu konfirmasi kini
+        // dijalankan oleh scheduler (helps:auto-confirm), bukan di dalam render.
 
         if ($user->isCustomer()) {
             $helps = Help::where('user_id', $user->id)
@@ -753,8 +747,7 @@ class Index extends Component
         } elseif ($user->isMitra()) {
                 if (request()->routeIs('helps.available')) {
                 // Mitra melihat bantuan yang available
-                $helps = Help::where('status', 'approved')
-                    ->whereNull('mitra_id')
+                $helps = Help::available()
                     ->with(['user', 'city'])
                         ->withCount('chatMessages')
                     ->when($this->search !== '', function ($query) {

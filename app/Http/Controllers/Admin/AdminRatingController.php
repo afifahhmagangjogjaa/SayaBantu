@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Rating;
-use App\Models\City;
 use App\Models\User;
 
 class AdminRatingController extends Controller

@@ -7,9 +7,20 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Concerns\HasAccountStatus;
+use App\Models\Concerns\HasOrderQuota;
+use App\Models\Concerns\HasBalanceWallet;
+use App\Models\Concerns\HasProfileCompleteness;
+use App\Models\Concerns\HasRatingStats;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
+    use HasAccountStatus;
+    use HasOrderQuota;
+    use HasBalanceWallet;
+    use HasProfileCompleteness;
+    use HasRatingStats;
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -111,6 +122,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'email_verified_at',
+        'google_id',
+        'avatar',
         'password',
         'is_completed',
         'role',
@@ -175,54 +188,9 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-
-    public function isBanned(): bool
-    {
-        return (bool) ($this->is_banned ?? false) || $this->status === 'blocked';
-    }
-
     /**
      * Hapus total seluruh sesi aktif pengguna dari database dan file sesi, serta kosongkan remember_token
      */
-    public function purgeSessions(): void
-    {
-        try {
-            // 1. Kosongkan remember_token di database agar auto-login / remember me di browser mati total
-            if ($this->remember_token !== null) {
-                $this->forceFill(['remember_token' => null])->saveQuietly();
-            }
-
-            // 2. Hapus seluruh data sesi di tabel database sessions
-            if (\Illuminate\Support\Facades\Schema::hasTable('sessions')) {
-                \Illuminate\Support\Facades\DB::table('sessions')->where('user_id', $this->id)->delete();
-            }
-
-            // 3. Hapus file sesi fisik jika menggunakan file driver
-            $sessionPath = storage_path('framework/sessions');
-            if (is_dir($sessionPath)) {
-                $files = @glob($sessionPath . '/*');
-                if (is_array($files)) {
-                    foreach ($files as $file) {
-                        if (is_file($file) && basename($file) !== '.gitignore') {
-                            $content = @file_get_contents($file);
-                            if ($content !== false && strpos($content, (string) $this->id) !== false) {
-                                if (preg_match('/login_[a-z0-9_]+[^\d]+' . $this->id . '([^\d]|$)/', $content)) {
-                                    @unlink($file);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning("Gagal membersihkan sesi user #{$this->id}: " . $e->getMessage());
-        }
-    }
-
-    public function isShadowBanned(): bool
-    {
-        return (bool) ($this->is_shadow_banned ?? false);
-    }
 
     protected function maritalStatus(): Attribute
     {
@@ -364,39 +332,21 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Hitung total bantuan yang pernah diambil mitra (tidak termasuk yang dibatalkan)
      */
-    public function getMitraHelpsCount(): int
-    {
-        return $this->takenHelps()
-            ->whereNotIn('status', ['cancelled', 'dibatalkan'])
-            ->count();
-    }
 
     /**
      * Hitung berapa order yang sedang/pernah diambil mitra (alias untuk kompatibilitas)
      */
-    public function getActiveOrdersCount(): int
-    {
-        return $this->getMitraHelpsCount();
-    }
 
     /**
      * Kuota maksimal order:
      * - Email terverifikasi = Banyak order tanpa batas (unlimited / 999)
      * - Belum verifikasi email = Maksimal 2 order
      */
-    public function getMaxActiveOrdersLimit(): int
-    {
-        return $this->hasVerifiedEmail() ? 999 : 2;
-    }
 
     /**
      * Cek apakah mitra masih boleh mengambil order baru:
      * Jika email belum terverifikasi dan sudah mengambil 2 order, tidak boleh mengambil order lagi.
      */
-    public function canTakeMoreOrders(): bool
-    {
-        return $this->getMitraHelpsCount() < $this->getMaxActiveOrdersLimit();
-    }
 
     /**
      * Memeriksa apakah mitra diizinkan mengambil bantuan:
@@ -404,108 +354,45 @@ class User extends Authenticatable implements MustVerifyEmail
      * 2. KTP sudah diverifikasi oleh admin (verified = true)
      * 3. Kuota order (belum verifikasi email = maks 2 order)
      */
-    public function canTakeHelp(): bool
-    {
-        return $this->isProfileComplete() && (bool) $this->verified && $this->canTakeMoreOrders();
-    }
 
     /**
      * Mengembalikan alasan spesifik jika mitra belum bisa mengambil bantuan.
      */
-    public function getCannotTakeHelpReason(): ?string
-    {
-        if (!$this->isProfileComplete()) {
-            $missing = implode(', ', $this->getMissingProfileFields());
-            return "Harap lengkapi biodata profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.";
-        }
-
-        if (!$this->verified) {
-            return "Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi selesai sebelum dapat mengambil bantuan.";
-        }
-
-        if (!$this->canTakeMoreOrders()) {
-            if (!$this->hasVerifiedEmail()) {
-                return "Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.";
-            }
-            return "Anda telah mencapai batas maksimal order bantuan.";
-        }
-
-        return null;
-    }
 
     /**
      * Memeriksa apakah pengguna diizinkan melakukan Top Up saldo:
      * 1. Biodata profil wajib lengkap
      * 2. KTP sudah diverifikasi oleh admin (verified = true)
      */
-    public function canTopup(): bool
-    {
-        return $this->isProfileComplete() && (bool) $this->verified;
-    }
 
     /**
      * Mengembalikan alasan spesifik jika pengguna belum bisa melakukan Top Up.
      */
-    public function getCannotTopupReason(): ?string
-    {
-        if (!$this->isProfileComplete()) {
-            $missing = implode(', ', $this->getMissingProfileFields());
-            return "Harap lengkapi profil Anda ({$missing}) terlebih dahulu sebelum melakukan Top Up.";
-        }
-
-        if (!$this->verified) {
-            return "Akun Anda sedang menunggu verifikasi KTP oleh Admin. Anda belum dapat melakukan Top Up sebelum KTP diverifikasi.";
-        }
-
-        return null;
-    }
 
     /**
      * Hitung berapa bantuan yang telah dibuat customer (tidak termasuk bantuan yang dibatalkan)
      */
-    public function getCustomerHelpsCount(): int
-    {
-        return $this->helps()
-            ->whereNotIn('status', ['cancelled', 'dibatalkan'])
-            ->count();
-    }
 
     /**
      * Alias untuk konsistensi view/komponen
      */
-    public function getActiveCustomerHelpsCount(): int
-    {
-        return $this->getCustomerHelpsCount();
-    }
 
     /**
      * Batas maksimal bantuan yang dapat dibuat customer:
      * - Email terverifikasi = Banyak bantuan tanpa batas (999)
      * - Belum verifikasi email = Maksimal 2 bantuan
      */
-    public function getMaxActiveCustomerHelpsLimit(): int
-    {
-        return $this->hasVerifiedEmail() ? 999 : 2;
-    }
 
     /**
      * Cek apakah customer masih boleh membuat permintaan bantuan baru:
      * Jika email belum terverifikasi, dibatasi maksimal 2 bantuan.
      * Jika email sudah terverifikasi, bebas membuat bantuan baru.
      */
-    public function canCreateMoreHelps(): bool
-    {
-        return $this->getCustomerHelpsCount() < $this->getMaxActiveCustomerHelpsLimit();
-    }
 
     /**
      * Cek apakah mitra dapat melakukan penarikan saldo
      * Syarat: Email harus terverifikasi dan profil lengkap
      */
-    public function canWithdrawBalance(): bool
-    {
-        return $this->hasVerifiedEmail() && $this->isProfileComplete();
-    }
 
     public function subscriptions()
     {
@@ -539,117 +426,24 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Log::class);
     }
 
-    public function balance()
-    {
-        return $this->hasOne(UserBalance::class);
-    }
-
     public function withdrawRequests()
     {
         return $this->hasMany(\App\Models\WithdrawRequest::class);
     }
 
-    public function hasPendingOrProcessingWithdraws(): bool
-    {
-        return $this->withdrawRequests()
-            ->whereIn('status', ['pending', 'processing'])
-            ->exists();
-    }
-
-    public function adjustBalance(int $amountDelta): void
-    {
-        // Use UserBalance helper methods to modify balance and record transactions.
-        $userBalance = $this->balance()->first();
-        if (!$userBalance) {
-            $userBalance = $this->balance()->create(['balance' => 0]);
-        }
-
-        if ($amountDelta === 0)
-            return;
-
-        if ($amountDelta > 0) {
-            // Refund / topup
-            $userBalance->addBalance($amountDelta, 'refund');
-        } else {
-            // Deduction
-            $userBalance->deductBalance(abs($amountDelta), 'withdraw_deduction');
-        }
-    }
-
     /**
      * Accessor to get numeric balance conveniently via $user->balance
      */
-    public function getBalanceAttribute()
-    {
-        // Prefer UserBalance row
-        $userBalance = $this->getRelationValue('balance') ?? $this->balance()->first();
-        if ($userBalance && isset($userBalance->balance)) {
-            // return integer rounded value (Rupiah)
-            return (int) round($userBalance->balance);
-        }
-
-        // Fallback to users.balance column if present
-        return isset($this->attributes['balance']) ? (int) $this->attributes['balance'] : 0;
-    }
-
-    public function transactions()
-    {
-        return $this->hasMany(BalanceTransaction::class);
-    }
 
     // Helper methods
-    public function isSuperAdmin()
-    {
-        return $this->role === 'super_admin';
-    }
-
-    public function isAdmin()
-    {
-        return $this->role === 'admin';
-    }
-
-    public function isKustomer()
-    {
-        return $this->isCustomer();
-    }
-
-    public function isMitra()
-    {
-        return $this->role === 'mitra';
-    }
-
-    public function isCustomer()
-    {
-        // Accept both 'customer' (new) and 'kustomer' (legacy) values
-        return in_array($this->role, ['customer', 'kustomer']);
-    }
 
     /**
      * Mendapatkan Enum UserRole untuk pengguna ini.
      */
-    public function getRoleEnumAttribute(): ?\App\Enums\UserRole
-    {
-        $roleValue = ($this->role === 'kustomer') ? 'customer' : (string) $this->role;
-        return \App\Enums\UserRole::tryFrom($roleValue);
-    }
 
     /**
      * Mendapatkan label manusiawi dari role (Super Admin, Admin Wilayah, Customer, Mitra).
      */
-    public function getRoleLabelAttribute(): string
-    {
-        return $this->role_enum?->label() ?? ucfirst((string) $this->role);
-    }
-
-    public function isVerified()
-    {
-        return $this->verified;
-    }
-
-    public function isActive()
-    {
-        return $this->status === 'active';
-    }
 
     /**
      * Return the display name for the city.
@@ -675,74 +469,8 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // Customer Rating Methods
-    public function getCustomerAverageRatingAttribute()
-    {
-        $avg = Rating::forCustomer($this->id)->avg('rating');
-        return $avg ? round((float) $avg, 1) : 0;
-    }
-
-    public function getCustomerRatingCountAttribute()
-    {
-        return Rating::forCustomer($this->id)->count();
-    }
-
-    public function getCustomerRatingBadgeAttribute()
-    {
-        $rating = $this->customer_average_rating;
-        
-        if ($rating >= 4.5) {
-            return [
-                'text' => 'Customer Terpercaya',
-                'color' => 'green',
-                'emoji' => '🌟'
-            ];
-        } elseif ($rating >= 4.0) {
-            return [
-                'text' => 'Customer Baik',
-                'color' => 'blue',
-                'emoji' => '⭐'
-            ];
-        } elseif ($rating >= 3.0) {
-            return [
-                'text' => 'Standar',
-                'color' => 'yellow',
-                'emoji' => '✓'
-            ];
-        } else {
-            return [
-                'text' => 'Perlu Perbaikan',
-                'color' => 'red',
-                'emoji' => '⚠️'
-            ];
-        }
-    }
 
     // Mitra Rating Methods
-    public function getMitraAverageRatingAttribute()
-    {
-        $avg = \App\Models\Rating::forMitra($this->id)->avg('rating');
-        return $avg ? round((float) $avg, 1) : 0;
-    }
-
-    public function getMitraRatingCountAttribute()
-    {
-        return \App\Models\Rating::forMitra($this->id)->count();
-    }
-
-    public function helpsAsMitra()
-    {
-        return $this->hasMany(\App\Models\Help::class, 'mitra_id');
-    }
-
-    public function helpsAsCustomer()
-    {
-        return $this->hasMany(\App\Models\Help::class, 'user_id');
-    }
-
-    public function getMitraCompletedJobsCountAttribute()
-    {
-        return \App\Models\Help::where('mitra_id', $this->id)->whereIn('status', ['selesai', 'completed'])->count();
-    }
 
     /**
      * Lencana Reputasi Mitra Berdasarkan Jam Terbang & Rating:
@@ -751,160 +479,28 @@ class User extends Authenticatable implements MustVerifyEmail
      * - Mitra Aktif / Verified: Akun verified
      * - Mitra Baru: Belum ada order selesai
      */
-    public function getMitraBadgeAttribute(): array
-    {
-        $completedJobs = $this->mitra_completed_jobs_count;
-        $rating = $this->mitra_average_rating;
-
-        if ($completedJobs >= 10 && $rating >= 4.8) {
-            return [
-                'level' => 'top',
-                'label' => 'Top Partner',
-                'color' => 'bg-amber-100 text-amber-800 border-amber-300',
-                'icon' => '👑',
-            ];
-        }
-
-        if ($completedJobs >= 3 && $rating >= 4.5) {
-            return [
-                'level' => 'trusted',
-                'label' => 'Mitra Terpercaya',
-                'color' => 'bg-emerald-100 text-emerald-800 border-emerald-300',
-                'icon' => '⭐',
-            ];
-        }
-
-        if ($this->verified) {
-            return [
-                'level' => 'verified',
-                'label' => 'Mitra Terverifikasi',
-                'color' => 'bg-blue-100 text-blue-800 border-blue-300',
-                'icon' => '🛡️',
-            ];
-        }
-
-        return [
-            'level' => 'new',
-            'label' => 'Mitra Baru',
-            'color' => 'bg-gray-100 text-gray-700 border-gray-300',
-            'icon' => '✨',
-        ];
-    }
 
     // Generic Aliases for profile & components
-    public function getAverageRatingAttribute()
-    {
-        return $this->isMitra() ? $this->mitra_average_rating : $this->customer_average_rating;
-    }
-
-    public function getRatingCountAttribute()
-    {
-        return $this->isMitra() ? $this->mitra_rating_count : $this->customer_rating_count;
-    }
 
     /**
      * Memeriksa apakah data profil wajib pengguna sudah terisi lengkap.
      * Field wajib: Nama Lengkap, NIK (16 digit), No HP (10-13 digit), Kota Domisili, Alamat Lengkap.
      * Field opsional: RT, RW.
      */
-    public function isProfileComplete(): bool
-    {
-        return empty($this->getMissingProfileFields());
-    }
 
     /**
      * Mengembalikan daftar field wajib yang belum terisi.
      */
-    public function getMissingProfileFields(): array
-    {
-        // 1. Ambil semua field biodata teks dasar
-        $missing = $this->getMissingBiodataFields();
-
-        // 2. Foto KTP & Selfie HANYA ditagih jika akun BELUM diverifikasi.
-        // Jika akun SUDAH berstatus verified == true (sudah diverifikasi oleh Admin/Super Admin),
-        // maka kewajiban upload file foto KTP & Selfie otomatis diabaikan.
-        if (!$this->verified) {
-            if (empty($this->ktp_photo) && empty($this->ktp_path)) {
-                $missing['ktp_photo'] = 'Foto KTP';
-            }
-
-            if (empty($this->selfie_photo)) {
-                $missing['selfie_photo'] = 'Foto Selfie (Wajah & KTP)';
-            }
-        }
-
-        return $missing;
-    }
 
     /**
      * Mengembalikan daftar field biodata yang belum terisi (tanpa dokumen KTP & Selfie).
      */
-    public function getMissingBiodataFields(): array
-    {
-        $missing = [];
-
-        if (empty(trim((string) $this->name))) {
-            $missing['name'] = 'Nama Lengkap';
-        }
-
-        $cleanNik = preg_replace('/[^0-9]/', '', (string) $this->nik);
-        if (empty($cleanNik) || strlen($cleanNik) !== 16) {
-            $missing['nik'] = 'NIK (16 Digit Angka)';
-        }
-
-        $cleanPhone = preg_replace('/[^0-9]/', '', (string) $this->phone);
-        if (empty($cleanPhone) || strlen($cleanPhone) < 10 || strlen($cleanPhone) > 13) {
-            $missing['phone'] = 'No. HP (10-13 Digit Angka)';
-        }
-
-        if (empty($this->city_id)) {
-            $missing['city_id'] = 'Kota Domisili';
-        }
-
-        if (empty(trim((string) $this->address))) {
-            $missing['address'] = 'Alamat Lengkap';
-        }
-
-        return $missing;
-    }
 
     /**
      * Get accessible URL for KTP photo
      */
-    public function getKtpUrlAttribute(): ?string
-    {
-        $path = $this->ktp_photo ?? $this->ktp_path;
-        if (!$path && $this->relationLoaded('registration') && $this->registration) {
-            $path = $this->registration->ktp_photo_path;
-        } elseif (!$path) {
-            $reg = \App\Models\Registration::where('email', $this->email)->first();
-            if ($reg) {
-                $path = $reg->ktp_photo_path;
-            }
-        }
-        if ($path) {
-            return asset('storage/' . ltrim($path, '/'));
-        }
-        return null;
-    }
 
     /**
      * Get accessible URL for Selfie photo
      */
-    public function getSelfieUrlAttribute(): ?string
-    {
-        $path = $this->selfie_photo;
-        if (!$path && $this->relationLoaded('registration') && $this->registration) {
-            $path = $this->registration->selfie_photo_path;
-        } elseif (!$path) {
-            $reg = \App\Models\Registration::where('email', $this->email)->first();
-            if ($reg) {
-                $path = $reg->selfie_photo_path;
-            }
-        }
-        if ($path) {
-            return asset('storage/' . ltrim($path, '/'));
-        }
-        return null;
-    }
 }

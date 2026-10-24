@@ -103,11 +103,11 @@
                                         <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">Menunggu Mitra</span>
                                     @elseif(in_array($help->status, ['partner_on_the_way', 'taken', 'in_progress', 'sedang_diproses']))
                                         <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200">Aktif</span>
-                                    @elseif($help->status === 'selesai')
+                                    @elseif($help->isSelesai())
                                         <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">Selesai</span>
                                     @elseif($help->status === 'rejected')
                                         <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Ditolak</span>
-                                    @elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
+                                    @elseif($help->isDibatalkan())
                                         <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Dibatalkan</span>
                                     @else
                                         <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-gray-50 text-gray-700 border border-gray-200">{{ ucfirst(str_replace('_', ' ', $help->status)) }}</span>

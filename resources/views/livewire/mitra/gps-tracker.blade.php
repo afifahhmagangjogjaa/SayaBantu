@@ -92,7 +92,6 @@ Alpine.data('gpsTracker', (helpId, isTracking) => ({
             return;
         }
 
-        console.log('Memulai GPS tracking untuk help ID:', this.helpId);
 
         // Request permission dan mulai tracking
         this.watchId = navigator.geolocation.watchPosition(
@@ -100,7 +99,6 @@ Alpine.data('gpsTracker', (helpId, isTracking) => ({
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
                 
-                console.log('GPS Update:', lat, lng);
                 
                 // Kirim ke server
                 this.$wire.updateLocation(lat, lng).then((result) => {
@@ -130,7 +128,6 @@ Alpine.data('gpsTracker', (helpId, isTracking) => ({
             this.watchId = null;
         }
         this.isTracking = false;
-        console.log('GPS tracking dihentikan');
     },
 
     updateStatusText(status) {

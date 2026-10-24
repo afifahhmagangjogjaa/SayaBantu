@@ -15,7 +15,7 @@ use App\Models\Registration;
 
 class LoginForm extends Form
 {
-    #[Validate('required|string|email')]
+    #[Validate('required|string')]
     public string $email = '';
 
     #[Validate('required|string')]
@@ -33,11 +33,28 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
-        $foundUser = User::where('email', $this->email)->first();
+        $input = trim($this->email);
+        $isEmail = filter_var($input, FILTER_VALIDATE_EMAIL);
+        $field = $isEmail ? 'email' : 'phone';
+
+        $foundUser = User::where($field, $input)->first();
+
+        // If phone not found directly, try normalizing phone format (08xx vs 62xx)
+        if (!$foundUser && !$isEmail) {
+            $digits = preg_replace('/[^0-9]/', '', $input);
+            $altPhone = str_starts_with($digits, '62') 
+                ? '0' . substr($digits, 2) 
+                : (str_starts_with($digits, '0') ? '62' . substr($digits, 1) : null);
+
+            if ($altPhone) {
+                $foundUser = User::where('phone', $altPhone)->first();
+                if ($foundUser) {
+                    $input = $foundUser->phone;
+                }
+            }
+        }
 
         // Check if user is inactive, blocked, or banned BEFORE logging into session.
-        // This avoids writing a session file and then purging it, which destroys the browser's
-        // CSRF session token and causes 419 TokenMismatchException when the user clicks login again.
         if ($foundUser && (in_array($foundUser->status, ['inactive', 'blocked']) || $foundUser->isBanned())) {
             if (\Illuminate\Support\Facades\Hash::check($this->password, $foundUser->password)) {
                 $status = $foundUser->status;
@@ -51,21 +68,35 @@ class LoginForm extends Form
             }
         }
 
-        if (!Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+        $attemptSuccess = Auth::attempt([$field => $input, 'password' => $this->password], $this->remember);
+
+        // Demo password fallback: allow Sayabantu123! or password for testing convenience.
+        // Hanya aktif jika DEMO_LOGIN=true (default false), sehingga tidak pernah
+        // ikut terbawa ke production.
+        if (!$attemptSuccess && $foundUser && config('app.demo_login')) {
+            $isDemoPassword = in_array(strtolower($this->password), ['sayabantu123!', 'sayabantu123', 'password']);
+            $hasDemoHash = \Illuminate\Support\Facades\Hash::check('Sayabantu123!', $foundUser->password) 
+                        || \Illuminate\Support\Facades\Hash::check('password', $foundUser->password);
+
+            if ($isDemoPassword && $hasDemoHash) {
+                Auth::login($foundUser, $this->remember);
+                $attemptSuccess = true;
+            }
+        }
+
+        if (!$attemptSuccess) {
             RateLimiter::hit($this->throttleKey());
 
             // Log failed login attempt for partner reporting (if user exists)
             try {
-                $found = $foundUser ?? User::where('email', $this->email)->first();
                 PartnerActivity::create([
-                    'user_id' => $found?->id,
+                    'user_id' => $foundUser?->id,
                     'activity_type' => 'login_failed',
                     'description' => 'Gagal login',
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->header('User-Agent'),
                 ]);
             } catch (\Throwable $e) {
-                // Don't let logging failures affect authentication flow
                 \Log::warning('Failed to record login_failed PartnerActivity: ' . $e->getMessage());
             }
 

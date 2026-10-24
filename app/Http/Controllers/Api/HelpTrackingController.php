@@ -9,6 +9,23 @@ use Illuminate\Http\JsonResponse;
 class HelpTrackingController extends Controller
 {
     /**
+     * Hanya pihak yang berkepentingan atas order ini yang boleh melihat datanya:
+     * customer pemilik order, mitra yang mengerjakan, atau admin/super admin.
+     */
+    private function authorizeViewer(Help $help): void
+    {
+        $user = auth()->user();
+
+        abort_if(! $user, 403);
+
+        $allowed = (int) $help->user_id === (int) $user->id
+            || (int) $help->mitra_id === (int) $user->id
+            || in_array($user->role, ['admin', 'super_admin'], true);
+
+        abort_unless($allowed, 403, 'Anda tidak berhak melihat data bantuan ini.');
+    }
+
+    /**
      * Get live GPS tracking coordinates for a help request.
      */
     public function tracking(int $id): JsonResponse
@@ -18,6 +35,8 @@ class HelpTrackingController extends Controller
         if (!$help) {
             return response()->json(['error' => 'Not found'], 404);
         }
+
+        $this->authorizeViewer($help);
 
         return response()->json([
             'partnerLat' => $help->partner_current_lat,
@@ -39,6 +58,8 @@ class HelpTrackingController extends Controller
         if (!$help) {
             return response()->json(['error' => 'Not found'], 404);
         }
+
+        $this->authorizeViewer($help);
 
         return response()->json([
             'id' => $help->id,

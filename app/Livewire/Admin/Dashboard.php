@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Help;
 use App\Models\User;
+use App\Enums\HelpStatus;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -12,10 +13,6 @@ class Dashboard extends Component
 {
     public function render()
     {
-        try {
-            Help::cancelExpiredUrgentHelps();
-            Help::autoConfirmExpiredCustomerHelps();
-        } catch (\Throwable $e) {}
 
         // If current user is an admin, scope metrics to their assigned city
         if (auth()->user() && auth()->user()->role === 'admin') {
@@ -30,9 +27,9 @@ class Dashboard extends Component
             };
 
             $totalHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->count() : Help::count();
-            $pendingHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->whereIn('status', ['menunggu_mitra', 'pending', 'created'])->count() : Help::whereIn('status', ['menunggu_mitra', 'pending', 'created'])->count();
-            $activeHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'partner_cancel_requested', 'memperoleh_mitra', 'in_progress', 'sedang_diproses', 'partner_arrived', 'taken', 'active'])->count() : Help::whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'partner_cancel_requested', 'memperoleh_mitra', 'in_progress', 'sedang_diproses', 'partner_arrived', 'taken', 'active'])->count();
-            $completedHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->whereIn('status', ['selesai', 'completed'])->count() : Help::whereIn('status', ['selesai', 'completed'])->count();
+            $pendingHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->withStatus(HelpStatus::MENUNGGU_MITRA)->count() : Help::withStatus(HelpStatus::MENUNGGU_MITRA)->count();
+            $activeHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->active()->count() : Help::active()->count();
+            $completedHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->completed()->count() : Help::completed()->count();
             $pendingVerifications = !empty($cityIds) ? \App\Models\Registration::whereIn('city_id', $cityIds)->where('status', 'pending_verification')->count() : \App\Models\Registration::where('status', 'pending_verification')->count();
             $verifiedMitras = !empty($cityIds) ? User::where('role', 'mitra')
                                 ->whereIn('city_id', $cityIds)
@@ -50,9 +47,9 @@ class Dashboard extends Component
                 ->count();
         } else {
             $totalHelps = Help::count();
-            $pendingHelps = Help::whereIn('status', ['menunggu_mitra', 'pending', 'created'])->count();
-            $activeHelps = Help::whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'partner_cancel_requested', 'memperoleh_mitra', 'in_progress', 'sedang_diproses', 'partner_arrived', 'taken', 'active'])->count();
-            $completedHelps = Help::whereIn('status', ['selesai', 'completed'])->count();
+            $pendingHelps = Help::withStatus(HelpStatus::MENUNGGU_MITRA)->count();
+            $activeHelps = Help::active()->count();
+            $completedHelps = Help::completed()->count();
             $pendingVerifications = 0;
             $verifiedMitras = User::where('role', 'mitra')->where('verified', true)->count();
             

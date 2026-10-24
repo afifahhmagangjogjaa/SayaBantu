@@ -232,110 +232,80 @@
                     @endisset
                 </div>
 
-                <!-- Bottom Navigation Bar: Fluid full width on all screens -->
+                <!-- Bottom Navigation Bar matching Gambar 1 Mockup: Beranda, Order, Penghasilan, Profil -->
                 <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40"
                     style="background-color: #ffffff !important; padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));">
-                    <div class="w-full flex items-center justify-around px-1 sm:px-3 py-1.5 sm:py-2">
+                    <div class="w-full flex items-center justify-around px-2 py-2">
+                        <!-- 1. Beranda -->
                         <a href="{{ route('mitra.dashboard') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.dashboard') && !request()->has('tab') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 min-w-0 {{ request()->routeIs('mitra.dashboard') && !request()->has('tab') ? 'text-[#0066FF] active' : 'text-gray-400 hover:text-[#0066FF]' }} transition">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
-                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Beranda</span>
+                            <span class="text-[11px] font-bold tracking-tight truncate max-w-full text-center mt-1">Beranda</span>
                         </a>
-                        <a href="{{ route('mitra.helps.all') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.helps.all') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Cari</span>
-                        </a>
+
+                        <!-- 2. Order -->
                         @php
                             $activeMitraJobs = 0;
-                            $unreadMitraChats = 0;
                             if (auth()->check()) {
                                 try {
                                     $activeMitraJobs = \App\Models\Help::where('mitra_id', auth()->id())
                                         ->whereIn('status', [
-                                             'memperoleh_mitra',
-                                             'taken',
-                                             'partner_on_the_way',
-                                             'partner_arrived',
-                                             'in_progress',
-                                             'sedang_diproses',
-                                             'partner_cancel_requested',
-                                             'diproses_mitra',
+                                             'memperoleh_mitra', 'taken', 'partner_on_the_way',
+                                             'partner_arrived', 'in_progress', 'sedang_diproses',
+                                             'partner_cancel_requested', 'diproses_mitra',
                                              'waiting_customer_confirmation'
                                         ])->count();
                                 } catch (\Throwable $e) {}
-
-                                try {
-                                    $unreadMitraChats = \App\Models\Chat::where('mitra_id', auth()->id())
-                                        ->whereNull('read_at')
-                                        ->where('sender_type', 'customer')
-                                        ->count();
-                                } catch (\Throwable $e) {}
                             }
                         @endphp
-
-                        <a href="{{ route('mitra.helps.processing') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.helps.processing') || request()->routeIs('mitra.helps.completed') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                        <a href="{{ route('mitra.helps.all') }}" wire:navigate
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 min-w-0 {{ request()->routeIs('mitra.helps.*') ? 'text-[#0066FF] active' : 'text-gray-400 hover:text-[#0066FF]' }} transition">
                             <div class="relative inline-flex items-center justify-center shrink-0">
                                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                                 </svg>
                                 @if($activeMitraJobs > 0)
-                                    <span class="absolute bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center pointer-events-none">
-                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 ring-1.5 ring-white"></span>
+                                    <span class="absolute -top-1 -right-1 flex h-2 w-2 items-center justify-center pointer-events-none">
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#0066FF] ring-1.5 ring-white"></span>
                                     </span>
                                 @endif
                             </div>
-                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Pekerjaan</span>
+                            <span class="text-[11px] font-bold tracking-tight truncate max-w-full text-center mt-1">Order</span>
                         </a>
 
-                        <a href="{{ route('mitra.chat') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.chat*') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
-                            <div class="relative inline-flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                @if($unreadMitraChats > 0)
-                                    <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5 items-center justify-center pointer-events-none">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 ring-1.5 ring-white"></span>
-                                    </span>
-                                @endif
-                            </div>
-                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Chat</span>
+                        <!-- 3. Penghasilan -->
+                        <a href="{{ route('mitra.withdraw.history') }}" wire:navigate
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 min-w-0 {{ request()->routeIs('mitra.withdraw.*') ? 'text-[#0066FF] active' : 'text-gray-400 hover:text-[#0066FF]' }} transition">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                            <span class="text-[11px] font-bold tracking-tight truncate max-w-full text-center mt-1">Penghasilan</span>
                         </a>
 
+                        <!-- 4. Profil -->
                         @php
                             $u = auth()->user();
-                            $needsMitraAttention = $u && (
-                                !$u->verified || 
-                                !empty($u->getMissingBiodataFields()) || 
-                                !$u->hasVerifiedEmail()
-                            );
+                            $needsMitraAttention = $u && (!$u->verified || !$u->hasVerifiedEmail());
                         @endphp
                         <a href="{{ route('mitra.profile') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 {{ request()->routeIs('mitra.profile') ? 'text-primary-600 active' : 'text-gray-400 hover:text-primary-600' }} transition">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 min-w-0 {{ request()->routeIs('mitra.profile*') ? 'text-[#0066FF] active' : 'text-gray-400 hover:text-[#0066FF]' }} transition">
                             <div class="relative inline-flex items-center justify-center shrink-0">
                                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                                 @if($needsMitraAttention)
-                                    <span class="absolute bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center pointer-events-none">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 ring-1.5 ring-white"></span>
+                                    <span class="absolute -top-1 -right-1 flex h-2 w-2 items-center justify-center pointer-events-none">
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 ring-1.5 ring-white"></span>
                                     </span>
                                 @endif
                             </div>
-                            <span class="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight truncate max-w-full text-center mt-0.5">Profil</span>
+                            <span class="text-[11px] font-bold tracking-tight truncate max-w-full text-center mt-1">Profil</span>
                         </a>
                     </div>
                 </nav>
@@ -375,7 +345,6 @@
                 }
                 window._lastMitraNotification = { key: toastKey, time: now };
 
-                console.log('showMitraNotification (text-only) called', { title, message, url, timeout, type });
                 const container = document.getElementById('mitra-global-notification-inner');
                 if (!container) { console.warn('mitra-global-notification-inner not found'); return; }
                 container.innerHTML = '';
@@ -440,7 +409,6 @@
         });
 
         window.addEventListener('help-new-message', function (e) {
-            console.log('help-new-message received', e && e.detail ? e.detail : e);
             const helpId = e && e.detail && e.detail.helpId ? e.detail.helpId : null;
             const from = e && e.detail && e.detail.from ? e.detail.from : 'Customer';
             const message = e && e.detail && e.detail.message ? e.detail.message : '';

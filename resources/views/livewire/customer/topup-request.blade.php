@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-24">
     @if($hasActivePending)
         <!-- Header Sederhana saat Pending -->
-        <div class="px-5 pt-6 pb-6 rounded-b-3xl shadow-lg mb-6" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+        <div class="px-5 pt-6 pb-6 rounded-b-3xl shadow-lg mb-6" style="background: linear-gradient(135deg, #0066FF, #0052cc);">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <a href="{{ route('customer.dashboard') }}" class="text-white hover:opacity-80 transition">

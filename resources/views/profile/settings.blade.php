@@ -3,7 +3,7 @@
 
     <div class="min-h-screen bg-gray-50 pb-24">
         <!-- BRImo Header -->
-        <div class="relative bg-gradient-to-br from-[#0098e7] via-[#0077cc] to-[#0060b0] pb-24 overflow-hidden">
+        <div class="relative bg-gradient-to-br from-[#0066FF] via-[#0052CC] to-[#003EA8] pb-24 overflow-hidden">
             <!-- Decorative Circles -->
             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
             <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
@@ -60,7 +60,7 @@
                         
                         <a href="{{ route('profile') }}" 
                            class="block w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer text-center"
-                           style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
+                           style="background: linear-gradient(to bottom right, #0066FF, #003EA8);">
                             Oke
                         </a>
                     </div>
@@ -70,8 +70,8 @@
             <div class="space-y-3">
                 <!-- Notification Settings -->
                 <a href="{{ route('profile.settings.notifications') }}"
-                    class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-[#0098e7]/30 transition">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #0098e7 0%, #0060b0 100%);">
+                    class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-[#0066FF]/30 transition">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #0066FF 0%, #003EA8 100%);">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -88,8 +88,8 @@
 
                 <!-- Password Settings -->
                 <a href="{{ route('profile.settings.password') }}"
-                    class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-[#0098e7]/30 transition">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #0098e7 0%, #0060b0 100%);">
+                    class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-[#0066FF]/30 transition">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #0066FF 0%, #003EA8 100%);">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />

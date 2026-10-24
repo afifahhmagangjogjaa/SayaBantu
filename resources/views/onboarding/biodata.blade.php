@@ -48,7 +48,7 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                         Kota Domisili <span class="text-red-500">*</span>
                     </label>
-                    <select name="city_id" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('city_id') border-red-500 @enderror">
+                    <select name="city_id" id="city_id" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('city_id') border-red-500 @enderror">
                         <option value="">Pilih Kota Domisili</option>
                         @foreach($cities as $city)
                             <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
@@ -60,14 +60,16 @@
                 <!-- Alamat Lengkap Domisili -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        Alamat Lengkap Domisili <span class="text-red-500">*</span>
+                        Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) <span class="text-red-500">*</span>
                     </label>
                     <x-smart-address-input 
                         name="address" 
+                        id="address"
+                        cityRef="#city_id"
                         rows="2" 
                         required 
                         :value="old('address')"
-                        placeholder="Ketik nama jalan, perumahan, kelurahan, atau gedung..."
+                        placeholder="Ketik nama jalan, nomor rumah, RT/RW, atau gunakan saran cerdas..."
                     />
                     @error('address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -94,7 +96,7 @@
                                 </div>
                                 <h3 class="text-xs font-bold text-gray-900 mb-0.5">Ambil atau Pilih Foto KTP</h3>
                                 <p class="text-[11px] text-gray-500 mb-3">Format JPG, PNG (Maksimal 2MB)</p>
-                                <div class="inline-flex items-center gap-1.5 bg-[#0098e7] hover:bg-[#0086cc] text-white px-4 py-2 rounded-full text-xs font-bold shadow-xs transition active:scale-95">
+                                <div class="inline-flex items-center gap-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white px-4 py-2 rounded-full text-xs font-bold shadow-xs transition active:scale-95">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                     </svg>
@@ -174,7 +176,7 @@
                                 </div>
                                 <h3 class="text-xs font-bold text-gray-900 mb-0.5">Ambil atau Pilih Foto Selfie</h3>
                                 <p class="text-[11px] text-gray-500 mb-3">Pegang KTP di samping wajah dengan jelas</p>
-                                <div class="inline-flex items-center gap-1.5 bg-[#0098e7] hover:bg-[#0086cc] text-white px-4 py-2 rounded-full text-xs font-bold shadow-xs transition active:scale-95">
+                                <div class="inline-flex items-center gap-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white px-4 py-2 rounded-full text-xs font-bold shadow-xs transition active:scale-95">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                     </svg>
@@ -232,7 +234,7 @@
                             <div class="aspect-square bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden mb-2">
                                 <img src="{{ asset('images/contoh-selfie-salah.jpg') }}" alt="Contoh Selfie Salah" class="w-full h-full object-cover rounded-xl">
                             </div>
-                            <p class="text-xs text-red-700 font-bold text-center">✗ Salah</p>
+                            <p class="text-xs text-red-700 font-bold text-center">✕ Salah</p>
                             <p class="text-[10px] text-gray-500 text-center mt-0.5">Blur atau gelap</p>
                         </div>
                     </div>
@@ -242,7 +244,7 @@
                 <div class="pt-4 pb-2">
                     <button type="submit" 
                             class="w-full py-3.5 px-4 text-white font-bold text-base rounded-full shadow-md hover:shadow-lg active:scale-[0.99] transition"
-                            style="background: linear-gradient(135deg, #0098e7, #0077cc);">
+                            style="background: linear-gradient(135deg, #0066FF, #0052CC);">
                         Selesaikan Pendaftaran & Masuk
                     </button>
                 </div>

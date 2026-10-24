@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use App\Models\Help;
 use App\Models\User;
+use App\Enums\HelpStatus;
 use App\Notifications\HelpStatusNotification;
 
 #[Layout('layouts.superadmin')]
@@ -101,14 +102,14 @@ class HelpsApproved extends Component
     public function approveHelp($id)
     {
         $help = Help::findOrFail($id);
-        $help->update(['status' => 'active']);
+        $help->update(['status' => HelpStatus::MENUNGGU_MITRA->value]);
         session()->flash('message', 'Bantuan berhasil disetujui');
     }
 
     public function openRejectModal($id)
     {
         $help = Help::findOrFail($id);
-        if (in_array($help->status, ['selesai', 'completed', 'dibatalkan', 'cancelled', 'rejected'])) {
+        if ($help->statusEnum()?->isFinal()) {
             session()->flash('error', 'Bantuan tidak bisa ditolak karena sudah selesai atau dibatalkan.');
             return;
         }
@@ -144,7 +145,7 @@ class HelpsApproved extends Component
 
         $help = Help::with('customer')->findOrFail($this->rejectingHelpId);
 
-        if (in_array($help->status, ['selesai', 'completed', 'dibatalkan', 'cancelled', 'rejected'])) {
+        if ($help->statusEnum()?->isFinal()) {
             session()->flash('error', 'Bantuan tidak bisa ditolak karena sudah selesai atau dibatalkan.');
             $this->closeRejectModal();
             return;
@@ -297,15 +298,15 @@ class HelpsApproved extends Component
                 if ($this->filterStatus === 'komplain') {
                     $query->whereIn('status', ['komplain', 'disputed']);
                 } elseif ($this->filterStatus === 'selesai') {
-                    $query->whereIn('status', ['selesai', 'completed']);
+                    $query->completed();
                 } elseif ($this->filterStatus === 'dibatalkan') {
-                    $query->whereIn('status', ['dibatalkan', 'cancelled']);
+                    $query->withStatus(HelpStatus::DIBATALKAN);
                 } elseif ($this->filterStatus === 'rejected') {
-                    $query->where('status', 'rejected');
+                    $query->withStatus(HelpStatus::REJECTED);
                 } elseif ($this->filterStatus === 'dalam_proses') {
-                    $query->whereIn('status', ['partner_on_the_way', 'waiting_customer_confirmation', 'taken', 'in_progress']);
+                    $query->active();
                 } else {
-                    $query->where('status', $this->filterStatus);
+                    $query->withStatus($this->filterStatus);
                 }
             })
             ->latest()

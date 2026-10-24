@@ -6,6 +6,7 @@ use App\Models\City;
 use App\Models\Help;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Enums\HelpStatus;
 
 class Index extends Component
 {
@@ -17,8 +18,7 @@ class Index extends Component
     public function render()
     {
         $helps = Help::with(['user', 'city', 'mitra'])
-            ->where('status', 'approved')
-            ->whereNull('mitra_id')
+            ->available()
             ->when($this->selectedCity, function ($query) {
                 $query->where('city_id', $this->selectedCity);
             })
@@ -89,7 +89,7 @@ class Index extends Component
 
         $help->update([
             'mitra_id' => auth()->id(),
-            'status' => 'taken',
+            'status' => HelpStatus::MEMPEROLEH_MITRA->value,
             'taken_at' => now(),
         ]);
 

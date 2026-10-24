@@ -11,6 +11,7 @@ use App\Services\LocationTrackingService;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Schema;
+use App\Enums\HelpStatus;
 
 #[Layout('layouts.mitra')]
 class AllHelps extends Component
@@ -18,16 +19,24 @@ class AllHelps extends Component
     use WithPagination;
 
     protected $queryString = [
+        'tab' => ['except' => 'semua'],
         'search' => ['except' => ''],
         'filterStatus' => ['except' => 'all'],
         'sortBy' => ['except' => 'latest'],
     ];
 
+    public string $tab = 'semua'; // semua, tersedia, proses, selesai
     public $search = '';
     public $filterStatus = 'all'; // all, menunggu_mitra
     public $sortBy = 'latest'; // latest, oldest, nearby, price_high, price_low
     public $userLat = null;
     public $userLng = null;
+
+    public function setTab(string $tab): void
+    {
+        $this->tab = in_array($tab, ['semua', 'tersedia', 'proses', 'selesai']) ? $tab : 'semua';
+        $this->resetPage();
+    }
 
     public function mount()
     {
@@ -76,10 +85,6 @@ class AllHelps extends Component
         $user = auth()->user();
         \App\Services\KtpVerificationNoticeService::ensurePromptNotification($user);
 
-        try {
-            Help::cancelExpiredUrgentHelps();
-        } catch (\Throwable $e) {}
-
         $isMitraShadowBanned = $user ? $user->isShadowBanned() : false;
 
         $userCity = ($user && $user->city_id) ? \App\Models\City::find($user->city_id) : null;
@@ -119,12 +124,31 @@ class AllHelps extends Component
             }
         }
 
-        // Filter berdasarkan status
-        if ($this->filterStatus === 'menunggu_mitra') {
+        // Filter berdasarkan tab (Gambar 1: Semua, Tersedia, Dalam Proses, Selesai)
+        $inProgressStatuses = [
+            'taken', 'partner_on_the_way', 'partner_arrived', 'in_progress', 
+            'sedang_diproses', 'diproses_mitra', 'waiting_customer_confirmation'
+        ];
+
+        if ($this->tab === 'tersedia') {
             $query->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+        } elseif ($this->tab === 'proses') {
+            $query->where('mitra_id', $user?->id)->whereIn('status', $inProgressStatuses);
+        } elseif ($this->tab === 'selesai') {
+            $query->where('mitra_id', $user?->id)->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI));
         } else {
-            // Tampilkan semua bantuan dari semua customer
-            $query->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+            // 'semua'
+            $query->where(function($q) use ($user, $inProgressStatuses) {
+                $q->where(function($sq) use ($user) {
+                    $sq->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+                });
+                if ($user) {
+                    $q->orWhere(function($sq) use ($user, $inProgressStatuses) {
+                        $sq->where('mitra_id', $user->id)
+                           ->whereIn('status', array_merge($inProgressStatuses, HelpStatus::expand(HelpStatus::SELESAI)));
+                    });
+                }
+            });
         }
 
         // Search berdasarkan judul, deskripsi, lokasi, alamat, nama pelanggan, kota, atau kategori
@@ -230,9 +254,6 @@ class AllHelps extends Component
         $help = Help::with('user')->findOrFail($helpId);
 
         if ($help->isExpired() || $help->status !== 'menunggu_mitra') {
-            if ($help->isExpired()) {
-                Help::cancelExpiredUrgentHelps();
-            }
             $this->dispatch('livewire-flash-error', 'Maaf, batas waktu pencarian mitra untuk bantuan ini sudah habis atau bantuan sudah tidak tersedia.');
             return;
         }
@@ -272,7 +293,7 @@ class AllHelps extends Component
 
         $help->update([
             'mitra_id' => auth()->id(),
-            'status' => 'taken',
+            'status' => HelpStatus::MEMPEROLEH_MITRA->value,
             'taken_at' => now(),
         ]);
 

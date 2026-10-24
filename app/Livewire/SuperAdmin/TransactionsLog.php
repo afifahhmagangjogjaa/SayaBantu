@@ -465,7 +465,7 @@ class TransactionsLog extends Component
         // Ambil daftar kota untuk dropdown filter
         $cities = City::orderBy('name', 'asc')->get();
 
-        $availableYears = BalanceTransaction::selectRaw('YEAR(created_at) as year')
+        $availableYears = BalanceTransaction::selectRaw(\App\Support\Sql::yearExpression())
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year')

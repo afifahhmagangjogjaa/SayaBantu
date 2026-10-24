@@ -427,7 +427,7 @@ new #[Layout('layouts.blank')] class extends Component
         }">
             <div class="max-w-md mx-auto min-h-screen flex flex-col bg-white shadow-md">
                 <!-- Customer Header -->
-                <div class="px-5 relative overflow-hidden flex-shrink-0 header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0); padding-top: 32px; padding-bottom: 32px;">
+                <div class="px-5 relative overflow-hidden flex-shrink-0 header-pattern" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8); padding-top: 32px; padding-bottom: 32px;">
                     <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
                     <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
 
@@ -664,3 +664,4 @@ new #[Layout('layouts.blank')] class extends Component
         </div>
     @endif
 </div>
+

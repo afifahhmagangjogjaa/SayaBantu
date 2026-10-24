@@ -116,20 +116,17 @@
 <script>
 	document.addEventListener('livewire:init', () => {
 		Livewire.on('mitra-help-status', (event) => {
-			console.log('Livewire mitra-help-status received:', event);
 			window.dispatchEvent(new CustomEvent('mitra-help-status', { detail: event }));
 		});
 
 		window.addEventListener('mitra-help-status', function (e) {
 			try {
 				const d = e && e.detail ? e.detail : {};
-				console.log('Browser mitra-help-status event:', d);
 				try {
 					const newStatus = (d.newStatus || d.new_status || '').toString().toLowerCase();
 					const helpId = d.helpId || d.help_id || d.helpId || 0;
 					if (newStatus === 'cancel_rejected' && helpId) {
 						const redirectUrl = `${window.location.origin}/mitra/helps/${helpId}/detail`;
-						console.log('Redirecting mitra to', redirectUrl);
 						window.location.href = redirectUrl;
 					} else if (newStatus === 'partner_reassigned' && helpId) {
 						if (window.location.pathname.includes('/mitra/helps/' + helpId)) {

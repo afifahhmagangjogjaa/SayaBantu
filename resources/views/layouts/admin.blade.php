@@ -124,8 +124,10 @@
     <!-- Favicon & Icons -->
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
     <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    <!-- Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     <style>
@@ -347,7 +349,7 @@
                             </button>
                             <!-- Page Title & Subtitle -->
                             <div class="min-w-0">
-                                <h2 class="text-base sm:text-lg lg:text-xl font-medium text-gray-900 truncate">
+                                <h2 class="text-base sm:text-lg lg:text-xl font-medium text-gray-900 leading-snug line-clamp-2 lg:line-clamp-1">
                                     @hasSection('page-title')
                                         @yield('page-title')
                                     @else
@@ -366,8 +368,8 @@
 
                         <!-- Right Side Actions -->
                         <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                            <!-- Hari dan Tanggal Badge -->
-                            <div class="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl border border-gray-200 shadow-2xs transition">
+                            <!-- Hari dan Tanggal Badge: disembunyikan di layar sangat kecil agar judul tetap terbaca -->
+                            <div class="hidden min-[400px]:flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl border border-gray-200 shadow-2xs transition">
                                 <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>

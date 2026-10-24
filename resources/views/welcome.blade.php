@@ -3,156 +3,108 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>sayabantu - Platform Bantuan Sosial</title>
-    <meta name="description" content="Temukan Bantuan Yang Tersedia. Platform yang menghubungkan mereka yang membutuhkan bantuan dengan para relawan dan mitra profesional.">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>sayabantu.com - Jasa Serabutan, Mudah, Cepat, Terpercaya</title>
+    <meta name="description" content="Temukan jasa serabutan yang mudah, cepat, dan terpercaya di sekitar Anda.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f7f9fa;
+        /* Sembunyikan scrollbar bawaan agar tampilan aplikasi mulus tanpa scroll */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
         }
-
-        .blur-text {
-            filter: blur(4px);
-            user-select: none;
-            -webkit-user-select: none;
-            transition: filter 0.3s ease;
-        }
-
-        .job-item {
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .job-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .job-item:active {
-            opacity: 0.9;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
+        html, body {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+            height: 100%;
+            overflow: hidden;
         }
     </style>
 </head>
 
-<body class="antialiased text-gray-900 selection:bg-blue-500 selection:text-white">
-    <div class="min-h-screen flex flex-col justify-between max-w-sm mx-auto bg-white shadow-xl sm:rounded-3xl my-0 sm:my-6 overflow-hidden border border-gray-100">
-
-        <!-- Top Header Bar Sesuai Mockup: BANTUAN / Temukan Bantuan Yang Tersedia -->
-        <header class="pt-8 pb-5 px-6 text-center bg-gray-100/90 border-b border-gray-200/60">
-            <h1 class="text-2xl font-black tracking-wide text-gray-900 uppercase">
-                BANTUAN
+<body class="h-screen h-[100dvh] bg-slate-100 font-sans text-slate-900 antialiased flex flex-col items-center justify-center sm:p-4">
+    <!-- Centered Mobile App Container matching the design mockup -->
+    <main class="w-full max-w-md h-full sm:h-[840px] sm:max-h-[92vh] bg-white sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col justify-between overflow-hidden relative">
+        
+        <!-- Header Section (Logo + Tagline) -->
+        <header class="pt-10 sm:pt-14 px-6 pb-2 text-center shrink-0 z-10">
+            <x-sayabantu-logo size="lg" />
+            
+            <h1 class="mt-4 sm:mt-5 text-base sm:text-[17px] font-bold text-slate-900 leading-snug tracking-tight">
+                Jasa Serabutan,<br>Mudah, Cepat, Terpercaya
             </h1>
-            <p class="text-sm text-gray-600 font-medium mt-1">
-                Temukan Bantuan Yang Tersedia
-            </p>
         </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 px-5 py-5 flex flex-col justify-between">
+        <!-- Center Hero Mascot Section -->
+        <section class="relative w-full flex-1 flex items-center justify-center overflow-hidden my-auto min-h-[180px] max-h-[300px]">
+            <img src="{{ asset('images/landing-mascot.png') }}"
+                 alt="Petugas sayabantu.com berkaus biru bertopi memberi jempol"
+                 class="w-full h-full object-cover object-top select-none pointer-events-none">
+            
+            <!-- Soft White Organic Wave Divider at bottom matching mockup -->
+            <svg class="pointer-events-none absolute -bottom-0.5 left-0 w-full h-8 sm:h-10 text-white fill-current" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M0,28 Q200,8 400,28 L400,40 L0,40 Z"></path>
+            </svg>
+        </section>
 
-            <!-- Hero Image / Banner Sesuai Mockup -->
-            <div class="mb-5 fade-in">
-                <div class="w-full h-44 rounded-2xl bg-gradient-to-br from-blue-100 via-sky-50 to-indigo-100 border border-blue-200/70 overflow-hidden relative flex flex-col items-center justify-center p-4 shadow-inner group">
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center text-3xl mb-2 group-hover:scale-105 transition-transform">
-                        🤝
-                    </div>
-                    <span class="text-xs font-bold text-blue-900 tracking-wide uppercase">Gotong Royong &amp; Kepedulian</span>
-                    <span class="text-[11px] text-blue-700/80 text-center mt-0.5">Saling membantu untuk sesama di seluruh Indonesia</span>
-
-                    <!-- Decorative elements -->
-                    <div class="absolute -top-6 -right-6 w-20 h-20 bg-blue-400/10 rounded-full blur-xl"></div>
-                    <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-indigo-400/10 rounded-full blur-xl"></div>
+        <!-- Features Badges (Aman & Terpercaya, Proses Cepat, Harga Bersaing) -->
+        <section class="grid grid-cols-3 gap-2 px-6 pt-3 pb-4 text-center shrink-0">
+            <!-- Feature 1: Aman & Terpercaya -->
+            <div class="flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-[#0066FF] flex items-center justify-center mb-1.5 shadow-2xs">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                    </svg>
                 </div>
+                <span class="text-xs sm:text-[13px] font-bold text-gray-800 leading-tight">
+                    Aman<br>&amp; Terpercaya
+                </span>
             </div>
 
-            <!-- Pekerjaan yang tersedia Label -->
-            <div class="mb-2 fade-in">
-                <h2 class="text-base font-bold text-gray-900 tracking-tight">
-                    Pekerjaan yang tersedia:
-                </h2>
-            </div>
-
-            <!-- Gray Container with Blurred Job List Sesuai Mockup -->
-            <div class="bg-gray-200/80 rounded-2xl p-3.5 mb-6 fade-in space-y-2.5 shadow-inner">
-                
-                <!-- Job Item 1 -->
-                <a href="{{ route('login') }}" 
-                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
-                    <span class="text-sm font-semibold text-gray-800 blur-text">
-                        Membersihkan rumput
-                    </span>
-                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
-                        🔒 Login
-                    </span>
-                </a>
-
-                <!-- Job Item 2 -->
-                <a href="{{ route('login') }}" 
-                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
-                    <span class="text-sm font-semibold text-gray-800 blur-text">
-                        Membantu angkut pindahan rumah
-                    </span>
-                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
-                        🔒 Login
-                    </span>
-                </a>
-
-                <!-- Job Item 3 -->
-                <a href="{{ route('login') }}" 
-                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
-                    <span class="text-sm font-semibold text-gray-800 blur-text">
-                        Membersihkan saluran air
-                    </span>
-                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
-                        🔒 Login
-                    </span>
-                </a>
-
-                <!-- Job Item 4 -->
-                <a href="{{ route('login') }}" 
-                     class="job-item bg-white rounded-xl py-3 px-4 shadow-xs flex items-center justify-between border border-gray-100 group">
-                    <span class="text-sm font-semibold text-gray-800 blur-text">
-                        Perbaikan genteng &amp; atap rumah
-                    </span>
-                    <span class="text-xs text-blue-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">
-                        🔒 Login
-                    </span>
-                </a>
-
-            </div>
-
-            <!-- Bottom CTA Buttons Sesuai Mockup -->
-            <div class="mt-auto pt-2 pb-4 fade-in">
-                <!-- Tombol Mulai Berbagi Kebaikan -->
-                <a href="{{ route('login') }}"
-                   class="block w-full py-4 px-6 rounded-2xl bg-gray-300 hover:bg-gray-400/90 text-gray-900 font-bold text-center text-base tracking-wide transition active:scale-98 shadow-sm">
-                    Mulai Berbagi Kebaikan
-                </a>
-
-                <!-- Sub link: Belum punya akun? masuk sekarang -->
-                <div class="text-center mt-3">
-                    <a href="{{ route('login') }}" class="text-xs font-medium text-gray-700 hover:text-blue-600 transition">
-                        Belum punya akun? <span class="font-bold underline">masuk sekarang</span>
-                    </a>
+            <!-- Feature 2: Proses Cepat -->
+            <div class="flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-[#0066FF] flex items-center justify-center mb-1.5 shadow-2xs">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"/>
+                        <polyline points="12 7 12 12 15 14"/>
+                    </svg>
                 </div>
+                <span class="text-xs sm:text-[13px] font-bold text-gray-800 leading-tight">
+                    Proses<br>Cepat
+                </span>
             </div>
 
-        </main>
+            <!-- Feature 3: Harga Bersaing -->
+            <div class="flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-[#0066FF] flex items-center justify-center mb-1.5 shadow-2xs">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21.71 8.71l-3.42-3.42a2.008 2.008 0 0 0-2.83 0L13.88 6.87a.996.996 0 0 0 0 1.41l.71.71-3.59 3.59-1.42-1.42a1 1 0 0 0-1.41 0l-.71.71 2.12 2.12-1.41 1.41-2.12-2.12-.71.71a1 1 0 0 0 0 1.41l1.42 1.42-1.41 1.41a.996.996 0 0 0 0 1.41l3.42 3.42c.78.78 2.05.78 2.83 0l8.34-8.34c.78-.78.78-2.05 0-2.83zM15.29 5.29c.39-.39 1.02-.39 1.41 0l3.42 3.42c.39.39.39 1.02 0 1.41l-2.12 2.12-4.83-4.83 2.12-2.12z"/>
+                    </svg>
+                </div>
+                <span class="text-xs sm:text-[13px] font-bold text-gray-800 leading-tight">
+                    Harga<br>Bersaing
+                </span>
+            </div>
+        </section>
 
-    </div>
+        <!-- CTA & Footer Section -->
+        <footer class="px-6 pb-8 sm:pb-10 pt-2 shrink-0">
+            <!-- Mulai Sekarang Button -->
+            <a href="{{ route('login') }}"
+               class="w-full flex items-center justify-center py-4 sm:py-4.5 rounded-full bg-[#0066FF] hover:bg-[#0055D4] active:scale-[0.98] text-white font-bold text-base shadow-md shadow-blue-500/25 transition cursor-pointer">
+                Mulai Sekarang
+            </a>
+        </footer>
+
+    </main>
 </body>
 
 </html>
