@@ -406,7 +406,7 @@
                         <span class="text-sm font-bold text-gray-900">Detail Aktivitas</span>
                         <span class="text-[10px] text-gray-400 font-mono">#{{ $selectedActivity->id }}</span>
                     </div>
-                    <a href="{{ route('admin.partners.activity', request()->except('activity_id')) }}"
+                    <a href="{{ route('admin.partners.activity', request()->except('activity_id')) }}" wire:navigate
                         class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-200/60 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -560,7 +560,7 @@
 
                 <!-- Modal Footer -->
                 <div class="px-4 py-2.5 border-t border-gray-100 bg-gray-50/60 flex justify-end">
-                    <a href="{{ route('admin.partners.activity', request()->except('activity_id')) }}"
+                    <a href="{{ route('admin.partners.activity', request()->except('activity_id')) }}" wire:navigate
                         class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition-colors">
                         Tutup
                     </a>

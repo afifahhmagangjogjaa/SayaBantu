@@ -84,7 +84,7 @@
                                     class="w-full bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
                                     placeholder="Nama mitra, no. rek, email, ID (#12), nominal..." />
                                 @if(request('search') || request('user'))
-                                    <a href="{{ route('superadmin.withdraws.index', request()->except('search', 'user', 'page')) }}" 
+                                    <a href="{{ route('superadmin.withdraws.index', request()->except('search', 'user', 'page')) }}" wire:navigate 
                                        class="absolute inset-y-0 right-0 flex items-center text-gray-400 hover:text-gray-600 transition cursor-pointer" 
                                        style="padding-right: 12px;"
                                        title="Hapus pencarian">

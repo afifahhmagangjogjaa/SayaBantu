@@ -67,7 +67,7 @@
                                     Laporkan
                                 </a>
                             @elseif(optional($selected_help->mitra)->id)
-                                <a href="{{ route('customer.reports.create', ['user_id' => optional($selected_help->mitra)->id, 'help_id' => $selected_help->id, 'new' => 1]) }}" 
+                                <a href="{{ route('customer.reports.create', ['user_id' => optional($selected_help->mitra)->id, 'help_id' => $selected_help->id, 'new' => 1]) }}" wire:navigate 
                                     class="px-2.5 py-1 text-xs font-semibold text-red-600 rounded-lg bg-white hover:bg-red-50 transition shadow-xs">
                                     Laporkan
                                 </a>
