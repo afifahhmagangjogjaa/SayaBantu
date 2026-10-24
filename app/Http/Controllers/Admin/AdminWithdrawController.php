@@ -180,8 +180,44 @@ class AdminWithdrawController extends Controller
         return view('admin.withdraws.index', ['items' => $items, 'banks' => $banks, 'counts' => $counts, 'availableYears' => $availableYears]);
     }
 
+    /**
+     * Pastikan admin hanya memproses withdraw milik mitra di kota yang dikelolanya.
+     * Super Admin tidak dibatasi wilayah. Mitra tanpa kota tetap bisa diproses,
+     * mengikuti pola approval top-up di Admin\TopupApproval.
+     */
+    private function ensureWithinManagedCities(WithdrawRequest $withdraw): void
+    {
+        $user = auth()->user();
+
+        if (! $user || $user->role !== 'admin') {
+            return;
+        }
+
+        $managedCityIds = array_map('intval', $user->getAdminCityIds());
+
+        if ($managedCityIds === []) {
+            abort(403, 'Akun Anda belum memiliki wilayah kelola.');
+        }
+
+        $withdraw->loadMissing('user');
+        $cityId = $withdraw->user?->city_id;
+
+        if ($cityId !== null && ! in_array((int) $cityId, $managedCityIds, true)) {
+            abort(403, 'Permintaan ini di luar wilayah kelola Anda.');
+        }
+    }
+
+    /** Route daftar withdraw sesuai peran yang sedang login. */
+    private function withdrawIndexRouteName(): string
+    {
+        return auth()->user()?->role === 'super_admin'
+            ? 'superadmin.withdraws.index'
+            : 'admin.withdraws.index';
+    }
+
     public function show(WithdrawRequest $withdraw)
     {
+        $this->ensureWithinManagedCities($withdraw);
         $withdraw->load('user');
         $routeName = request()->route() ? request()->route()->getName() : null;
         if ($routeName && strpos($routeName, 'superadmin.') === 0) {
@@ -194,6 +230,7 @@ class AdminWithdrawController extends Controller
     /** Return withdraw details as a partial for modal (AJAX) */
     public function modal(WithdrawRequest $withdraw)
     {
+        $this->ensureWithinManagedCities($withdraw);
         $withdraw->load('user');
         $routeName = request()->route() ? request()->route()->getName() : null;
         if ($routeName && strpos($routeName, 'superadmin.') === 0) {
@@ -206,6 +243,8 @@ class AdminWithdrawController extends Controller
     /** Approve and perform deduction */
     public function approve(Request $request, WithdrawRequest $withdraw)
     {
+        $this->ensureWithinManagedCities($withdraw);
+
         $request->validate([
             'transfer_reference' => ['nullable', 'string'],
             'note' => ['nullable', 'string'],
@@ -241,7 +280,7 @@ class AdminWithdrawController extends Controller
                 Log::warning('Failed to send withdraw success notification: '.$e->getMessage());
             }
 
-            return redirect()->route('superadmin.withdraws.index')->with('status', 'Withdraw berhasil diproses dan saldo telah dipotong.');
+            return redirect()->route($this->withdrawIndexRouteName())->with('status', 'Withdraw berhasil diproses dan saldo telah dipotong.');
         } catch (\Throwable $e) {
             Log::error('AdminWithdrawController: approve error', ['error' => $e->getMessage(), 'withdraw_id' => $withdraw->id]);
 
@@ -251,6 +290,8 @@ class AdminWithdrawController extends Controller
 
     public function reject(Request $request, WithdrawRequest $withdraw)
     {
+        $this->ensureWithinManagedCities($withdraw);
+
         $request->validate(['note' => ['nullable', 'string']]);
 
         if ($withdraw->status !== WithdrawRequest::STATUS_PENDING) {
@@ -270,7 +311,7 @@ class AdminWithdrawController extends Controller
             Log::warning('Failed to send withdraw failed notification: '.$e->getMessage());
         }
 
-        return redirect()->route('superadmin.withdraws.index')->with('status', 'Withdraw dibatalkan.');
+        return redirect()->route($this->withdrawIndexRouteName())->with('status', 'Withdraw dibatalkan.');
     }
 
     /**

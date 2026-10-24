@@ -226,17 +226,11 @@
                                 </td>
                                 <td class="px-2.5 py-2.5 text-center whitespace-nowrap">
                                     <div class="flex items-center justify-center gap-1.5">
-                                        @if(auth()->user() && auth()->user()->isSuperAdmin())
-                                            <button data-id="{{ $item->id }}"
-                                                class="open-withdraw-modal inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold cursor-pointer">
-                                                Proses
-                                            </button>
-                                        @else
-                                            <a href="{{ route('admin.withdraws.show', $item) }}" wire:navigate 
-                                               class="inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold">
-                                                Detail
-                                            </a>
-                                        @endif
+                                        {{-- Semua aksi (setujui/tolak) dilakukan di halaman detail --}}
+                                        <a href="{{ route('admin.withdraws.show', $item) }}" wire:navigate 
+                                           class="inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold">
+                                            {{ $item->status === 'pending' ? 'Proses' : 'Detail' }}
+                                        </a>
                                         @if($item->status !== 'pending')
                                             <form action="{{ route('admin.withdraws.destroy', $item) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data riwayat withdraw ini?');" class="inline">
                                                 @csrf

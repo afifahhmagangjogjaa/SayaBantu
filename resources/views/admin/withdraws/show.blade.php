@@ -2,10 +2,24 @@
 
 @section('content')
     <div class="space-y-6">
+        @if (session()->has('status'))
+            <div class="p-4 bg-green-50 border border-green-200 rounded-2xl text-green-800 text-sm font-semibold">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm font-semibold space-y-1">
+                @foreach ($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
+
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">Detail Withdraw</h1>
-                <p class="text-sm text-gray-500 mt-1">Informasi permintaan tarik saldo dari mitra (hanya tampilan, proses dilakukan oleh Super Admin).</p>
+                <p class="text-sm text-gray-500 mt-1">Informasi permintaan tarik saldo dari mitra di wilayah kelola Anda.</p>
             </div>
             <div>
                 <a href="{{ route('admin.withdraws.index') }}" wire:navigate
@@ -66,9 +80,9 @@
                     </svg>
                     <div class="text-sm text-blue-800">
                         @if($withdraw->status === 'pending')
-                            <span class="font-semibold">Menunggu Persetujuan Super Admin.</span> Permintaan ini belum diproses.
+                            <span class="font-semibold">Menunggu Persetujuan.</span> Permintaan ini belum diproses dan dapat disetujui atau ditolak dari panel aksi di bawah.
                         @elseif($withdraw->status === 'processing')
-                            <span class="font-semibold">Sedang Diproses.</span> Super Admin sedang memproses transfer.
+                            <span class="font-semibold">Sedang Diproses.</span> Transfer sedang dilakukan.
                         @elseif($withdraw->status === 'success')
                             <span class="font-semibold">Berhasil.</span>
                             Diproses pada: {{ $withdraw->processed_at ? $withdraw->processed_at->format('d M Y, H:i') : '-' }}
@@ -81,10 +95,39 @@
                     </div>
                 </div>
             </div>
+            @if($withdraw->status === 'pending')
+                <div class="flex flex-col md:flex-row gap-4 mt-4">
+                    <form action="{{ route('admin.withdraws.approve', $withdraw) }}" method="POST"
+                        class="flex-1 bg-white p-4 border border-gray-100 rounded">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="block text-sm font-medium text-gray-700">Nomor Referensi Transfer (opsional)</label>
+                            <input type="text" name="transfer_reference" class="mt-1 block w-full rounded border-gray-300" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="block text-sm font-medium text-gray-700">Catatan (opsional)</label>
+                            <input type="text" name="note" class="mt-1 block w-full rounded border-gray-300" />
+                        </div>
+                        <div class="flex items-center justify-end">
+                            <button type="submit"
+                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-sm transition">
+                                Setujui &amp; Potong Saldo
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="w-full md:w-56 bg-white p-4 border border-red-100 rounded">
+                        <p class="text-sm text-gray-700 mb-4">Jika ingin menolak permintaan ini, klik tombol di bawah.</p>
+                        <button id="open-reject-modal"
+                            class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold text-sm transition">
+                            Tolak
+                        </button>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
-    @if(auth()->user() && auth()->user()->isSuperAdmin())
     <!-- Reject Confirmation Modal -->
     <div id="rejectModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
         <div id="rejectModalOverlay" class="absolute inset-0 bg-black bg-opacity-50"></div>
@@ -95,7 +138,7 @@
             </div>
             <div class="p-6">
                 <p class="text-sm text-gray-600 mb-4">Masukkan catatan penolakan (opsional) dan konfirmasi penolakan.</p>
-                <form action="{{ route('superadmin.withdraws.reject', $withdraw) }}" method="POST">
+                <form action="{{ route('admin.withdraws.reject', $withdraw) }}" method="POST">
                     @csrf
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Catatan Penolakan</label>
@@ -133,5 +176,4 @@
             if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
         })();
     </script>
-    @endif
 @endsection
