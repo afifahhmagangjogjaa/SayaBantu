@@ -441,109 +441,29 @@
             </div>
         </div>
     </div>
-    <!-- Modal container -->
-    <div id="admin-withdraw-modal-container"></div>
 
     <script>
-        (function () {
-            function openModal(id) {
-                var container = document.getElementById('admin-withdraw-modal-container');
-                // Fetch modal HTML
-                fetch('/admin/withdraws/' + id + '/modal')
-                    .then(function (res) { return res.text(); })
-                    .then(function (html) {
-                        container.innerHTML = html;
-                        // Ensure modal scripts/behavior are initialized after injection
-                        initAdminWithdrawModal(container);
-                        // Optionally scroll to top so modal is visible
-                        window.scrollTo(0, 0);
-                    })
-                    .catch(function (err) { console.error('Failed to load modal:', err); });
-            }
-
-            document.querySelectorAll('.open-withdraw-modal').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var id = this.getAttribute('data-id');
-                    openModal(id);
-                });
-            });
-        })();
-
-        // Initialize modal behavior for injected admin withdraw modal
-        function initAdminWithdrawModal(container) {
-            // Find the injected modal node
-            var modal = container.querySelector('#admin-withdraw-modal');
-            if (!modal) return;
-
-            var overlay = modal.querySelector('#admin-withdraw-modal-overlay');
-            var closeBtn = modal.querySelector('#close-admin-withdraw-modal');
-
-            function removeModal() { container.innerHTML = ''; }
-            if (closeBtn) closeBtn.addEventListener('click', removeModal);
-            if (overlay) overlay.addEventListener('click', removeModal);
-
-            // Inline reject form (toggle visibility inside the injected modal)
-            // support both the old and new ID names for the reject trigger
-            var openReject = modal.querySelector('#open-reject-modal-local, #open-reject-local');
-            var rejectForm = modal.querySelector('#reject-form-local');
-            var rejectCancel = modal.querySelector('#reject-cancel-local');
-
-            // lock body scroll while modal is open and restore on close
-            document.body.style.overflow = 'hidden';
-            function restoreBodyScroll() { document.body.style.overflow = ''; }
-            // ensure restore when modal removed
-            var originalRemove = removeModal;
-            removeModal = function () { restoreBodyScroll(); originalRemove(); };
-
-            function showReject() {
-                if (rejectForm) {
-                    rejectForm.classList.remove('hidden');
-                    // focus first input when shown
-                    var input = rejectForm.querySelector('input[name="note"]');
-                    if (input) input.focus();
-                }
-            }
-            function hideReject() { if (rejectForm) rejectForm.classList.add('hidden'); }
-
-            if (openReject) openReject.addEventListener('click', showReject);
-            if (rejectCancel) rejectCancel.addEventListener('click', hideReject);
-        }
-
-        // Auto-refresh daftar withdraw setiap 30 detik jika tidak sedang membuka modal atau hover
-        setInterval(function() {
-            var modalContainer = document.getElementById('admin-withdraw-modal-container');
-            var isModalOpen = modalContainer && modalContainer.children.length > 0;
+        // Auto-refresh daftar withdraw setiap 30 detik jika filter tidak sedang diisi atau tabel tidak di-hover
+        setInterval(function () {
             var isInputFocused = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
             var currentTable = document.querySelector('.bg-white.rounded-2xl.shadow-lg');
             var isHovering = currentTable && currentTable.matches(':hover');
-            if (!isModalOpen && !isInputFocused && !isHovering) {
-                // Fetch silent update
-                fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                    .then(function(res) { return res.text(); })
-                    .then(function(html) {
-                        var parser = new DOMParser();
-                        var doc = parser.parseFromString(html, 'text/html');
-                        var newTable = doc.querySelector('.bg-white.rounded-2xl.shadow-lg');
-                        if (newTable && currentTable && !currentTable.matches(':hover')) {
-                            currentTable.innerHTML = newTable.innerHTML;
-                            // Re-bind modal triggers
-                            document.querySelectorAll('.open-withdraw-modal').forEach(function (btn) {
-                                btn.addEventListener('click', function () {
-                                    var id = this.getAttribute('data-id');
-                                    var container = document.getElementById('admin-withdraw-modal-container');
-                                    fetch('/admin/withdraws/' + id + '/modal')
-                                        .then(function (res) { return res.text(); })
-                                        .then(function (mHtml) {
-                                            container.innerHTML = mHtml;
-                                            initAdminWithdrawModal(container);
-                                            window.scrollTo(0, 0);
-                                        });
-                                });
-                            });
-                        }
-                    })
-                    .catch(function(e) { /* ignore */ });
+
+            if (isInputFocused || isHovering) {
+                return;
             }
+
+            fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (res) { return res.text(); })
+                .then(function (html) {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    var newTable = doc.querySelector('.bg-white.rounded-2xl.shadow-lg');
+                    if (newTable && currentTable && !currentTable.matches(':hover')) {
+                        currentTable.innerHTML = newTable.innerHTML;
+                    }
+                })
+                .catch(function () { /* ignore */ });
         }, 30000);
     </script>
 @endsection

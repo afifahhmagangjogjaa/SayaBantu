@@ -227,17 +227,13 @@ class AdminWithdrawController extends Controller
         return view('admin.withdraws.show', ['withdraw' => $withdraw]);
     }
 
-    /** Return withdraw details as a partial for modal (AJAX) */
+    /** Return withdraw details as a partial for modal (AJAX, hanya area Super Admin) */
     public function modal(WithdrawRequest $withdraw)
     {
         $this->ensureWithinManagedCities($withdraw);
         $withdraw->load('user');
-        $routeName = request()->route() ? request()->route()->getName() : null;
-        if ($routeName && strpos($routeName, 'superadmin.') === 0) {
-            return view('superadmin.withdraws._modal', ['withdraw' => $withdraw]);
-        }
 
-        return view('admin.withdraws._modal', ['withdraw' => $withdraw]);
+        return view('superadmin.withdraws._modal', ['withdraw' => $withdraw]);
     }
 
     /** Approve and perform deduction */
