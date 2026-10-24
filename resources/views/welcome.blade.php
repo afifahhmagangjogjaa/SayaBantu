@@ -98,7 +98,7 @@
         <!-- CTA & Footer Section -->
         <footer class="px-6 pb-8 sm:pb-10 pt-2 shrink-0">
             <!-- Mulai Sekarang Button -->
-            <a href="{{ route('login') }}"
+            <a href="{{ route('login') }}" wire:navigate
                class="w-full flex items-center justify-center py-4 sm:py-4.5 rounded-full bg-[#0066FF] hover:bg-[#0055D4] active:scale-[0.98] text-white font-bold text-base shadow-md shadow-blue-500/25 transition cursor-pointer">
                 Mulai Sekarang
             </a>

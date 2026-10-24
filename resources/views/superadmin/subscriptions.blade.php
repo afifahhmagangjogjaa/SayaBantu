@@ -9,7 +9,7 @@
         <p class="text-sm text-gray-600 mt-3">Halaman pengelolaan langganan mitra untuk Superadmin telah dihapus.
         </p>
         <div class="mt-6">
-            <a href="{{ route('superadmin.dashboard') }}"
+            <a href="{{ route('superadmin.dashboard') }}" wire:navigate
                 class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg">Kembali ke
                 Dashboard</a>
         </div>

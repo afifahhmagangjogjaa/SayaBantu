@@ -32,7 +32,7 @@
                         <button class="flex-1 px-3 py-2 bg-primary-500 text-white rounded-lg text-sm">Hubungi</button>
                     @endif
 
-                    <a href="{{ route('customer.helps.index') }}"
+                    <a href="{{ route('customer.helps.index') }}" wire:navigate
                         class="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm text-center">Kembali</a>
                 </div>
             </div>

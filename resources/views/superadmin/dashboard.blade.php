@@ -128,7 +128,7 @@
 
                 <div class="grid grid-cols-3 gap-3">
                     <!-- Kelola User -->
-                    <a href="{{ route('superadmin.users') }}" class="group bg-blue-50/60 hover:bg-blue-100/70 rounded-xl py-4 px-3 border border-blue-100 transition-all duration-200 hover:shadow-xs flex flex-col items-center text-center">
+                    <a href="{{ route('superadmin.users') }}" wire:navigate class="group bg-blue-50/60 hover:bg-blue-100/70 rounded-xl py-4 px-3 border border-blue-100 transition-all duration-200 hover:shadow-xs flex flex-col items-center text-center">
                         <div class="w-11 h-11 rounded-xl bg-white shadow-xs flex items-center justify-center mb-3.5 group-hover:scale-105 transition-transform">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -139,7 +139,7 @@
                     </a>
 
                     <!-- Kelola Kota -->
-                    <a href="{{ route('superadmin.cities') }}" class="group bg-emerald-50/60 hover:bg-emerald-100/70 rounded-xl py-4 px-3 border border-emerald-100 transition-all duration-200 hover:shadow-xs flex flex-col items-center text-center">
+                    <a href="{{ route('superadmin.cities') }}" wire:navigate class="group bg-emerald-50/60 hover:bg-emerald-100/70 rounded-xl py-4 px-3 border border-emerald-100 transition-all duration-200 hover:shadow-xs flex flex-col items-center text-center">
                         <div class="w-11 h-11 rounded-xl bg-white shadow-xs flex items-center justify-center mb-3.5 group-hover:scale-105 transition-transform">
                             <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -150,7 +150,7 @@
                     </a>
 
                     <!-- Pengaturan Bantuan -->
-                    <a href="{{ route('superadmin.settings.help') }}" class="group bg-amber-50/60 hover:bg-amber-100/70 rounded-xl py-4 px-3 border border-amber-100 transition-all duration-200 hover:shadow-xs flex flex-col items-center text-center">
+                    <a href="{{ route('superadmin.settings.help') }}" wire:navigate class="group bg-amber-50/60 hover:bg-amber-100/70 rounded-xl py-4 px-3 border border-amber-100 transition-all duration-200 hover:shadow-xs flex flex-col items-center text-center">
                         <div class="w-11 h-11 rounded-xl bg-white shadow-xs flex items-center justify-center mb-3.5 group-hover:scale-105 transition-transform">
                             <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c.79 0 1.5.3 2.04.78L20 14v6a1 1 0 01-1 1h-6l-5.22-5.22A4 4 0 1112 8z"/>
@@ -163,7 +163,7 @@
             </div>
 
             <div class="mt-4 pt-3 border-t border-gray-100">
-                <a href="{{ route('superadmin.transactions.log') }}" class="text-xs font-medium text-primary-600 hover:text-primary-700 flex items-center justify-between">
+                <a href="{{ route('superadmin.transactions.log') }}" wire:navigate class="text-xs font-medium text-primary-600 hover:text-primary-700 flex items-center justify-between">
                     <span>Lihat Financial Report</span>
                     <span>&rarr;</span>
                 </a>
@@ -233,7 +233,7 @@
                         </div>
                         <h2 class="text-base sm:text-lg font-medium text-gray-900">Permintaan Terbaru</h2>
                     </div>
-                    <a href="{{ route('superadmin.helps.approved') }}" class="text-xs font-medium text-primary-600 hover:text-primary-700">Semua &rarr;</a>
+                    <a href="{{ route('superadmin.helps.approved') }}" wire:navigate class="text-xs font-medium text-primary-600 hover:text-primary-700">Semua &rarr;</a>
                 </div>
 
                 @if($recentHelps->isEmpty())

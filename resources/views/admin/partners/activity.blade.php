@@ -112,7 +112,7 @@
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-gray-700">Filter Aktivitas</p>
                     @if (request()->hasAny(['search', 'type', 'start_date', 'end_date']))
-                        <a href="{{ route('admin.partners.activity') }}"
+                        <a href="{{ route('admin.partners.activity') }}" wire:navigate
                             class="text-[11px] text-gray-400 hover:text-gray-600 underline">Reset filter</a>
                     @endif
                 </div>
@@ -215,7 +215,7 @@
                     </p>
                     @if(request()->has('search') || request()->has('type') || request()->has('start_date'))
                         <p class="text-gray-400 text-xs mt-1">
-                            Coba klik <a href="{{ route('admin.partners.activity') }}" class="underline text-primary-600">Reset filter</a> untuk melihat seluruh aktivitas.
+                            Coba klik <a href="{{ route('admin.partners.activity') }}" wire:navigate class="underline text-primary-600">Reset filter</a> untuk melihat seluruh aktivitas.
                         </p>
                     @endif
                 </div>
@@ -268,7 +268,7 @@
                                     data-activity-type="{{ $a->activity_type }}">
                                     <td class="px-2.5 py-2.5 whitespace-nowrap">
                                         @if($a->user)
-                                            <a href="{{ route('admin.users.show', $a->user) }}"
+                                            <a href="{{ route('admin.users.show', $a->user) }}" wire:navigate
                                                 title="{{ $a->user->name }}"
                                                 class="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline block truncate max-w-[180px]">
                                                 {{ $a->user->name }}

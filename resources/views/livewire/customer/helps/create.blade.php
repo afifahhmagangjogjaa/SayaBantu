@@ -66,7 +66,7 @@
 
                 <div class="relative z-10">
                     <div class="flex items-center justify-between text-white mb-3">
-                        <a href="{{ route('customer.dashboard') }}" aria-label="Kembali ke Dashboard"
+                        <a href="{{ route('customer.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard"
                             class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -121,7 +121,7 @@
                         @endif
 
                         <div class="flex flex-col gap-2.5">
-                            <a href="{{ route('profile.edit') }}"
+                            <a href="{{ route('profile.edit') }}" wire:navigate
                                class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs shadow-md hover:shadow-lg transition flex items-center justify-center gap-2"
                                 style="background: linear-gradient(to right, #0066FF, #0052CC);">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,7 +129,7 @@
                                 </svg>
                                 Lengkapi Profil Sekarang
                             </a>
-                            <a href="{{ route('customer.dashboard') }}"
+                            <a href="{{ route('customer.dashboard') }}" wire:navigate
                                class="w-full py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center justify-center">
                                 Kembali ke Beranda
                             </a>
@@ -148,14 +148,14 @@
                         </p>
 
                         <div class="flex flex-col gap-2.5">
-                            <a href="{{ route('profile.settings.verification') }}"
+                            <a href="{{ route('profile.settings.verification') }}" wire:navigate
                                class="w-full py-3 px-4 rounded-xl text-amber-800 bg-amber-50 border border-amber-200 font-bold text-xs shadow-xs hover:bg-amber-100 transition flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                                 Cek Status Dokumen KTP
                             </a>
-                            <a href="{{ route('customer.dashboard') }}"
+                            <a href="{{ route('customer.dashboard') }}" wire:navigate
                                class="w-full py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center justify-center">
                                 Kembali ke Beranda
                             </a>
@@ -193,13 +193,13 @@
                                 </button>
                             </form>
 
-                            <a href="{{ route('customer.helps.index') }}"
+                            <a href="{{ route('customer.helps.index') }}" wire:navigate
                                class="w-full py-3 px-4 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 text-white shadow-md hover:opacity-95"
                                style="background: linear-gradient(to right, #0066FF, #0052CC);">
                                 Lihat Bantuan Saya
                             </a>
 
-                            <a href="{{ route('customer.dashboard') }}"
+                            <a href="{{ route('customer.dashboard') }}" wire:navigate
                                class="w-full py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center justify-center">
                                 Kembali ke Beranda
                             </a>
@@ -833,7 +833,7 @@
 
                         <!-- Submit Button -->
                         <div class="flex gap-3 pt-4">
-                            <a href="{{ route('dashboard') }}"
+                            <a href="{{ route('dashboard') }}" wire:navigate
                                 class="flex-1 inline-flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-5 py-3 text-sm rounded-lg font-semibold hover:bg-gray-50 transition text-center">
                                 Batal
                             </a>
@@ -1330,7 +1330,7 @@
                             onmouseout="this.style.background='#ffffff';">
                             Tutup
                         </button>
-                        <a href="{{ route('customer.topup.history') }}"
+                        <a href="{{ route('customer.topup.history') }}" wire:navigate
                             style="flex: 2; height: 44px; border-radius: 12px; text-decoration: none; background: #d97706; color: #ffffff; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35); transition: opacity 0.2s;"
                             onmouseover="this.style.opacity='0.95';"
                             onmouseout="this.style.opacity='1';">
@@ -1501,7 +1501,7 @@
                 </p>
 
                 <div class="flex flex-col gap-2.5">
-                    <a href="{{ route('customer.helps.index') }}" 
+                    <a href="{{ route('customer.helps.index') }}" wire:navigate 
                        class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs shadow-md hover:shadow-lg transition flex items-center justify-center gap-2"
                        style="background: linear-gradient(to right, #0066FF, #0052CC);">
                         <span>Lihat Permintaan Saya</span>
@@ -1509,7 +1509,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                     </a>
-                    <a href="{{ route('customer.dashboard') }}" 
+                    <a href="{{ route('customer.dashboard') }}" wire:navigate 
                        class="w-full py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition">
                         Kembali ke Beranda
                     </a>

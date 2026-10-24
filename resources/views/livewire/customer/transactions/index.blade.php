@@ -7,7 +7,7 @@
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
-                    <a href="{{ route('customer.dashboard') }}" aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
+                    <a href="{{ route('customer.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -40,7 +40,7 @@
                         <p class="text-[11px] text-gray-500 font-medium">Saldo Tersedia</p>
                         <p class="text-xl font-black text-gray-900 mt-0.5 tracking-tight">Rp {{ number_format($user->balance ?? 0, 0, ',', '.') }}</p>
                     </div>
-                    <a href="{{ route('customer.topup') }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5">
+                    <a href="{{ route('customer.topup') }}" wire:navigate class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
@@ -241,7 +241,7 @@
                                             {{ $t->description ?? 'Pembayaran jasa ke mitra' }}
                                         </div>
                                         @if($t->reference_id)
-                                            <a href="{{ route('customer.helps.detail', $t->reference_id) }}" wire:click.stop class="text-blue-600 font-semibold hover:underline flex-shrink-0 inline-flex items-center gap-0.5">
+                                            <a href="{{ route('customer.helps.detail', $t->reference_id) }}" wire:navigate wire:click.stop class="text-blue-600 font-semibold hover:underline flex-shrink-0 inline-flex items-center gap-0.5">
                                                 Lihat Bantuan &rarr;
                                             </a>
                                         @else
@@ -493,7 +493,7 @@
                 <!-- Sticky Modal Footer -->
                 <div class="bg-white border-t border-gray-100 p-4 shrink-0 space-y-2">
                     @if(!empty($selectedTransaction['reference_id']))
-                        <a href="{{ route('customer.helps.detail', $selectedTransaction['reference_id']) }}" class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-xs">
+                        <a href="{{ route('customer.helps.detail', $selectedTransaction['reference_id']) }}" wire:navigate class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-xs">
                             Buka Halaman Bantuan #{{ $selectedTransaction['reference_id'] }}
                         </a>
                     @endif

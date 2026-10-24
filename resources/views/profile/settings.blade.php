@@ -10,12 +10,12 @@
             
             <div class="relative max-w-md mx-auto px-6 pt-4 pb-6">
                 <div class="flex items-center justify-between mb-6">
-                    <a href="{{ route('profile') }}" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition">
+                    <a href="{{ route('profile') }}" wire:navigate class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
                     </a>
-                    <a href="{{ route('customer.notifications.index') }}" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition">
+                    <a href="{{ route('customer.notifications.index') }}" wire:navigate class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -58,7 +58,7 @@
                         <h2 class="text-xl font-bold text-gray-900 mb-1">Berhasil!</h2>
                         <p class="text-sm text-gray-600 mb-6">{{ $successMsg }}</p>
                         
-                        <a href="{{ route('profile') }}" 
+                        <a href="{{ route('profile') }}" wire:navigate 
                            class="block w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer text-center"
                            style="background: linear-gradient(to bottom right, #0066FF, #003EA8);">
                             Oke
@@ -69,7 +69,7 @@
 
             <div class="space-y-3">
                 <!-- Notification Settings -->
-                <a href="{{ route('profile.settings.notifications') }}"
+                <a href="{{ route('profile.settings.notifications') }}" wire:navigate
                     class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-[#0066FF]/30 transition">
                     <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #0066FF 0%, #003EA8 100%);">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +87,7 @@
                 </a>
 
                 <!-- Password Settings -->
-                <a href="{{ route('profile.settings.password') }}"
+                <a href="{{ route('profile.settings.password') }}" wire:navigate
                     class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-[#0066FF]/30 transition">
                     <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #0066FF 0%, #003EA8 100%);">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

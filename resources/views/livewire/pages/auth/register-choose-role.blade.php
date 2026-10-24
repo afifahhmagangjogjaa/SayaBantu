@@ -106,7 +106,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
             {{-- ========== CUSTOMER CARD ========== --}}
             <div class="w-full rounded-2xl border-2 border-slate-100 bg-white overflow-hidden hover:border-[#0066FF] hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-200 group">
-                <a href="{{ route('register', ['role' => 'customer']) }}"
+                <a href="{{ route('register', ['role' => 'customer']) }}" wire:navigate
                     class="flex items-center gap-4 p-5 cursor-pointer block active:scale-[0.99] transition-transform">
                     <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-100 text-[#0066FF] flex items-center justify-center flex-shrink-0 group-hover:from-[#0066FF] group-hover:to-blue-600 group-hover:text-white transition-all duration-200 shadow-sm">
                         <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -131,7 +131,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
             {{-- ========== MITRA CARD ========== --}}
             <div class="w-full rounded-2xl border-2 border-slate-100 bg-white overflow-hidden hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-200 group">
-                <a href="{{ route('register', ['role' => 'mitra']) }}"
+                <a href="{{ route('register', ['role' => 'mitra']) }}" wire:navigate
                     class="flex items-center gap-4 p-5 cursor-pointer block active:scale-[0.99] transition-transform">
                     <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:from-emerald-500 group-hover:to-emerald-600 group-hover:text-white transition-all duration-200 shadow-sm">
                         <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M20 7h-4V5l-2-2h-4L8 5v2H4c-1.1 0-2 .9-2 2v5c0 .75.4 1.41 1 1.78V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3.22c.6-.37 1-1.03 1-1.78V9c0-1.1-.9-2-2-2zm-8-2h4v2h-4V5zm0 10H5v-2h7v2zm2 0v-2h2v2h-2zm4 0h-2v-2h2v2zm0-4H5V9h14v2z"/></svg>
@@ -166,7 +166,7 @@ new #[Layout('layouts.guest')] class extends Component {
     <div class="mt-6 pt-4 pb-2 text-center border-t border-slate-100">
         <p class="text-sm text-gray-500 font-medium">
             Sudah punya akun?
-            <a href="{{ route('login') }}" class="text-[#0066FF] font-bold hover:underline ml-1">Login</a>
+            <a href="{{ route('login') }}" wire:navigate class="text-[#0066FF] font-bold hover:underline ml-1">Login</a>
         </p>
     </div>
 

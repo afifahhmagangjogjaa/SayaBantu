@@ -8,7 +8,7 @@
                 <p class="text-sm text-gray-600 mt-1">Detail permintaan tarik saldo dan aksi approve/reject oleh SuperAdmin.</p>
             </div>
             <div>
-                <a href="{{ route('superadmin.withdraws.index') }}"
+                <a href="{{ route('superadmin.withdraws.index') }}" wire:navigate
                     class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition">
                     &larr; Kembali
                 </a>

@@ -8,7 +8,7 @@
                 <p class="text-sm text-gray-500 mt-1">Informasi permintaan tarik saldo dari mitra (hanya tampilan, proses dilakukan oleh Super Admin).</p>
             </div>
             <div>
-                <a href="{{ route('admin.withdraws.index') }}"
+                <a href="{{ route('admin.withdraws.index') }}" wire:navigate
                     class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl text-sm transition">
                     &larr; Kembali
                 </a>

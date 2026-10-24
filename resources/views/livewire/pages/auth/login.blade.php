@@ -144,7 +144,7 @@ new #[Layout('layouts.guest')] class extends Component {
                         Password
                     </label>
                     @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}"
+                        <a href="{{ route('password.request') }}" wire:navigate
                             class="text-[11px] font-semibold text-[#0066FF] hover:underline">
                             Lupa password?
                         </a>
@@ -213,7 +213,7 @@ new #[Layout('layouts.guest')] class extends Component {
         <div class="mt-4 text-center">
             <p class="text-xs sm:text-sm text-gray-500 font-medium">
                 Belum punya akun?
-                <a href="{{ route('register.choose-role') }}" class="font-bold text-[#0066FF] hover:underline ml-1">
+                <a href="{{ route('register.choose-role') }}" wire:navigate class="font-bold text-[#0066FF] hover:underline ml-1">
                     Daftar
                 </a>
             </p>

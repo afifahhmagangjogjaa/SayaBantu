@@ -43,7 +43,7 @@ x-on:profile-saved.window="
             <p class="text-xs text-amber-800 mb-2">
                 Untuk mengajukan atau mengambil bantuan, Anda juga wajib mengunggah Foto KTP dan Foto Selfie (Wajah &amp; KTP).
             </p>
-            <a href="{{ route('profile.settings.verification') }}" class="inline-block px-3 py-1.5 bg-amber-200 text-amber-900 font-bold rounded-lg text-xs hover:bg-amber-300 transition">
+            <a href="{{ route('profile.settings.verification') }}" wire:navigate class="inline-block px-3 py-1.5 bg-amber-200 text-amber-900 font-bold rounded-lg text-xs hover:bg-amber-300 transition">
                 Ke Halaman Upload &rarr;
             </a>
         </div>

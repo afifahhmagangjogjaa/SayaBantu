@@ -74,7 +74,7 @@
 
                 <!-- Navigation Tabs - BRImo Style -->
                 <div role="tablist" aria-label="Menu Bantuan" class="flex items-center gap-2 mb-4 overflow-x-auto hide-scrollbar py-2 px-1">
-                    <a href="{{ route('mitra.helps.all') }}" 
+                    <a href="{{ route('mitra.helps.all') }}" wire:navigate 
                         class="inline-flex items-center px-4 py-2 rounded-full text-xs font-semibold transition whitespace-nowrap bg-white/10 text-white/90 hover:bg-white/20">
                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -82,7 +82,7 @@
                         Tersedia
                     </a>
 
-                    <a href="{{ route('mitra.helps.processing') }}" 
+                    <a href="{{ route('mitra.helps.processing') }}" wire:navigate 
                         class="inline-flex items-center px-4 py-2 rounded-full text-xs font-semibold transition whitespace-nowrap bg-white/10 text-white/90 hover:bg-white/20">
                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -90,7 +90,7 @@
                         Sedang Dikerjakan
                     </a>
 
-                    <a href="{{ route('mitra.helps.completed') }}" 
+                    <a href="{{ route('mitra.helps.completed') }}" wire:navigate 
                         class="inline-flex items-center px-4 py-2 rounded-full text-xs font-semibold transition whitespace-nowrap bg-white text-[#0066FF] shadow-md">
                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

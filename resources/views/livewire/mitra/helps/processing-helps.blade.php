@@ -278,7 +278,7 @@
                                         <span class="text-xs text-gray-500 truncate max-w-[150px]">👤 {{ optional($help->user)->name ?? 'Customer' }}</span>
                                         <div class="flex items-center gap-1.5">
                                             @if($tab === 'diproses')
-                                                <a href="{{ route('mitra.chat', ['help' => $help->id]) }}" 
+                                                <a href="{{ route('mitra.chat', ['help' => $help->id]) }}" wire:navigate 
                                                     class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" 
                                                     title="Chat Customer" aria-label="Chat Customer">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +287,7 @@
                                                     </svg>
                                                 </a>
                                             @endif
-                                            <a href="{{ route('mitra.helps.detail', $help->id) }}" class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">
+                                            <a href="{{ route('mitra.helps.detail', $help->id) }}" wire:navigate class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">
                                                 Detail
                                             </a>
                                         </div>

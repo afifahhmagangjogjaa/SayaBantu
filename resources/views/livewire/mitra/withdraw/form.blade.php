@@ -21,7 +21,7 @@
                             <p class="text-xs text-white/90 mt-0.5">Ajukan penarikan dana dengan mudah</p>
                         </div>
 
-                        <a href="{{ route('mitra.withdraw.history') }}" class="p-2 hover:bg-white/20 rounded-lg transition">
+                        <a href="{{ route('mitra.withdraw.history') }}" wire:navigate class="p-2 hover:bg-white/20 rounded-lg transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -79,7 +79,7 @@
                     Pengajuan tarik saldo Anda sedang diproses oleh admin. Mohon tunggu 1-5 hari kerja. 
                     Anda akan menerima notifikasi ketika status berubah.
                 </p>
-                <a href="{{ route('mitra.withdraw.history') }}" class="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition-all shadow-sm">
+                <a href="{{ route('mitra.withdraw.history') }}" wire:navigate class="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition-all shadow-sm">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
@@ -234,7 +234,7 @@
 
                     <!-- Action Buttons -->
                     <div class="flex gap-3">
-                        <a href="{{ route('mitra.withdraw.history') }}" class="px-4 py-2.5 border border-gray-300 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center">
+                        <a href="{{ route('mitra.withdraw.history') }}" wire:navigate class="px-4 py-2.5 border border-gray-300 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center">
                             Riwayat
                         </a>
                         <button type="submit" id="btn-submit-withdraw"

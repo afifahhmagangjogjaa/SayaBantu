@@ -14,7 +14,7 @@
             <div class="p-4 sm:p-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
                     <!-- 1. Fee & Pendapatan -->
-                    <a href="{{ route('superadmin.pengaturan.bantuan.fee-pendapatan') }}"
+                    <a href="{{ route('superadmin.pengaturan.bantuan.fee-pendapatan') }}" wire:navigate
                        class="group block bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md hover:border-emerald-300 transition-all duration-200">
                         <div class="flex items-start gap-4">
                             <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-100 transition">
@@ -33,7 +33,7 @@
                     </a>
 
                     <!-- 2. Biaya Top-Up & Bank -->
-                    <a href="{{ route('superadmin.pengaturan.bantuan.biaya-topup') }}"
+                    <a href="{{ route('superadmin.pengaturan.bantuan.biaya-topup') }}" wire:navigate
                        class="group block bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md hover:border-blue-300 transition-all duration-200">
                         <div class="flex items-start gap-4">
                             <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 transition">
@@ -52,7 +52,7 @@
                     </a>
 
                     <!-- 3. Tarif & Radius -->
-                    <a href="{{ route('superadmin.pengaturan.bantuan.tarif-radius') }}"
+                    <a href="{{ route('superadmin.pengaturan.bantuan.tarif-radius') }}" wire:navigate
                        class="group block bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md hover:border-indigo-300 transition-all duration-200">
                         <div class="flex items-start gap-4">
                             <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-100 transition">

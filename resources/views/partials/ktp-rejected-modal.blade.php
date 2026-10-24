@@ -42,7 +42,7 @@
         </div>
 
         <!-- Action Button -->
-        <a href="{{ route('profile.settings.verification') }}" 
+        <a href="{{ route('profile.settings.verification') }}" wire:navigate 
            style="background-color: #dc2626 !important; color: #ffffff !important;"
            class="w-full py-2.5 px-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-md shadow-red-200 transition flex items-center justify-center gap-1.5">
             <span>Perbaiki Dokumen</span>

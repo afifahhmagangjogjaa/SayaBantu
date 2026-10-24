@@ -8,7 +8,7 @@
             <div class="relative z-10">
                 @if(!$selected_help_id)
                     <div class="flex items-center justify-between text-white mb-3">
-                        <a href="{{ route('customer.dashboard') }}" aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition text-white">
+                        <a href="{{ route('customer.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition text-white">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
@@ -30,7 +30,7 @@
                 @else
                     <div class="flex items-center justify-between gap-2 text-white mb-2">
                         <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                            <a href="{{ route('customer.chat') }}" aria-label="Kembali ke Daftar Chat" class="p-1.5 hover:bg-white/20 rounded-lg transition text-white flex-shrink-0">
+                            <a href="{{ route('customer.chat') }}" wire:navigate aria-label="Kembali ke Daftar Chat" class="p-1.5 hover:bg-white/20 rounded-lg transition text-white flex-shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                                 </svg>
@@ -62,7 +62,7 @@
 
                         <div class="flex items-center gap-1.5 flex-shrink-0">
                             @if($latestReport && in_array($latestReport->status, ['pending', 'in_progress', 'processing']))
-                                <a href="{{ route('customer.reports.show', $latestReport->id) }}" 
+                                <a href="{{ route('customer.reports.show', $latestReport->id) }}" wire:navigate 
                                     class="px-2.5 py-1 text-xs font-semibold text-red-600 rounded-lg bg-white hover:bg-red-50 transition shadow-xs">
                                     Laporkan
                                 </a>

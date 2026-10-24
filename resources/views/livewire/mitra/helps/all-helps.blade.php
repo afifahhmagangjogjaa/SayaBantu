@@ -147,7 +147,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <a href="{{ route('profile.settings.verification') }}"
+                            <a href="{{ route('profile.settings.verification') }}" wire:navigate
                                class="flex-shrink-0 font-bold px-3 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 shadow-xs"
                                style="background: linear-gradient(135deg, #0066FF, #0052CC); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
                                 {{ $hasKtpUploaded ? 'Cek Status' : 'Verifikasi' }}
@@ -161,7 +161,7 @@
                         <div class="font-semibold">Atur kota Anda terlebih dahulu</div>
                         <div class="mt-1">Untuk melihat bantuan yang tersedia di daerah Anda, silakan tentukan Kota/Kabupaten Anda di halaman profil.</div>
                         <div class="mt-3">
-                            <a href="{{ route('mitra.profile') }}" class="inline-block px-3 py-2 bg-yellow-600 text-white rounded-lg text-xs">Buka Profil</a>
+                            <a href="{{ route('mitra.profile') }}" wire:navigate class="inline-block px-3 py-2 bg-yellow-600 text-white rounded-lg text-xs">Buka Profil</a>
                         </div>
                     </div>
                 @endif
@@ -431,7 +431,7 @@
                         Tidak Dapat Diambil
                     </button>
                     @if(auth()->check() && !auth()->user()->isProfileComplete())
-                        <a href="{{ route('mitra.profile.edit') }}" class="flex-1 bg-red-600 text-white py-2.5 px-4 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
+                        <a href="{{ route('mitra.profile.edit') }}" wire:navigate class="flex-1 bg-red-600 text-white py-2.5 px-4 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
                             Lengkapi Biodata
                         </a>
                     @elseif(auth()->check() && !auth()->user()->verified)
