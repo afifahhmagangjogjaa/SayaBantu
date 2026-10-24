@@ -27,10 +27,11 @@ class RolePagesTest extends TestCase
             'email_verified_at' => now(),
             'name' => 'Pengguna '.$role,
             'phone' => '081234567890',
-            'nik' => '3402123456780001',
+            // NIK unik: satu test bisa membuat beberapa user sekaligus.
+            'nik' => fake()->unique()->numerify('################'),
             'address' => 'Jl. Test No. 1',
             'gender' => 'Laki-laki',
-            'city_id' => City::create(['name' => 'Kota Test', 'is_active' => true])->id,
+            'city_id' => City::create(['name' => 'Kota Test '.fake()->unique()->numerify('###'), 'is_active' => true])->id,
         ]);
     }
 
@@ -50,6 +51,8 @@ class RolePagesTest extends TestCase
             'profil' => ['profile'],
             'edit profil' => ['profile.edit'],
             'pengaturan profil' => ['profile.settings'],
+            'pengaturan notifikasi' => ['profile.settings.notifications'],
+            'pengaturan sandi' => ['profile.settings.password'],
             'verifikasi profil' => ['profile.settings.verification'],
         ];
     }
@@ -67,6 +70,8 @@ class RolePagesTest extends TestCase
             'rating' => ['mitra.ratings'],
             'chat' => ['mitra.chat'],
             'pengaturan' => ['mitra.settings'],
+            'pengaturan notifikasi' => ['mitra.settings.notifications'],
+            'pengaturan sandi' => ['mitra.settings.password'],
             'help support' => ['mitra.help-support'],
             'tarik saldo' => ['mitra.withdraw.form'],
             'riwayat tarik saldo' => ['mitra.withdraw.history'],
@@ -110,6 +115,7 @@ class RolePagesTest extends TestCase
             'banner' => ['superadmin.settings.banners'],
             'approval topup' => ['superadmin.topup.approvals'],
             'admin user' => ['superadmin.admin.users'],
+            'penarikan saldo' => ['superadmin.withdraws.index'],
         ];
     }
 
@@ -151,5 +157,51 @@ class RolePagesTest extends TestCase
         $this->actingAs($this->userFor('super_admin'))
             ->get(route($routeName))
             ->assertSuccessful();
+    }
+
+    /**
+     * Halaman customer/mitra yang memakai partial bersama harus tetap
+     * merender isi partial dan memakai route milik perannya masing-masing.
+     */
+    public function test_halaman_berbagi_partial_merender_konten_dan_route_yang_benar(): void
+    {
+        Category::create(['name' => 'Kategori Test', 'is_active' => true]);
+
+        $this->actingAs($this->userFor('customer'))
+            ->get(route('customer.help-support'))
+            ->assertSuccessful()
+            ->assertSee('Frequently Asked Questions')
+            ->assertSee('Hubungi Kami')
+            ->assertSee(route('profile'), false);
+
+        $this->actingAs($this->userFor('customer'))
+            ->get(route('profile.settings.notifications'))
+            ->assertSuccessful()
+            ->assertSee('Kelola preferensi pemberitahuan')
+            ->assertSee(route('customer.notifications.index'), false);
+
+        $this->actingAs($this->userFor('customer'))
+            ->get(route('profile.settings.password'))
+            ->assertSuccessful()
+            ->assertSee('Ubah Kata Sandi')
+            ->assertSee(route('profile.password.update'), false);
+
+        $this->actingAs($this->userFor('mitra'))
+            ->get(route('mitra.help-support'))
+            ->assertSuccessful()
+            ->assertSee('Frequently Asked Questions')
+            ->assertSee(route('mitra.profile'), false);
+
+        $this->actingAs($this->userFor('mitra'))
+            ->get(route('mitra.settings.notifications'))
+            ->assertSuccessful()
+            ->assertSee('Kelola preferensi pemberitahuan')
+            ->assertSee(route('mitra.notifications.index'), false);
+
+        $this->actingAs($this->userFor('mitra'))
+            ->get(route('mitra.settings.password'))
+            ->assertSuccessful()
+            ->assertSee('Ubah Kata Sandi')
+            ->assertSee(route('mitra.profile'), false);
     }
 }
