@@ -17,11 +17,12 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasAccountStatus;
     use HasBalanceWallet;
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+
     use HasOrderQuota;
     use HasProfileCompleteness;
-
     use HasRatingStats;
 
     protected static function booted()
