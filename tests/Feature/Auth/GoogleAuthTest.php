@@ -325,4 +325,76 @@ class GoogleAuthTest extends TestCase
 
         $this->assertAuthenticatedAs($user);
     }
+
+    public function test_login_google_mencatat_aktivitas_dan_tidak_menyimpan_remember_token(): void
+    {
+        $user = $this->user('customer', ['email' => 'aktivitas@example.com', 'google_id' => 'google-17']);
+        $user->forceFill(['remember_token' => null])->saveQuietly();
+
+        $this->fakeGoogle('google-17', 'aktivitas@example.com');
+
+        $this->get(route('auth.google.callback'))
+            ->assertRedirect(route('customer.dashboard'));
+
+        $this->assertDatabaseHas('partner_activities', [
+            'user_id' => $user->id,
+            'activity_type' => 'login',
+        ]);
+
+        // Default login manual tidak memakai "remember me"; Google harus sama.
+        $this->assertNull($user->fresh()->remember_token);
+    }
+
+    public function test_akun_yang_ditolak_mencatat_login_gagal(): void
+    {
+        $user = $this->user('customer', ['email' => 'catat-gagal@example.com', 'status' => 'inactive']);
+
+        $this->fakeGoogle('google-18', 'catat-gagal@example.com');
+
+        $this->get(route('auth.google.callback'))->assertRedirect(route('login'));
+
+        $this->assertDatabaseHas('partner_activities', [
+            'user_id' => $user->id,
+            'activity_type' => 'login_failed',
+        ]);
+    }
+
+    public function test_error_google_tidak_membocorkan_detail_ke_user(): void
+    {
+        Socialite::shouldReceive('driver->user')
+            ->andThrow(new \RuntimeException('invalid_client: client_id=SECRET123&redirect_uri=https://rahasia'));
+
+        $response = $this->get(route('auth.google.callback'));
+
+        $response->assertRedirect(route('login'));
+
+        $error = session('error');
+
+        $this->assertNotNull($error);
+        $this->assertStringNotContainsString('SECRET123', (string) $error);
+        $this->assertStringNotContainsString('client_id', (string) $error);
+        $this->assertStringContainsString('Gagal login lewat Google', (string) $error);
+    }
+
+    public function test_halaman_masuk_google_dibatasi_rate_limit(): void
+    {
+        Socialite::shouldReceive('driver->redirect')
+            ->andReturn(redirect('https://accounts.google.com/o/oauth2/auth'));
+
+        for ($i = 0; $i < 20; $i++) {
+            $this->get(route('auth.google'))->assertRedirect();
+        }
+
+        $this->get(route('auth.google'))->assertStatus(429);
+    }
+
+    public function test_penyelesaian_pendaftaran_google_dibatasi_rate_limit(): void
+    {
+        for ($i = 0; $i < 10; $i++) {
+            $this->post(route('register.google.complete'), ['role' => 'customer']);
+        }
+
+        $this->post(route('register.google.complete'), ['role' => 'customer'])
+            ->assertStatus(429);
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\PartnerActivity;
 use App\Models\Registration;
 use App\Models\User;
 use App\Models\UserBalance;
@@ -16,6 +17,9 @@ class GoogleAuthController extends Controller
 {
     /** Role yang boleh dipilih saat pendaftaran lewat Google. */
     private const ALLOWED_ROLES = ['customer', 'mitra'];
+
+    /** Pesan untuk user — detail teknis hanya masuk log. */
+    private const ERROR_GENERIC = 'Gagal masuk dengan Google. Silakan coba lagi.';
 
     /**
      * Redirect user to Google OAuth consent screen.
@@ -33,7 +37,16 @@ class GoogleAuthController extends Controller
             session()->forget('oauth_intended_role');
         }
 
-        return Socialite::driver('google')->redirect();
+        // Pilihan "ingat saya" ikut melewati round-trip OAuth lewat session.
+        session(['oauth_remember' => $request->boolean('remember')]);
+
+        try {
+            return Socialite::driver('google')->redirect();
+        } catch (\Throwable $e) {
+            Log::error('Google OAuth redirect error', ['error' => $e->getMessage(), 'ip' => $request->ip()]);
+
+            return redirect()->route('login')->with('error', self::ERROR_GENERIC);
+        }
     }
 
     /**
@@ -45,11 +58,14 @@ class GoogleAuthController extends Controller
             $googleUser = Socialite::driver('google')->user();
 
             if (! $googleUser || ! $googleUser->getEmail()) {
+                Log::warning('Google OAuth callback tanpa email', ['ip' => request()->ip()]);
+
                 return redirect()->route('login')->with('error', 'Gagal mendapatkan data akun dari Google.');
             }
 
             $profile = $this->googleProfile($googleUser);
             $user = $this->findUserByGoogleProfile($profile);
+            $isNewAccount = false;
 
             if ($user) {
                 // Gerbang status: samakan dengan login manual (LoginForm), agar akun
@@ -78,13 +94,21 @@ class GoogleAuthController extends Controller
                 }
 
                 $user = $this->createUserFromGoogle($profile, $this->normalizeRole($intendedRole));
+                $isNewAccount = true;
             }
 
-            return $this->loginAndRedirect($user);
+            return $this->loginAndRedirect($user, $isNewAccount);
         } catch (\Throwable $e) {
-            Log::error('Google OAuth Error: '.$e->getMessage());
+            Log::error('Google OAuth Error', [
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+            ]);
 
-            return redirect()->route('login')->with('error', 'Gagal login via Google: '.$e->getMessage());
+            // Jangan bocorkan detail OAuth (client_id, redirect_uri, dsb) ke user.
+            $this->recordActivity(null, 'login_failed', 'Login via Google gagal: '.$e::class);
+
+            return redirect()->route('login')
+                ->with('error', 'Gagal login lewat Google. Silakan coba lagi atau masuk dengan email dan kata sandi.');
         }
     }
 
@@ -112,6 +136,7 @@ class GoogleAuthController extends Controller
 
         // Bisa terjadi bila pendaftaran juga diselesaikan di tab lain.
         $user = $this->findUserByGoogleProfile($profile);
+        $isNewAccount = false;
 
         if ($user) {
             if ($redirect = $this->blockedLoginRedirect($user)) {
@@ -121,9 +146,10 @@ class GoogleAuthController extends Controller
             $this->syncGoogleProfile($user, $profile);
         } else {
             $user = $this->createUserFromGoogle($profile, $this->normalizeRole($validated['role']));
+            $isNewAccount = true;
         }
 
-        return $this->loginAndRedirect($user);
+        return $this->loginAndRedirect($user, $isNewAccount);
     }
 
     /**
@@ -224,11 +250,19 @@ class GoogleAuthController extends Controller
         return $user;
     }
 
-    private function loginAndRedirect(User $user): RedirectResponse
+    private function loginAndRedirect(User $user, bool $isNewAccount = false): RedirectResponse
     {
-        Auth::login($user, remember: true);
+        // Tidak memaksa "remember me": samakan dengan default checkbox di
+        // form login (LoginForm::$remember = false). Login Google tetap satu klik.
+        Auth::login($user, remember: false);
         request()->session()->regenerate();
         session()->forget(['oauth_intended_role', 'google_pending']);
+
+        $this->recordActivity(
+            $user,
+            'login',
+            $isNewAccount ? 'Pendaftaran akun via Google berhasil' : 'Login via Google berhasil'
+        );
 
         return match ($user->role) {
             'mitra' => redirect()->intended(route('mitra.dashboard')),
@@ -236,6 +270,25 @@ class GoogleAuthController extends Controller
             'super_admin' => redirect()->intended(route('superadmin.dashboard')),
             default => redirect()->intended(route('customer.dashboard')),
         };
+    }
+
+    /**
+     * Catat aktivitas login/gagal login seperti yang dilakukan LoginForm,
+     * supaya laporan mitra di panel admin tidak bolong untuk jalur Google.
+     */
+    private function recordActivity(?User $user, string $type, string $description): void
+    {
+        try {
+            PartnerActivity::create([
+                'user_id' => $user?->id,
+                'activity_type' => $type,
+                'description' => $description,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->header('User-Agent'),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Gagal mencatat PartnerActivity (Google): '.$e->getMessage());
+        }
     }
 
     /**
@@ -248,22 +301,30 @@ class GoogleAuthController extends Controller
     private function blockedLoginRedirect(User $user): ?RedirectResponse
     {
         if ($redirect = $this->rejectedRegistrationRedirect((string) $user->email)) {
+            $this->recordActivity($user, 'login_failed', 'Login via Google ditolak: pendaftaran ditolak admin');
+
             return $redirect;
         }
 
         if ($user->status === 'pending') {
+            $this->recordActivity($user, 'login_failed', 'Login via Google ditolak: menunggu verifikasi admin');
+
             return redirect()->route('login')->withErrors([
                 'email' => 'Akun Anda masih menunggu verifikasi dari admin. Silakan tunggu hingga akun Anda disetujui.',
             ]);
         }
 
         if ($user->status === 'inactive') {
+            $this->recordActivity($user, 'login_failed', 'Login via Google ditolak: akun nonaktif');
+
             return redirect()->route('login')->withErrors([
                 'email' => 'Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service untuk informasi lebih lanjut.',
             ]);
         }
 
         if ($user->status === 'blocked' || $user->isBanned()) {
+            $this->recordActivity($user, 'login_failed', 'Login via Google ditolak: akun diblokir');
+
             return redirect()->route('login')->withErrors([
                 'email' => 'Akun Anda telah diblokir. Silakan hubungi administrator.',
             ]);

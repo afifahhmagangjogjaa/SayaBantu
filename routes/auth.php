@@ -34,14 +34,18 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     // Google OAuth Routes
+    // Dibatasi supaya tidak bisa dipakai brute force / spam pembuatan sesi.
     Route::get('auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirectToGoogle'])
+        ->middleware('throttle:20,1')
         ->name('auth.google');
     Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])
+        ->middleware('throttle:20,1')
         ->name('auth.google.callback');
 
     // Selesaikan pendaftaran Google setelah user memilih jenis akun.
     // Profil Google sudah ada di session, jadi tidak perlu consent ulang.
     Route::post('register/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'completeGoogleRegistration'])
+        ->middleware('throttle:10,1')
         ->name('register.google.complete');
 
     Volt::route('forgot-password', 'pages.auth.forgot-password')
