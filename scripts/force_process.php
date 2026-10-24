@@ -1,24 +1,23 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
-$app = require __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-$kernel->bootstrap();
 
-use Illuminate\Support\Facades\DB;
+$app = require_once __DIR__.'/bootstrap.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
 use App\Models\BalanceTransaction;
+use Illuminate\Support\Facades\DB;
 
 $id = $argv[1] ?? null;
-if (!$id) {
+if (! $id) {
     echo "Usage: php scripts/force_process.php TXN_ID\n";
     exit(1);
 }
 
 // Force set to pending via DB to avoid firing observer
-DB::table((new BalanceTransaction())->getTable())->where('id', $id)->update(['status' => 'pending', 'updated_at' => now()]);
+DB::table((new BalanceTransaction)->getTable())->where('id', $id)->update(['status' => 'pending', 'updated_at' => now()]);
 
 // Load Eloquent and save to completed to trigger observer
 $t = BalanceTransaction::find($id);
-if (!$t) {
+if (! $t) {
     echo "Txn not found\n";
     exit(1);
 }

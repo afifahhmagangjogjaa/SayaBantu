@@ -1,54 +1,58 @@
 <?php
-require __DIR__.'/vendor/autoload.php';
-$app = require_once __DIR__.'/bootstrap/app.php';
-$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
-use App\Models\User;
+$app = require_once __DIR__.'/../bootstrap.php';
+
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
 use App\Models\City;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-$password    = 'password';
-$kotaYogya   = 31;
-$sleman      = 32;
-$bantul      = 33;
+$password = 'password';
+$kotaYogya = 31;
+$sleman = 32;
+$bantul = 33;
 $gunungkidul = 34;
-$kulonprogo  = 35;
+$kulonprogo = 35;
 
-$columns      = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+$columns = \Illuminate\Support\Facades\Schema::getColumnListing('users');
 $hasOccupation = in_array('occupation', $columns);
 
-function makeUser($data, $password, $hasOccupation) {
+function makeUser($data, $password, $hasOccupation)
+{
     $existing = User::where('email', $data['email'])->first();
     if ($existing) {
         echo "  [SKIP] {$data['email']} sudah ada (ID:{$existing->id})\n";
+
         return $existing;
     }
     $base = [
-        'name'              => $data['name'],
-        'email'             => $data['email'],
-        'password'          => Hash::make($password),
-        'role'              => $data['role'],
-        'city_id'           => $data['city_id'],
-        'status'            => $data['status'] ?? 'active',
-        'verified'          => $data['verified'] ?? true,
+        'name' => $data['name'],
+        'email' => $data['email'],
+        'password' => Hash::make($password),
+        'role' => $data['role'],
+        'city_id' => $data['city_id'],
+        'status' => $data['status'] ?? 'active',
+        'verified' => $data['verified'] ?? true,
         'email_verified_at' => $data['email_verified_at'] ?? now(),
-        'phone'             => $data['phone'],
-        'gender'            => $data['gender'],
-        'address'           => $data['address'] ?? 'Jl. Testing No. 1, Yogyakarta',
-        'province'          => 'DI Yogyakarta',
-        'city'              => $data['city_name'],
-        'kecamatan'         => $data['kecamatan'],
-        'kelurahan'         => $data['kelurahan'],
-        'rt'                => '01',
-        'rw'                => '02',
-        'is_completed'      => true,
-        'balance'           => $data['balance'] ?? 0,
+        'phone' => $data['phone'],
+        'gender' => $data['gender'],
+        'address' => $data['address'] ?? 'Jl. Testing No. 1, Yogyakarta',
+        'province' => 'DI Yogyakarta',
+        'city' => $data['city_name'],
+        'kecamatan' => $data['kecamatan'],
+        'kelurahan' => $data['kelurahan'],
+        'rt' => '01',
+        'rw' => '02',
+        'is_completed' => true,
+        'balance' => $data['balance'] ?? 0,
     ];
     if ($hasOccupation) {
         $base['occupation'] = $data['occupation'] ?? 'Wiraswasta';
     }
     $user = User::create($base);
     echo "  [OK] ({$user->role}) {$user->name} | {$user->email} (ID:{$user->id})\n";
+
     return $user;
 }
 
@@ -173,7 +177,7 @@ $adminJogja = makeUser([
 $jogjaCityIds = [$kotaYogya, $sleman, $bantul, $gunungkidul, $kulonprogo];
 $adminJogja->managedCities()->sync($jogjaCityIds);
 City::whereIn('id', $jogjaCityIds)->update(['admin_id' => $adminJogja->id]);
-echo "  [OK] Admin Yogyakarta dikaitkan dengan 5 kota DIY: " . implode(', ', $jogjaCityIds) . "\n";
+echo '  [OK] Admin Yogyakarta dikaitkan dengan 5 kota DIY: '.implode(', ', $jogjaCityIds)."\n";
 
 echo "\n=== RINGKASAN AKUN TESTING JOGJA ===\n";
 echo "Password semua akun: {$password}\n\n";
@@ -185,10 +189,10 @@ $emails = [
     'admin.jogja@test.com',
 ];
 foreach ($emails as $email) {
-    $u = User::where('email', $email)->first(['id','name','email','role','city_id','verified','status']);
+    $u = User::where('email', $email)->first(['id', 'name', 'email', 'role', 'city_id', 'verified', 'status']);
     if ($u) {
         $city = $u->city_id ? City::find($u->city_id) : null;
         echo sprintf("  [%-8s] %-40s | %-25s | verified:%s | %s\n",
-            $u->role, $u->email, optional($city)->name, $u->verified?'Ya':'Tidak', $u->status);
+            $u->role, $u->email, optional($city)->name, $u->verified ? 'Ya' : 'Tidak', $u->status);
     }
 }
