@@ -16,6 +16,12 @@ new #[Layout('layouts.guest')] class extends Component {
 
 <div class="w-full">
 
+    @if(session('error'))
+        <div class="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-xs font-semibold leading-relaxed">
+            {{ session('error') }}
+        </div>
+    @endif
+
     {{-- Top Logo + Heading --}}
     <div class="text-center pt-2 pb-5">
         <x-sayabantu-logo size="lg" />
@@ -55,12 +61,15 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         </div>
 
-        {{-- Pilih role — klik 1x langsung daftar via Google dengan role itu --}}
+        {{-- Pilih role — akun langsung dibuat dari sesi Google, tanpa consent ulang --}}
         <div class="space-y-3">
 
             {{-- Customer --}}
-            <a href="{{ route('auth.google', ['role' => 'customer']) }}"
-                class="w-full flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-[#0066FF] hover:shadow-xl hover:shadow-blue-500/10 active:scale-[0.98] transition-all duration-200 group cursor-pointer block">
+            <form method="POST" action="{{ route('register.google.complete') }}">
+                @csrf
+                <input type="hidden" name="role" value="customer">
+                <button type="submit"
+                class="w-full flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-[#0066FF] hover:shadow-xl hover:shadow-blue-500/10 active:scale-[0.98] transition-all duration-200 group cursor-pointer text-left">
                 <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-100 text-[#0066FF] flex items-center justify-center flex-shrink-0 group-hover:from-[#0066FF] group-hover:to-blue-600 group-hover:text-white transition-all duration-200 shadow-sm">
                     <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 </div>
@@ -72,11 +81,15 @@ new #[Layout('layouts.guest')] class extends Component {
                 <div class="w-8 h-8 rounded-full bg-slate-50 text-gray-300 group-hover:bg-[#0066FF] group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all transform group-hover:translate-x-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
                 </div>
-            </a>
+                </button>
+            </form>
 
             {{-- Mitra --}}
-            <a href="{{ route('auth.google', ['role' => 'mitra']) }}"
-                class="w-full flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/10 active:scale-[0.98] transition-all duration-200 group cursor-pointer block">
+            <form method="POST" action="{{ route('register.google.complete') }}">
+                @csrf
+                <input type="hidden" name="role" value="mitra">
+                <button type="submit"
+                class="w-full flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/10 active:scale-[0.98] transition-all duration-200 group cursor-pointer text-left">
                 <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:from-emerald-500 group-hover:to-emerald-600 group-hover:text-white transition-all duration-200 shadow-sm">
                     <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M20 7h-4V5l-2-2h-4L8 5v2H4c-1.1 0-2 .9-2 2v5c0 .75.4 1.41 1 1.78V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3.22c.6-.37 1-1.03 1-1.78V9c0-1.1-.9-2-2-2zm-8-2h4v2h-4V5zm0 10H5v-2h7v2zm2 0v-2h2v2h-2zm4 0h-2v-2h2v2zm0-4H5V9h14v2z"/></svg>
                 </div>
@@ -88,12 +101,14 @@ new #[Layout('layouts.guest')] class extends Component {
                 <div class="w-8 h-8 rounded-full bg-slate-50 text-gray-300 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all transform group-hover:translate-x-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
                 </div>
-            </a>
+                </button>
+            </form>
         </div>
 
         <p class="text-center text-[11px] text-gray-400 mt-4 px-4 leading-relaxed">
             Akun akan dibuat menggunakan Google Anda:<br>
-            <span class="font-semibold text-gray-500">{{ $googlePending['email'] }}</span>
+            <span class="font-semibold text-gray-500">{{ $googlePending['email'] }}</span><br>
+            Tidak perlu login Google ulang.
         </p>
 
     @else

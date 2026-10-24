@@ -39,6 +39,11 @@ Route::middleware('guest')->group(function () {
     Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])
         ->name('auth.google.callback');
 
+    // Selesaikan pendaftaran Google setelah user memilih jenis akun.
+    // Profil Google sudah ada di session, jadi tidak perlu consent ulang.
+    Route::post('register/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'completeGoogleRegistration'])
+        ->name('register.google.complete');
+
     Volt::route('forgot-password', 'pages.auth.forgot-password')
         ->name('password.request');
 });

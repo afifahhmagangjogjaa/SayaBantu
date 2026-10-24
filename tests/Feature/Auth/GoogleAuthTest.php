@@ -147,4 +147,118 @@ class GoogleAuthTest extends TestCase
         $this->assertFalse(User::where('email', 'belum-ada-akun@example.com')->exists());
         $this->assertGuest();
     }
+
+    public function test_halaman_pilih_role_menampilkan_form_tanpa_consent_ulang(): void
+    {
+        $this->withSession(['google_pending' => [
+            'id' => 'google-8',
+            'name' => 'Pendaftar Google',
+            'email' => 'pilih@example.com',
+            'avatar' => null,
+        ]])
+            ->get(route('register.choose-role'))
+            ->assertOk()
+            ->assertSee(route('register.google.complete'))
+            ->assertSee('name="role" value="customer"', false)
+            ->assertSee('name="role" value="mitra"', false)
+            ->assertDontSee(route('auth.google', ['role' => 'customer']));
+    }
+
+    public function test_memilih_role_menyelesaikan_pendaftaran_tanpa_google_kedua_kali(): void
+    {
+        $pending = [
+            'id' => 'google-9',
+            'name' => 'Pilih Customer',
+            'email' => 'pilih-customer@example.com',
+            'avatar' => null,
+        ];
+
+        $this->withSession(['google_pending' => $pending])
+            ->post(route('register.google.complete'), ['role' => 'customer'])
+            ->assertRedirect(route('customer.dashboard'));
+
+        $user = User::where('email', 'pilih-customer@example.com')->first();
+
+        $this->assertNotNull($user);
+        $this->assertSame('customer', $user->role);
+        $this->assertSame('google-9', $user->google_id);
+        $this->assertSame('active', $user->status);
+        $this->assertFalse((bool) $user->is_completed);
+        $this->assertAuthenticatedAs($user);
+        $this->assertNull(session('google_pending'));
+    }
+
+    public function test_memilih_role_mitra_membuat_akun_mitra(): void
+    {
+        $this->withSession(['google_pending' => [
+            'id' => 'google-10',
+            'name' => 'Pilih Mitra',
+            'email' => 'pilih-mitra@example.com',
+            'avatar' => null,
+        ]])
+            ->post(route('register.google.complete'), ['role' => 'mitra'])
+            ->assertRedirect(route('mitra.dashboard'));
+
+        $this->assertSame('mitra', User::where('email', 'pilih-mitra@example.com')->first()?->role);
+    }
+
+    public function test_tanpa_sesi_google_pending_tidak_membuat_akun(): void
+    {
+        $this->post(route('register.google.complete'), ['role' => 'customer'])
+            ->assertRedirect(route('register.choose-role'))
+            ->assertSessionHas('error');
+
+        $this->assertSame(0, User::count());
+        $this->assertGuest();
+    }
+
+    public function test_role_tidak_valid_ditolak_validasi(): void
+    {
+        $this->withSession(['google_pending' => [
+            'id' => 'google-11',
+            'name' => 'Role Salah',
+            'email' => 'role-salah@example.com',
+            'avatar' => null,
+        ]])
+            ->post(route('register.google.complete'), ['role' => 'admin'])
+            ->assertSessionHasErrors('role');
+
+        $this->assertFalse(User::where('email', 'role-salah@example.com')->exists());
+    }
+
+    public function test_pendaftaran_ditolak_tidak_bisa_menyelesaikan_lewat_pilih_role(): void
+    {
+        $registration = $this->rejectedRegistration('ditolak-pilih@example.com');
+
+        $this->withSession(['google_pending' => [
+            'id' => 'google-12',
+            'name' => 'Ditolak',
+            'email' => 'ditolak-pilih@example.com',
+            'avatar' => null,
+        ]])
+            ->post(route('register.google.complete'), ['role' => 'customer'])
+            ->assertRedirect(route('auth.rejected', ['registration' => $registration->id]));
+
+        $this->assertFalse(User::where('email', 'ditolak-pilih@example.com')->exists());
+    }
+
+    public function test_akun_yang_sudah_dibuat_di_tab_lain_tidak_terduplikasi(): void
+    {
+        $existing = $this->user('customer', [
+            'email' => 'sudah-ada@example.com',
+            'google_id' => 'google-13',
+        ]);
+
+        $this->withSession(['google_pending' => [
+            'id' => 'google-13',
+            'name' => 'Sudah Ada',
+            'email' => 'sudah-ada@example.com',
+            'avatar' => null,
+        ]])
+            ->post(route('register.google.complete'), ['role' => 'customer'])
+            ->assertRedirect(route('customer.dashboard'));
+
+        $this->assertSame(1, User::where('email', 'sudah-ada@example.com')->count());
+        $this->assertAuthenticatedAs($existing);
+    }
 }
