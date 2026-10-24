@@ -20,6 +20,7 @@ class LocationTrackingTest extends TestCase
     use RefreshDatabase;
 
     private const CUSTOMER_LAT = -7.7956;
+
     private const CUSTOMER_LNG = 110.3695;
 
     private function makeHelp(string $status = HelpStatus::MEMPEROLEH_MITRA->value): Help

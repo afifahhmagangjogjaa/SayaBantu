@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\Models\User;
 use App\Models\PartnerActivity;
+use App\Models\User;
 
 class UserObserver
 {
@@ -31,6 +31,7 @@ class UserObserver
                     'ip_address' => $ip,
                     'user_agent' => $ua,
                 ]);
+
                 // don't duplicate with profile update even if other fields changed
                 return;
             }
@@ -46,6 +47,7 @@ class UserObserver
                         'ip_address' => $ip,
                         'user_agent' => $ua,
                     ]);
+
                     return;
                 }
             }

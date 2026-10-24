@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\WithdrawRequest;
+use App\Notifications\WithdrawStatusNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Notifications\WithdrawStatusNotification;
 
 class AdminWithdrawController extends Controller
 {
@@ -19,7 +19,7 @@ class AdminWithdrawController extends Controller
         // Filter per kota yang dikelola admin
         if (auth()->user() && auth()->user()->role === 'admin') {
             $managedCityIds = auth()->user()->getAdminCityIds();
-            if (!empty($managedCityIds)) {
+            if (! empty($managedCityIds)) {
                 $query->whereHas('user', function ($q) use ($managedCityIds) {
                     $q->whereIn('city_id', $managedCityIds);
                 });
@@ -45,6 +45,7 @@ class AdminWithdrawController extends Controller
                 if (preg_match('/^(?:wd\s*:?\s*#?|#)(\d+)$/i', $rawTerm, $matches)) {
                     $withdrawId = (int) $matches[1];
                     $q->where('id', $withdrawId);
+
                     return;
                 }
 
@@ -52,6 +53,7 @@ class AdminWithdrawController extends Controller
                 if (preg_match('/^(?:user\s*(?:id)?\s*:?|uid\s*:?|id\s*:?)\s*(\d+)$/i', $rawTerm, $matches)) {
                     $targetUserId = (int) $matches[1];
                     $q->where('user_id', $targetUserId);
+
                     return;
                 }
 
@@ -59,9 +61,9 @@ class AdminWithdrawController extends Controller
                 if (ctype_digit($rawTerm)) {
                     $numVal = (int) $rawTerm;
                     $q->where('id', $numVal)
-                      ->orWhere('user_id', $numVal)
-                      ->orWhere('amount', $numVal)
-                      ->orWhere('account_number', 'like', "%{$rawTerm}%");
+                        ->orWhere('user_id', $numVal)
+                        ->orWhere('amount', $numVal)
+                        ->orWhere('account_number', 'like', "%{$rawTerm}%");
 
                     // Cari no HP jika panjang angka >= 4 digit (mencegah '1' / '0' mencocokkan semua no HP 08...)
                     if (strlen($rawTerm) >= 4) {
@@ -69,26 +71,28 @@ class AdminWithdrawController extends Controller
                             $uq->where('phone', 'like', "%{$rawTerm}%");
                         });
                     }
+
                     return;
                 }
 
                 // 4. Input format mata uang: misal "50.000", "Rp 50.000", "Rp50000"
                 $cleanCurrency = preg_replace('/[^0-9]/', '', $rawTerm);
-                if ($cleanCurrency !== '' && (float)$cleanCurrency >= 1000 && preg_match('/^(?:rp|rp\.)?\s*[\d\.\,]+$/i', $rawTerm)) {
+                if ($cleanCurrency !== '' && (float) $cleanCurrency >= 1000 && preg_match('/^(?:rp|rp\.)?\s*[\d\.\,]+$/i', $rawTerm)) {
                     $q->where('amount', (float) $cleanCurrency);
+
                     return;
                 }
 
                 // 5. Pencarian teks umum (Nama Mitra, Email, Bank, External ID, Deskripsi)
                 $q->where('account_number', 'like', "%{$rawTerm}%")
-                  ->orWhere('bank_code', 'like', "%{$rawTerm}%")
-                  ->orWhere('external_id', 'like', "%{$rawTerm}%")
-                  ->orWhere('description', 'like', "%{$rawTerm}%")
-                  ->orWhereHas('user', function ($uq) use ($rawTerm) {
-                      $uq->where('name', 'like', "%{$rawTerm}%")
-                         ->orWhere('email', 'like', "%{$rawTerm}%")
-                         ->orWhere('phone', 'like', "%{$rawTerm}%");
-                  });
+                    ->orWhere('bank_code', 'like', "%{$rawTerm}%")
+                    ->orWhere('external_id', 'like', "%{$rawTerm}%")
+                    ->orWhere('description', 'like', "%{$rawTerm}%")
+                    ->orWhereHas('user', function ($uq) use ($rawTerm) {
+                        $uq->where('name', 'like', "%{$rawTerm}%")
+                            ->orWhere('email', 'like', "%{$rawTerm}%")
+                            ->orWhere('phone', 'like', "%{$rawTerm}%");
+                    });
             });
         }
 
@@ -130,16 +134,16 @@ class AdminWithdrawController extends Controller
 
         $dbBanks = WithdrawRequest::select('bank_code')->whereNotNull('bank_code')->distinct()->pluck('bank_code')->toArray();
         $banks = collect(array_merge($defaultBanks, $dbBanks))
-            ->map(fn($b) => trim($b))
+            ->map(fn ($b) => trim($b))
             ->filter()
-            ->unique(fn($b) => strtolower($b))
+            ->unique(fn ($b) => strtolower($b))
             ->values();
 
         // Summary counts - filter per kota yang dikelola admin
         $countsQuery = WithdrawRequest::query();
         if (auth()->user() && auth()->user()->role === 'admin') {
             $managedCityIds = auth()->user()->getAdminCityIds();
-            if (!empty($managedCityIds)) {
+            if (! empty($managedCityIds)) {
                 $countsQuery->whereHas('user', function ($q) use ($managedCityIds) {
                     $q->whereIn('city_id', $managedCityIds);
                 });
@@ -157,7 +161,7 @@ class AdminWithdrawController extends Controller
         $yearsQuery = WithdrawRequest::selectRaw(\App\Support\Sql::yearExpression())->distinct();
         if (auth()->user() && auth()->user()->role === 'admin') {
             $managedCityIds = auth()->user()->getAdminCityIds();
-            if (!empty($managedCityIds)) {
+            if (! empty($managedCityIds)) {
                 $yearsQuery->whereHas('user', function ($q) use ($managedCityIds) {
                     $q->whereIn('city_id', $managedCityIds);
                 });
@@ -234,12 +238,13 @@ class AdminWithdrawController extends Controller
             try {
                 $withdraw->user?->notify(new WithdrawStatusNotification($withdraw));
             } catch (\Throwable $e) {
-                Log::warning('Failed to send withdraw success notification: ' . $e->getMessage());
+                Log::warning('Failed to send withdraw success notification: '.$e->getMessage());
             }
 
             return redirect()->route('superadmin.withdraws.index')->with('status', 'Withdraw berhasil diproses dan saldo telah dipotong.');
         } catch (\Throwable $e) {
             Log::error('AdminWithdrawController: approve error', ['error' => $e->getMessage(), 'withdraw_id' => $withdraw->id]);
+
             return back()->withErrors(['general' => 'Terjadi kesalahan saat memproses withdraw.']);
         }
     }
@@ -262,7 +267,7 @@ class AdminWithdrawController extends Controller
         try {
             $withdraw->user?->notify(new WithdrawStatusNotification($withdraw));
         } catch (\Throwable $e) {
-            Log::warning('Failed to send withdraw failed notification: ' . $e->getMessage());
+            Log::warning('Failed to send withdraw failed notification: '.$e->getMessage());
         }
 
         return redirect()->route('superadmin.withdraws.index')->with('status', 'Withdraw dibatalkan.');
@@ -279,7 +284,7 @@ class AdminWithdrawController extends Controller
 
         if (auth()->user() && auth()->user()->role === 'admin') {
             $managedCityIds = auth()->user()->getAdminCityIds();
-            if (!empty($managedCityIds) && !in_array($withdraw->user?->city_id, $managedCityIds)) {
+            if (! empty($managedCityIds) && ! in_array($withdraw->user?->city_id, $managedCityIds)) {
                 abort(403, 'Anda tidak memiliki akses untuk menghapus data di luar wilayah Anda.');
             }
         }
@@ -303,12 +308,12 @@ class AdminWithdrawController extends Controller
             WithdrawRequest::STATUS_SUCCESS,
             WithdrawRequest::STATUS_FAILED,
             'completed',
-            'rejected'
+            'rejected',
         ]);
 
         if (auth()->user() && auth()->user()->role === 'admin') {
             $managedCityIds = auth()->user()->getAdminCityIds();
-            if (!empty($managedCityIds)) {
+            if (! empty($managedCityIds)) {
                 $query->whereHas('user', function ($q) use ($managedCityIds) {
                     $q->whereIn('city_id', $managedCityIds);
                 });
@@ -322,11 +327,11 @@ class AdminWithdrawController extends Controller
             $monthNames = [
                 1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
                 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
             ];
-            $periodLabel = ($monthNames[(int) $request->month] ?? $request->month) . ' ' . $request->year;
+            $periodLabel = ($monthNames[(int) $request->month] ?? $request->month).' '.$request->year;
         } else {
-            $periodLabel = 'Tahun ' . $request->year;
+            $periodLabel = 'Tahun '.$request->year;
         }
 
         $count = $query->count();
@@ -348,12 +353,12 @@ class AdminWithdrawController extends Controller
             WithdrawRequest::STATUS_SUCCESS,
             WithdrawRequest::STATUS_FAILED,
             'completed',
-            'rejected'
+            'rejected',
         ]);
 
         if (auth()->user() && auth()->user()->role === 'admin') {
             $managedCityIds = auth()->user()->getAdminCityIds();
-            if (!empty($managedCityIds)) {
+            if (! empty($managedCityIds)) {
                 $query->whereHas('user', function ($q) use ($managedCityIds) {
                     $q->whereIn('city_id', $managedCityIds);
                 });

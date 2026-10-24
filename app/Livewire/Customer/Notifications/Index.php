@@ -2,15 +2,16 @@
 
 namespace App\Livewire\Customer\Notifications;
 
+use Illuminate\Notifications\DatabaseNotification;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Notifications\DatabaseNotification;
 
 class Index extends Component
 {
     use WithPagination;
 
     public $filter = 'all'; // 'all' or 'unread'
+
     public $selected = [];
 
     public function setFilter($mode)
@@ -31,7 +32,9 @@ class Index extends Component
 
     public function bulkMarkAsRead()
     {
-        if (empty($this->selected)) return;
+        if (empty($this->selected)) {
+            return;
+        }
 
         DatabaseNotification::whereIn('id', $this->selected)
             ->where('notifiable_id', auth()->id())
@@ -45,7 +48,9 @@ class Index extends Component
 
     public function bulkDelete()
     {
-        if (empty($this->selected)) return;
+        if (empty($this->selected)) {
+            return;
+        }
 
         $notifications = DatabaseNotification::whereIn('id', $this->selected)
             ->where('notifiable_id', auth()->id())
@@ -54,7 +59,7 @@ class Index extends Component
         $deletedCount = 0;
         foreach ($notifications as $n) {
             $type = $n->data['type'] ?? '';
-            if ($type !== 'sanction_warning' && !str_contains($type, 'sanction')) {
+            if ($type !== 'sanction_warning' && ! str_contains($type, 'sanction')) {
                 $n->delete();
                 $deletedCount++;
             }
@@ -82,7 +87,7 @@ class Index extends Component
         if ($notification && $notification->notifiable_id === auth()->id()) {
             $notification->markAsRead();
         }
-        
+
         return redirect()->to($url);
     }
 
@@ -99,6 +104,7 @@ class Index extends Component
             $type = $notification->data['type'] ?? '';
             if ($type === 'sanction_warning' || str_contains($type, 'sanction')) {
                 session()->flash('error', 'Surat Peringatan adalah sanksi resmi dan tidak dapat dihapus.');
+
                 return;
             }
             $notification->delete();
@@ -119,7 +125,7 @@ class Index extends Component
                 ->get();
 
             foreach ($candidates as $idleHelp) {
-                if (!$idleHelp->isPartnerIdleOver30Minutes()) {
+                if (! $idleHelp->isPartnerIdleOver30Minutes()) {
                     continue;
                 }
 
@@ -130,7 +136,7 @@ class Index extends Component
                     ->where('data->mitra_id', $idleHelp->mitra_id)
                     ->exists();
 
-                if (!$alreadyNotified) {
+                if (! $alreadyNotified) {
                     try {
                         auth()->user()->notify(new \App\Notifications\IdlePartnerNotification($idleHelp));
                     } catch (\Throwable $e) {

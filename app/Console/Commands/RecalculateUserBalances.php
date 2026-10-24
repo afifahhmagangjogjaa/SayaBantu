@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\User;
 use App\Models\UserBalance;
+use Illuminate\Console\Command;
 
 class RecalculateUserBalances extends Command
 {
     protected $signature = 'userbalances:recalculate {--user=* : Optional user id(s) to limit recalculation}';
+
     protected $description = 'Recalculate all user balances from completed balance_transactions';
 
     public function handle()
@@ -16,7 +17,7 @@ class RecalculateUserBalances extends Command
         $userIds = $this->option('user');
 
         $query = User::query();
-        if (!empty($userIds)) {
+        if (! empty($userIds)) {
             $query->whereIn('id', $userIds);
         }
 

@@ -2,16 +2,17 @@
 
 namespace App\Livewire\Mitra;
 
+use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\Attributes\On;
-use Illuminate\Support\Facades\Storage;
 
 class UpdateProfilePhoto extends Component
 {
     use WithFileUploads;
 
     public $photo = null;
+
     public $showModal = false;
 
     protected $rules = [
@@ -73,7 +74,7 @@ class UpdateProfilePhoto extends Component
             return redirect()->route('mitra.profile');
 
         } catch (\Exception $e) {
-            \Log::error('Error updating mitra profile photo: ' . $e->getMessage());
+            \Log::error('Error updating mitra profile photo: '.$e->getMessage());
             session()->flash('error', 'Terjadi kesalahan saat mengupload foto.');
         }
     }
@@ -100,7 +101,7 @@ class UpdateProfilePhoto extends Component
             return redirect()->route('mitra.profile');
 
         } catch (\Exception $e) {
-            \Log::error('Error removing mitra profile photo: ' . $e->getMessage());
+            \Log::error('Error removing mitra profile photo: '.$e->getMessage());
             session()->flash('error', 'Terjadi kesalahan saat menghapus foto.');
         }
     }

@@ -2,11 +2,11 @@
 
 namespace App\Livewire\SuperAdmin;
 
-use Livewire\Component;
-use Livewire\WithPagination;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.superadmin')]
 #[Title('Notifikasi - Super Admin')]
@@ -15,6 +15,7 @@ class Notifications extends Component
     use WithPagination;
 
     public $filter = 'all'; // all, unread, read
+
     public $perPage = 15;
 
     public function mount()
@@ -25,10 +26,12 @@ class Notifications extends Component
     public function markAsRead($notificationId)
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $notification = $user->notifications()->find($notificationId);
-        
+
         if ($notification) {
             $notification->update(['read_at' => now(), 'popped_at' => $notification->popped_at ?? now()]);
             $this->dispatch('notification-updated');
@@ -38,7 +41,9 @@ class Notifications extends Component
     public function markAllAsRead()
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $user->unreadNotifications()->update(['read_at' => now(), 'popped_at' => now()]);
         $this->dispatch('notification-updated');
@@ -47,10 +52,12 @@ class Notifications extends Component
     public function deleteNotification($notificationId)
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $notification = $user->notifications()->find($notificationId);
-        
+
         if ($notification) {
             $notification->delete();
             $this->dispatch('notification-updated');
@@ -60,7 +67,9 @@ class Notifications extends Component
     public function deleteAllRead()
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $user->readNotifications()->delete();
         $this->dispatch('notification-updated');
@@ -69,7 +78,9 @@ class Notifications extends Component
     public function deleteAllNotifications()
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $user->notifications()->delete();
         $this->dispatch('notification-updated');
@@ -79,12 +90,16 @@ class Notifications extends Component
     public function openNotification($notificationId)
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $notification = $user->notifications()->find($notificationId);
-        if (!$notification) return;
+        if (! $notification) {
+            return;
+        }
 
-        if (!$notification->read_at) {
+        if (! $notification->read_at) {
             $notification->markAsRead();
             $this->dispatch('notification-updated');
         }
@@ -93,7 +108,7 @@ class Notifications extends Component
         $type = $data['type'] ?? '';
         $url = $data['url'] ?? null;
 
-        if (!$url) {
+        if (! $url) {
             $url = match ($type) {
                 'new_topup_request', 'topup_request_submitted' => route('superadmin.topup.approvals'),
                 'new_withdraw_request', 'withdraw_status' => route('superadmin.withdraws.index'),
@@ -114,7 +129,7 @@ class Notifications extends Component
     public function render()
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return view('livewire.super-admin.notifications', [
                 'notifications' => collect([]),
                 'unreadCount' => 0,

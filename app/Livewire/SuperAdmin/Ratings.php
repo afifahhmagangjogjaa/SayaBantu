@@ -2,12 +2,12 @@
 
 namespace App\Livewire\SuperAdmin;
 
+use App\Models\City;
+use App\Models\Rating;
+use App\Models\User;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use App\Models\Rating;
-use App\Models\City;
-use App\Models\User;
 
 #[Layout('layouts.superadmin')]
 class Ratings extends Component
@@ -16,18 +16,25 @@ class Ratings extends Component
 
     // Filters untuk tabel utama Rekap Per Pengguna
     public $search = '';
+
     public $roleFilter = '';
+
     public $ratingScoreFilter = '';
+
     public $cityFilter = '';
+
     public $perPage = 15;
 
     // Modal view all ratings of a specific user (Shopee style)
     public $showUserRatingsModal = false;
+
     public $selectedUserId = null;
+
     public $modalRatingFilter = 'all'; // 'all', '5', '4', '3', '2', '1', 'with_comment', 'anonymous'
 
     // Modal delete confirmation
     public $showDeleteModal = false;
+
     public $deleteRatingId = null;
 
     protected $queryString = [
@@ -94,7 +101,7 @@ class Ratings extends Component
 
     public function deleteRating()
     {
-        if (!$this->deleteRatingId) {
+        if (! $this->deleteRatingId) {
             return;
         }
 
@@ -111,13 +118,13 @@ class Ratings extends Component
     public function toggleShadowBan($userId = null)
     {
         $id = $userId ?? $this->selectedUserId;
-        if (!$id) {
+        if (! $id) {
             return;
         }
 
         $user = User::find($id);
         if ($user) {
-            $user->is_shadow_banned = !$user->is_shadow_banned;
+            $user->is_shadow_banned = ! $user->is_shadow_banned;
             $user->shadow_banned_at = $user->is_shadow_banned ? now() : null;
             $user->save();
 
@@ -136,8 +143,8 @@ class Ratings extends Component
             $s = trim($this->search);
             $usersQuery->where(function ($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
-                  ->orWhere('email', 'like', "%{$s}%")
-                  ->orWhere('phone', 'like', "%{$s}%");
+                    ->orWhere('email', 'like', "%{$s}%")
+                    ->orWhere('phone', 'like', "%{$s}%");
             });
         }
 
@@ -158,8 +165,8 @@ class Ratings extends Component
         // Stats
         $stats = [
             'total_reviews' => Rating::count(),
-            'mitra_avg' => round((float)Rating::where('type', 'customer_to_mitra')->orWhereNull('type')->avg('rating'), 1) ?: 0,
-            'customer_avg' => round((float)Rating::where('type', 'mitra_to_customer')->avg('rating'), 1) ?: 0,
+            'mitra_avg' => round((float) Rating::where('type', 'customer_to_mitra')->orWhereNull('type')->avg('rating'), 1) ?: 0,
+            'customer_avg' => round((float) Rating::where('type', 'mitra_to_customer')->avg('rating'), 1) ?: 0,
             'low_count' => Rating::whereIn('rating', [1, 2])->count(),
         ];
 
@@ -184,17 +191,17 @@ class Ratings extends Component
                 for ($star = 1; $star <= 5; $star++) {
                     $modalRatingsBreakdown['stars'][$star] = $allUserRatings->where('rating', $star)->count();
                 }
-                $modalRatingsBreakdown['with_comment'] = $allUserRatings->filter(fn($r) => !empty(trim((string)$r->review)))->count();
+                $modalRatingsBreakdown['with_comment'] = $allUserRatings->filter(fn ($r) => ! empty(trim((string) $r->review)))->count();
                 $modalRatingsBreakdown['anonymous'] = $allUserRatings->where('is_anonymous', true)->count();
 
                 // Filter ratings sesuai pill yang dipilih
                 if ($this->modalRatingFilter === 'all') {
                     $filteredModalRatings = $allUserRatings;
                 } elseif (in_array($this->modalRatingFilter, ['1', '2', '3', '4', '5'])) {
-                    $starVal = (int)$this->modalRatingFilter;
+                    $starVal = (int) $this->modalRatingFilter;
                     $filteredModalRatings = $allUserRatings->where('rating', $starVal);
                 } elseif ($this->modalRatingFilter === 'with_comment') {
-                    $filteredModalRatings = $allUserRatings->filter(fn($r) => !empty(trim((string)$r->review)));
+                    $filteredModalRatings = $allUserRatings->filter(fn ($r) => ! empty(trim((string) $r->review)));
                 } elseif ($this->modalRatingFilter === 'anonymous') {
                     $filteredModalRatings = $allUserRatings->where('is_anonymous', true);
                 }

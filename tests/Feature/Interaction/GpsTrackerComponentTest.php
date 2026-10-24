@@ -20,7 +20,9 @@ class GpsTrackerComponentTest extends TestCase
     use RefreshDatabase;
 
     private User $customer;
+
     private User $mitra;
+
     private User $mitraLain;
 
     protected function setUp(): void

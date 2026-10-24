@@ -2,20 +2,20 @@
 
 namespace App\Livewire\Customer\Helps;
 
-use App\Models\Help;
 use App\Models\City;
+use App\Models\Help;
 use App\Models\Rating;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithFileUploads, WithPagination;
 
     protected $queryString = [
         'statusFilter' => ['except' => 'menunggu_mitra'],
@@ -23,6 +23,7 @@ class Index extends Component
     ];
 
     public $statusFilter = 'menunggu_mitra';
+
     public $search = ''; // Variabel penampung teks pencarian
 
     // Status-status yang termasuk dalam filter 'diproses'
@@ -39,28 +40,47 @@ class Index extends Component
 
     // Status that means the help was rejected - show in a separate dedicated query
     protected $rejectedStatuses = ['rejected'];
+
     public $selectedHelpData = null;
 
     // Edit modal properties (declare as public so Livewire can bind to them)
     public $editingHelp = null;
+
     public $editTitle = null;
+
     public $editDescription = null;
+
     public $editAmount = null;
+
     public $editLocation = null;
+
     public $editFullAddress = null;
+
     public $editEquipmentProvided = null;
+
     public $editCityId = null;
+
     public $editLatitude = null;
+
     public $editLongitude = null;
+
     public $editPhoto = null;
+
     public $editExistingPhoto = null;
+
     public $editSearchResults = [];
+
     public $editCityQuery = null;
+
     public $cities = null;
+
     // Delete confirmation modal state & cancellation reason
     public $showDeleteConfirm = false;
+
     public $deletingHelpId = null;
+
     public $selectedCancelReason = '';
+
     public $customCancelReason = '';
 
     // Reset pagination ketika user mengetik di kolom search
@@ -104,6 +124,7 @@ class Index extends Component
         $help = Help::find($id);
         if (! $help || $help->user_id !== auth()->id()) {
             session()->flash('error', 'Anda tidak memiliki izin untuk membatalkan bantuan ini.');
+
             return;
         }
 
@@ -133,6 +154,7 @@ class Index extends Component
     {
         if (! $this->deletingHelpId) {
             $this->showDeleteConfirm = false;
+
             return;
         }
 
@@ -140,12 +162,14 @@ class Index extends Component
         if (! $help || $help->user_id !== auth()->id()) {
             session()->flash('error', 'Permintaan tidak ditemukan atau Anda tidak memiliki izin.');
             $this->cancelDelete();
+
             return;
         }
 
         // Validasi alasan pembatalan
         if (empty($this->selectedCancelReason)) {
             $this->addError('selectedCancelReason', 'Silakan pilih salah satu alasan pembatalan.');
+
             return;
         }
 
@@ -154,6 +178,7 @@ class Index extends Component
             $customText = trim($this->customCancelReason);
             if (empty($customText)) {
                 $this->addError('customCancelReason', 'Silakan tuliskan alasan pembatalan Anda.');
+
                 return;
             }
             $finalReason = $customText;
@@ -176,7 +201,7 @@ class Index extends Component
 
             session()->flash('message', 'Permintaan bantuan berhasil dibatalkan dan saldo telah dikembalikan.');
         } catch (\Throwable $e) {
-            Log::error('Failed to cancel help from index: ' . $e->getMessage());
+            Log::error('Failed to cancel help from index: '.$e->getMessage());
             session()->flash('error', 'Gagal membatalkan permintaan bantuan.');
         }
 
@@ -194,6 +219,7 @@ class Index extends Component
         $help = Help::find($id);
         if (! $help || $help->user_id !== auth()->id()) {
             session()->flash('error', 'Anda tidak memiliki izin untuk mengonfirmasi pesanan ini.');
+
             return;
         }
 
@@ -213,6 +239,7 @@ class Index extends Component
         if (! $help || $help->user_id !== auth()->id()) {
             session()->flash('error', 'Permintaan tidak ditemukan atau Anda tidak memiliki izin.');
             $this->confirmingHelpId = null;
+
             return;
         }
 
@@ -230,17 +257,17 @@ class Index extends Component
                     $already = \App\Models\BalanceTransaction::where('user_id', $help->mitra_id)
                         ->where(function ($q) use ($help) {
                             $q->where('reference_id', $help->id)
-                              ->orWhere(function ($sq) use ($help) {
-                                  if (!empty($help->order_id)) {
-                                      $sq->where('order_id', $help->order_id);
-                                  }
-                              })
-                              ->orWhere('description', 'like', 'Pendapatan Bantuan #' . $help->id . '%')
-                              ->orWhere('description', 'like', 'Auto-confirm Bantuan #' . $help->id . '%');
+                                ->orWhere(function ($sq) use ($help) {
+                                    if (! empty($help->order_id)) {
+                                        $sq->where('order_id', $help->order_id);
+                                    }
+                                })
+                                ->orWhere('description', 'like', 'Pendapatan Bantuan #'.$help->id.'%')
+                                ->orWhere('description', 'like', 'Auto-confirm Bantuan #'.$help->id.'%');
                         })
                         ->exists();
 
-                    if (!$already) {
+                    if (! $already) {
                         $payoutAmount = $help->getMitraPayoutAmount();
 
                         if ($payoutAmount > 0) {
@@ -250,10 +277,10 @@ class Index extends Component
                             );
 
                             $feeText = ($help->mitra_fee_amount > 0)
-                                ? " (Potongan Platform {$help->mitra_fee_percent}%: Rp " . number_format($help->mitra_fee_amount, 0, ',', '.') . ")"
-                                : "";
+                                ? " (Potongan Platform {$help->mitra_fee_percent}%: Rp ".number_format($help->mitra_fee_amount, 0, ',', '.').')'
+                                : '';
 
-                            $mitraBalance->addBalance($payoutAmount, "Pendapatan Bantuan #{$help->id}" . $feeText, $help->id);
+                            $mitraBalance->addBalance($payoutAmount, "Pendapatan Bantuan #{$help->id}".$feeText, $help->id);
                         }
                     }
 
@@ -261,7 +288,8 @@ class Index extends Component
                     if ($mitra) {
                         try {
                             $mitra->notify(new \App\Notifications\HelpStatusNotification($help, 'waiting_customer_confirmation', 'selesai', $mitra));
-                        } catch (\Throwable $e) {}
+                        } catch (\Throwable $e) {
+                        }
                     }
                 }
             });
@@ -276,8 +304,11 @@ class Index extends Component
 
     // Rating flow
     public $ratingComment = null;
+
     public $pendingRating = null;
+
     public $pendingHelpForRating = null;
+
     public $isAnonymous = false;
 
     // Temporary debug helper to confirm Livewire connectivity from browser
@@ -306,6 +337,7 @@ class Index extends Component
         // Only owner can edit
         if ($help->user_id !== auth()->id()) {
             session()->flash('error', 'Anda tidak memiliki izin untuk mengedit bantuan ini.');
+
             return;
         }
 
@@ -332,7 +364,7 @@ class Index extends Component
         $this->editCityId = $id;
         $city = City::find($id);
         if ($city) {
-            $this->editCityQuery = $city->name . ' — ' . $city->province;
+            $this->editCityQuery = $city->name.' — '.$city->province;
         }
         $this->editSearchResults = [];
     }
@@ -342,6 +374,7 @@ class Index extends Component
         $q = trim($value);
         if ($q === '') {
             $this->editSearchResults = [];
+
             return;
         }
 
@@ -349,10 +382,10 @@ class Index extends Component
 
         $results = City::where('is_active', true)
             ->where(function ($builder) use ($q) {
-            \Illuminate\Support\Facades\Log::info('updatedEditCityQuery called', ['q' => $q, 'user_id' => optional(auth()->user())->id]);
+                \Illuminate\Support\Facades\Log::info('updatedEditCityQuery called', ['q' => $q, 'user_id' => optional(auth()->user())->id]);
                 $builder->where('name', 'like', "%{$q}%")
-                        ->orWhere('province', 'like', "%{$q}%")
-                        ->orWhere('code', 'like', "%{$q}%");
+                    ->orWhere('province', 'like', "%{$q}%")
+                    ->orWhere('code', 'like', "%{$q}%");
             })
             ->whereRaw("COALESCE(code,'') NOT LIKE 'reqd-%' AND COALESCE(code,'') NOT LIKE 'regd-%'")
             ->select('id', 'name', 'province', 'code')
@@ -370,7 +403,7 @@ class Index extends Component
                     ->join('req_provinces', 'req_regencies.province_id', '=', 'req_provinces.id')
                     ->where(function ($builder) use ($q) {
                         $builder->where('req_regencies.regency', 'like', "%{$q}%")
-                                ->orWhere('req_provinces.province', 'like', "%{$q}%");
+                            ->orWhere('req_provinces.province', 'like', "%{$q}%");
                     })
                     ->select('req_regencies.id as regency_id', 'req_regencies.regency', 'req_regencies.type', 'req_provinces.province')
                     ->orderBy('req_regencies.regency')
@@ -387,15 +420,17 @@ class Index extends Component
                     ->join('req_provinces', 'req_regencies.province_id', '=', 'req_provinces.id')
                     ->where(function ($builder) use ($q) {
                         $builder->where('req_districts.district', 'like', "%{$q}%")
-                                ->orWhere('req_regencies.regency', 'like', "%{$q}%")
-                                ->orWhere('req_provinces.province', 'like', "%{$q}%");
+                            ->orWhere('req_regencies.regency', 'like', "%{$q}%")
+                            ->orWhere('req_provinces.province', 'like', "%{$q}%");
                     })
                     ->select(\Illuminate\Support\Facades\DB::raw("CONCAT('reqd-', req_districts.id) as regency_id"), 'req_districts.district as regency', 'req_regencies.regency as parent_regency', \Illuminate\Support\Facades\DB::raw('null as type'), 'req_provinces.province')
                     ->orderBy('req_districts.district')
                     ->limit($remaining2)
                     ->get();
 
-                foreach ($distRows as $r) { $regRows->push($r); }
+                foreach ($distRows as $r) {
+                    $regRows->push($r);
+                }
             }
 
             if (count($regRows) < $remaining && Schema::hasTable('reg_districts') && Schema::hasTable('reg_regencies') && Schema::hasTable('reg_provinces')) {
@@ -405,15 +440,17 @@ class Index extends Component
                     ->join('reg_provinces', 'reg_regencies.province_id', '=', 'reg_provinces.id')
                     ->where(function ($builder) use ($q) {
                         $builder->where('reg_districts.name', 'like', "%{$q}%")
-                                ->orWhere('reg_regencies.name', 'like', "%{$q}%")
-                                ->orWhere('reg_provinces.name', 'like', "%{$q}%");
+                            ->orWhere('reg_regencies.name', 'like', "%{$q}%")
+                            ->orWhere('reg_provinces.name', 'like', "%{$q}%");
                     })
                     ->select(\Illuminate\Support\Facades\DB::raw("CONCAT('regd-', reg_districts.id) as regency_id"), 'reg_districts.name as regency', 'reg_regencies.name as parent_regency', \Illuminate\Support\Facades\DB::raw('null as type'), 'reg_provinces.name as province')
                     ->orderBy('reg_districts.name')
                     ->limit($remaining3)
                     ->get();
 
-                foreach ($rows as $r) { $regRows->push($r); }
+                foreach ($rows as $r) {
+                    $regRows->push($r);
+                }
             }
 
             if (count($regRows) < $remaining && Schema::hasTable('reg_regencies') && Schema::hasTable('reg_provinces')) {
@@ -422,14 +459,16 @@ class Index extends Component
                     ->join('reg_provinces', 'reg_regencies.province_id', '=', 'reg_provinces.id')
                     ->where(function ($builder) use ($q) {
                         $builder->where('reg_regencies.name', 'like', "%{$q}%")
-                                ->orWhere('reg_provinces.name', 'like', "%{$q}%");
+                            ->orWhere('reg_provinces.name', 'like', "%{$q}%");
                     })
                     ->select('reg_regencies.id as regency_id', 'reg_regencies.name as regency', \Illuminate\Support\Facades\DB::raw('null as type'), 'reg_provinces.name as province')
                     ->orderBy('reg_regencies.name')
                     ->limit($remaining2)
                     ->get();
 
-                foreach ($rows as $r) { $regRows->push($r); }
+                foreach ($rows as $r) {
+                    $regRows->push($r);
+                }
             }
 
             if (count($regRows) < $remaining && Schema::hasTable('regencies') && Schema::hasTable('provinces')) {
@@ -438,14 +477,16 @@ class Index extends Component
                     ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
                     ->where(function ($builder) use ($q) {
                         $builder->where('regencies.regency', 'like', "%{$q}%")
-                                ->orWhere('provinces.province', 'like', "%{$q}%");
+                            ->orWhere('provinces.province', 'like', "%{$q}%");
                     })
                     ->select('regencies.id as regency_id', 'regencies.regency', 'regencies.type', 'provinces.province')
                     ->orderBy('regencies.regency')
                     ->limit($remaining3)
                     ->get();
 
-                foreach ($rows as $r) { $regRows->push($r); }
+                foreach ($rows as $r) {
+                    $regRows->push($r);
+                }
             }
 
             foreach ($regRows as $r) {
@@ -457,47 +498,49 @@ class Index extends Component
                     try {
                         $did = substr($regencyIdStr, 5);
                         $parentRow = \Illuminate\Support\Facades\DB::table('req_districts')
-                            ->join('req_regencies','req_districts.regency_id','=','req_regencies.id')
-                            ->join('req_provinces','req_regencies.province_id','=','req_provinces.id')
+                            ->join('req_regencies', 'req_districts.regency_id', '=', 'req_regencies.id')
+                            ->join('req_provinces', 'req_regencies.province_id', '=', 'req_provinces.id')
                             ->where('req_districts.id', $did)
-                            ->select('req_districts.district as district','req_regencies.id as parent_regency_id','req_regencies.regency as parent_regency','req_provinces.province')
+                            ->select('req_districts.district as district', 'req_regencies.id as parent_regency_id', 'req_regencies.regency as parent_regency', 'req_provinces.province')
                             ->first();
                         if ($parentRow) {
-                            $parentCode = 'reqr-' . $parentRow->parent_regency_id;
+                            $parentCode = 'reqr-'.$parentRow->parent_regency_id;
                             $targetCity = City::firstOrCreate(
                                 ['code' => $parentCode],
                                 ['name' => $parentRow->parent_regency, 'province' => $parentRow->province, 'is_active' => true]
                             );
-                            $display = $parentRow->district . ', ' . $parentRow->parent_regency . ', ' . $parentRow->province;
+                            $display = $parentRow->district.', '.$parentRow->parent_regency.', '.$parentRow->province;
                         }
-                    } catch (\Throwable $e) {}
+                    } catch (\Throwable $e) {
+                    }
                 } elseif (strpos($regencyIdStr, 'regd-') === 0) {
                     try {
                         $did = substr($regencyIdStr, 5);
                         $parentRow = \Illuminate\Support\Facades\DB::table('reg_districts')
-                            ->join('reg_regencies','reg_districts.regency_id','=','reg_regencies.id')
-                            ->join('reg_provinces','reg_regencies.province_id','=','reg_provinces.id')
+                            ->join('reg_regencies', 'reg_districts.regency_id', '=', 'reg_regencies.id')
+                            ->join('reg_provinces', 'reg_regencies.province_id', '=', 'reg_provinces.id')
                             ->where('reg_districts.id', $did)
-                            ->select('reg_districts.name as district','reg_regencies.id as parent_regency_id','reg_regencies.name as parent_regency','reg_provinces.name as province')
+                            ->select('reg_districts.name as district', 'reg_regencies.id as parent_regency_id', 'reg_regencies.name as parent_regency', 'reg_provinces.name as province')
                             ->first();
                         if ($parentRow) {
-                            $parentCode = 'reqr-' . $parentRow->parent_regency_id;
+                            $parentCode = 'reqr-'.$parentRow->parent_regency_id;
                             $targetCity = City::firstOrCreate(
                                 ['code' => $parentCode],
                                 ['name' => $parentRow->parent_regency, 'province' => $parentRow->province, 'is_active' => true]
                             );
-                            $display = $parentRow->district . ', ' . $parentRow->parent_regency . ', ' . $parentRow->province;
+                            $display = $parentRow->district.', '.$parentRow->parent_regency.', '.$parentRow->province;
                         }
-                    } catch (\Throwable $e) {}
+                    } catch (\Throwable $e) {
+                    }
                 }
 
-                if ($targetCity && !$targetCity->is_active) {
+                if ($targetCity && ! $targetCity->is_active) {
                     continue;
                 }
 
                 if (! $targetCity) {
                     $existing = City::where('code', $r->regency_id)->orWhere('name', $r->regency)->first();
-                    if ($existing && !$existing->is_active) {
+                    if ($existing && ! $existing->is_active) {
                         continue;
                     }
 
@@ -505,23 +548,30 @@ class Index extends Component
                         ['code' => $r->regency_id, 'name' => $r->regency, 'province' => $r->province, 'type' => $r->type ?? null, 'is_active' => true]
                     );
                     if (! $display && ! empty($r->parent_regency)) {
-                        $display = $r->regency . ', ' . $r->parent_regency . ', ' . $r->province;
+                        $display = $r->regency.', '.$r->parent_regency.', '.$r->province;
                     }
                 }
 
-                if ($targetCity && !$targetCity->is_active) {
+                if ($targetCity && ! $targetCity->is_active) {
                     continue;
                 }
 
                 if (! $display) {
-                    $display = $targetCity->name . ', ' . $targetCity->province;
+                    $display = $targetCity->name.', '.$targetCity->province;
                 }
 
                 $exists = false;
-                foreach ($results as $res) { if ($res['id'] == $targetCity->id) { $exists = true; break; } }
+                foreach ($results as $res) {
+                    if ($res['id'] == $targetCity->id) {
+                        $exists = true;
+                        break;
+                    }
+                }
                 if (! $exists && $targetCity->is_active) {
                     $item = ['id' => $targetCity->id, 'name' => $targetCity->name, 'province' => $targetCity->province, 'code' => $targetCity->code];
-                    if ($display) $item['display'] = $display;
+                    if ($display) {
+                        $item['display'] = $display;
+                    }
                     $results[] = $item;
                 }
             }
@@ -541,7 +591,7 @@ class Index extends Component
                             ->select('req_districts.district as district', 'req_regencies.regency as regency', 'req_provinces.province as province')
                             ->first();
                         if ($row) {
-                            $results[$idx]['display'] = $row->district . ', ' . $row->regency . ', ' . $row->province;
+                            $results[$idx]['display'] = $row->district.', '.$row->regency.', '.$row->province;
                         }
                     } elseif (strpos($code, 'regd-') === 0 && Schema::hasTable('reg_districts')) {
                         $did = substr($code, 5);
@@ -552,10 +602,11 @@ class Index extends Component
                             ->select('reg_districts.name as district', 'reg_regencies.name as regency', 'reg_provinces.name as province')
                             ->first();
                         if ($row) {
-                            $results[$idx]['display'] = $row->district . ', ' . $row->regency . ', ' . $row->province;
+                            $results[$idx]['display'] = $row->district.', '.$row->regency.', '.$row->province;
                         }
                     }
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                }
             }
         }
 
@@ -587,6 +638,7 @@ class Index extends Component
         // Only the owner (customer) may submit rating for this help
         if ($help->user_id !== auth()->id()) {
             session()->flash('error', 'Anda tidak memiliki izin untuk memberi rating pada bantuan ini.');
+
             return;
         }
 
@@ -641,6 +693,7 @@ class Index extends Component
 
         if ($help->user_id !== auth()->id()) {
             session()->flash('error', 'Anda tidak memiliki izin untuk mengedit bantuan ini.');
+
             return;
         }
 
@@ -727,35 +780,35 @@ class Index extends Component
                 ->when($this->search !== '', function ($query) {
                     $keyword = trim($this->search);
                     $query->where(function ($sub) use ($keyword) {
-                        $sub->where('title', 'like', '%' . $keyword . '%')
-                            ->orWhere('description', 'like', '%' . $keyword . '%')
-                            ->orWhere('location', 'like', '%' . $keyword . '%')
-                            ->orWhere('full_address', 'like', '%' . $keyword . '%')
+                        $sub->where('title', 'like', '%'.$keyword.'%')
+                            ->orWhere('description', 'like', '%'.$keyword.'%')
+                            ->orWhere('location', 'like', '%'.$keyword.'%')
+                            ->orWhere('full_address', 'like', '%'.$keyword.'%')
                             ->orWhereHas('category', function ($catQuery) use ($keyword) {
-                                $catQuery->where('name', 'like', '%' . $keyword . '%');
+                                $catQuery->where('name', 'like', '%'.$keyword.'%');
                             })
                             ->orWhereHas('city', function ($cityQuery) use ($keyword) {
-                                $cityQuery->where('name', 'like', '%' . $keyword . '%');
+                                $cityQuery->where('name', 'like', '%'.$keyword.'%');
                             })
                             ->orWhereHas('mitra', function ($mitraQuery) use ($keyword) {
-                                $mitraQuery->where('name', 'like', '%' . $keyword . '%');
+                                $mitraQuery->where('name', 'like', '%'.$keyword.'%');
                             });
                     });
                 })
                 ->latest()
                 ->paginate(10);
         } elseif ($user->isMitra()) {
-                if (request()->routeIs('helps.available')) {
+            if (request()->routeIs('helps.available')) {
                 // Mitra melihat bantuan yang available
                 $helps = Help::available()
                     ->with(['user', 'city'])
-                        ->withCount('chatMessages')
+                    ->withCount('chatMessages')
                     ->when($this->search !== '', function ($query) {
                         $query->where(function ($sub) {
-                            $sub->where('title', 'like', '%' . $this->search . '%')
-                                ->orWhere('description', 'like', '%' . $this->search . '%')
+                            $sub->where('title', 'like', '%'.$this->search.'%')
+                                ->orWhere('description', 'like', '%'.$this->search.'%')
                                 ->orWhereHas('city', function ($cityQuery) {
-                                    $cityQuery->where('name', 'like', '%' . $this->search . '%');
+                                    $cityQuery->where('name', 'like', '%'.$this->search.'%');
                                 });
                         });
                     })
@@ -765,19 +818,19 @@ class Index extends Component
                 // Mitra melihat bantuan yang sudah diambil
                 $helps = Help::where('mitra_id', $user->id)
                     ->with(['user', 'city'])
-                        ->withCount('chatMessages')
+                    ->withCount('chatMessages')
                     ->when($this->statusFilter !== '', function ($query) {
                         $query->where('status', $this->statusFilter);
                     })
                     ->when($this->search !== '', function ($query) {
                         $query->where(function ($sub) {
-                            $sub->where('title', 'like', '%' . $this->search . '%')
-                                ->orWhere('description', 'like', '%' . $this->search . '%')
+                            $sub->where('title', 'like', '%'.$this->search.'%')
+                                ->orWhere('description', 'like', '%'.$this->search.'%')
                                 ->orWhereHas('city', function ($cityQuery) {
-                                    $cityQuery->where('name', 'like', '%' . $this->search . '%');
+                                    $cityQuery->where('name', 'like', '%'.$this->search.'%');
                                 })
                                 ->orWhereHas('user', function ($userQuery) {
-                                    $userQuery->where('name', 'like', '%' . $this->search . '%');
+                                    $userQuery->where('name', 'like', '%'.$this->search.'%');
                                 });
                         });
                     })

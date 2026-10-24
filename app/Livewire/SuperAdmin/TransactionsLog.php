@@ -1,12 +1,13 @@
 <?php
+
 namespace App\Livewire\SuperAdmin;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
-use Livewire\WithPagination;
 use App\Models\BalanceTransaction;
-use App\Models\WithdrawRequest;
 use App\Models\City;
+use App\Models\WithdrawRequest;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.superadmin')]
 class TransactionsLog extends Component
@@ -14,15 +15,25 @@ class TransactionsLog extends Component
     use WithPagination;
 
     public $search = '';
+
     public $type = 'all'; // types: all, topup, withdraw, other
+
     public $perPage = 15;
+
     public $period = 'this_month'; // options: this_month, all_time, today, last_month, custom
+
     public $from = null;
+
     public $to = null;
+
     public $city_id = ''; // Filter wilayah / kota
+
     public $deleteYear;
+
     public $deleteMonth = 'all';
+
     public $deleteMode = 'monthly'; // 'monthly', 'yearly', 'all'
+
     public $showDeleteModal = false;
 
     protected $queryString = [
@@ -51,6 +62,7 @@ class TransactionsLog extends Component
     {
         if ($this->deleteMode === 'all') {
             $this->deleteAllTransactions();
+
             return;
         }
 
@@ -77,13 +89,13 @@ class TransactionsLog extends Component
         $monthNames = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
             5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
         ];
 
         if ($this->deleteMonth && $this->deleteMonth !== 'all') {
             $monthNum = (int) $this->deleteMonth;
             $query->whereMonth('created_at', $monthNum);
-            $periodLabel = ($monthNames[$monthNum] ?? "Bulan $monthNum") . " {$this->deleteYear}";
+            $periodLabel = ($monthNames[$monthNum] ?? "Bulan $monthNum")." {$this->deleteYear}";
         } else {
             $periodLabel = "Tahun {$this->deleteYear}";
         }
@@ -98,6 +110,7 @@ class TransactionsLog extends Component
         if ($count === 0) {
             session()->flash('error', "Tidak ada riwayat transaksi pada periode {$periodLabel}.");
             $this->showDeleteModal = false;
+
             return;
         }
 
@@ -146,9 +159,13 @@ class TransactionsLog extends Component
             $this->from = now()->subMonth()->startOfMonth()->format('Y-m-d');
             $this->to = now()->subMonth()->endOfMonth()->format('Y-m-d');
         } else {
-            if (request()->has('from')) $this->from = request('from');
-            if (request()->has('to')) $this->to = request('to');
-            if (!$this->from && !$this->to && $this->period !== 'all_time') {
+            if (request()->has('from')) {
+                $this->from = request('from');
+            }
+            if (request()->has('to')) {
+                $this->to = request('to');
+            }
+            if (! $this->from && ! $this->to && $this->period !== 'all_time') {
                 $this->from = now()->startOfMonth()->format('Y-m-d');
                 $this->to = now()->format('Y-m-d');
                 $this->period = 'this_month';
@@ -177,8 +194,12 @@ class TransactionsLog extends Component
             $this->from = now()->subMonth()->startOfMonth()->format('Y-m-d');
             $this->to = now()->subMonth()->endOfMonth()->format('Y-m-d');
         } elseif ($val === 'custom') {
-            if (!$this->from) $this->from = now()->startOfMonth()->format('Y-m-d');
-            if (!$this->to) $this->to = now()->format('Y-m-d');
+            if (! $this->from) {
+                $this->from = now()->startOfMonth()->format('Y-m-d');
+            }
+            if (! $this->to) {
+                $this->to = now()->format('Y-m-d');
+            }
         }
     }
 
@@ -226,7 +247,7 @@ class TransactionsLog extends Component
         }
 
         $transactions = $this->getBaseQuery()->with(['user.city'])->orderBy('created_at', 'desc')->get();
-        $filename = 'Laporan-Transaksi-' . $cityName . '-' . now()->format('Ymd-His') . '.xls';
+        $filename = 'Laporan-Transaksi-'.$cityName.'-'.now()->format('Ymd-His').'.xls';
 
         return response()->streamDownload(function () use ($transactions, $cityName) {
             echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
@@ -244,11 +265,11 @@ class TransactionsLog extends Component
                 .title-main { font-size: 16pt; font-weight: bold; text-align: center; color: #1e3a8a; }
                 .title-sub { font-size: 10pt; color: #64748b; text-align: center; }
             </style></head><body>';
-            
+
             // Header Judul di Tengah (Center) dengan Colspan
             echo '<table>';
-            echo '<tr><td colspan="9" class="title-main" style="border:none; padding-top:10px; padding-bottom:4px;">LAPORAN DAFTAR TRANSAKSI (' . strtoupper(str_replace('-', ' ', $cityName)) . ')</td></tr>';
-            echo '<tr><td colspan="9" class="title-sub" style="border:none; padding-bottom:15px;">Tanggal Cetak: ' . now()->translatedFormat('d F Y, H:i') . ' WIB | Oleh: ' . htmlspecialchars(auth()->user()->name ?? 'Super Admin') . '</td></tr>';
+            echo '<tr><td colspan="9" class="title-main" style="border:none; padding-top:10px; padding-bottom:4px;">LAPORAN DAFTAR TRANSAKSI ('.strtoupper(str_replace('-', ' ', $cityName)).')</td></tr>';
+            echo '<tr><td colspan="9" class="title-sub" style="border:none; padding-bottom:15px;">Tanggal Cetak: '.now()->translatedFormat('d F Y, H:i').' WIB | Oleh: '.htmlspecialchars(auth()->user()->name ?? 'Super Admin').'</td></tr>';
             echo '</table>';
 
             echo '<table>';
@@ -288,21 +309,21 @@ class TransactionsLog extends Component
                 $userCity = $t->user->city_name ?? '-';
 
                 echo "<tr {$rowBg}>";
-                echo '<td class="text-center">' . $no++ . '</td>';
-                echo '<td class="text-center">' . ($t->created_at ? $t->created_at->format('d/m/Y H:i') : '-') . '</td>';
-                echo '<td class="text-left">' . htmlspecialchars(optional($t->user)->name ?? '-') . '</td>';
-                echo '<td class="text-left">' . htmlspecialchars(optional($t->user)->email ?? '-') . '</td>';
-                echo '<td class="text-center">' . htmlspecialchars($userCity) . '</td>';
-                echo '<td class="text-center">' . $label . '</td>';
-                echo '<td class="text-right font-bold">' . number_format($t->amount, 0, ',', '.') . '</td>';
-                echo '<td class="text-center">' . htmlspecialchars($refCode) . '</td>';
-                echo '<td class="text-center">' . $statusLabel . '</td>';
+                echo '<td class="text-center">'.$no++.'</td>';
+                echo '<td class="text-center">'.($t->created_at ? $t->created_at->format('d/m/Y H:i') : '-').'</td>';
+                echo '<td class="text-left">'.htmlspecialchars(optional($t->user)->name ?? '-').'</td>';
+                echo '<td class="text-left">'.htmlspecialchars(optional($t->user)->email ?? '-').'</td>';
+                echo '<td class="text-center">'.htmlspecialchars($userCity).'</td>';
+                echo '<td class="text-center">'.$label.'</td>';
+                echo '<td class="text-right font-bold">'.number_format($t->amount, 0, ',', '.').'</td>';
+                echo '<td class="text-center">'.htmlspecialchars($refCode).'</td>';
+                echo '<td class="text-center">'.$statusLabel.'</td>';
                 echo '</tr>';
             }
 
             echo '<tr>';
             echo '<td colspan="6" class="text-right font-bold bg-total">TOTAL KESELURUHAN</td>';
-            echo '<td class="text-right font-bold bg-total">Rp ' . number_format($total, 0, ',', '.') . '</td>';
+            echo '<td class="text-right font-bold bg-total">Rp '.number_format($total, 0, ',', '.').'</td>';
             echo '<td colspan="2" class="bg-total"></td>';
             echo '</tr>';
 
@@ -326,10 +347,10 @@ class TransactionsLog extends Component
             if ($this->type === 'withdraw') {
                 $query->where(function ($q) {
                     $q->where('type', 'withdraw')
-                      ->orWhere(function ($sub) {
-                          $sub->whereIn('type', ['deduction', 'withdraw_deduction'])
-                              ->whereHas('user', fn($u) => $u->where('role', 'mitra'));
-                      });
+                        ->orWhere(function ($sub) {
+                            $sub->whereIn('type', ['deduction', 'withdraw_deduction'])
+                                ->whereHas('user', fn ($u) => $u->where('role', 'mitra'));
+                        });
                 });
             } elseif ($this->type === 'topup') {
                 $query->where('type', 'topup');
@@ -370,10 +391,15 @@ class TransactionsLog extends Component
     }
 
     public $showUserBalanceModal = false;
+
     public $selectedUserId = null;
+
     public $selectedUser = null;
+
     public $selectedUserBalance = 0;
+
     public $selectedUserStats = [];
+
     public $selectedUserRecentTransactions = [];
 
     public function viewUserBalance($userId)
@@ -390,7 +416,7 @@ class TransactionsLog extends Component
                 $totalIncome = (clone $userTxQuery)->whereIn('type', ['income', 'topup'])->where('status', 'completed')->sum('amount');
                 $withdrawTx = (clone $userTxQuery)->whereIn('type', ['withdraw', 'withdraw_deduction', 'deduction'])->where('status', 'completed')->sum('amount');
                 $withdrawReq = \App\Models\WithdrawRequest::where('user_id', $userId)->whereIn('status', ['success', 'completed', 'approved'])->sum('amount');
-                $totalWithdraw = max((float)$withdrawTx, (float)$withdrawReq);
+                $totalWithdraw = max((float) $withdrawTx, (float) $withdrawReq);
 
                 $this->selectedUserStats = [
                     'is_mitra' => true,
@@ -435,7 +461,7 @@ class TransactionsLog extends Component
 
         // Summary statistics (ikut terfilter sesuai wilayah yang dipilih)
         $summaryQuery = $this->getBaseQuery();
-        
+
         $totalRevenue = $summaryQuery->clone()
             ->where('type', 'topup')
             ->whereHas('user', function ($q) {
@@ -443,15 +469,19 @@ class TransactionsLog extends Component
             })
             ->where('status', 'completed')
             ->sum('amount');
-        
+
         $totalWithdrawTx = $summaryQuery->clone()
             ->where('type', 'withdraw')
             ->where('status', 'completed')
             ->sum('amount');
 
         $withdrawReqQuery = WithdrawRequest::whereIn('status', ['success', 'completed', 'approved', 'pending', 'processing']);
-        if ($this->from) $withdrawReqQuery->whereDate('created_at', '>=', $this->from);
-        if ($this->to) $withdrawReqQuery->whereDate('created_at', '<=', $this->to);
+        if ($this->from) {
+            $withdrawReqQuery->whereDate('created_at', '>=', $this->from);
+        }
+        if ($this->to) {
+            $withdrawReqQuery->whereDate('created_at', '<=', $this->to);
+        }
         if ($this->city_id) {
             $withdrawReqQuery->whereHas('user', function ($q) {
                 $q->where('city_id', $this->city_id);
@@ -474,7 +504,7 @@ class TransactionsLog extends Component
         $curYear = (int) date('Y');
         if (empty($availableYears)) {
             $availableYears = [$curYear];
-        } elseif (!in_array($curYear, $availableYears)) {
+        } elseif (! in_array($curYear, $availableYears)) {
             array_unshift($availableYears, $curYear);
         }
 

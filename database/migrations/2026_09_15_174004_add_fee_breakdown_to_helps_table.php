@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('helps', function (Blueprint $table) {
             // Nominal dasar tawaran bantuan
             $table->decimal('base_amount', 12, 2)->default(0)->after('amount');
-            
+
             // Sisi Customer (+ Biaya Layanan)
             $table->decimal('customer_fee_percent', 5, 2)->default(10);
             $table->decimal('customer_fee_amount', 12, 2)->default(0);

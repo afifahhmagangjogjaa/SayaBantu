@@ -2,13 +2,13 @@
 
 namespace App\Livewire\SuperAdmin;
 
+use App\Models\City;
+use App\Models\Province;
+use App\Models\User;
+use Illuminate\Support\Facades\Schema;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use App\Models\City;
-use App\Models\User;
-use App\Models\Province;
-use Illuminate\Support\Facades\Schema;
 
 #[Layout('layouts.superadmin')]
 class Cities extends Component
@@ -16,10 +16,15 @@ class Cities extends Component
     use WithPagination;
 
     public $search = '';
+
     public $perPage = 10;
+
     public $showModal = false;
+
     public $showDeleteModal = false;
+
     public $editMode = false;
+
     public $cityId;
 
     // helper for delete modal display
@@ -27,33 +32,55 @@ class Cities extends Component
 
     // form fields
     public $name = '';
+
     public $province = '';
+
     public $province_id = null;
+
     public $admin_id = null;
+
     public $latitude = null;
+
     public $longitude = null;
+
     public $is_active = true;
+
     public $deleteId = null;
+
     // detail modal + chart data
     public $showDetailModal = false;
+
     public $detailCityName = null;
+
     public $chartLabels = [];
+
     public $chartCustomerData = [];
+
     public $chartMitraData = [];
 
     // provinces management
     public $provinces = [];
+
     public $showProvinceModal = false;
+
     public $provinceName = '';
+
     public $provinceEditId = null;
+
     public $showProvinceDeleteModal = false;
+
     public $deleteProvinceId = null;
+
     public $deletingProvinceName = null;
+
     public $filterProvinceId = null;
 
     public $apiProvinces = [];
+
     public $apiCities = [];
+
     public $selectedProvinceCode = '';
+
     public $selectedCityCode = '';
 
     public function updatedSearch()
@@ -98,7 +125,7 @@ class Cities extends Component
         $this->selectedCityCode = '';
         $this->latitude = null;
         $this->longitude = null;
-        
+
         if ($code) {
             $this->fetchCities($code);
         } else {
@@ -171,28 +198,31 @@ class Cities extends Component
         if (isset($fallbackCoords[$upperName])) {
             $this->latitude = $fallbackCoords[$upperName][0];
             $this->longitude = $fallbackCoords[$upperName][1];
+
             return;
         }
 
         if (isset($fallbackCoords[$cleanName])) {
             $this->latitude = $fallbackCoords[$cleanName][0];
             $this->longitude = $fallbackCoords[$cleanName][1];
+
             return;
         }
 
         // Fetch coordinates from Nominatim OpenStreetMap
         try {
             $cleanSearch = str_replace(['KOTA ADM. ', 'KOTA ', 'KABUPATEN ', 'KAB. '], '', $cityName);
-            $query = urlencode($cleanSearch . ', ' . $provinceName . ', Indonesia');
+            $query = urlencode($cleanSearch.', '.$provinceName.', Indonesia');
             $response = \App\Support\ExternalHttp::client()
                 ->withHeaders(['User-Agent' => 'SayaBantu-App/1.0'])
                 ->timeout(4)
                 ->get("https://nominatim.openstreetmap.org/search?q={$query}&format=json&limit=1");
 
-            if ($response->successful() && !empty($response->json())) {
+            if ($response->successful() && ! empty($response->json())) {
                 $data = $response->json()[0];
-                $this->latitude = round((float)$data['lat'], 7);
-                $this->longitude = round((float)$data['lon'], 7);
+                $this->latitude = round((float) $data['lat'], 7);
+                $this->longitude = round((float) $data['lon'], 7);
+
                 return;
             }
         } catch (\Exception $e) {
@@ -223,16 +253,16 @@ class Cities extends Component
         $this->longitude = $city->longitude;
         $this->is_active = $city->is_active;
         $this->editMode = true;
-        
+
         // Fetch provinces to sync dropdowns
         $this->fetchProvinces();
-        
+
         // Find matching province from API
         $prov = collect($this->apiProvinces)->firstWhere('name', $city->province);
         if ($prov) {
             $this->selectedProvinceCode = $prov['code'];
             $this->fetchCities($this->selectedProvinceCode);
-            
+
             // Find matching city from API
             $cityApi = collect($this->apiCities)->firstWhere('name', $city->name);
             if ($cityApi) {
@@ -259,7 +289,7 @@ class Cities extends Component
     public function toggleStatus($id)
     {
         $city = City::findOrFail($id);
-        $city->update(['is_active' => !$city->is_active]);
+        $city->update(['is_active' => ! $city->is_active]);
         session()->flash('message', 'Status kota berhasil diubah');
     }
 
@@ -283,8 +313,9 @@ class Cities extends Component
 
         // Ensure selected user is actually an admin
         $admin = User::find($validated['admin_id']);
-        if (!$admin || $admin->role !== 'admin') {
+        if (! $admin || $admin->role !== 'admin') {
             $this->addError('admin_id', 'Pilih user dengan role admin sebagai pengelola kota');
+
             return;
         }
 
@@ -294,7 +325,9 @@ class Cities extends Component
             // ensure province name is stored for backward compatibility
             if ($this->province_id) {
                 $prov = Province::find($this->province_id);
-                if ($prov) $validated['province'] = $prov->name;
+                if ($prov) {
+                    $validated['province'] = $prov->name;
+                }
                 $validated['province_id'] = $this->province_id;
             }
 
@@ -317,7 +350,9 @@ class Cities extends Component
         } else {
             if ($this->province_id) {
                 $prov = Province::find($this->province_id);
-                if ($prov) $validated['province'] = $prov->name;
+                if ($prov) {
+                    $validated['province'] = $prov->name;
+                }
                 $validated['province_id'] = $this->province_id;
             }
 
@@ -394,7 +429,7 @@ class Cities extends Component
     public function toggleProvinceStatus($id)
     {
         $prov = Province::findOrFail($id);
-        $prov->update(['is_active' => !$prov->is_active]);
+        $prov->update(['is_active' => ! $prov->is_active]);
         session()->flash('message', 'Status provinsi berhasil diubah');
     }
 
@@ -436,8 +471,9 @@ class Cities extends Component
     public function openDetailModal($cityId)
     {
         $city = City::find($cityId);
-        if (!$city) {
+        if (! $city) {
             session()->flash('error', 'Kota tidak ditemukan');
+
             return;
         }
 
@@ -490,8 +526,8 @@ class Cities extends Component
         $citiesQuery = City::query()
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('province', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('province', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->filterProvinceId, function ($q) {
@@ -503,7 +539,9 @@ class Cities extends Component
             ->latest();
 
         if ($loadDistricts) {
-            $citiesQuery->with(['districts' => function ($q) { $q->orderBy('name'); }]);
+            $citiesQuery->with(['districts' => function ($q) {
+                $q->orderBy('name');
+            }]);
         }
 
         $cities = $citiesQuery->paginate($this->perPage);

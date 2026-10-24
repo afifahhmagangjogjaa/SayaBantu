@@ -16,7 +16,7 @@ class KtpVerificationPromptNotification extends Notification
 
     public function toArray(object $notifiable): array
     {
-        $hasKtpUploaded = !empty($notifiable->ktp_photo);
+        $hasKtpUploaded = ! empty($notifiable->ktp_photo);
         $role = $notifiable->role ?? 'user';
 
         if ($hasKtpUploaded) {

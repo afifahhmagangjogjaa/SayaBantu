@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\City;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class AdminUserController extends Controller
 {
@@ -32,13 +32,13 @@ class AdminUserController extends Controller
 
         // Apply city scoping when admin has linked cities
         if ($cityIds->isNotEmpty()) {
-            $cityNames = City::whereIn('id', $cityIds)->pluck('name')->map(fn($n) => strtolower(trim($n)))->all();
+            $cityNames = City::whereIn('id', $cityIds)->pluck('name')->map(fn ($n) => strtolower(trim($n)))->all();
             $query->where(function ($q) use ($cityIds, $cityNames) {
                 $q->whereIn('city_id', $cityIds);
-                if (!empty($cityNames)) {
+                if (! empty($cityNames)) {
                     $q->orWhere(function ($subQ) use ($cityNames) {
                         foreach ($cityNames as $cityName) {
-                            $subQ->orWhereRaw('LOWER(city) LIKE ?', ['%' . $cityName . '%']);
+                            $subQ->orWhereRaw('LOWER(city) LIKE ?', ['%'.$cityName.'%']);
                         }
                     });
                 }
@@ -87,7 +87,7 @@ class AdminUserController extends Controller
         // Filter by KTP status
         if ($ktpStatus = $request->get('ktp_status')) {
             if ($ktpStatus === 'uploaded') {
-                $query->where(function($q) {
+                $query->where(function ($q) {
                     $q->whereNotNull('ktp_path')->orWhereNotNull('ktp_photo');
                 });
             } elseif ($ktpStatus === 'missing') {
@@ -139,7 +139,7 @@ class AdminUserController extends Controller
         if ($user->isMitra()) {
             $user->ratings_count = $user->mitra_rating_count;
             $user->average_rating = $user->mitra_average_rating > 0 ? round($user->mitra_average_rating, 1) : null;
-            
+
             // Ambil riwayat pembatalan mitra
             $cancellations = \App\Models\PartnerActivity::where('user_id', $user->id)
                 ->where('activity_type', 'help_cancelled')
@@ -157,9 +157,9 @@ class AdminUserController extends Controller
         // Ambil riwayat SP dari log di admin_notes semua laporan yang melibatkan user ini
         $spLogs = collect();
         $reportsInvolvingUser = \App\Models\PartnerReport::where(function ($q) use ($user) {
-                $q->where('reported_user_id', $user->id)
-                  ->orWhere('reporter_id', $user->id);
-            })
+            $q->where('reported_user_id', $user->id)
+                ->orWhere('reporter_id', $user->id);
+        })
             ->whereNotNull('admin_notes')
             ->where('admin_notes', '!=', '')
             ->get(['id', 'admin_notes', 'title', 'updated_at']);
@@ -167,13 +167,13 @@ class AdminUserController extends Controller
         foreach ($reportsInvolvingUser as $rep) {
             $lines = array_filter(
                 explode("\n", $rep->admin_notes),
-                fn($l) => trim($l) !== ''
+                fn ($l) => trim($l) !== ''
                     && (str_contains($l, 'memberikan sanksi') || str_contains($l, 'mencabut') || str_contains($l, 'Surat Peringatan'))
                     && str_contains(strtolower($l), strtolower($user->name))
             );
             foreach ($lines as $line) {
                 $spLogs->push([
-                    'log'       => trim($line),
+                    'log' => trim($line),
                     'report_id' => $rep->id,
                     'report_title' => $rep->title,
                 ]);
@@ -223,13 +223,13 @@ class AdminUserController extends Controller
         try {
             $user->notify(new \App\Notifications\KtpVerificationStatusNotification('approved'));
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP approved: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP approved: '.$e->getMessage());
         }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => "KTP pengguna {$user->name} berhasil disetujui (Terverifikasi)!"
+                'message' => "KTP pengguna {$user->name} berhasil disetujui (Terverifikasi)!",
             ]);
         }
 
@@ -265,13 +265,13 @@ class AdminUserController extends Controller
         try {
             $user->notify(new \App\Notifications\KtpVerificationStatusNotification('rejected', $reason));
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP rejected: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP rejected: '.$e->getMessage());
         }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => "Verifikasi KTP pengguna {$user->name} telah ditolak."
+                'message' => "Verifikasi KTP pengguna {$user->name} telah ditolak.",
             ]);
         }
 
@@ -311,7 +311,7 @@ class AdminUserController extends Controller
             return response()->json([
                 'success' => true,
                 'status' => $user->status,
-                'message' => "Status pengguna {$user->name} berhasil {$label}."
+                'message' => "Status pengguna {$user->name} berhasil {$label}.",
             ]);
         }
 

@@ -21,7 +21,7 @@ class EnsureAdmin
         }
 
         // If not authenticated, redirect to admin login
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect(route('admin.login', absolute: false));
         }
 
@@ -47,9 +47,9 @@ class EnsureAdmin
                     'is_blocked' => true,
                     'is_inactive' => ($user->status === 'inactive'),
                     'should_logout' => true,
-                    'message' => $user->status === 'inactive' 
-                        ? 'Akun Admin Anda telah dinonaktifkan oleh Super Admin.' 
-                        : 'Akun Admin Anda telah diblokir oleh Super Admin.'
+                    'message' => $user->status === 'inactive'
+                        ? 'Akun Admin Anda telah dinonaktifkan oleh Super Admin.'
+                        : 'Akun Admin Anda telah diblokir oleh Super Admin.',
                 ], 403);
             }
 

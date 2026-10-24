@@ -32,8 +32,9 @@ class AdminForgotPassword extends Component
 
         // Verifikasi bahwa email terdaftar dan memiliki akses admin/super_admin
         $user = User::where('email', $this->email)->first();
-        if ($user && !in_array($user->role, ['admin', 'super_admin'])) {
+        if ($user && ! in_array($user->role, ['admin', 'super_admin'])) {
             $this->addError('email', 'Email ini tidak terdaftar sebagai akun administrator.');
+
             return;
         }
 
@@ -48,6 +49,7 @@ class AdminForgotPassword extends Component
                 default => 'Gagal mengirim link reset password. Silakan coba lagi nanti.',
             };
             $this->addError('email', $msg);
+
             return;
         }
 

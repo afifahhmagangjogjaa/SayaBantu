@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('helps', function (Blueprint $table) {
-            if (!Schema::hasColumn('helps', 'auto_cancel_minutes')) {
+            if (! Schema::hasColumn('helps', 'auto_cancel_minutes')) {
                 $table->integer('auto_cancel_minutes')->nullable()->after('scheduled_at');
             }
-            if (!Schema::hasColumn('helps', 'auto_cancel_at')) {
+            if (! Schema::hasColumn('helps', 'auto_cancel_at')) {
                 $table->timestamp('auto_cancel_at')->nullable()->after('auto_cancel_minutes');
             }
         });

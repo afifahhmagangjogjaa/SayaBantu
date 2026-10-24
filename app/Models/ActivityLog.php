@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class ActivityLog extends Model
 {
@@ -60,6 +60,7 @@ class ActivityLog extends Model
         if ($to) {
             $query->where('created_at', '<=', $to);
         }
+
         return $query;
     }
 }

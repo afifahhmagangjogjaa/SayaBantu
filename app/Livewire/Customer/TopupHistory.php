@@ -12,7 +12,9 @@ class TopupHistory extends Component
     use WithPagination;
 
     public $filterStatus = 'all';
+
     public $selectedTransaction = null;
+
     public $showDetailModal = false;
 
     protected $queryString = ['filterStatus'];

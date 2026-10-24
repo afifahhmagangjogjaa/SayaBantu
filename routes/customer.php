@@ -35,8 +35,6 @@ Route::middleware(['auth', 'onboarded', 'customer'])
         // Chat
         Route::get('/chat/{help?}', \App\Livewire\Customer\Chat::class)->name('chat');
 
-
-
         // Help & Support
         Route::view('/help-support', 'customer.help-support')->name('help-support');
 
@@ -53,4 +51,3 @@ Route::middleware(['auth', 'onboarded', 'customer'])
         Route::get('/reports/{report}/status-check', [\App\Http\Controllers\PartnerReportController::class, 'statusCheck'])->name('reports.status-check');
         Route::get('/reports/{report}', [\App\Http\Controllers\PartnerReportController::class, 'show'])->name('reports.show');
     });
-

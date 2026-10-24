@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class AppSetting extends Model
 {
     protected $table = 'app_settings';
+
     protected $fillable = ['key', 'value'];
 
     public static function get($key, $default = null)
     {
         $row = static::where('key', $key)->first();
+
         return $row ? $row->value : $default;
     }
 

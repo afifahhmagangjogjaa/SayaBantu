@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\WithdrawRequest;
 use App\Models\BalanceTransaction;
 use App\Models\User;
+use App\Models\WithdrawRequest;
 use App\Notifications\NewWithdrawRequest;
 use App\Services\PaymentGatewayService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class WithdrawController extends Controller
 {
@@ -26,8 +25,9 @@ class WithdrawController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->isProfileComplete()) {
+        if (! $user->isProfileComplete()) {
             $missing = implode(', ', $user->getMissingProfileFields());
+
             return redirect()->route('mitra.dashboard')->with('error', "Harap lengkapi profil Anda ($missing) terlebih dahulu sebelum melakukan penarikan saldo.");
         }
 
@@ -61,7 +61,7 @@ class WithdrawController extends Controller
             }
         }
 
-        if (!$force && !$fromDashboard && $latest && $isRecent) {
+        if (! $force && ! $fromDashboard && $latest && $isRecent) {
             if ($latest->status === WithdrawRequest::STATUS_SUCCESS) {
                 return redirect()->route('mitra.withdraw.success', $latest->id);
             }
@@ -80,12 +80,13 @@ class WithdrawController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->isProfileComplete()) {
+        if (! $user->isProfileComplete()) {
             $missing = implode(', ', $user->getMissingProfileFields());
+
             return redirect()->route('mitra.dashboard')->with('error', "Harap lengkapi profil Anda ($missing) terlebih dahulu sebelum melakukan penarikan saldo.");
         }
 
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             return back()->withErrors(['general' => 'Saldo belum dapat ditarik. Harap verifikasi email Anda terlebih dahulu sebelum mengajukan penarikan dana.'])->withInput();
         }
 
@@ -102,14 +103,14 @@ class WithdrawController extends Controller
         }
 
         $request->validate([
-            'amount' => ['required', 'integer', 'min:10000', 'max:' . max(10000, $userBalance)],
+            'amount' => ['required', 'integer', 'min:10000', 'max:'.max(10000, $userBalance)],
             'bank_code' => ['required', 'string'],
             'account_number' => ['required', 'string', 'regex:/^[0-9]+$/'],
         ], [
             'amount.required' => 'Jumlah penarikan wajib diisi.',
             'amount.integer' => 'Jumlah penarikan harus berupa angka.',
             'amount.min' => 'Jumlah penarikan minimal Rp 10.000.',
-            'amount.max' => 'Saldo Anda tidak mencukupi untuk penarikan sebesar Rp ' . number_format((int) $request->input('amount', 0), 0, ',', '.') . '. Saldo tersedia: Rp ' . number_format($userBalance, 0, ',', '.') . '.',
+            'amount.max' => 'Saldo Anda tidak mencukupi untuk penarikan sebesar Rp '.number_format((int) $request->input('amount', 0), 0, ',', '.').'. Saldo tersedia: Rp '.number_format($userBalance, 0, ',', '.').'.',
             'bank_code.required' => 'Silakan pilih Bank atau E-Wallet tujuan.',
             'account_number.required' => 'Nomor rekening wajib diisi.',
             'account_number.regex' => 'Nomor rekening hanya boleh berisi angka.',
@@ -119,12 +120,12 @@ class WithdrawController extends Controller
 
         // Business checks: minimum balance
         if ($userBalance < 10000) {
-            return back()->withErrors(['amount' => 'Saldo Anda tidak mencukupi untuk melakukan penarikan. Minimal saldo adalah Rp 10.000 (Saldo Anda: Rp ' . number_format($userBalance, 0, ',', '.') . ').'])->withInput();
+            return back()->withErrors(['amount' => 'Saldo Anda tidak mencukupi untuk melakukan penarikan. Minimal saldo adalah Rp 10.000 (Saldo Anda: Rp '.number_format($userBalance, 0, ',', '.').').'])->withInput();
         }
 
         // Business checks: amount exceeds available balance
         if ($amount > $userBalance) {
-            return back()->withErrors(['amount' => 'Jumlah penarikan (Rp ' . number_format($amount, 0, ',', '.') . ') melebihi saldo tersedia Anda (Rp ' . number_format($userBalance, 0, ',', '.') . ').'])->withInput();
+            return back()->withErrors(['amount' => 'Jumlah penarikan (Rp '.number_format($amount, 0, ',', '.').') melebihi saldo tersedia Anda (Rp '.number_format($userBalance, 0, ',', '.').').'])->withInput();
         }
 
         // Business checks: pending requests
@@ -162,6 +163,7 @@ class WithdrawController extends Controller
             return redirect()->route('mitra.withdraw.form')->with('status', 'Pengajuan Anda berhasil dikirim dan sedang menunggu proses oleh admin. Mohon tunggu 1-5 hari kerja.');
         } catch (\Throwable $e) {
             Log::error('WithdrawController: error creating withdraw', ['error' => $e->getMessage()]);
+
             return back()->withErrors(['general' => 'Terjadi kesalahan saat membuat permintaan tarik saldo.'])->withInput();
         }
     }
@@ -175,7 +177,7 @@ class WithdrawController extends Controller
         $incomeHistory = BalanceTransaction::where('user_id', $user->id)
             ->where(function ($q) {
                 $q->where('type', 'topup')
-                  ->orWhere('description', 'like', 'Pendapatan Bantuan%');
+                    ->orWhere('description', 'like', 'Pendapatan Bantuan%');
             })
             ->where('status', 'completed')
             ->with(['help'])
@@ -189,7 +191,7 @@ class WithdrawController extends Controller
         $totalIncome = (float) BalanceTransaction::where('user_id', $user->id)
             ->where(function ($q) {
                 $q->where('type', 'topup')
-                  ->orWhere('description', 'like', 'Pendapatan Bantuan%');
+                    ->orWhere('description', 'like', 'Pendapatan Bantuan%');
             })
             ->where('status', 'completed')
             ->sum('amount');
@@ -250,7 +252,7 @@ class WithdrawController extends Controller
         }
 
         $withdraw = WithdrawRequest::where('external_id', $payload['external_id'])->first();
-        if (!$withdraw) {
+        if (! $withdraw) {
             return response()->json(['error' => 'not_found'], 404);
         }
 

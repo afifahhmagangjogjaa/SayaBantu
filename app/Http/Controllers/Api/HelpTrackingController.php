@@ -32,7 +32,7 @@ class HelpTrackingController extends Controller
     {
         $help = Help::with('mitra')->find($id);
 
-        if (!$help) {
+        if (! $help) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
@@ -55,7 +55,7 @@ class HelpTrackingController extends Controller
     {
         $help = Help::with(['city', 'mitra', 'user'])->find($id);
 
-        if (!$help) {
+        if (! $help) {
             return response()->json(['error' => 'Not found'], 404);
         }
 

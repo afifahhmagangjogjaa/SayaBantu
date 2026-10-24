@@ -2,10 +2,10 @@
 
 namespace App\Livewire\SuperAdmin;
 
+use App\Models\Category;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use App\Models\Category;
 
 #[Layout('layouts.superadmin')]
 class Categories extends Component
@@ -13,17 +13,23 @@ class Categories extends Component
     use WithPagination;
 
     public $search = '';
+
     public $perPage = 10;
 
     // Modal states
     public $showCreateModal = false;
+
     public $showConfirmDelete = false;
 
     // Form fields
     public $categoryId;
+
     public $name;
+
     public $description;
+
     public $icon;
+
     public $is_active = true;
 
     protected $rules = [
@@ -74,7 +80,7 @@ class Categories extends Component
         $this->description = $category->description;
         $this->icon = $category->icon;
         $this->is_active = $category->is_active;
-        
+
         $this->showCreateModal = true;
     }
 
@@ -113,7 +119,7 @@ class Categories extends Component
     {
         $category = Category::findOrFail($this->categoryId);
         $category->delete();
-        
+
         session()->flash('message', 'Kategori berhasil dihapus');
         $this->closeModal();
     }
@@ -121,7 +127,7 @@ class Categories extends Component
     public function toggleStatus($id)
     {
         $category = Category::findOrFail($id);
-        $category->update(['is_active' => !$category->is_active]);
+        $category->update(['is_active' => ! $category->is_active]);
         session()->flash('message', 'Status kategori berhasil diubah');
     }
 
@@ -130,8 +136,8 @@ class Categories extends Component
         $categories = Category::query()
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%');
                 });
             })
             ->withCount('helps')

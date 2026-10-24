@@ -4,15 +4,19 @@ namespace App\Livewire\Mitra;
 
 use App\Models\Help;
 use App\Services\LocationTrackingService;
-use Livewire\Component;
 use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 
 class GpsTracker extends Component
 {
     public $helpId;
+
     public $isTracking = false;
+
     public $currentStatus;
+
     public $distanceInfo;
+
     public $lastUpdate;
 
     protected $locationService;
@@ -51,19 +55,20 @@ class GpsTracker extends Component
     {
         $help = $this->helpForCurrentUser();
 
-        if (!$help) {
+        if (! $help) {
             $this->isTracking = false;
+
             return;
         }
 
         // Tracking aktif jika status masih dalam proses
         $this->isTracking = in_array($help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived', 'in_progress', 'sedang_diproses']);
         $this->currentStatus = $help->status;
-        
+
         Log::info('GPS Tracker Status Check', [
             'help_id' => $this->helpId,
             'status' => $help->status,
-            'is_tracking' => $this->isTracking
+            'is_tracking' => $this->isTracking,
         ]);
     }
 
@@ -72,11 +77,12 @@ class GpsTracker extends Component
         try {
             $help = $this->helpForCurrentUser();
 
-            if (!$help) {
-                Log::error("Help not found for GPS update", ['help_id' => $this->helpId]);
+            if (! $help) {
+                Log::error('Help not found for GPS update', ['help_id' => $this->helpId]);
+
                 return [
                     'success' => false,
-                    'message' => 'Bantuan tidak ditemukan'
+                    'message' => 'Bantuan tidak ditemukan',
                 ];
             }
 
@@ -87,7 +93,7 @@ class GpsTracker extends Component
             $this->currentStatus = $result['status'];
             $this->distanceInfo = [
                 'from_initial' => $result['distance_from_initial'],
-                'to_customer' => $result['distance_to_customer']
+                'to_customer' => $result['distance_to_customer'],
             ];
             $this->lastUpdate = now()->format('H:i:s');
 
@@ -96,7 +102,7 @@ class GpsTracker extends Component
                 $this->dispatch('status-changed', [
                     'helpId' => $this->helpId,
                     'oldStatus' => $result['old_status'],
-                    'newStatus' => $result['status']
+                    'newStatus' => $result['status'],
                 ]);
             }
 
@@ -106,14 +112,14 @@ class GpsTracker extends Component
             return $result;
 
         } catch (\Exception $e) {
-            Log::error("GPS tracking error", [
+            Log::error('GPS tracking error', [
                 'help_id' => $this->helpId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return [
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat update lokasi'
+                'message' => 'Terjadi kesalahan saat update lokasi',
             ];
         }
     }

@@ -40,10 +40,10 @@ class NewTopupRequest extends Notification
             ->subject('🔔 Request Top-Up Saldo Baru')
             ->greeting('Halo Admin,')
             ->line('Ada request top-up saldo baru yang menunggu persetujuan Anda.')
-            ->line('Customer: ' . $this->transaction->user->name)
-            ->line('Kode Request: ' . $this->transaction->request_code)
-            ->line('Nominal: Rp ' . number_format($this->transaction->amount, 0, ',', '.'))
-            ->line('Total Pembayaran: Rp ' . number_format($this->transaction->total_payment, 0, ',', '.'))
+            ->line('Customer: '.$this->transaction->user->name)
+            ->line('Kode Request: '.$this->transaction->request_code)
+            ->line('Nominal: Rp '.number_format($this->transaction->amount, 0, ',', '.'))
+            ->line('Total Pembayaran: Rp '.number_format($this->transaction->total_payment, 0, ',', '.'))
             ->action('Review Request', route('admin.topup.approvals'))
             ->line('Silakan verifikasi bukti transfer dan approve/reject request tersebut.');
     }
@@ -69,7 +69,7 @@ class NewTopupRequest extends Notification
             'city_id' => $this->transaction->user?->city_id,
             'amount' => $this->transaction->amount,
             'total_payment' => $this->transaction->total_payment,
-            'message' => 'Request top-up baru dari ' . $this->transaction->user->name . ' sebesar Rp ' . number_format($this->transaction->amount, 0, ',', '.'),
+            'message' => 'Request top-up baru dari '.$this->transaction->user->name.' sebesar Rp '.number_format($this->transaction->amount, 0, ',', '.'),
             'url' => $url,
         ];
     }

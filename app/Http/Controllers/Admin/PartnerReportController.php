@@ -13,11 +13,11 @@ class PartnerReportController extends Controller
     {
         // Build base query for statistics
         $statsQuery = PartnerReport::query();
-        
+
         // Filter by admin's city if user is admin
         if (auth()->user() && auth()->user()->role === 'admin') {
             $adminCityIds = auth()->user()->getAdminCityIds();
-            if (!empty($adminCityIds)) {
+            if (! empty($adminCityIds)) {
                 $statsQuery->where(function ($q) use ($adminCityIds) {
                     $q->whereHas('reporter', function ($sq) use ($adminCityIds) {
                         $sq->whereIn('city_id', $adminCityIds);
@@ -52,7 +52,7 @@ class PartnerReportController extends Controller
         // Filter by admin's city if user is admin
         if (auth()->user() && auth()->user()->role === 'admin') {
             $adminCityIds = auth()->user()->getAdminCityIds();
-            if (!empty($adminCityIds)) {
+            if (! empty($adminCityIds)) {
                 $query->where(function ($q) use ($adminCityIds) {
                     $q->whereHas('reporter', function ($sq) use ($adminCityIds) {
                         $sq->whereIn('city_id', $adminCityIds);
@@ -93,15 +93,15 @@ class PartnerReportController extends Controller
                     ->orWhere('report_type', 'like', "%{$search}%")
                     ->orWhereHas('reporter', function ($sq) use ($search) {
                         $sq->where('name', 'like', "%{$search}%")
-                           ->orWhere('email', 'like', "%{$search}%");
+                            ->orWhere('email', 'like', "%{$search}%");
                     })
                     ->orWhereHas('reportedUser', function ($sq) use ($search) {
                         $sq->where('name', 'like', "%{$search}%")
-                           ->orWhere('email', 'like', "%{$search}%");
+                            ->orWhere('email', 'like', "%{$search}%");
                     })
                     ->orWhereHas('reportedHelp', function ($sq) use ($search) {
                         $sq->where('title', 'like', "%{$search}%")
-                           ->orWhere('description', 'like', "%{$search}%");
+                            ->orWhere('description', 'like', "%{$search}%");
                     });
 
                 // Pencarian berdasarkan status dalam bahasa Indonesia
@@ -170,7 +170,7 @@ class PartnerReportController extends Controller
         $user = auth()->user();
         if ($user && $user->role === 'admin') {
             $adminCityIds = $user->getAdminCityIds();
-            if (!empty($adminCityIds)) {
+            if (! empty($adminCityIds)) {
                 $reporterCityId = $report->reporter?->city_id;
                 $reportedCityId = $report->reportedUser?->city_id;
                 $helpCityId = $report->reportedHelp?->city_id;
@@ -179,7 +179,7 @@ class PartnerReportController extends Controller
                     || ($reportedCityId && in_array($reportedCityId, $adminCityIds))
                     || ($helpCityId && in_array($helpCityId, $adminCityIds));
 
-                if (!$matches) {
+                if (! $matches) {
                     abort(403, 'Anda tidak memiliki hak akses untuk melihat atau mengelola laporan aduan dari wilayah lain.');
                 }
             }
@@ -191,13 +191,13 @@ class PartnerReportController extends Controller
         $this->authorizeReportAccess($report);
 
         $report->load([
-            'reporter', 
-            'reportedUser', 
-            'reportedHelp.messages.mitra', 
-            'reportedHelp.messages.customer', 
-            'reportedHelp.user', 
-            'reportedHelp.mitra', 
-            'resolvedBy'
+            'reporter',
+            'reportedUser',
+            'reportedHelp.messages.mitra',
+            'reportedHelp.messages.customer',
+            'reportedHelp.user',
+            'reportedHelp.mitra',
+            'resolvedBy',
         ]);
 
         // Cari riwayat chat terkait
@@ -251,7 +251,7 @@ class PartnerReportController extends Controller
             try {
                 $reporterUser->notify(new \App\Notifications\ReportStatusUpdatedNotification($report, $oldStatus, $request->status));
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi status aduan ke pelapor: " . $e->getMessage());
+                \Illuminate\Support\Facades\Log::warning('Gagal mengirim notifikasi status aduan ke pelapor: '.$e->getMessage());
             }
         }
 
@@ -304,11 +304,11 @@ class PartnerReportController extends Controller
                     ->whereNull('popped_at')
                     ->where(function ($q) {
                         $q->where('type', 'App\Notifications\SanctionNotification')
-                          ->orWhere('data->type', 'sanction_warning');
+                            ->orWhere('data->type', 'sanction_warning');
                     })
                     ->update(['popped_at' => now()]);
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Gagal mark SP notifications as popped: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::warning('Gagal mark SP notifications as popped: '.$e->getMessage());
             }
         }
 
@@ -320,7 +320,7 @@ class PartnerReportController extends Controller
                 $report->id
             ));
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Failed sending SanctionNotification: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Failed sending SanctionNotification: '.$e->getMessage());
         }
 
         // Bersihkan session flag pop-up yang mungkin pernah tersimpan agar pop-up PASTI muncul
@@ -339,7 +339,7 @@ class PartnerReportController extends Controller
                     }
                     if ($changed) {
                         \Illuminate\Support\Facades\DB::table('sessions')->where('id', $s->id)->update([
-                            'payload' => base64_encode(serialize($data))
+                            'payload' => base64_encode(serialize($data)),
                         ]);
                     }
                 }
@@ -349,9 +349,9 @@ class PartnerReportController extends Controller
         }
 
         // Tambahkan ke catatan admin pada laporan agar tercatat jejaknya
-        $reasonText = !empty($validated['sanction_reason']) ? ' Alasan: ' . $validated['sanction_reason'] : '';
+        $reasonText = ! empty($validated['sanction_reason']) ? ' Alasan: '.$validated['sanction_reason'] : '';
         $actionText = $targetUser->warning_level > 0
-            ? ('memberikan sanksi Surat Peringatan ' . $targetUser->warning_level)
+            ? ('memberikan sanksi Surat Peringatan '.$targetUser->warning_level)
             : 'mencabut/mereset Surat Peringatan (Kembali Normal)';
 
         $logNote = sprintf(
@@ -364,12 +364,12 @@ class PartnerReportController extends Controller
             $reasonText
         );
         $report->update([
-            'admin_notes' => trim(($report->admin_notes ?? '') . $logNote),
+            'admin_notes' => trim(($report->admin_notes ?? '').$logNote),
         ]);
 
         $message = $targetUser->warning_level > 0
-            ? 'Surat Peringatan ' . $targetUser->warning_level . ' berhasil diberikan kepada ' . $targetUser->name . '.' . ($targetUser->is_banned ? ' Akun telah dibanned.' : '')
-            : 'Surat Peringatan untuk ' . $targetUser->name . ' telah dicabut/direset.';
+            ? 'Surat Peringatan '.$targetUser->warning_level.' berhasil diberikan kepada '.$targetUser->name.'.'.($targetUser->is_banned ? ' Akun telah dibanned.' : '')
+            : 'Surat Peringatan untuk '.$targetUser->name.' telah dicabut/direset.';
 
         return redirect()->back()->with('success', $message);
     }
@@ -386,11 +386,12 @@ class PartnerReportController extends Controller
         if ($request->filled('note')) {
             $timestamp = now()->format('d/m/Y H:i');
             $adminName = auth()->user()?->name ?? 'Admin';
-            $entry = "[{$timestamp}] {$adminName}: " . trim($request->note);
+            $entry = "[{$timestamp}] {$adminName}: ".trim($request->note);
             $current = trim($report->admin_notes ?? '');
             $report->update([
-                'admin_notes' => $current !== '' ? $current . "\n" . $entry : $entry,
+                'admin_notes' => $current !== '' ? $current."\n".$entry : $entry,
             ]);
+
             return back()->with('success', 'Catatan baru berhasil ditambahkan.');
         }
 
@@ -398,6 +399,7 @@ class PartnerReportController extends Controller
             $report->update([
                 'admin_notes' => $request->admin_notes ? trim($request->admin_notes) : null,
             ]);
+
             return back()->with('success', 'Riwayat catatan berhasil diperbarui.');
         }
 
@@ -420,7 +422,7 @@ class PartnerReportController extends Controller
             try {
                 $reporterUser->notify(new \App\Notifications\ReportStatusUpdatedNotification($report, $oldStatus, 'resolved'));
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi status aduan ke pelapor: " . $e->getMessage());
+                \Illuminate\Support\Facades\Log::warning('Gagal mengirim notifikasi status aduan ke pelapor: '.$e->getMessage());
             }
         }
 
@@ -443,7 +445,7 @@ class PartnerReportController extends Controller
             try {
                 $reporterUser->notify(new \App\Notifications\ReportStatusUpdatedNotification($report, $oldStatus, 'in_progress'));
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi status aduan ke pelapor: " . $e->getMessage());
+                \Illuminate\Support\Facades\Log::warning('Gagal mengirim notifikasi status aduan ke pelapor: '.$e->getMessage());
             }
         }
 

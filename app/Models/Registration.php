@@ -57,8 +57,9 @@ class Registration extends Model
     public function getSelfieUrlAttribute()
     {
         if ($this->selfie_photo_path) {
-            return asset('storage/' . $this->selfie_photo_path);
+            return asset('storage/'.$this->selfie_photo_path);
         }
+
         return null;
     }
 
@@ -68,8 +69,9 @@ class Registration extends Model
     public function getKtpUrlAttribute()
     {
         if ($this->ktp_photo_path) {
-            return asset('storage/' . $this->ktp_photo_path);
+            return asset('storage/'.$this->ktp_photo_path);
         }
+
         return null;
     }
 

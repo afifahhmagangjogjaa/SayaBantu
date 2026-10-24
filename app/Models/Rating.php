@@ -61,17 +61,17 @@ class Rating extends Model
                 $sub->where('ratee_id', $mitraId)
                     ->where(function ($t) {
                         $t->where('type', 'customer_to_mitra')
-                          ->orWhereNull('type');
+                            ->orWhereNull('type');
                     });
             })->orWhere(function ($sub) use ($mitraId) {
                 $sub->where('mitra_id', $mitraId)
                     ->where(function ($t) {
                         $t->where('type', 'customer_to_mitra')
-                          ->orWhereNull('type');
+                            ->orWhereNull('type');
                     })
                     ->where(function ($r) use ($mitraId) {
                         $r->where('rater_id', '!=', $mitraId)
-                          ->orWhereNull('rater_id');
+                            ->orWhereNull('rater_id');
                     });
             });
         })->where('rating', '>', 0);
@@ -88,7 +88,7 @@ class Rating extends Model
                     ->where('type', 'mitra_to_customer')
                     ->where(function ($r) use ($customerId) {
                         $r->where('rater_id', '!=', $customerId)
-                          ->orWhereNull('rater_id');
+                            ->orWhereNull('rater_id');
                     });
             });
         })->where('rating', '>', 0);
@@ -108,9 +108,9 @@ class Rating extends Model
     public static function hasRated($helpId, $raterId, $type)
     {
         return self::where('help_id', $helpId)
-                   ->where('rater_id', $raterId)
-                   ->where('type', $type)
-                   ->exists();
+            ->where('rater_id', $raterId)
+            ->where('type', $type)
+            ->exists();
     }
 
     /**
@@ -123,6 +123,7 @@ class Rating extends Model
         // If viewer is admin, superadmin, or the rater themselves, always show real name
         if ($viewer && (in_array($viewer->role, ['superadmin', 'admin']) || $viewer->id === ($this->rater_id ?? $this->user_id))) {
             $name = optional($this->rater)->name ?? (optional($this->user)->name ?? 'Pengguna');
+
             return $this->is_anonymous ? "{$name} (Anonim)" : $name;
         }
 

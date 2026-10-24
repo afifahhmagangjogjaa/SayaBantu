@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
+use App\Models\BalanceTransaction;
 use App\Models\User;
 use App\Models\UserBalance;
-use App\Models\BalanceTransaction;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Seeder;
 
 class UserBalancesSeeder extends Seeder
 {

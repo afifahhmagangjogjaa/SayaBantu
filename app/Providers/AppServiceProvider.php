@@ -2,15 +2,15 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Models\Help;
-use App\Observers\HelpObserver;
-use App\Models\User;
 use App\Models\Rating;
-use App\Observers\UserObserver;
+use App\Models\User;
+use App\Observers\HelpObserver;
 use App\Observers\RatingObserver;
-use Illuminate\Support\Facades\Auth;
+use App\Observers\UserObserver;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -72,4 +72,3 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 }
-

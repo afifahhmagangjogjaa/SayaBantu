@@ -2,11 +2,11 @@
 
 namespace App\Livewire\Customer;
 
+use App\Models\AppSetting;
 use App\Models\BalanceTransaction;
 use App\Models\User;
-use App\Models\AppSetting;
-use App\Notifications\TopupRequestSubmitted;
 use App\Notifications\NewTopupRequest;
+use App\Notifications\TopupRequestSubmitted;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -19,26 +19,38 @@ class TopupRequest extends Component
 
     // Step 1 - Form data
     public $amount;
+
     public $customerName;
+
     public $customerPhone;
+
     public $customerEmail;
+
     public $customerNotes;
 
     // Step 2 - Payment detail (calculated)
     public $adminFee = 0;
+
     public $totalPayment = 0;
 
     // Step 3 - Payment method
     public $paymentMethod;
+
     public $proofOfPayment;
+
     public $proofPreview;
 
     // Others
     public $requestCode;
+
     public $transactionId;
+
     public $availableBanks = [];
+
     public $qrisEnabled = false;
+
     public $hasActivePending = false;
+
     public $pendingTransaction = null;
 
     protected $rules = [
@@ -63,8 +75,9 @@ class TopupRequest extends Component
     {
         $user = auth()->user();
 
-        if ($user && !$user->canTopup()) {
+        if ($user && ! $user->canTopup()) {
             session()->flash('error', $user->getCannotTopupReason());
+
             return redirect()->route('customer.dashboard');
         }
 
@@ -72,10 +85,10 @@ class TopupRequest extends Component
         // CEK APAKAH ADA REQUEST YANG MASIH PENDING
         // ==========================================
         $this->checkActivePending();
-        
+
         // Load from session if exists
         $sessionData = session('topup_form_data');
-        
+
         if ($sessionData) {
             $this->currentStep = $sessionData['currentStep'] ?? 1;
             $this->amount = $sessionData['amount'] ?? null;
@@ -112,8 +125,8 @@ class TopupRequest extends Component
         $banks = $methods['banks'] ?? $defaultBanks;
 
         $this->availableBanks = collect($banks)
-            ->filter(fn($bank) => $bank['enabled'] ?? false)
-            ->map(fn($bank) => array_merge($bank, ['value' => 'bank_' . ($bank['code'] ?? '')]))
+            ->filter(fn ($bank) => $bank['enabled'] ?? false)
+            ->map(fn ($bank) => array_merge($bank, ['value' => 'bank_'.($bank['code'] ?? '')]))
             ->values()
             ->toArray();
     }
@@ -127,9 +140,10 @@ class TopupRequest extends Component
 
     public function calculateFees()
     {
-        if (!$this->amount) {
+        if (! $this->amount) {
             $this->adminFee = 0;
             $this->totalPayment = 0;
+
             return;
         }
 
@@ -168,14 +182,14 @@ class TopupRequest extends Component
                 'paymentMethod' => $this->paymentMethod,
                 'adminFee' => $this->adminFee,
                 'totalPayment' => $this->totalPayment,
-            ]
+            ],
         ]);
     }
 
     public function resetFormData()
     {
         session()->forget('topup_form_data');
-        
+
         $user = auth()->user();
         $this->currentStep = 1;
         $this->amount = null;
@@ -187,7 +201,7 @@ class TopupRequest extends Component
         $this->proofOfPayment = null;
         $this->adminFee = 0;
         $this->totalPayment = 0;
-        
+
         session()->flash('success', 'Data form berhasil direset');
     }
 
@@ -201,7 +215,7 @@ class TopupRequest extends Component
                 ->latest()
                 ->first();
 
-            $this->hasActivePending = !is_null($this->pendingTransaction);
+            $this->hasActivePending = ! is_null($this->pendingTransaction);
         } else {
             $this->pendingTransaction = null;
             $this->hasActivePending = false;
@@ -211,14 +225,16 @@ class TopupRequest extends Component
     public function nextStep()
     {
         $user = auth()->user();
-        if ($user && !$user->canTopup()) {
+        if ($user && ! $user->canTopup()) {
             session()->flash('error', $user->getCannotTopupReason());
+
             return redirect()->route('customer.dashboard');
         }
 
         $this->checkActivePending();
         if ($this->hasActivePending) {
             session()->flash('error', 'Anda masih memiliki permintaan top-up yang menunggu persetujuan admin.');
+
             return;
         }
 
@@ -249,8 +265,9 @@ class TopupRequest extends Component
     public function submitRequest()
     {
         $user = auth()->user();
-        if ($user && !$user->canTopup()) {
+        if ($user && ! $user->canTopup()) {
             session()->flash('error', $user->getCannotTopupReason());
+
             return redirect()->route('customer.dashboard');
         }
 
@@ -264,6 +281,7 @@ class TopupRequest extends Component
 
         if ($hasPending) {
             session()->flash('error', 'Anda masih memiliki permintaan top-up yang menunggu persetujuan admin.');
+
             return redirect()->route('customer.topup.history');
         }
 
@@ -280,11 +298,12 @@ class TopupRequest extends Component
 
         $allowed = array_merge(
             $this->qrisEnabled ? ['qris'] : [],
-            array_map(fn($b) => $b['value'], $this->availableBanks)
+            array_map(fn ($b) => $b['value'], $this->availableBanks)
         );
 
-        if (!in_array($this->paymentMethod, $allowed)) {
+        if (! in_array($this->paymentMethod, $allowed)) {
             session()->flash('error', 'Metode pembayaran tidak valid');
+
             return;
         }
 
@@ -299,7 +318,7 @@ class TopupRequest extends Component
                 'admin_fee' => $this->adminFee,
                 'total_payment' => $this->totalPayment,
                 'type' => 'topup',
-                'description' => 'Top-up saldo via ' . $this->getPaymentMethodName(),
+                'description' => 'Top-up saldo via '.$this->getPaymentMethodName(),
                 'status' => 'waiting_approval',
                 'customer_name' => $this->customerName,
                 'customer_phone' => $this->customerPhone,
@@ -316,26 +335,26 @@ class TopupRequest extends Component
             try {
                 auth()->user()->notify(new TopupRequestSubmitted($transaction));
             } catch (\Throwable $e) {
-                \Log::warning('Gagal kirim notifikasi user: ' . $e->getMessage());
+                \Log::warning('Gagal kirim notifikasi user: '.$e->getMessage());
             }
 
             try {
                 $this->notifyAdmins($transaction);
             } catch (\Throwable $e) {
-                \Log::warning('Gagal kirim notifikasi admin: ' . $e->getMessage());
+                \Log::warning('Gagal kirim notifikasi admin: '.$e->getMessage());
             }
 
             $this->dispatch('topupRequestCreated');
 
             session()->forget('topup_form_data');
 
-            session()->flash('success', 'Request top-up berhasil dikirim! Kode request: ' . $this->requestCode);
+            session()->flash('success', 'Request top-up berhasil dikirim! Kode request: '.$this->requestCode);
 
             return redirect()->route('customer.topup.history');
 
         } catch (\Exception $e) {
-            \Log::error('Topup request error: ' . $e->getMessage());
-            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            \Log::error('Topup request error: '.$e->getMessage());
+            session()->flash('error', 'Terjadi kesalahan: '.$e->getMessage());
         }
     }
 
@@ -352,9 +371,8 @@ class TopupRequest extends Component
             $sequence = intval($parts[2] ?? 0) + 1;
         }
 
-        return "TPU-{$date}-" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+        return "TPU-{$date}-".str_pad($sequence, 3, '0', STR_PAD_LEFT);
     }
-
 
     protected function getPaymentMethodName()
     {
@@ -364,9 +382,9 @@ class TopupRequest extends Component
 
         if (str_starts_with($this->paymentMethod, 'bank_')) {
             $code = substr($this->paymentMethod, 5);
-            $bank = collect($this->availableBanks)->first(fn($b) => ($b['code'] ?? '') === $code);
+            $bank = collect($this->availableBanks)->first(fn ($b) => ($b['code'] ?? '') === $code);
             if ($bank) {
-                return 'Transfer Bank ' . ($bank['name'] ?? strtoupper($code));
+                return 'Transfer Bank '.($bank['name'] ?? strtoupper($code));
             }
         }
 

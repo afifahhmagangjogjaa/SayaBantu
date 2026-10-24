@@ -34,14 +34,14 @@ class NewKtpVerificationNotification extends Notification
         $url = $isSuperAdmin ? route('superadmin.users') : route('admin.verifications');
 
         $cityId = $this->user->city_id;
-        if (!$cityId && !empty($this->user->city)) {
-            $cityId = \App\Models\City::where('name', 'like', '%' . trim($this->user->city) . '%')->value('id');
+        if (! $cityId && ! empty($this->user->city)) {
+            $cityId = \App\Models\City::where('name', 'like', '%'.trim($this->user->city).'%')->value('id');
         }
 
         $cityName = null;
         if ($cityId) {
             $cityName = \App\Models\City::find($cityId)?->name;
-        } elseif (!empty($this->user->city)) {
+        } elseif (! empty($this->user->city)) {
             $cityName = $this->user->city;
         }
 

@@ -2,12 +2,12 @@
 
 namespace App\Livewire\Mitra\Helps;
 
-use App\Models\Help;
-use Livewire\Component;
-use Livewire\Attributes\Layout;
-use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\DB;
 use App\Enums\HelpStatus;
+use App\Models\Help;
+use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.mitra')]
 class HelpDetail extends Component
@@ -29,22 +29,35 @@ class HelpDetail extends Component
     }
 
     public $helpId;
+
     public $help;
+
     public $currentStatus;
+
     public $rating = 0;
+
     public $review = '';
+
     public $showPartnerCancelModal = false;
+
     public $partnerCancelReason = '';
+
     // UI for showing the live status modal after partner cancel request
     public $showPartnerCancelStatusModal = false;
+
     public $partnerCancelStatus = null; // 'pending' | 'accepted' | 'rejected'
+
     public $showReassignedModal = false;
 
     // Completion / Before & After proof fields
     public $before_photo;
+
     public $before_notes = '';
+
     public $completion_photo;
+
     public $completion_notes = '';
+
     public $showCompletionModal = false;
 
     /**
@@ -52,21 +65,21 @@ class HelpDetail extends Component
      */
     public function getDistanceToCustomerProperty()
     {
-        if (!$this->help) {
+        if (! $this->help) {
             return null;
         }
 
         $mitraLat = $this->help->partner_current_lat;
         $mitraLng = $this->help->partner_current_lng;
 
-        if (!$mitraLat || !$mitraLng) {
+        if (! $mitraLat || ! $mitraLng) {
             return null;
         }
 
-        $custLat = !empty($this->help->latitude) ? (float) $this->help->latitude : (!empty($this->help->city?->latitude) ? (float) $this->help->city->latitude : null);
-        $custLng = !empty($this->help->longitude) ? (float) $this->help->longitude : (!empty($this->help->city?->longitude) ? (float) $this->help->city->longitude : null);
+        $custLat = ! empty($this->help->latitude) ? (float) $this->help->latitude : (! empty($this->help->city?->latitude) ? (float) $this->help->city->latitude : null);
+        $custLng = ! empty($this->help->longitude) ? (float) $this->help->longitude : (! empty($this->help->city?->longitude) ? (float) $this->help->city->longitude : null);
 
-        if (!$custLat || !$custLng) {
+        if (! $custLat || ! $custLng) {
             return null;
         }
 
@@ -99,7 +112,9 @@ class HelpDetail extends Component
             $reassignedNotif = false;
             foreach ($recent as $n) {
                 $data = json_decode($n->data, true);
-                if (!is_array($data)) continue;
+                if (! is_array($data)) {
+                    continue;
+                }
                 if (isset($data['type']) && $data['type'] === 'help_status'
                     && isset($data['help_id']) && $data['help_id'] == $id) {
                     if (isset($data['new_status']) && $data['new_status'] === 'cancel_accepted') {
@@ -121,7 +136,7 @@ class HelpDetail extends Component
                 $this->showReassignedModal = true;
             }
 
-            if (!$allowed) {
+            if (! $allowed) {
                 abort(403, 'Anda tidak memiliki akses ke bantuan ini.');
             }
         }
@@ -144,10 +159,10 @@ class HelpDetail extends Component
         $oldStatus = $this->help->status;
         $oldFlag = $this->help->partner_cancel_prev_status;
         $oldMitraId = $this->help->mitra_id;
-        
+
         $this->help->refresh();
         $this->help->load(['user', 'city', 'rating']);
-        
+
         $newStatus = $this->help->status;
         $newFlag = $this->help->partner_cancel_prev_status;
         $newMitraId = $this->help->mitra_id;
@@ -156,9 +171,10 @@ class HelpDetail extends Component
         if ($oldMitraId === auth()->id() && $newMitraId !== auth()->id()) {
             $this->showReassignedModal = true;
             $this->dispatch('show-status-notification', message: 'Pesanan dialihkan ke Rekan Jasa lain.');
+
             return;
         }
-        
+
         // Detect status change untuk trigger notifikasi
         if ($oldStatus !== $newStatus || $oldFlag !== $newFlag) {
             if ($newFlag === 'cancel_accepted') {
@@ -169,14 +185,14 @@ class HelpDetail extends Component
                 $this->dispatch('show-status-notification', message: 'Pembatalan ditolak customer!');
             }
         }
-        
+
         $this->currentStatus = $newStatus;
     }
 
     public function copyOrderId()
     {
         $this->dispatch('show-status-notification', message: 'ID Pesanan disalin ke clipboard');
-        $this->js('navigator.clipboard.writeText("' . $this->help->order_id . '")');
+        $this->js('navigator.clipboard.writeText("'.$this->help->order_id.'")');
     }
 
     public function updateStatus($status, $timestampField = null)
@@ -186,7 +202,7 @@ class HelpDetail extends Component
         ]);
 
         // Update timestamp field if provided
-        if ($timestampField && !$this->help->$timestampField) {
+        if ($timestampField && ! $this->help->$timestampField) {
             $this->help->update([
                 $timestampField => now(),
             ]);
@@ -197,7 +213,7 @@ class HelpDetail extends Component
 
         // Dispatch notifikasi ke Alpine.js
         $this->dispatch('show-status-notification', message: 'Status berhasil diperbarui!');
-        
+
         session()->flash('message', 'Status berhasil diperbarui!');
     }
 
@@ -212,11 +228,13 @@ class HelpDetail extends Component
         // Only allow partner assigned mitra to cancel and only for certain statuses
         if ($this->help->mitra_id !== auth()->id()) {
             session()->flash('error', 'Anda tidak memiliki izin untuk membatalkan bantuan ini.');
+
             return;
         }
 
-        if (!in_array($this->help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived'])) {
+        if (! in_array($this->help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived'])) {
             session()->flash('error', 'Pembatalan tidak dapat dilakukan pada status ini.');
+
             return;
         }
 
@@ -230,12 +248,12 @@ class HelpDetail extends Component
             \App\Models\PartnerActivity::create([
                 'user_id' => $mitraId,
                 'activity_type' => 'help_cancelled',
-                'description' => 'Membatalkan Bantuan #' . $this->help->id . ' - Alasan: ' . $reason,
+                'description' => 'Membatalkan Bantuan #'.$this->help->id.' - Alasan: '.$reason,
                 'ip_address' => request()?->ip(),
                 'user_agent' => request()?->header('User-Agent'),
             ]);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Failed to record PartnerActivity on help cancelled: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Failed to record PartnerActivity on help cancelled: '.$e->getMessage());
         }
 
         // 2. Catat pembatalan oleh mitra & lepaskan mitra untuk mencari rekan jasa lain
@@ -258,9 +276,9 @@ class HelpDetail extends Component
             $customer = $this->help->user ?? $this->help->customer;
             if ($customer) {
                 $customer->notify(new \App\Notifications\HelpStatusNotification(
-                    $this->help, 
-                    $oldStatus, 
-                    'partner_cancelled_direct', 
+                    $this->help,
+                    $oldStatus,
+                    'partner_cancelled_direct',
                     $mitra
                 ));
             }
@@ -289,11 +307,12 @@ class HelpDetail extends Component
                 }
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::warning('Failed notifying admins on partner cancel: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Failed notifying admins on partner cancel: '.$e->getMessage());
         }
 
         $this->showPartnerCancelModal = false;
         session()->flash('warning', 'Pesanan telah dibatalkan dan dialihkan kembali untuk mencari Rekan Jasa lain. Pembatalan dicatat dalam riwayat akun Anda.');
+
         return redirect()->route('mitra.dashboard');
     }
 
@@ -311,10 +330,10 @@ class HelpDetail extends Component
                 'partner_cancel_prev_status' => null,
             ]);
         }
-        
+
         // Mark session untuk tidak tampilkan lagi
-        session()->put('cancel_accepted_modal_shown_' . $this->helpId, true);
-        
+        session()->put('cancel_accepted_modal_shown_'.$this->helpId, true);
+
         $this->help->refresh();
     }
 
@@ -326,22 +345,23 @@ class HelpDetail extends Component
                 'partner_cancel_prev_status' => null,
             ]);
         }
-        
+
         // Mark session untuk tidak tampilkan lagi
-        session()->put('cancel_rejected_modal_shown_' . $this->helpId, true);
-        
+        session()->put('cancel_rejected_modal_shown_'.$this->helpId, true);
+
         $this->help->refresh();
     }
 
     public function markPartnerStarted()
     {
-        if (!$this->help->canPartnerStartJourney()) {
+        if (! $this->help->canPartnerStartJourney()) {
             $availAt = $this->help->partnerJourneyAvailableAt();
-            $formattedTime = $availAt 
-                ? $availAt->translatedFormat('l, d F Y [pukul] H:i') . ' WIB' 
+            $formattedTime = $availAt
+                ? $availAt->translatedFormat('l, d F Y [pukul] H:i').' WIB'
                 : '1 jam sebelum jadwal pelaksanaan';
             session()->flash('error', "Pesanan ini terjadwal. Anda baru bisa menuju lokasi mulai 1 jam sebelum jadwal pelaksanaan ({$formattedTime}).");
             $this->dispatch('show-status-notification', message: "Tombol baru aktif 1 jam sebelum jadwal ({$formattedTime})");
+
             return;
         }
 
@@ -362,14 +382,14 @@ class HelpDetail extends Component
                 $this->help->user->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'partner_on_the_way', $this->help->mitra));
             }
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi partner_on_the_way: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi partner_on_the_way: '.$e->getMessage());
         }
 
         // Dispatch notifikasi status changed
         $this->dispatch('status-changed', [
             'helpId' => $this->help->id,
             'oldStatus' => $oldStatus,
-            'newStatus' => 'partner_on_the_way'
+            'newStatus' => 'partner_on_the_way',
         ]);
 
         // Dispatch notifikasi ke Alpine.js
@@ -384,9 +404,10 @@ class HelpDetail extends Component
 
         // Validasi: tombol hanya dapat ditekan jika jarak <= 50 meter
         if ($distance !== null && $distance > 50) {
-            $formattedDist = $distance >= 1000 ? round($distance / 1000, 1) . ' km' : round($distance) . ' meter';
+            $formattedDist = $distance >= 1000 ? round($distance / 1000, 1).' km' : round($distance).' meter';
             $this->dispatch('show-status-notification', message: "Anda masih berjarak {$formattedDist}. Tombol aktif jika jarak maksimal 50m.");
             session()->flash('error', "Anda masih berjarak {$formattedDist} dari lokasi. Tombol hanya dapat ditekan jika jarak maksimal 50 meter.");
+
             return;
         }
 
@@ -406,14 +427,14 @@ class HelpDetail extends Component
                 $this->help->user->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'partner_arrived', $this->help->mitra));
             }
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi partner_arrived: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi partner_arrived: '.$e->getMessage());
         }
 
         // Dispatch notifikasi status changed
         $this->dispatch('status-changed', [
             'helpId' => $this->help->id,
             'oldStatus' => $oldStatus,
-            'newStatus' => 'partner_arrived'
+            'newStatus' => 'partner_arrived',
         ]);
 
         // Dispatch notifikasi ke Alpine.js
@@ -451,14 +472,14 @@ class HelpDetail extends Component
                 $this->help->user->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'in_progress', $this->help->mitra));
             }
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi in_progress: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi in_progress: '.$e->getMessage());
         }
 
         // Dispatch notifikasi status changed
         $this->dispatch('status-changed', [
             'helpId' => $this->help->id,
             'oldStatus' => $oldStatus,
-            'newStatus' => 'in_progress'
+            'newStatus' => 'in_progress',
         ]);
 
         // Dispatch notifikasi ke Alpine.js
@@ -553,12 +574,14 @@ class HelpDetail extends Component
 
         if ($existingRating) {
             session()->flash('error', 'Anda sudah memberikan rating untuk customer ini.');
+
             return;
         }
 
         // Check if order is completed
-        if (!in_array($this->help->status, ['selesai', 'completed'])) {
+        if (! in_array($this->help->status, ['selesai', 'completed'])) {
             session()->flash('error', 'Rating hanya bisa diberikan untuk pesanan yang sudah selesai.');
+
             return;
         }
 

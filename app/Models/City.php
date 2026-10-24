@@ -32,7 +32,7 @@ class City extends Model
     public function admins()
     {
         return $this->belongsToMany(User::class, 'admin_city', 'city_id', 'user_id')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     public function province()
@@ -63,4 +63,3 @@ class City extends Model
         return $query->where('is_active', true);
     }
 }
-

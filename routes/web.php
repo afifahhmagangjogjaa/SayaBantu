@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SimpleRegisterController;
 use App\Http\Controllers\OnboardingController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 // Public landing page
 Route::view('/', 'welcome')->name('home');
@@ -35,7 +34,7 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
         abort(403, 'Tautan verifikasi tidak valid atau telah kedaluwarsa.');
     }
 
-    if (!$user->hasVerifiedEmail()) {
+    if (! $user->hasVerifiedEmail()) {
         $user->markEmailAsVerified();
         event(new \Illuminate\Auth\Events\Verified($user));
     }
@@ -79,11 +78,13 @@ Route::middleware('auth')->group(function () {
         $user = auth()->user();
         if ($user && $user->hasVerifiedEmail()) {
             $redirectUrl = ($user->role === 'mitra') ? route('mitra.dashboard') : route('customer.dashboard');
+
             return response()->json([
                 'verified' => true,
-                'redirect' => $redirectUrl
+                'redirect' => $redirectUrl,
             ]);
         }
+
         return response()->json(['verified' => false]);
     })->name('verification.check-status');
 });
@@ -150,7 +151,7 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     Route::get('/ajax/cities', [\App\Http\Controllers\Api\CityController::class, 'search'])->name('ajax.cities');
     Route::get('/check-account-status', function () {
         $user = auth()->user()?->fresh() ?? auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'status' => 'logged_out',
                 'is_blocked' => false,
@@ -207,13 +208,13 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
         ]);
 
         $request->user()->update([
-            'password' => bcrypt($request->password)
+            'password' => bcrypt($request->password),
         ]);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Kata sandi berhasil diperbarui! Silakan gunakan kata sandi baru saat login.'
+                'message' => 'Kata sandi berhasil diperbarui! Silakan gunakan kata sandi baru saat login.',
             ]);
         }
 
@@ -234,10 +235,10 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
 });
 
 // Rute per role dipisah ke file masing-masing
-require __DIR__ . '/customer.php';
-require __DIR__ . '/mitra.php';
-require __DIR__ . '/superadmin.php';
-require __DIR__ . '/admin.php';
+require __DIR__.'/customer.php';
+require __DIR__.'/mitra.php';
+require __DIR__.'/superadmin.php';
+require __DIR__.'/admin.php';
 
 // Smart Address Autocomplete API (OpenStreetMap & Photon)
 Route::get('/api/address/autocomplete', [\App\Http\Controllers\Api\AddressController::class, 'search'])->name('api.address.autocomplete');
@@ -245,4 +246,4 @@ Route::get('/api/address/autocomplete', [\App\Http\Controllers\Api\AddressContro
 // Public callback endpoint for withdraw disbursements
 Route::post('/gateway/callback', [\App\Http\Controllers\WithdrawController::class, 'gatewayCallback'])->name('gateway.callback');
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

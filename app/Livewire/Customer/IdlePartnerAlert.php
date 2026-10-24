@@ -3,12 +3,13 @@
 namespace App\Livewire\Customer;
 
 use App\Models\Help;
-use Livewire\Component;
 use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 
 class IdlePartnerAlert extends Component
 {
     public $showBanner = false;
+
     public $activeHelpId = null;
 
     public function mount()
@@ -18,9 +19,10 @@ class IdlePartnerAlert extends Component
 
     public function checkForIdlePartner()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             $this->showBanner = false;
             $this->activeHelpId = null;
+
             return;
         }
 
@@ -54,20 +56,21 @@ class IdlePartnerAlert extends Component
                 ->where('data->mitra_id', $idleHelp->mitra_id)
                 ->exists();
 
-            if (!$alreadyNotified) {
+            if (! $alreadyNotified) {
                 try {
                     $idleHelp->user->notify(new \App\Notifications\IdlePartnerNotification($idleHelp));
                 } catch (\Throwable $e) {
-                    Log::warning('Gagal kirim IdlePartnerNotification: ' . $e->getMessage());
+                    Log::warning('Gagal kirim IdlePartnerNotification: '.$e->getMessage());
                 }
             }
 
             // Kunci unik untuk menandai apakah notifikasi ini sudah diakui/ditutup di sesi ini
-            $ackKey = 'idle_alert_ack_' . $idleHelp->id . '_' . $idleHelp->mitra_id;
+            $ackKey = 'idle_alert_ack_'.$idleHelp->id.'_'.$idleHelp->mitra_id;
 
             // Jika sudah pernah ditutup manual di sesi ini, jangan munculkan banner toast lagi
             if (session()->get($ackKey)) {
                 $this->showBanner = false;
+
                 return;
             }
 
@@ -80,16 +83,17 @@ class IdlePartnerAlert extends Component
 
     public function goToDetail()
     {
-        if (!$this->activeHelpId) {
+        if (! $this->activeHelpId) {
             return;
         }
         $help = Help::find($this->activeHelpId);
         if ($help) {
-            session()->put('idle_alert_ack_' . $help->id . '_' . $help->mitra_id, true);
+            session()->put('idle_alert_ack_'.$help->id.'_'.$help->mitra_id, true);
         }
         $helpId = $this->activeHelpId;
         $this->showBanner = false;
-        return redirect()->to(route('customer.helps.detail', $helpId) . '#customer-action-section');
+
+        return redirect()->to(route('customer.helps.detail', $helpId).'#customer-action-section');
     }
 
     public function dismissBanner()
@@ -97,7 +101,7 @@ class IdlePartnerAlert extends Component
         if ($this->activeHelpId) {
             $help = Help::find($this->activeHelpId);
             if ($help) {
-                session()->put('idle_alert_ack_' . $help->id . '_' . $help->mitra_id, true);
+                session()->put('idle_alert_ack_'.$help->id.'_'.$help->mitra_id, true);
             }
         }
         $this->showBanner = false;
@@ -109,7 +113,7 @@ class IdlePartnerAlert extends Component
         $activeHelp = null;
         if ($this->showBanner && $this->activeHelpId) {
             $activeHelp = Help::with(['mitra', 'category'])->find($this->activeHelpId);
-            if (!$activeHelp || !$activeHelp->isPartnerIdleOver30Minutes()) {
+            if (! $activeHelp || ! $activeHelp->isPartnerIdleOver30Minutes()) {
                 $this->showBanner = false;
                 $activeHelp = null;
             }

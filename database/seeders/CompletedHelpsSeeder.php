@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Help;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class CompletedHelpsSeeder extends Seeder
 {
@@ -15,17 +15,19 @@ class CompletedHelpsSeeder extends Seeder
     {
         // Get budi@example.com user (customer)
         $customer = User::where('email', 'budi@example.com')->first();
-        
-        if (!$customer) {
+
+        if (! $customer) {
             $this->command->error('User budi@example.com not found. Run UserSeeder first.');
+
             return;
         }
 
         // Get a mitra user
         $mitra = User::where('role', 'mitra')->first();
-        
-        if (!$mitra) {
+
+        if (! $mitra) {
             $this->command->error('No mitra user found. Run UserSeeder first.');
+
             return;
         }
 
@@ -37,6 +39,7 @@ class CompletedHelpsSeeder extends Seeder
 
         if ($helps->count() === 0) {
             $this->command->warn('No helps found for customer. Run HelpsSeeder first.');
+
             return;
         }
 

@@ -45,8 +45,6 @@ class BalanceTransaction extends Model
         'expired_at' => 'datetime',
     ];
 
-
-
     // Relationships
     public function user()
     {
@@ -77,9 +75,9 @@ class BalanceTransaction extends Model
         return $query->where('type', 'topup')
             ->where(function ($q) {
                 $q->where('description', 'like', 'Top-up%')
-                  ->orWhere('description', 'like', 'Top up%')
-                  ->orWhere('description', 'like', 'Topup%')
-                  ->orWhereNotNull('request_code');
+                    ->orWhere('description', 'like', 'Top up%')
+                    ->orWhere('description', 'like', 'Topup%')
+                    ->orWhereNotNull('request_code');
             })
             ->where('description', 'not like', 'Pendapatan Bantuan%')
             ->where('description', 'not like', 'Auto-confirm Bantuan%')
@@ -88,7 +86,7 @@ class BalanceTransaction extends Model
             ->where('description', 'not like', 'Penyesuaian%')
             ->where(function ($q) {
                 $q->whereNull('order_id')
-                  ->orWhere('order_id', 'not like', 'HELP-%');
+                    ->orWhere('order_id', 'not like', 'HELP-%');
             })
             ->whereHas('user', function ($uq) {
                 $uq->where('role', '!=', 'mitra');
@@ -120,7 +118,7 @@ class BalanceTransaction extends Model
     // Accessors
     public function getProofOfPaymentUrlAttribute()
     {
-        return $this->proof_of_payment ? asset('storage/' . $this->proof_of_payment) : null;
+        return $this->proof_of_payment ? asset('storage/'.$this->proof_of_payment) : null;
     }
 
     protected static function booted()
@@ -145,7 +143,7 @@ class BalanceTransaction extends Model
                 $pm = strtolower(trim((string) ($model->payment_method ?? '')));
                 if ($pm !== '') {
                     $allowed = ['qris', 'bank_bca', 'bank_mandiri', 'bank_bni', 'bank_bri', 'other'];
-                    if (!in_array($pm, $allowed)) {
+                    if (! in_array($pm, $allowed)) {
                         if (str_starts_with($pm, 'bank_bca')) {
                             $model->payment_method = 'bank_bca';
                         } elseif (str_starts_with($pm, 'bank_mandiri')) {

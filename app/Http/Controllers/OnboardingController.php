@@ -25,7 +25,7 @@ class OnboardingController extends Controller
         }
 
         $account = session('reg_account');
-        if (!$account) {
+        if (! $account) {
             return null;
         }
 
@@ -43,13 +43,13 @@ class OnboardingController extends Controller
     // =========================================================================
     public function showPasswordForm()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('register.choose-role');
         }
 
         $user = Auth::user();
-        if (!empty($user->password)) {
-            if (!$user->is_completed) {
+        if (! empty($user->password)) {
+            if (! $user->is_completed) {
                 if (empty($user->nik)) {
                     return redirect()->route('onboarding.step1');
                 }
@@ -60,6 +60,7 @@ class OnboardingController extends Controller
                     return redirect()->route('onboarding.step3');
                 }
             }
+
             return $user->role === 'mitra' ? redirect()->route('mitra.dashboard') : redirect()->route('dashboard');
         }
 
@@ -68,7 +69,7 @@ class OnboardingController extends Controller
 
     public function storePassword(Request $request)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('register.choose-role');
         }
 
@@ -96,7 +97,7 @@ class OnboardingController extends Controller
     public function showStep1()
     {
         $user = $this->getRegistrationUser();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('register.choose-role');
         }
 
@@ -111,13 +112,14 @@ class OnboardingController extends Controller
         $cities = City::where('is_active', true)->orderBy('name', 'asc')->get();
         $allDistricts = \App\Support\JsonMaster::districts();
         $allVillages = \App\Support\JsonMaster::villages();
+
         return view('onboarding.step1', compact('user', 'cities', 'allDistricts', 'allVillages'));
     }
 
     public function storeStep1(Request $request)
     {
         $user = $this->getRegistrationUser();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('register.choose-role');
         }
 
@@ -169,7 +171,7 @@ class OnboardingController extends Controller
 
         // Cek apakah NIK sudah digunakan oleh akun lain di tabel users
         $existsInUser = User::where('nik', $request->nik)
-            ->when($userId, fn($q) => $q->where('id', '!=', $userId))
+            ->when($userId, fn ($q) => $q->where('id', '!=', $userId))
             ->exists();
 
         // Cek juga apakah NIK sudah terdaftar di tabel registrations
@@ -244,7 +246,7 @@ class OnboardingController extends Controller
                     'kelurahan' => $request->kelurahan,
                     'kecamatan' => $request->kecamatan,
                     'province' => $request->province,
-                ]
+                ],
             ]);
         }
 
@@ -257,7 +259,7 @@ class OnboardingController extends Controller
     public function showStep2()
     {
         $user = $this->getRegistrationUser();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('register.choose-role');
         }
 
@@ -274,11 +276,11 @@ class OnboardingController extends Controller
     public function storeStep2(Request $request)
     {
         $user = $this->getRegistrationUser();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('register.choose-role');
         }
 
-        $isExisting = !empty($user->ktp_photo) || !empty($user->ktp_path);
+        $isExisting = ! empty($user->ktp_photo) || ! empty($user->ktp_path);
 
         $rules = [
             'ktp_photo' => [$isExisting ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
@@ -308,7 +310,7 @@ class OnboardingController extends Controller
                     'reg_step2' => [
                         'ktp_photo' => $ktpPath,
                         'ktp_path' => $ktpPath,
-                    ]
+                    ],
                 ]);
             }
         }
@@ -322,7 +324,7 @@ class OnboardingController extends Controller
     public function showStep3()
     {
         $user = $this->getRegistrationUser();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('register.choose-role');
         }
 
@@ -342,11 +344,11 @@ class OnboardingController extends Controller
     public function storeStep3(Request $request)
     {
         $user = $this->getRegistrationUser();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('register.choose-role');
         }
 
-        $isExisting = !empty($user->selfie_photo);
+        $isExisting = ! empty($user->selfie_photo);
 
         $rules = [
             'selfie_photo' => [$isExisting ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
@@ -375,7 +377,7 @@ class OnboardingController extends Controller
                 session([
                     'reg_step3' => [
                         'selfie_photo' => $selfiePath,
-                    ]
+                    ],
                 ]);
             }
         }
@@ -389,7 +391,7 @@ class OnboardingController extends Controller
     public function showStep4()
     {
         $user = $this->getRegistrationUser();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('register.choose-role');
         }
 
@@ -428,7 +430,8 @@ class OnboardingController extends Controller
                 foreach ($superAdmins as $admin) {
                     $admin->notify(new NewRegistrationNotification($user));
                 }
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
 
             if ($user->role === 'mitra') {
                 return redirect()->route('mitra.dashboard')->with('status', 'Pendaftaran selesai! Akun Anda aktif dengan kuota order terbatas. Silakan verifikasi email Anda untuk membuka kuota tanpa batas.');
@@ -443,7 +446,7 @@ class OnboardingController extends Controller
         $step2 = session('reg_step2', []);
         $step3 = session('reg_step3', []);
 
-        if (!$account || empty($step1['nik'])) {
+        if (! $account || empty($step1['nik'])) {
             return redirect()->route('register.choose-role');
         }
 
@@ -489,7 +492,8 @@ class OnboardingController extends Controller
                     'status' => 'pending_verification',
                 ]
             );
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         // Mengirim event registrasi & email verifikasi
         event(new Registered($user));
@@ -500,13 +504,14 @@ class OnboardingController extends Controller
             foreach ($superAdmins as $admin) {
                 $admin->notify(new NewRegistrationNotification($user));
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         // Kirim notifikasi pengajuan KTP baru ke Admin Kota terkait
         try {
             $cityId = $user->city_id;
-            if (!$cityId && !empty($user->city)) {
-                $cityId = \App\Models\City::where('name', 'like', '%' . trim($user->city) . '%')->value('id');
+            if (! $cityId && ! empty($user->city)) {
+                $cityId = \App\Models\City::where('name', 'like', '%'.trim($user->city).'%')->value('id');
                 if ($cityId) {
                     $user->city_id = $cityId;
                     $user->save();
@@ -519,7 +524,7 @@ class OnboardingController extends Controller
                 }
             }
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP baru ke admin kota: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP baru ke admin kota: '.$e->getMessage());
         }
 
         // Login kan user langsung

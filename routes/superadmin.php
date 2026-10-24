@@ -15,7 +15,7 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
     Route::get('/activity-logs', \App\Livewire\SuperAdmin\ActivityLogs::class)->name('activity.logs');
     Route::get('/transactions/logs', \App\Livewire\SuperAdmin\TransactionsLog::class)->name('transactions.log');
     Route::get('/transactions/export-excel', [\App\Http\Controllers\SuperAdmin\TransactionExportController::class, 'export'])->name('transactions.export.excel');
-    
+
     Route::get('/helps/approved', \App\Livewire\SuperAdmin\HelpsApproved::class)->name('helps.approved');
     Route::get('/settings/help', \App\Livewire\SuperAdmin\Settings\HelpSettings::class)->name('settings.help');
     Route::get('/settings/help/fee-pendapatan', \App\Livewire\SuperAdmin\Settings\FeePendapatan::class)->name('pengaturan.bantuan.fee-pendapatan');

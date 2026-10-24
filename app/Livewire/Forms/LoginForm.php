@@ -2,16 +2,16 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\PartnerActivity;
+use App\Models\Registration;
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
-use App\Models\PartnerActivity;
-use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
-use App\Models\Registration;
 
 class LoginForm extends Form
 {
@@ -40,11 +40,11 @@ class LoginForm extends Form
         $foundUser = User::where($field, $input)->first();
 
         // If phone not found directly, try normalizing phone format (08xx vs 62xx)
-        if (!$foundUser && !$isEmail) {
+        if (! $foundUser && ! $isEmail) {
             $digits = preg_replace('/[^0-9]/', '', $input);
-            $altPhone = str_starts_with($digits, '62') 
-                ? '0' . substr($digits, 2) 
-                : (str_starts_with($digits, '0') ? '62' . substr($digits, 1) : null);
+            $altPhone = str_starts_with($digits, '62')
+                ? '0'.substr($digits, 2)
+                : (str_starts_with($digits, '0') ? '62'.substr($digits, 1) : null);
 
             if ($altPhone) {
                 $foundUser = User::where('phone', $altPhone)->first();
@@ -73,9 +73,9 @@ class LoginForm extends Form
         // Demo password fallback: allow Sayabantu123! or password for testing convenience.
         // Hanya aktif jika DEMO_LOGIN=true (default false), sehingga tidak pernah
         // ikut terbawa ke production.
-        if (!$attemptSuccess && $foundUser && config('app.demo_login')) {
+        if (! $attemptSuccess && $foundUser && config('app.demo_login')) {
             $isDemoPassword = in_array(strtolower($this->password), ['sayabantu123!', 'sayabantu123', 'password']);
-            $hasDemoHash = \Illuminate\Support\Facades\Hash::check('Sayabantu123!', $foundUser->password) 
+            $hasDemoHash = \Illuminate\Support\Facades\Hash::check('Sayabantu123!', $foundUser->password)
                         || \Illuminate\Support\Facades\Hash::check('password', $foundUser->password);
 
             if ($isDemoPassword && $hasDemoHash) {
@@ -84,7 +84,7 @@ class LoginForm extends Form
             }
         }
 
-        if (!$attemptSuccess) {
+        if (! $attemptSuccess) {
             RateLimiter::hit($this->throttleKey());
 
             // Log failed login attempt for partner reporting (if user exists)
@@ -97,7 +97,7 @@ class LoginForm extends Form
                     'user_agent' => request()->header('User-Agent'),
                 ]);
             } catch (\Throwable $e) {
-                \Log::warning('Failed to record login_failed PartnerActivity: ' . $e->getMessage());
+                \Log::warning('Failed to record login_failed PartnerActivity: '.$e->getMessage());
             }
 
             throw ValidationException::withMessages([
@@ -118,6 +118,7 @@ class LoginForm extends Form
                 Auth::logout();
                 // redirect to rejected page showing reason
                 redirect()->route('auth.rejected', ['registration' => $reg->id])->send();
+
                 return;
             }
         } catch (\Throwable $e) {
@@ -125,7 +126,7 @@ class LoginForm extends Form
         }
 
         // Only block non-privileged users who are pending
-        if (!$isPrivileged && $user->status === 'pending') {
+        if (! $isPrivileged && $user->status === 'pending') {
             Auth::logout();
             throw ValidationException::withMessages([
                 'form.email' => 'Akun Anda masih menunggu verifikasi dari admin. Silakan tunggu hingga akun Anda disetujui.',
@@ -162,7 +163,7 @@ class LoginForm extends Form
             }
         } catch (\Throwable $e) {
             // allow login to proceed even if activity logging fails
-            \Log::warning('Failed to record PartnerActivity on login: ' . $e->getMessage());
+            \Log::warning('Failed to record PartnerActivity on login: '.$e->getMessage());
         }
     }
 
@@ -171,7 +172,7 @@ class LoginForm extends Form
      */
     protected function ensureIsNotRateLimited(): void
     {
-        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -192,6 +193,6 @@ class LoginForm extends Form
      */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
+        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
     }
 }

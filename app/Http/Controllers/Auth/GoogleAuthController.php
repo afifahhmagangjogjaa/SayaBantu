@@ -41,7 +41,7 @@ class GoogleAuthController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
 
-            if (!$googleUser || !$googleUser->getEmail()) {
+            if (! $googleUser || ! $googleUser->getEmail()) {
                 return redirect()->route('login')->with('error', 'Gagal mendapatkan data akun dari Google.');
             }
 
@@ -64,10 +64,10 @@ class GoogleAuthController extends Controller
                 if (empty($user->email_verified_at)) {
                     $updates['email_verified_at'] = now();
                 }
-                if (!empty($googleUser->getAvatar()) && empty($user->avatar)) {
+                if (! empty($googleUser->getAvatar()) && empty($user->avatar)) {
                     $updates['avatar'] = $googleUser->getAvatar();
                 }
-                if (!empty($updates)) {
+                if (! empty($updates)) {
                     $user->update($updates);
                 }
             } else {
@@ -80,17 +80,18 @@ class GoogleAuthController extends Controller
                 if (empty($intendedRole)) {
                     session([
                         'google_pending' => [
-                            'id'     => $googleUser->getId(),
-                            'name'   => $googleUser->getName(),
-                            'email'  => $googleUser->getEmail(),
+                            'id' => $googleUser->getId(),
+                            'name' => $googleUser->getName(),
+                            'email' => $googleUser->getEmail(),
                             'avatar' => $googleUser->getAvatar(),
-                        ]
+                        ],
                     ]);
+
                     return redirect()->route('register.choose-role')
                         ->with('info', 'Akun Google Anda belum terdaftar. Silakan pilih jenis akun terlebih dahulu.');
                 }
 
-                if (!in_array($intendedRole, ['customer', 'mitra'])) {
+                if (! in_array($intendedRole, ['customer', 'mitra'])) {
                     $intendedRole = 'customer';
                 }
 
@@ -98,14 +99,14 @@ class GoogleAuthController extends Controller
                 $googlePending = session('google_pending');
 
                 $user = User::create([
-                    'name'              => $googleUser->getName() ?: ($googlePending['name'] ?? 'Pengguna Google'),
-                    'email'             => $googleUser->getEmail() ?: ($googlePending['email'] ?? ''),
-                    'google_id'         => $googleUser->getId() ?: ($googlePending['id'] ?? null),
-                    'avatar'            => $googleUser->getAvatar() ?: ($googlePending['avatar'] ?? null),
-                    'role'              => $intendedRole,
+                    'name' => $googleUser->getName() ?: ($googlePending['name'] ?? 'Pengguna Google'),
+                    'email' => $googleUser->getEmail() ?: ($googlePending['email'] ?? ''),
+                    'google_id' => $googleUser->getId() ?: ($googlePending['id'] ?? null),
+                    'avatar' => $googleUser->getAvatar() ?: ($googlePending['avatar'] ?? null),
+                    'role' => $intendedRole,
                     'email_verified_at' => now(),
-                    'password'          => bcrypt(Str::random(24)),
-                    'status'            => 'active',
+                    'password' => bcrypt(Str::random(24)),
+                    'status' => 'active',
                 ]);
 
                 // Initialize balance record
@@ -114,7 +115,8 @@ class GoogleAuthController extends Controller
                         ['user_id' => $user->id],
                         ['balance' => 0]
                     );
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                }
             }
 
             // Login and regenerate session
@@ -134,8 +136,9 @@ class GoogleAuthController extends Controller
             return redirect()->intended(route('customer.dashboard'));
 
         } catch (\Throwable $e) {
-            Log::error('Google OAuth Error: ' . $e->getMessage());
-            return redirect()->route('login')->with('error', 'Gagal login via Google: ' . $e->getMessage());
+            Log::error('Google OAuth Error: '.$e->getMessage());
+
+            return redirect()->route('login')->with('error', 'Gagal login via Google: '.$e->getMessage());
         }
     }
 }

@@ -2,17 +2,23 @@
 
 namespace App\Livewire\Profile;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class UpdateProfileInformationForm extends Component
 {
     public $name;
+
     public $email;
+
     public $nik;
+
     public $phone;
+
     public $address;
+
     public $city_id;
+
     public $gender;
 
     protected function rules(): array
@@ -58,13 +64,16 @@ class UpdateProfileInformationForm extends Component
 
     public function selectCityByName(?string $cityName): void
     {
-        if (empty($cityName)) return;
+        if (empty($cityName)) {
+            return;
+        }
 
         $cleanTarget = strtolower(trim(preg_replace('/\b(KOTA|KABUPATEN|KAB)\b/i', '', $cityName)));
         $cities = \App\Models\City::where('is_active', true)->get();
 
         $matched = $cities->first(function ($c) use ($cleanTarget) {
             $cleanName = strtolower(trim(preg_replace('/\b(KOTA|KABUPATEN|KAB)\b/i', '', $c->name)));
+
             return $cleanName === $cleanTarget || str_contains($cleanName, $cleanTarget) || str_contains($cleanTarget, $cleanName);
         });
 
@@ -89,6 +98,7 @@ class UpdateProfileInformationForm extends Component
             \App\Models\User::where('email', $this->email)->where('id', '!=', $user->id)->exists()
         ) {
             $this->addError('email', 'Email sudah digunakan oleh akun lain.');
+
             return;
         }
 
@@ -98,6 +108,7 @@ class UpdateProfileInformationForm extends Component
             \App\Models\User::where('nik', $this->nik)->where('id', '!=', $user->id)->exists()
         ) {
             $this->addError('nik', 'NIK sudah terdaftar pada akun lain.');
+
             return;
         }
 
@@ -108,19 +119,20 @@ class UpdateProfileInformationForm extends Component
             'phone' => $this->phone,
             'address' => $this->address,
             'city_id' => $this->city_id,
-            'gender' => !empty($this->gender) ? $this->gender : null,
+            'gender' => ! empty($this->gender) ? $this->gender : null,
         ]);
 
         session()->flash('message', 'Perubahan profil berhasil disimpan!');
-        
+
         $redirectUrl = Auth::user()->role === 'mitra' ? route('mitra.profile') : route('profile');
-        
+
         $this->dispatch('profile-saved', redirectUrl: $redirectUrl);
     }
 
     public function render()
     {
         $cities = \App\Models\City::where('is_active', true)->orderBy('name')->get();
+
         return view('livewire.profile.update-profile-information-form', compact('cities'));
     }
 }

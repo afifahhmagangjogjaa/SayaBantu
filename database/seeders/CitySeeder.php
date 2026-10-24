@@ -22,14 +22,15 @@ class CitySeeder extends Seeder
                     City::firstOrCreate(
                         ['name' => $c['name'], 'province' => $c['province'] ?? null],
                         [
-                            'code'     => $c['code'] ?? null,
-                            'type'     => $c['type'] ?? null,
+                            'code' => $c['code'] ?? null,
+                            'type' => $c['type'] ?? null,
                             'latitude' => $c['latitude'] ?? null,
-                            'longitude'=> $c['longitude'] ?? null,
-                            'is_active'=> true,
+                            'longitude' => $c['longitude'] ?? null,
+                            'is_active' => true,
                         ]
                     );
                 }
+
                 return;
             }
         }

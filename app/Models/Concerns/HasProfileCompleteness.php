@@ -21,7 +21,7 @@ trait HasProfileCompleteness
         // 2. Foto KTP & Selfie HANYA ditagih jika akun BELUM diverifikasi.
         // Jika akun SUDAH berstatus verified == true (sudah diverifikasi oleh Admin/Super Admin),
         // maka kewajiban upload file foto KTP & Selfie otomatis diabaikan.
-        if (!$this->verified) {
+        if (! $this->verified) {
             if (empty($this->ktp_photo) && empty($this->ktp_path)) {
                 $missing['ktp_photo'] = 'Foto KTP';
             }
@@ -66,34 +66,36 @@ trait HasProfileCompleteness
     public function getKtpUrlAttribute(): ?string
     {
         $path = $this->ktp_photo ?? $this->ktp_path;
-        if (!$path && $this->relationLoaded('registration') && $this->registration) {
+        if (! $path && $this->relationLoaded('registration') && $this->registration) {
             $path = $this->registration->ktp_photo_path;
-        } elseif (!$path) {
+        } elseif (! $path) {
             $reg = \App\Models\Registration::where('email', $this->email)->first();
             if ($reg) {
                 $path = $reg->ktp_photo_path;
             }
         }
         if ($path) {
-            return asset('storage/' . ltrim($path, '/'));
+            return asset('storage/'.ltrim($path, '/'));
         }
+
         return null;
     }
 
     public function getSelfieUrlAttribute(): ?string
     {
         $path = $this->selfie_photo;
-        if (!$path && $this->relationLoaded('registration') && $this->registration) {
+        if (! $path && $this->relationLoaded('registration') && $this->registration) {
             $path = $this->registration->selfie_photo_path;
-        } elseif (!$path) {
+        } elseif (! $path) {
             $reg = \App\Models\Registration::where('email', $this->email)->first();
             if ($reg) {
                 $path = $reg->selfie_photo_path;
             }
         }
         if ($path) {
-            return asset('storage/' . ltrim($path, '/'));
+            return asset('storage/'.ltrim($path, '/'));
         }
+
         return null;
     }
 }

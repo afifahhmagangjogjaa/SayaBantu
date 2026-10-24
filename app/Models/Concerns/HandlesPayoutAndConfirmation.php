@@ -23,6 +23,7 @@ trait HandlesPayoutAndConfirmation
             if ((float) $this->mitra_fee_percent > 0) {
                 return max(0, round($base * (1 - ((float) $this->mitra_fee_percent / 100)), 2));
             }
+
             return $base;
         }
 
@@ -32,6 +33,7 @@ trait HandlesPayoutAndConfirmation
     public function getCustomerConfirmationDeadline(): ?\Carbon\Carbon
     {
         $base = $this->service_completed_at ?? $this->updated_at;
+
         return $base ? $base->copy()->addHours(24) : null;
     }
 
@@ -42,12 +44,13 @@ trait HandlesPayoutAndConfirmation
         }
 
         $deadline = $this->getCustomerConfirmationDeadline();
+
         return $deadline ? now()->greaterThanOrEqualTo($deadline) : false;
     }
 
     public function autoConfirmIfExpired(): bool
     {
-        if (!$this->isCustomerConfirmationExpired()) {
+        if (! $this->isCustomerConfirmationExpired()) {
             return false;
         }
 

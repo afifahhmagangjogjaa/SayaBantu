@@ -24,7 +24,7 @@ class IdlePartnerNotification extends Notification
     public function toArray($notifiable)
     {
         $mitraName = $this->help->mitra?->name ?? 'Rekan Jasa';
-        $helpTitle = $this->help->title ?? ('Bantuan #' . $this->help->id);
+        $helpTitle = $this->help->title ?? ('Bantuan #'.$this->help->id);
 
         return [
             'type' => 'idle_partner_alert',

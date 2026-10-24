@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Livewire\Auth\AdminLogin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -54,6 +53,7 @@ Route::get('admin/login', function () {
             return redirect()->route('admin.dashboard');
         }
     }
+
     return redirect()->route('login');
 })->name('admin.login');
 
@@ -72,7 +72,6 @@ Route::middleware('auth')->group(function () {
     // Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
     //     ->middleware(['signed', 'throttle:6,1'])
     //     ->name('verification.verify');
-
 
     Volt::route('confirm-password', 'pages.auth.confirm-password')
         ->name('password.confirm');
@@ -105,9 +104,10 @@ Route::match(['get', 'post'], 'logout', function (\Illuminate\Http\Request $requ
     $request->session()->regenerateToken();
 
     if ($isAdmin) {
-        $msg = $status === 'inactive' 
-            ? 'Akun Admin Anda telah dinonaktifkan oleh Super Admin.' 
+        $msg = $status === 'inactive'
+            ? 'Akun Admin Anda telah dinonaktifkan oleh Super Admin.'
             : ($status === 'blocked' ? 'Akun Admin Anda telah diblokir oleh Super Admin.' : null);
+
         return $msg ? redirect(route('admin.login', absolute: false))->withErrors(['email' => $msg]) : redirect(route('admin.login', absolute: false));
     }
 
@@ -138,4 +138,3 @@ Route::match(['get', 'post'], 'admin/logout', function (\Illuminate\Http\Request
 
     return redirect(route('admin.login', absolute: false));
 })->name('admin.logout');
-

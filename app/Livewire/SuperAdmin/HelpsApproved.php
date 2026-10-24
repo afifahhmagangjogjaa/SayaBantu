@@ -2,13 +2,13 @@
 
 namespace App\Livewire\SuperAdmin;
 
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
+use App\Enums\HelpStatus;
 use App\Models\Help;
 use App\Models\User;
-use App\Enums\HelpStatus;
 use App\Notifications\HelpStatusNotification;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.superadmin')]
 class HelpsApproved extends Component
@@ -16,24 +16,34 @@ class HelpsApproved extends Component
     use WithPagination;
 
     public $search = '';
+
     public $filterStatus = '';
+
     public $perPage = 10;
 
     // Modal reject
     public $showRejectModal = false;
+
     public $rejectingHelpId = null;
+
     public $rejectingHelpTitle = '';
+
     public $rejectionReason = '';
 
     // Modal detail
     public $showDetailModal = false;
+
     public $detailHelp = null;
 
     // Modal mediasi keputusan Super Admin
     public $showDecisionModal = false;
+
     public $decisionType = ''; // 'refund' | 'reject_complaint'
+
     public $decisionHelpId = null;
+
     public $decisionHelp = null;
+
     public $admin_notes = '';
 
     public function openDetailModal($id)
@@ -54,7 +64,7 @@ class HelpsApproved extends Component
     public function toggleShadowBan($userId)
     {
         $user = User::findOrFail($userId);
-        $user->is_shadow_banned = !((bool) $user->is_shadow_banned);
+        $user->is_shadow_banned = ! ((bool) $user->is_shadow_banned);
         $user->shadow_banned_at = $user->is_shadow_banned ? now() : null;
         $user->save();
 
@@ -62,7 +72,7 @@ class HelpsApproved extends Component
             $this->detailHelp = Help::with(['customer', 'mitra', 'category', 'city', 'lastCancelledMitra'])->find($this->detailHelp->id);
         }
 
-        $label = $user->is_shadow_banned 
+        $label = $user->is_shadow_banned
             ? "👻 Shadow Ban berhasil diaktifkan untuk {$user->name}. Permintaan berikutnya akan disembunyikan secara senyap."
             : "✅ Shadow Ban berhasil dinonaktifkan untuk {$user->name}.";
         session()->flash('message', $label);
@@ -78,7 +88,7 @@ class HelpsApproved extends Component
             $this->detailHelp = Help::with(['customer', 'mitra', 'category', 'city', 'lastCancelledMitra'])->find($this->detailHelp->id);
         }
 
-        $label = $user->status === 'blocked' 
+        $label = $user->status === 'blocked'
             ? "⛔ Pengguna {$user->name} berhasil diblokir."
             : "✅ Blokir pengguna {$user->name} berhasil dibuka.";
         session()->flash('message', $label);
@@ -111,6 +121,7 @@ class HelpsApproved extends Component
         $help = Help::findOrFail($id);
         if ($help->statusEnum()?->isFinal()) {
             session()->flash('error', 'Bantuan tidak bisa ditolak karena sudah selesai atau dibatalkan.');
+
             return;
         }
         $this->rejectingHelpId = $id;
@@ -148,6 +159,7 @@ class HelpsApproved extends Component
         if ($help->statusEnum()?->isFinal()) {
             session()->flash('error', 'Bantuan tidak bisa ditolak karena sudah selesai atau dibatalkan.');
             $this->closeRejectModal();
+
             return;
         }
 
@@ -163,13 +175,13 @@ class HelpsApproved extends Component
         if ($customer) {
             try {
                 $customer->notify(new HelpStatusNotification($help, $oldStatus, 'rejected'));
-                \Log::info('HelpsApproved sent rejection notification to customer id=' . $customer->id . ' for help_id=' . $help->id);
+                \Log::info('HelpsApproved sent rejection notification to customer id='.$customer->id.' for help_id='.$help->id);
             } catch (\Exception $e) {
-                \Log::warning('Failed to send rejection notification: ' . $e->getMessage());
+                \Log::warning('Failed to send rejection notification: '.$e->getMessage());
             }
         }
 
-        session()->flash('message', 'Bantuan "' . $help->title . '" berhasil ditolak.');
+        session()->flash('message', 'Bantuan "'.$help->title.'" berhasil ditolak.');
         $this->closeRejectModal();
         $this->closeDetailModal();
     }
@@ -229,16 +241,18 @@ class HelpsApproved extends Component
             if ($customer) {
                 $customer->notify(new HelpStatusNotification($help, $oldStatus, 'dibatalkan', $customer));
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         // Notify mitra
         try {
             if ($help->mitra) {
                 $help->mitra->notify(new HelpStatusNotification($help, $oldStatus, 'dibatalkan', $help->mitra));
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
-        session()->flash('message', 'Komplain bantuan #' . $help->id . ' disetujui. Dana sebesar Rp ' . number_format($help->amount + ($help->admin_fee ?? 0), 0, ',', '.') . ' telah dikembalikan ke saldo customer.');
+        session()->flash('message', 'Komplain bantuan #'.$help->id.' disetujui. Dana sebesar Rp '.number_format($help->amount + ($help->admin_fee ?? 0), 0, ',', '.').' telah dikembalikan ke saldo customer.');
         $this->closeDecisionModal();
         $this->closeDetailModal();
     }
@@ -262,16 +276,18 @@ class HelpsApproved extends Component
             if ($customer) {
                 $customer->notify(new HelpStatusNotification($help, $oldStatus, 'selesai', $customer));
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         // Notify mitra
         try {
             if ($help->mitra) {
                 $help->mitra->notify(new HelpStatusNotification($help, $oldStatus, 'selesai', $help->mitra));
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
-        session()->flash('message', 'Komplain bantuan #' . $help->id . ' ditolak. Pesanan dinyatakan selesai dan dana sebesar Rp ' . number_format($help->amount, 0, ',', '.') . ' telah dicairkan ke saldo mitra.');
+        session()->flash('message', 'Komplain bantuan #'.$help->id.' ditolak. Pesanan dinyatakan selesai dan dana sebesar Rp '.number_format($help->amount, 0, ',', '.').' telah dicairkan ke saldo mitra.');
         $this->closeDecisionModal();
         $this->closeDetailModal();
     }
@@ -281,17 +297,17 @@ class HelpsApproved extends Component
         $helps = Help::query()
             ->with(['customer', 'user', 'city', 'category'])
             ->when($this->search, function ($query) {
-                $term = '%' . trim($this->search) . '%';
+                $term = '%'.trim($this->search).'%';
                 $cleanSearch = ltrim(trim($this->search), '#');
                 $query->where(function ($q) use ($term, $cleanSearch) {
                     $q->where('title', 'like', $term)
                         ->orWhere('description', 'like', $term)
                         ->orWhere('order_id', 'like', $term)
-                        ->orWhere('id', 'like', '%' . $cleanSearch . '%')
-                        ->orWhereHas('customer', fn($userQ) => $userQ->where('name', 'like', $term))
-                        ->orWhereHas('user', fn($userQ) => $userQ->where('name', 'like', $term))
-                        ->orWhereHas('city', fn($cityQ) => $cityQ->where('name', 'like', $term))
-                        ->orWhereHas('category', fn($catQ) => $catQ->where('name', 'like', $term));
+                        ->orWhere('id', 'like', '%'.$cleanSearch.'%')
+                        ->orWhereHas('customer', fn ($userQ) => $userQ->where('name', 'like', $term))
+                        ->orWhereHas('user', fn ($userQ) => $userQ->where('name', 'like', $term))
+                        ->orWhereHas('city', fn ($cityQ) => $cityQ->where('name', 'like', $term))
+                        ->orWhereHas('category', fn ($catQ) => $catQ->where('name', 'like', $term));
                 });
             })
             ->when($this->filterStatus, function ($query) {

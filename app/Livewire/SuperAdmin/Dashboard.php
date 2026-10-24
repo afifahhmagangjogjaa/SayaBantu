@@ -2,20 +2,23 @@
 
 namespace App\Livewire\SuperAdmin;
 
-use App\Models\User;
-use App\Models\City;
 use App\Models\Category;
+use App\Models\City;
 use App\Models\Help;
-use Livewire\Component;
-use Livewire\Attributes\Layout;
+use App\Models\User;
 use Carbon\Carbon;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('layouts.superadmin')]
 class Dashboard extends Component
 {
     public $selectedDate;
+
     public $selectedMonth;
+
     public $selectedYear;
+
     public $userChart = [];
 
     public function mount()
@@ -41,7 +44,7 @@ class Dashboard extends Component
     {
         // Update selectedDate to first day of the month when month changes
         if ($this->selectedMonth) {
-            $this->selectedDate = Carbon::parse($this->selectedMonth . '-01')->toDateString();
+            $this->selectedDate = Carbon::parse($this->selectedMonth.'-01')->toDateString();
             $this->selectedYear = Carbon::parse($this->selectedMonth)->year;
             $this->updateChartData();
         }
@@ -51,7 +54,7 @@ class Dashboard extends Component
     {
         // Prepare user registration charts based on selected date/month
         // Daily - shows days in the selected month
-        $selectedMonthCarbon = Carbon::parse($this->selectedMonth . '-01');
+        $selectedMonthCarbon = Carbon::parse($this->selectedMonth.'-01');
         $daysInMonth = $selectedMonthCarbon->daysInMonth;
         $dailyLabels = [];
         $dailyData = [];
@@ -100,7 +103,7 @@ class Dashboard extends Component
             'total_cities' => City::count(),
             'total_categories' => Category::count(),
             'pending_helps' => Help::whereIn('status', ['menunggu_mitra', 'mencari_mitra', 'menunggu_pembayaran'])->count(),
-            'active_helps'  => Help::whereIn('status', ['taken', 'memperoleh_mitra', 'partner_on_the_way', 'partner_arrived', 'in_progress', 'sedang_diproses', 'waiting_customer_confirmation'])->count(),
+            'active_helps' => Help::whereIn('status', ['taken', 'memperoleh_mitra', 'partner_on_the_way', 'partner_arrived', 'in_progress', 'sedang_diproses', 'waiting_customer_confirmation'])->count(),
         ];
 
         // Recent items for quick view

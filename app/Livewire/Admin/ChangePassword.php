@@ -2,16 +2,18 @@
 
 namespace App\Livewire\Admin;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('layouts.admin')]
 class ChangePassword extends Component
 {
     public $current_password = '';
+
     public $password = '';
+
     public $password_confirmation = '';
 
     protected function rules()
@@ -42,7 +44,7 @@ class ChangePassword extends Component
 
         if ($propertyName === 'password') {
             $this->validateOnly('password');
-            if (!empty($this->password_confirmation)) {
+            if (! empty($this->password_confirmation)) {
                 $this->validateOnly('password_confirmation');
             }
         } elseif ($propertyName === 'password_confirmation') {
@@ -57,7 +59,7 @@ class ChangePassword extends Component
         $this->validate();
 
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return;
         }
 

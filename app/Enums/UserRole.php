@@ -16,9 +16,9 @@ enum UserRole: string
     {
         return match ($this) {
             self::SUPER_ADMIN => 'Super Admin',
-            self::ADMIN       => 'Admin Wilayah',
-            self::CUSTOMER    => 'Customer',
-            self::MITRA       => 'Mitra',
+            self::ADMIN => 'Admin Wilayah',
+            self::CUSTOMER => 'Customer',
+            self::MITRA => 'Mitra',
         };
     }
 
@@ -29,9 +29,9 @@ enum UserRole: string
     {
         return match ($this) {
             self::SUPER_ADMIN => 'bg-indigo-100 text-indigo-800 border-indigo-200',
-            self::ADMIN       => 'bg-purple-100 text-purple-800 border-purple-200',
-            self::CUSTOMER    => 'bg-blue-100 text-blue-800 border-blue-200',
-            self::MITRA       => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+            self::ADMIN => 'bg-purple-100 text-purple-800 border-purple-200',
+            self::CUSTOMER => 'bg-blue-100 text-blue-800 border-blue-200',
+            self::MITRA => 'bg-emerald-100 text-emerald-800 border-emerald-200',
         };
     }
 

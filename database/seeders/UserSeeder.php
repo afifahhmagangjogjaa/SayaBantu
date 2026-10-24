@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\City;
-use App\Models\UserBalance;
 use App\Models\Registration;
+use App\Models\User;
+use App\Models\UserBalance;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
@@ -411,7 +411,7 @@ class UserSeeder extends Seeder
             $initialBalance = $data['initial_balance'] ?? 0;
             unset($data['initial_balance']);
 
-            if ($hasOccupation && !isset($data['occupation'])) {
+            if ($hasOccupation && ! isset($data['occupation'])) {
                 $data['occupation'] = ($data['role'] === 'mitra') ? 'Teknisi / Rekan Jasa' : 'Karyawan Swasta';
             }
 
@@ -421,7 +421,7 @@ class UserSeeder extends Seeder
             );
 
             // Hubungkan Admin ke kota-kota kelolaannya
-            if ($user->role === 'admin' && !empty($user->city_id)) {
+            if ($user->role === 'admin' && ! empty($user->city_id)) {
                 if ($user->email === 'admin.jogja@test.com') {
                     // Admin Jogja mengelola seluruh 5 wilayah DIY
                     $diyCityIds = [$yogyaId, $slemanId, ($bantul ? $bantul->id : 33)];
@@ -456,7 +456,7 @@ class UserSeeder extends Seeder
             }
 
             // Buat entri Registration untuk akun pending agar muncul di antrean verifikasi admin
-            if (!$user->verified && in_array($user->email, ['mitra.pending@sayabantu.com', 'yusuf.mitra@test.com'])) {
+            if (! $user->verified && in_array($user->email, ['mitra.pending@sayabantu.com', 'yusuf.mitra@test.com'])) {
                 Registration::updateOrCreate(
                     ['email' => $user->email],
                     [

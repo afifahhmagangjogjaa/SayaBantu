@@ -13,7 +13,7 @@ return new class extends Migration
     {
         $existingIndexes = collect(Schema::getIndexes('users'))->pluck('name')->toArray();
 
-        if (!in_array('users_nik_unique', $existingIndexes)) {
+        if (! in_array('users_nik_unique', $existingIndexes)) {
             Schema::table('users', function (Blueprint $table) {
                 $table->unique('nik', 'users_nik_unique');
             });

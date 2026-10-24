@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'warning_level')) {
+            if (! Schema::hasColumn('users', 'warning_level')) {
                 $table->integer('warning_level')->default(0)->after('status');
             }
-            if (!Schema::hasColumn('users', 'is_banned')) {
+            if (! Schema::hasColumn('users', 'is_banned')) {
                 $table->boolean('is_banned')->default(false)->after('warning_level');
             }
         });
@@ -34,7 +34,7 @@ return new class extends Migration
             if (Schema::hasColumn('users', 'is_banned')) {
                 $dropCols[] = 'is_banned';
             }
-            if (!empty($dropCols)) {
+            if (! empty($dropCols)) {
                 $table->dropColumn($dropCols);
             }
         });

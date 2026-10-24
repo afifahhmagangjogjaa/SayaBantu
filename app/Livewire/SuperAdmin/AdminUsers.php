@@ -2,13 +2,13 @@
 
 namespace App\Livewire\SuperAdmin;
 
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use App\Models\User;
 use App\Models\City;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.superadmin')]
 class AdminUsers extends Component
@@ -16,54 +16,94 @@ class AdminUsers extends Component
     use WithPagination;
 
     public $search = '';
+
     public $title = 'Manajemen Admin';
+
     public $breadcrumb = 'Manajemen Admin';
+
     public $roleFilter = 'admin';
+
     public $perPage = 10;
+
     public $selectedUser = null;
+
     public $userId = null;
 
     // form fields
     public $name;
+
     public $email;
+
     public $phone;
+
     public $role = 'admin';
+
     public $status = 'active';
+
     public $verified = false;
+
     public $city_id = null;
-    public $managed_city_ids = []; 
+
+    public $managed_city_ids = [];
+
     public $address = null;
+
     public $nik = null;
+
     public $place_of_birth = null;
+
     public $date_of_birth = null;
+
     public $gender = null;
+
     public $rt = null;
+
     public $rw = null;
+
     public $kelurahan = null;
+
     public $kecamatan = null;
+
     public $province = null;
+
     public $religion = null;
+
     public $marital_status = null;
+
     public $occupation = null;
+
     public $password = null;
 
     // modal flags
     public $showViewModal = false;
+
     public $showEditModal = false;
+
     public $showCreateModal = false;
+
     public $showConfirmDelete = false;
+
     public $confirmingDeleteId = null;
+
     public $showConfirmDeactivate = false;
+
     public $confirmingDeactivateId = null;
+
     public $confirmingDeactivateName = '';
 
     // Wilayah.id API dropdowns for Kecamatan & Kelurahan
     public $apiProvinces = [];
+
     public $apiCities = [];
+
     public $apiDistricts = [];
+
     public $apiVillages = [];
+
     public $selectedCityCode = '';
+
     public $selectedDistrictCode = '';
+
     public $selectedVillageCode = '';
 
     public function fetchProvinces()
@@ -97,10 +137,11 @@ class AdminUsers extends Component
             $found = \App\Support\JsonMaster::find($master, $cityCode);
             if ($found !== []) {
                 $this->apiDistricts = $found;
+
                 return;
             }
 
-            $cleanCode = (strlen($cityCode) === 4 && !str_contains($cityCode, '.')) ? substr($cityCode, 0, 2) . '.' . substr($cityCode, 2, 2) : $cityCode;
+            $cleanCode = (strlen($cityCode) === 4 && ! str_contains($cityCode, '.')) ? substr($cityCode, 0, 2).'.'.substr($cityCode, 2, 2) : $cityCode;
             $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/districts/{$cleanCode}.json");
             if ($response->successful()) {
                 $this->apiDistricts = $response->json('data') ?? [];
@@ -124,8 +165,9 @@ class AdminUsers extends Component
 
     public function updatedCityId($id)
     {
-        if (!$id) {
+        if (! $id) {
             $this->province = '';
+
             return;
         }
 
@@ -137,9 +179,10 @@ class AdminUsers extends Component
 
     public function resolveCityCodeAndFetchDistricts($city)
     {
-        if (!empty($city->code)) {
+        if (! empty($city->code)) {
             $this->selectedCityCode = $city->code;
             $this->fetchDistricts($this->selectedCityCode);
+
             return;
         }
 
@@ -148,9 +191,10 @@ class AdminUsers extends Component
         $prov = collect($this->apiProvinces)->first(function ($p) use ($city, $cleanProvInput) {
             $pName = $p['name'];
             $cleanP = trim(preg_replace('/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|PROVINSI|DI|DKI)\b/i', '', $pName));
+
             return strtoupper(trim($city->province)) === strtoupper(trim($pName)) ||
-                (!empty($cleanProvInput) && stripos($cleanP, $cleanProvInput) !== false) ||
-                (!empty($cleanProvInput) && stripos($pName, $cleanProvInput) !== false) ||
+                (! empty($cleanProvInput) && stripos($cleanP, $cleanProvInput) !== false) ||
+                (! empty($cleanProvInput) && stripos($pName, $cleanProvInput) !== false) ||
                 stripos($pName, trim($city->province)) !== false ||
                 stripos(trim($city->province), $pName) !== false;
         });
@@ -161,9 +205,10 @@ class AdminUsers extends Component
             $cityApi = collect($this->apiCities)->first(function ($c) use ($city, $cityNameClean) {
                 $apiName = $c['name'];
                 $cleanApi = trim(preg_replace('/\b(KOTA\s+ADM|KOTA|KABUPATEN|KAB)\b/i', '', $apiName));
+
                 return strtoupper(trim($city->name)) === strtoupper(trim($apiName)) ||
-                    (!empty($cityNameClean) && stripos($cleanApi, $cityNameClean) !== false) ||
-                    (!empty($cityNameClean) && stripos($apiName, $cityNameClean) !== false);
+                    (! empty($cityNameClean) && stripos($cleanApi, $cityNameClean) !== false) ||
+                    (! empty($cityNameClean) && stripos($apiName, $cityNameClean) !== false);
             });
 
             if ($cityApi) {
@@ -212,8 +257,9 @@ class AdminUsers extends Component
     public function viewUser($id)
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             session()->flash('error', 'User not found');
+
             return;
         }
         $this->selectedUser = $user;
@@ -223,8 +269,9 @@ class AdminUsers extends Component
     public function editUser($id)
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             session()->flash('error', 'User not found');
+
             return;
         }
         $this->selectedUser = $user;
@@ -317,8 +364,9 @@ class AdminUsers extends Component
     public function confirmDeactivate($id)
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             session()->flash('error', 'Admin tidak ditemukan');
+
             return;
         }
 
@@ -372,7 +420,7 @@ class AdminUsers extends Component
         $this->name = preg_replace('/[^a-zA-Z\s]/', '', (string) $this->name);
         $this->phone = preg_replace('/[^0-9]/', '', (string) $this->phone);
 
-        $isEdit = !empty($this->selectedUser);
+        $isEdit = ! empty($this->selectedUser);
 
         $rules = [
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
@@ -408,7 +456,7 @@ class AdminUsers extends Component
 
         $this->validate($rules, $messages);
 
-        if (empty($this->province) && !empty($this->city_id)) {
+        if (empty($this->province) && ! empty($this->city_id)) {
             $this->province = City::find($this->city_id)?->province;
         }
 
@@ -442,11 +490,12 @@ class AdminUsers extends Component
 
         if ($this->selectedUser) {
             $user = User::find($this->selectedUser->id);
-            if (!$user) {
+            if (! $user) {
                 session()->flash('error', 'User not found');
+
                 return;
             }
-            if (!empty($this->password)) {
+            if (! empty($this->password)) {
                 $data['password'] = bcrypt($this->password);
             } else {
                 unset($data['password']);
@@ -482,13 +531,14 @@ class AdminUsers extends Component
 
     public function deleteUser()
     {
-        if (!$this->confirmingDeleteId) {
+        if (! $this->confirmingDeleteId) {
             return;
         }
         $user = User::find($this->confirmingDeleteId);
-        if (!$user) {
+        if (! $user) {
             session()->flash('error', 'User not found');
             $this->showConfirmDelete = false;
+
             return;
         }
         $user->delete();
@@ -517,9 +567,9 @@ class AdminUsers extends Component
             ->where('role', 'admin')
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('email', 'like', '%' . $this->search . '%')
-                        ->orWhere('phone', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('email', 'like', '%'.$this->search.'%')
+                        ->orWhere('phone', 'like', '%'.$this->search.'%');
                 });
             })
             ->latest()
