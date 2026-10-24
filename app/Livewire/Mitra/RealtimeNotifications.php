@@ -88,7 +88,7 @@ class RealtimeNotifications extends Component
 
                     // Dispatch a browser event via inline JS so frontend can react
                     $this->js(sprintf(
-                        "console.log('🔔 Mitra help-status notification'); window.dispatchEvent(new CustomEvent('mitra-help-status', { detail: { helpId: %d, newStatus: '%s', message: '%s', title: '%s' } })); if (typeof window.showGlobalFlashToast === 'function') { window.showGlobalFlashToast('%s', '%s'); } if (typeof window.playNotifChime === 'function') { window.playNotifChime(); }",
+                        "window.dispatchEvent(new CustomEvent('mitra-help-status', { detail: { helpId: %d, newStatus: '%s', message: '%s', title: '%s' } })); if (typeof window.showGlobalFlashToast === 'function') { window.showGlobalFlashToast('%s', '%s'); } if (typeof window.playNotifChime === 'function') { window.playNotifChime(); }",
                         $helpId,
                         addslashes($newStatus ?? ''),
                         addslashes($notifMsg),

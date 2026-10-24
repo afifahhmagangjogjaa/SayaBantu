@@ -106,7 +106,7 @@ class RealtimeNotifications extends Component
                 );
 
                 $this->js(sprintf(
-                    "console.log('🔔 Dispatching help-taken event from backend'); window.dispatchEvent(new CustomEvent('help-taken', { detail: { helpId: %d, mitraName: '%s' } }))",
+                    "window.dispatchEvent(new CustomEvent('help-taken', { detail: { helpId: %d, mitraName: '%s' } }))",
                     $data['help_id'] ?? 0,
                     addslashes($data['mitra_name'] ?? 'Mitra')
                 ));
@@ -136,7 +136,7 @@ class RealtimeNotifications extends Component
                 );
 
                 $this->js(sprintf(
-                    "console.log('🔔 Dispatching help-status event from backend'); window.dispatchEvent(new CustomEvent('help-status-update', { detail: { helpId: %d, helpTitle: '%s', status: '%s', newStatus: '%s', message: '%s', mitraName: '%s', notifTitle: '%s', url: '%s' } }))",
+                    "window.dispatchEvent(new CustomEvent('help-status-update', { detail: { helpId: %d, helpTitle: '%s', status: '%s', newStatus: '%s', message: '%s', mitraName: '%s', notifTitle: '%s', url: '%s' } }))",
                     $helpId ?? 0,
                     addslashes($helpTitle ?? ''),
                     addslashes($newStatus ?? ''),
