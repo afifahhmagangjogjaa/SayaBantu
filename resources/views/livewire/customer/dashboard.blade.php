@@ -12,6 +12,7 @@
         /* BRImo-style decorative pattern */
         .header-pattern {
             position: relative;
+            overflow: hidden;
         }
         
         .header-pattern::before {
@@ -258,7 +259,7 @@
                 </a>
             </div>
 
-            <div class="grid grid-cols-4 gap-2.5">
+            <div class="grid grid-cols-3 min-[380px]:grid-cols-4 gap-2 min-[380px]:gap-2.5">
                 @php
                     $categoryStyles = [
                         1 => ['bg' => 'bg-blue-50 text-blue-600 border-blue-100', 'label' => 'Rumah Tangga'],
@@ -281,7 +282,7 @@
                         <div class="w-12 h-12 rounded-2xl {{ $style['bg'] }} border flex items-center justify-center text-xl shadow-2xs group-hover:scale-110 transition-transform">
                             {{ $cat->icon ?? '📦' }}
                         </div>
-                        <span class="text-[11px] font-semibold text-gray-800 mt-1.5 truncate w-full text-center group-hover:text-[#0066FF]">
+                        <span class="text-[11px] font-semibold text-gray-800 mt-1.5 w-full text-center leading-tight line-clamp-2 group-hover:text-[#0066FF]">
                             {{ $cat->name }}
                         </span>
                     </a>

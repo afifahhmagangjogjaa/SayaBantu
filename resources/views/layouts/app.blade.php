@@ -32,6 +32,11 @@
     <style>
         [x-cloak] { display: none !important; }
 
+        /* Saat banner install PWA tampil, beri ruang bawah ekstra agar tidak menutupi konten form */
+        body.pwa-banner-open main {
+            padding-bottom: calc(9.5rem + env(safe-area-inset-bottom, 0px));
+        }
+
         html {
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
@@ -1004,11 +1009,11 @@
 
     <!-- PWA Service Worker & Install Banner -->
     <div id="pwa-install-banner" class="hidden fixed bottom-20 left-4 right-4 max-w-sm mx-auto bg-gray-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-gray-700/80 z-[99999] flex items-center justify-between gap-3 animate-slide-up">
-        <div class="flex items-center gap-3 min-w-0">
-            <img src="/icons/icon-192x192.png" alt="SayaBantu" class="w-10 h-10 rounded-xl shadow-xs shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <img src="/icons/icon-192x192.png" alt="SayaBantu" class="w-9 h-9 rounded-xl shadow-xs shrink-0">
             <div class="min-w-0">
-                <h4 class="text-xs font-bold text-white leading-tight truncate">Pasang Aplikasi SayaBantu</h4>
-                <p class="text-[11px] text-gray-300 leading-tight mt-0.5">Akses cepat & instan di HP Anda</p>
+                <h4 class="text-xs font-bold text-white leading-tight line-clamp-2">Pasang Aplikasi SayaBantu</h4>
+                <p class="text-[11px] text-gray-300 leading-tight mt-0.5 hidden min-[360px]:block">Akses cepat & instan di HP Anda</p>
             </div>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
@@ -1044,7 +1049,11 @@
             window._deferredPrompt = e;
             const dismissedAt = localStorage.getItem('pwa_dismissed_at');
             if (!dismissedAt || (Date.now() - parseInt(dismissedAt)) > 86400000) {
-                if (installBanner) installBanner.classList.remove('hidden');
+                if (installBanner) {
+                    installBanner.classList.remove('hidden');
+                    // Beri ruang ekstra di bawah konten agar banner tidak menutupi form.
+                    document.body.classList.add('pwa-banner-open');
+                }
             }
         });
 
@@ -1052,6 +1061,7 @@
             installBtn.addEventListener('click', async () => {
                 if (!window._deferredPrompt) return;
                 installBanner.classList.add('hidden');
+                document.body.classList.remove('pwa-banner-open');
                 window._deferredPrompt.prompt();
                 const { outcome } = await window._deferredPrompt.userChoice;
                 window._deferredPrompt = null;
@@ -1061,6 +1071,7 @@
         if (dismissBtn) {
             dismissBtn.addEventListener('click', () => {
                 if (installBanner) installBanner.classList.add('hidden');
+                document.body.classList.remove('pwa-banner-open');
                 localStorage.setItem('pwa_dismissed_at', Date.now().toString());
             });
         }

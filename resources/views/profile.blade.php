@@ -451,7 +451,7 @@
                         </div>
                         <div style="flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                                <span class="font-semibold text-gray-900 text-sm truncate">Verifikasi KTP & Identitas</span>
+                                <span class="font-semibold text-gray-900 text-sm leading-snug">Verifikasi KTP & Identitas</span>
                                 @if($user->verified ?? false)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 whitespace-nowrap flex-shrink-0">Terverifikasi</span>
                                 @elseif(!empty($user->ktp_photo) && !empty($user->selfie_photo))
@@ -460,7 +460,7 @@
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 whitespace-nowrap flex-shrink-0">Belum Upload</span>
                                 @endif
                             </div>
-                            <p class="text-xs text-gray-500 truncate mt-0.5">Upload & kelola foto KTP serta foto selfie</p>
+                            <p class="text-xs text-gray-500 leading-snug mt-0.5">Upload & kelola foto KTP serta foto selfie</p>
                         </div>
                         <svg class="text-gray-400 flex-shrink-0" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

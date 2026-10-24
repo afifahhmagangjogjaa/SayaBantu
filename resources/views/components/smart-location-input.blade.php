@@ -81,19 +81,19 @@
             Contoh:
         </span>
         <button type="button" @click="insertPrefix('Depan ')" 
-            class="px-2 py-0.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition cursor-pointer font-medium">
+            class="px-2.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition cursor-pointer font-medium">
             🏢 Depan...
         </button>
         <button type="button" @click="insertPrefix('Dekat ')" 
-            class="px-2 py-0.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition cursor-pointer font-medium">
+            class="px-2.5 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition cursor-pointer font-medium">
             🏪 Dekat...
         </button>
         <button type="button" @click="insertPrefix('Seberang ')" 
-            class="px-2 py-0.5 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition cursor-pointer font-medium">
+            class="px-2.5 py-1.5 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition cursor-pointer font-medium">
             📍 Seberang...
         </button>
         <button type="button" @click="insertPrefix('Masuk Gang ')" 
-            class="px-2 py-0.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition cursor-pointer font-medium">
+            class="px-2.5 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition cursor-pointer font-medium">
             🚪 Masuk Gang...
         </button>
         <template x-if="lastSmartAddressTitle">

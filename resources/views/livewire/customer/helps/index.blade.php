@@ -130,17 +130,17 @@
                                 x-transition:leave-end="opacity-0 -translate-x-3"
                                 class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
                                 <button type="button" wire:key="tab-menunggu-mitra" @click="page = 1" wire:click="$set('statusFilter', 'menunggu_mitra')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Menunggu Mitra
                                 </button>
 
                                 <button type="button" wire:key="tab-diproses" @click="page = 1" wire:click="$set('statusFilter', 'diproses')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Diproses
                                 </button>
 
                                 <button type="button" wire:key="tab-waiting-confirmation" @click="page = 1" wire:click="$set('statusFilter', 'waiting_customer_confirmation')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Menunggu Konfirmasi
                                 </button>
                             </div>
@@ -155,17 +155,17 @@
                                 x-transition:leave-end="opacity-0 translate-x-3"
                                 class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
                                 <button type="button" wire:key="tab-komplain" @click="page = 2" wire:click="$set('statusFilter', 'komplain')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Komplain & Refund
                                 </button>
 
                                 <button type="button" wire:key="tab-selesai" @click="page = 2" wire:click="$set('statusFilter', 'selesai')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Selesai
                                 </button>
 
                                 <button type="button" wire:key="tab-dibatalkan" @click="page = 2" wire:click="$set('statusFilter', 'dibatalkan')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Dibatalkan
                                 </button>
                             </div>
@@ -304,10 +304,10 @@
                                         <div class="text-xs text-gray-500 bg-gray-50/80 px-2.5 py-1 rounded-lg border border-gray-100 inline-block mb-3">📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
                                     @endif
 
-                                    <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
-                                        <span class="text-xs text-gray-500 font-medium"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 pt-2 border-t border-gray-100">
+                                        <span class="text-xs text-gray-500 font-medium min-w-0 truncate"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
-                                        <div class="flex items-center gap-1.5">
+                                        <div class="flex flex-wrap items-center gap-1.5">
                                             <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">Detail</a>
                                             <button type="button" wire:click.stop="editHelp({{ $help->id }})" class="px-3 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg text-xs font-semibold transition shadow-2xs active:scale-95">Edit</button>
                                             <button type="button" wire:click.stop="confirmDelete({{ $help->id }})" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-semibold transition border border-red-200/80 active:scale-95">Batalkan</button>

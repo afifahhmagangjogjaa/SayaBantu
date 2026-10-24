@@ -90,7 +90,7 @@
                     {{-- Nama, Email, & Badges --}}
                     <div class="min-w-0">
                         <h2 class="text-lg sm:text-xl font-bold text-gray-900 truncate">{{ $user->name ?? 'Super Admin' }}</h2>
-                        <p class="text-xs sm:text-sm text-gray-500 truncate mt-0.5">{{ $user->email }}</p>
+                        <p class="text-xs sm:text-sm text-gray-500 break-all mt-0.5">{{ $user->email }}</p>
                         <div class="flex flex-wrap items-center gap-2 mt-2.5">
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
                                 <span class="text-amber-500">⭐</span> Super Admin
@@ -106,19 +106,19 @@
             {{-- Metadata Rapi: Kolom Label, Titik Dua (:), dan Nilai Rata Kiri --}}
             <div class="mt-6 pt-5 border-t border-gray-100 space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
                 <div class="flex items-center">
-                    <span class="w-36 sm:w-44 text-gray-500 flex-shrink-0">Tingkat Hak Akses</span>
+                    <span class="w-28 sm:w-44 text-gray-500 flex-shrink-0">Tingkat Hak Akses</span>
                     <span class="text-gray-400 mr-3 flex-shrink-0">:</span>
-                    <span class="font-semibold text-purple-700 truncate">Root / Global Administrator</span>
+                    <span class="font-semibold text-purple-700 break-words min-w-0">Root / Global Administrator</span>
                 </div>
                 <div class="flex items-center">
-                    <span class="w-36 sm:w-44 text-gray-500 flex-shrink-0">Status Akun</span>
+                    <span class="w-28 sm:w-44 text-gray-500 flex-shrink-0">Status Akun</span>
                     <span class="text-gray-400 mr-3 flex-shrink-0">:</span>
                     <span class="inline-flex items-center font-medium text-emerald-600">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> Aktif
                     </span>
                 </div>
                 <div class="flex items-center">
-                    <span class="w-36 sm:w-44 text-gray-500 flex-shrink-0">Sesi Login</span>
+                    <span class="w-28 sm:w-44 text-gray-500 flex-shrink-0">Sesi Login</span>
                     <span class="text-gray-400 mr-3 flex-shrink-0">:</span>
                     <span class="font-medium text-gray-700">{{ now()->translatedFormat('d M Y, H:i') }} WIB</span>
                 </div>
