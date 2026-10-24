@@ -33,8 +33,8 @@
                 <!-- Profile Avatar & Info -->
                 <div class="text-center">
                     <div class="relative inline-block">
-                        @if($user->profile_photo)
-                            <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="Avatar" class="w-24 h-24 rounded-full object-cover mx-auto ring-4 ring-white/30 shadow-xl">
+                        @if($user->avatar_url)
+                            <img src="{{ $user->avatar_url }}" alt="Avatar" class="w-24 h-24 rounded-full object-cover mx-auto ring-4 ring-white/30 shadow-xl">
                         @else
                             <div class="w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl font-bold mx-auto ring-4 ring-white/30 shadow-xl">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}

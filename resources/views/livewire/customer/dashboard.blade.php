@@ -58,11 +58,8 @@
 
         <div class="relative z-10 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                @php
-                    $__avatar = optional(auth()->user())->profile_photo ?? optional(auth()->user())->photo ?? optional(auth()->user())->profile_photo_path ?? null;
-                @endphp
                 <div class="w-11 h-11 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center overflow-hidden shadow-md">
-                    <img src="{{ $__avatar ? asset('storage/' . $__avatar) : asset('images/avatar-placeholder.svg') }}" alt="Avatar" class="w-full h-full object-cover">
+                    <img src="{{ auth()->user()?->avatar_url ?: asset('images/avatar-placeholder.svg') }}" alt="Avatar" class="w-full h-full object-cover">
                 </div>
                 <div>
                     <p class="text-[11px] text-blue-100 font-medium">Selamat datang 👋</p>

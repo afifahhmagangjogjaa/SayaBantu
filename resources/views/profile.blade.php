@@ -181,11 +181,8 @@
                     <!-- Profile Avatar & Info -->
                     <div class="text-center avatar-container">
                         <div class="relative inline-block">
-                            @php
-                                $__avatar = optional($user)->profile_photo ?? optional($user)->photo ?? null;
-                            @endphp
-                            @if($__avatar)
-                                <img src="{{ asset('storage/' . $__avatar) }}" alt="Avatar" class="w-24 h-24 rounded-full object-cover mx-auto ring-4 ring-white/30 shadow-xl">
+                            @if($user->avatar_url)
+                                <img src="{{ $user->avatar_url }}" alt="Avatar" class="w-24 h-24 rounded-full object-cover mx-auto ring-4 ring-white/30 shadow-xl">
                             @else
                                 <div class="w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl font-bold mx-auto ring-4 ring-white/30 shadow-xl">
                                     {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}

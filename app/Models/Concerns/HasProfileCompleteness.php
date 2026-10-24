@@ -63,6 +63,31 @@ trait HasProfileCompleteness
         return $missing;
     }
 
+    /**
+     * URL foto profil siap pakai.
+     *
+     * Urutan prioritas: foto unggahan sendiri (profile_photo, path di disk
+     * public), lalu foto akun Google (avatar, URL absolut), lalu null supaya
+     * tampilan memakai inisial/placeholder.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (! empty($this->profile_photo)) {
+            return asset('storage/'.ltrim((string) $this->profile_photo, '/'));
+        }
+
+        if (! empty($this->avatar)) {
+            $avatar = (string) $this->avatar;
+
+            // Data lama bisa berisi path storage, bukan URL absolut.
+            return \Illuminate\Support\Str::startsWith($avatar, ['http://', 'https://'])
+                ? $avatar
+                : asset('storage/'.ltrim($avatar, '/'));
+        }
+
+        return null;
+    }
+
     public function getKtpUrlAttribute(): ?string
     {
         $path = $this->ktp_photo ?? $this->ktp_path;

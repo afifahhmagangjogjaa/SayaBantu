@@ -23,13 +23,13 @@ class GoogleAuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function fakeGoogle(string $id = 'google-123', string $email = 'google@example.com', string $name = 'Pengguna Google'): void
+    private function fakeGoogle(string $id = 'google-123', string $email = 'google@example.com', string $name = 'Pengguna Google', ?string $avatar = null): void
     {
         $googleUser = Mockery::mock(\Laravel\Socialite\Two\User::class);
         $googleUser->shouldReceive('getId')->andReturn($id);
         $googleUser->shouldReceive('getEmail')->andReturn($email);
         $googleUser->shouldReceive('getName')->andReturn($name);
-        $googleUser->shouldReceive('getAvatar')->andReturn(null);
+        $googleUser->shouldReceive('getAvatar')->andReturn($avatar);
 
         Socialite::shouldReceive('driver->user')->andReturn($googleUser);
     }
@@ -70,7 +70,8 @@ class GoogleAuthTest extends TestCase
 
     public function test_user_baru_dengan_role_terpilih_langsung_dibuat_dan_login(): void
     {
-        $this->fakeGoogle('google-2', 'mitra-baru@example.com', 'Mitra Baru');
+        $avatarUrl = 'https://lh3.googleusercontent.com/a/foto-mitra';
+        $this->fakeGoogle('google-2', 'mitra-baru@example.com', 'Mitra Baru', $avatarUrl);
 
         $this->withSession(['oauth_intended_role' => 'mitra'])
             ->get(route('auth.google.callback'))
@@ -84,6 +85,8 @@ class GoogleAuthTest extends TestCase
         $this->assertFalse((bool) $user->is_completed);
         $this->assertNotNull($user->email_verified_at);
         $this->assertSame('google-2', $user->google_id);
+        $this->assertSame($avatarUrl, $user->avatar);
+        $this->assertSame($avatarUrl, $user->avatar_url, 'Foto Google harus langsung terpakai sebagai avatar');
         $this->assertNull($user->password, 'Password Google-created user harus kosong agar onboarding meminta kata sandi');
         $this->assertAuthenticatedAs($user);
     }

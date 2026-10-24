@@ -28,10 +28,8 @@
                                 </svg>
                             </a>
                             <div class="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white/60 bg-white/20 flex items-center justify-center font-bold text-white shadow-xs">
-                                @if(optional($selected_help->user)->profile_photo)
-                                    <img src="{{ asset('storage/' . optional($selected_help->user)->profile_photo) }}" alt="User" class="w-full h-full object-cover">
-                                @elseif(optional($selected_help->user)->photo)
-                                    <img src="{{ asset('storage/' . optional($selected_help->user)->photo) }}" alt="User" class="w-full h-full object-cover">
+                                @if(optional($selected_help->user)->avatar_url)
+                                    <img src="{{ optional($selected_help->user)->avatar_url }}" alt="User" class="w-full h-full object-cover">
                                 @else
                                     {{ strtoupper(substr(optional($selected_help->user)->name ?? 'U', 0, 1)) }}
                                 @endif
@@ -94,10 +92,8 @@
                                     class="w-full px-3 py-3 rounded-xl hover:shadow-md transition text-left {{ $selected_help_id === $conversation->id ? 'bg-primary-50 border border-primary-200' : 'bg-white border border-gray-100' }}">
                                     <div class="flex items-start gap-3">
                                         <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center text-lg">
-                                            @if(optional($conversation->user)->profile_photo)
-                                                <img src="{{ asset('storage/' . optional($conversation->user)->profile_photo) }}" alt="User" class="w-full h-full object-cover">
-                                            @elseif(optional($conversation->user)->photo)
-                                                <img src="{{ asset('storage/' . optional($conversation->user)->photo) }}" alt="User" class="w-full h-full object-cover">
+                                            @if(optional($conversation->user)->avatar_url)
+                                                <img src="{{ optional($conversation->user)->avatar_url }}" alt="User" class="w-full h-full object-cover">
                                             @else
                                                 {{ strtoupper(substr($conversation->user->name ?? 'U', 0, 1)) }}
                                             @endif
