@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Registration;
 use App\Models\User;
 use App\Models\UserBalance;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -51,9 +53,10 @@ class GoogleAuthController extends Controller
                 ->first();
 
             if ($user) {
-                // If banned or blocked
-                if ($user->status === 'banned' || $user->is_banned) {
-                    return redirect()->route('login')->with('error', 'Akun ini telah dinonaktifkan / diblokir.');
+                // Gerbang status: samakan dengan login manual (LoginForm), agar akun
+                // nonaktif/diblokir/ditolak tidak bisa masuk lewat jalur Google.
+                if ($redirect = $this->blockedLoginRedirect($user)) {
+                    return $redirect;
                 }
 
                 // Update google_id and avatar if not yet set
@@ -72,6 +75,13 @@ class GoogleAuthController extends Controller
                 }
             } else {
                 // --- NEW USER ---
+
+                // Email yang pendaftarannya sudah ditolak admin tidak boleh membuat
+                // akun baru lewat Google; tampilkan alasan penolakannya.
+                if ($redirect = $this->rejectedRegistrationRedirect((string) $googleUser->getEmail())) {
+                    return $redirect;
+                }
+
                 $intendedRole = session('oauth_intended_role');
 
                 // Jika user baru tapi tidak ada intended role (masuk dari halaman login,
@@ -140,5 +150,58 @@ class GoogleAuthController extends Controller
 
             return redirect()->route('login')->with('error', 'Gagal login via Google: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Gerbang status akun untuk jalur login Google.
+     *
+     * Aturannya disamakan dengan login email/kata sandi di
+     * App\Livewire\Forms\LoginForm: registrasi yang ditolak diprioritaskan,
+     * lalu pending, inactive, dan blocked/banned.
+     */
+    private function blockedLoginRedirect(User $user): ?RedirectResponse
+    {
+        if ($redirect = $this->rejectedRegistrationRedirect((string) $user->email)) {
+            return $redirect;
+        }
+
+        if ($user->status === 'pending') {
+            return redirect()->route('login')->withErrors([
+                'email' => 'Akun Anda masih menunggu verifikasi dari admin. Silakan tunggu hingga akun Anda disetujui.',
+            ]);
+        }
+
+        if ($user->status === 'inactive') {
+            return redirect()->route('login')->withErrors([
+                'email' => 'Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi admin atau customer service untuk informasi lebih lanjut.',
+            ]);
+        }
+
+        if ($user->status === 'blocked' || $user->isBanned()) {
+            return redirect()->route('login')->withErrors([
+                'email' => 'Akun Anda telah diblokir. Silakan hubungi administrator.',
+            ]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Bila pendaftaran dengan email tersebut sudah ditolak admin, arahkan ke
+     * halaman alasan penolakan (route auth.rejected).
+     */
+    private function rejectedRegistrationRedirect(string $email): ?RedirectResponse
+    {
+        if ($email === '') {
+            return null;
+        }
+
+        $registration = Registration::where('email', $email)->latest()->first();
+
+        if ($registration && $registration->status === 'rejected') {
+            return redirect()->route('auth.rejected', ['registration' => $registration->id]);
+        }
+
+        return null;
     }
 }
