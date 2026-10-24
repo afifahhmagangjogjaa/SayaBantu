@@ -401,13 +401,8 @@
             @if($help->mitra)
                 <div class="mt-4 p-3 bg-white rounded-xl flex items-center justify-between shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3">
-                        @if($help->mitra->selfie_photo)
-                            <img src="{{ asset('storage/' . $help->mitra->selfie_photo) }}" alt="{{ $help->mitra->name }}" class="w-10 h-10 rounded-full object-cover border-2 border-blue-100">
-                        @else
-                            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
-                                {{ strtoupper(substr($help->mitra->name ?? 'M', 0, 1)) }}
-                            </div>
-                        @endif
+                        <x-user-avatar :user="$help->mitra"
+                            class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold border-2 border-blue-100" />
                         <div>
                             <div class="flex items-center gap-1.5 flex-wrap">
                                 <h3 class="font-semibold text-sm text-gray-900">{{ $help->mitra->name ?? 'Mitra' }}</h3>
@@ -1629,13 +1624,8 @@
                 @if($help->mitra)
                     <div class="bg-gray-50 rounded-xl p-4 mb-5">
                         <div class="flex items-center gap-3 mb-3">
-                            @if($help->mitra->selfie_photo)
-                                <img src="{{ asset('storage/' . $help->mitra->selfie_photo) }}" alt="{{ $help->mitra->name }}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-100">
-                            @else
-                                <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
-                                    {{ strtoupper(substr($help->mitra->name ?? 'M', 0, 1)) }}
-                                </div>
-                            @endif
+                            <x-user-avatar :user="$help->mitra"
+                                class="w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-lg border-2 border-blue-100" />
                             <div class="flex-1">
                                 <p class="font-semibold text-sm text-gray-900">{{ $help->mitra->name ?? 'Rekan Jasa' }}</p>
                                 <p class="text-xs text-gray-500">Mengajukan pembatalan</p>

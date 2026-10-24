@@ -59,7 +59,7 @@
         <div class="relative z-10 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-11 h-11 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center overflow-hidden shadow-md">
-                    <img src="{{ auth()->user()?->avatar_url ?: asset('images/avatar-placeholder.svg') }}" alt="Avatar" class="w-full h-full object-cover">
+                    <x-user-avatar :user="auth()->user()" class="h-full w-full text-white font-bold" />
                 </div>
                 <div>
                     <p class="text-[11px] text-blue-100 font-medium">Selamat datang 👋</p>

@@ -108,9 +108,6 @@ class LoginForm extends Form
         // Check user status after successful authentication
         $user = Auth::user();
 
-        // Allow admin and super_admin to login regardless of registration pending flag
-        $isPrivileged = in_array($user->role, ['admin', 'super_admin']);
-
         // If user's registration was rejected, redirect to a page showing rejection reason
         try {
             $reg = Registration::where('email', $user->email)->latest()->first();
@@ -123,14 +120,6 @@ class LoginForm extends Form
             }
         } catch (\Throwable $e) {
             // ignore lookup errors
-        }
-
-        // Only block non-privileged users who are pending
-        if (! $isPrivileged && $user->status === 'pending') {
-            Auth::logout();
-            throw ValidationException::withMessages([
-                'form.email' => 'Akun Anda masih menunggu verifikasi dari admin. Silakan tunggu hingga akun Anda disetujui.',
-            ]);
         }
 
         // Fallback block for inactive/blocked in case status changed concurrently

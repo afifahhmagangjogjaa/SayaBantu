@@ -33,13 +33,8 @@
                 <!-- Profile Avatar & Info -->
                 <div class="text-center">
                     <div class="relative inline-block">
-                        @if($user->avatar_url)
-                            <img src="{{ $user->avatar_url }}" alt="Avatar" class="w-24 h-24 rounded-full object-cover mx-auto ring-4 ring-white/30 shadow-xl">
-                        @else
-                            <div class="w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl font-bold mx-auto ring-4 ring-white/30 shadow-xl">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
-                            </div>
-                        @endif
+                        <x-user-avatar :user="$user"
+                            class="w-24 h-24 rounded-full mx-auto text-3xl font-bold text-white bg-white/20 backdrop-blur-sm ring-4 ring-white/30 shadow-xl" />
 
                         <button onclick="openMitraPhotoModal()" class="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-transform duration-200">
                             <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

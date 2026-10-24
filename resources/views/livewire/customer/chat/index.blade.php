@@ -36,11 +36,7 @@
                                 </svg>
                             </a>
                             <div class="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white/60 bg-white/20 flex items-center justify-center font-bold text-white shadow-xs">
-                                @if(optional($selected_help->mitra)->avatar_url)
-                                    <img src="{{ optional($selected_help->mitra)->avatar_url }}" alt="Mitra" class="w-full h-full object-cover">
-                                @else
-                                    {{ strtoupper(substr(optional($selected_help->mitra)->name ?? 'M', 0, 1)) }}
-                                @endif
+                                <x-user-avatar :user="$selected_help->mitra" class="h-full w-full" />
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h1 class="font-bold text-sm text-white truncate leading-tight">{{ optional($selected_help->mitra)->name ?? 'Mitra' }}</h1>
@@ -102,14 +98,8 @@
                                 <button wire:click="selectHelp({{ $conversation->id }})"
                                     class="w-full px-3 py-3 rounded-xl hover:shadow-md transition text-left {{ $selected_help_id === $conversation->id ? 'bg-primary-50 border border-primary-200' : 'bg-white border border-gray-100' }}">
                                     <div class="flex items-start gap-3">
-                                        <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center text-lg">
-                                            @if(optional($conversation->mitra)->avatar_url)
-                                                <img src="{{ optional($conversation->mitra)->avatar_url }}" alt="Mitra" class="w-full h-full object-cover">
-                                            @elseif(optional($conversation->mitra)->selfie_photo)
-                                                <img src="{{ asset('storage/' . optional($conversation->mitra)->selfie_photo) }}" alt="Mitra" class="w-full h-full object-cover">
-                                            @else
-                                                <span class="font-bold text-gray-700">{{ strtoupper(substr(optional($conversation->mitra)->name ?? 'M', 0, 1)) }}</span>
-                                            @endif
+                                        <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center text-lg font-bold text-gray-700">
+                                            <x-user-avatar :user="$conversation->mitra" class="h-full w-full" />
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-start justify-between gap-2 mb-1">

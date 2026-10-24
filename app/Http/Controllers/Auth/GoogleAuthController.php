@@ -306,14 +306,6 @@ class GoogleAuthController extends Controller
             return $redirect;
         }
 
-        if ($user->status === 'pending') {
-            $this->recordActivity($user, 'login_failed', 'Login via Google ditolak: menunggu verifikasi admin');
-
-            return redirect()->route('login')->withErrors([
-                'email' => 'Akun Anda masih menunggu verifikasi dari admin. Silakan tunggu hingga akun Anda disetujui.',
-            ]);
-        }
-
         if ($user->status === 'inactive') {
             $this->recordActivity($user, 'login_failed', 'Login via Google ditolak: akun nonaktif');
 

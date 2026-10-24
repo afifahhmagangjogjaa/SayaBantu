@@ -487,15 +487,8 @@
                 <h3 class="font-semibold text-sm text-gray-900">Informasi Customer</h3>
             </div>
             <div class="flex items-center gap-3 mb-3">
-                @if ($help->user->avatar_url)
-                    <img src="{{ $help->user->avatar_url }}" alt="{{ $help->user->name }}"
-                        class="w-12 h-12 rounded-full object-cover border-2 border-blue-100">
-                @else
-                    <div
-                        class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
-                        {{ strtoupper(substr($help->user->name ?? 'C', 0, 1)) }}
-                    </div>
-                @endif
+                <x-user-avatar :user="$help->user"
+                    class="w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-lg border-2 border-blue-100" />
                 <div class="flex-1">
                     <h4 class="font-semibold text-sm text-gray-900">{{ $help->user->name }}</h4>
                     <p class="text-sm text-gray-600 mt-0.5">{{ $help->city->name ?? '-' }}</p>
