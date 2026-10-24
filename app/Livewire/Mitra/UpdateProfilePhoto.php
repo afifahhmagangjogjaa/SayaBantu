@@ -2,108 +2,16 @@
 
 namespace App\Livewire\Mitra;
 
-use Illuminate\Support\Facades\Storage;
-use Livewire\Attributes\On;
+use App\Livewire\Concerns\UpdatesProfilePhoto;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 class UpdateProfilePhoto extends Component
 {
-    use WithFileUploads;
+    use UpdatesProfilePhoto;
 
-    public $photo = null;
-
-    public $showModal = false;
-
-    protected $rules = [
-        'photo' => 'required|image|max:2048', // max 2MB
-    ];
-
-    protected $messages = [
-        'photo.required' => 'Pilih foto terlebih dahulu',
-        'photo.image' => 'File harus berupa gambar',
-        'photo.max' => 'Ukuran foto maksimal 2MB',
-    ];
-
-    #[On('openModal')]
-    public function openModal()
+    protected function profileRouteName(): string
     {
-        $this->showModal = true;
-        $this->photo = null;
-        $this->resetErrorBag();
-    }
-
-    public function closeModal()
-    {
-        $this->showModal = false;
-        $this->photo = null;
-        $this->resetErrorBag();
-    }
-
-    public function updatedPhoto()
-    {
-        $this->resetErrorBag('photo');
-    }
-
-    public function updatePhoto()
-    {
-        $this->validate();
-
-        try {
-            $user = auth()->user();
-
-            // Delete old photo if exists
-            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
-                Storage::disk('public')->delete($user->profile_photo);
-            }
-
-            // Store new photo
-            $path = $this->photo->store('profile-photos', 'public');
-
-            // Update user
-            $user->update([
-                'profile_photo' => $path,
-            ]);
-
-            session()->flash('status', 'Foto profil berhasil diperbarui!');
-
-            $this->closeModal();
-            $this->dispatch('profile-photo-updated');
-
-            // Reload mitra profile page
-            return redirect()->route('mitra.profile');
-
-        } catch (\Exception $e) {
-            \Log::error('Error updating mitra profile photo: '.$e->getMessage());
-            session()->flash('error', 'Terjadi kesalahan saat mengupload foto.');
-        }
-    }
-
-    #[On('removePhoto')]
-    public function removePhoto()
-    {
-        try {
-            $user = auth()->user();
-
-            // Delete photo file
-            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
-                Storage::disk('public')->delete($user->profile_photo);
-            }
-
-            // Update user
-            $user->update([
-                'selfie_photo' => null,
-            ]);
-
-            session()->flash('status', 'Foto profil berhasil dihapus!');
-
-            // Reload page
-            return redirect()->route('mitra.profile');
-
-        } catch (\Exception $e) {
-            \Log::error('Error removing mitra profile photo: '.$e->getMessage());
-            session()->flash('error', 'Terjadi kesalahan saat menghapus foto.');
-        }
+        return 'mitra.profile';
     }
 
     public function render()
