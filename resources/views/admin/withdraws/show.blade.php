@@ -89,7 +89,7 @@
                             @if($withdraw->external_id) | Referensi: {{ $withdraw->external_id }} @endif
                         @else
                             <span class="font-semibold">Ditolak / Gagal.</span>
-                            {{ $withdraw->note ?? 'Tanpa keterangan.' }}
+                            {{ $withdraw->description ?? 'Tanpa keterangan.' }}
                             Diproses pada: {{ $withdraw->processed_at ? $withdraw->processed_at->format('d M Y, H:i') : '-' }}
                         @endif
                     </div>

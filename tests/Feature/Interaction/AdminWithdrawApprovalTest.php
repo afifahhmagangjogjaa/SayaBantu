@@ -121,6 +121,13 @@ class AdminWithdrawApprovalTest extends TestCase
         $this->assertSame(WithdrawRequest::STATUS_FAILED, $withdraw->status);
         $this->assertSame('Rekening tidak valid', $withdraw->description);
         $this->assertSame(200000, $mitra->fresh()->balance);
+
+        // Alasan penolakan tampil di halaman detail admin, dan aksi setujui hilang.
+        $this->actingAs($admin)
+            ->get(route('admin.withdraws.show', $withdraw))
+            ->assertOk()
+            ->assertSee('Rekening tidak valid')
+            ->assertDontSee('Setujui');
     }
 
     public function test_admin_tidak_bisa_membuka_detail_withdraw_di_luar_wilayahnya(): void
