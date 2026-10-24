@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 
 // Rute customer (prefix, nama, dan middleware milik role ini).
+// Catatan: jangan panggil ->middleware() lagi setelah ini — pemanggilan kedua
+// akan menimpa daftar middleware, sehingga 'auth' dan 'onboarded' hilang.
 Route::middleware(['auth', 'onboarded', 'customer'])
     ->prefix('customer')
     ->name('customer.')
-    ->middleware('customer')
     ->group(function () {
         // Dashboard
         Route::get('/dashboard', \App\Livewire\Customer\Dashboard::class)->name('dashboard');
