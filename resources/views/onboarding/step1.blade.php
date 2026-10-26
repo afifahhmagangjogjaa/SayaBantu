@@ -44,7 +44,7 @@
                     <label for="name" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
                         Nama Lengkap <span class="text-red-500">*</span>
                     </label>
-                    <input name="name" id="name" type="text" placeholder="Nama lengkap sesuai KTP"
+                    <input name="name" id="name" type="text" autocomplete="name" placeholder="Nama lengkap sesuai KTP"
                         value="{{ old('name', $user->name ?? '') }}" required
                         oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium @error('name') border-red-500 @enderror">
@@ -75,7 +75,7 @@
                     <label for="phone" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
                         No. WhatsApp / HP <span class="text-red-500">*</span>
                     </label>
-                    <input name="phone" id="phone" type="text" maxlength="13" placeholder="08xxxxxxxxxx"
+                    <input name="phone" id="phone" type="tel" autocomplete="tel" maxlength="13" placeholder="08xxxxxxxxxx"
                         value="{{ old('phone', $user->phone ?? '') }}" required
                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)"
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium @error('phone') border-red-500 @enderror">
@@ -155,9 +155,10 @@
                     <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
                         Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) <span class="text-red-500">*</span>
                     </label>
-                    <x-smart-address-input 
-                        name="address" 
-                        id="address" 
+                    <x-smart-address-input
+                        name="address"
+                        id="address"
+                        autocomplete="street-address"
                         cityRef="#city_id"
                         rows="2" 
                         required 

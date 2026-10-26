@@ -177,7 +177,7 @@
 
 <body class="font-sans antialiased bg-slate-100 flex flex-col items-center justify-center sm:py-6 sm:px-4 min-h-screen min-h-[100dvh]">
     <!-- Centered Mobile Frame container matching login page -->
-    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-auto sm:min-h-[840px] sm:max-h-[92vh] bg-gray-50 sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-hidden">
+    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-[840px] sm:max-h-[92vh] bg-gray-50 sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-hidden">
             <!-- Floating Top Flash Notification Pop-Up (Instant Render) -->
             @if (session()->has('message') || session()->has('success') || session()->has('error') || session()->has('status'))
                 <div id="flash-toast"

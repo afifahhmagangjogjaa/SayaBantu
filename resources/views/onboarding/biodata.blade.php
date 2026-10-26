@@ -18,7 +18,7 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                         Nama Lengkap (Sesuai KTP) <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="name" value="{{ old('name') }}" required placeholder="Nama lengkap Anda"
+                    <input type="text" name="name" autocomplete="name" value="{{ old('name') }}" required placeholder="Nama lengkap Anda"
                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('name') border-red-500 @enderror">
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -38,7 +38,7 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                         No. WhatsApp / HP <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="phone" value="{{ old('phone') }}" placeholder="08xxxxxxxxxx" required 
+                    <input type="tel" name="phone" autocomplete="tel" value="{{ old('phone') }}" placeholder="08xxxxxxxxxx" required
                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('phone') border-red-500 @enderror">
                     @error('phone') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>

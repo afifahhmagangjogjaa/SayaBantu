@@ -51,17 +51,17 @@
         }
     </style>
 
-    <!-- Top Profile Bar matching Gambar 1 (Mitra) -->
-    <div class="px-5 pt-4 pb-3 bg-white border-b border-gray-100 flex items-center justify-between">
+    <!-- Top Profile Bar (Blue Header matching Design) -->
+    <div class="px-5 pt-8 pb-20 bg-[#0066FF] text-white flex items-center justify-between shadow-xs relative">
         <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-full bg-blue-50 border-2 border-[#0066FF]/20 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-2xs">
-                <x-user-avatar :user="auth()->user()" class="h-full w-full text-[#0066FF] font-bold text-sm" />
+            <div class="w-12 h-12 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-xs">
+                <x-user-avatar :user="auth()->user()" class="h-full w-full text-white font-bold text-sm" />
             </div>
             <div>
-                <h1 class="text-sm font-extrabold text-gray-900 leading-tight">{{ optional(auth()->user())->name ?? 'Budi Santoso' }}</h1>
-                <div class="mt-0.5">
-                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h1 class="text-base font-extrabold text-white leading-tight">{{ optional(auth()->user())->name ?? 'Budi Santoso' }}</h1>
+                <div class="mt-1">
+                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-400/30">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                         Mitra Aktif
                     </span>
                 </div>
@@ -69,36 +69,32 @@
         </div>
 
         <div class="flex items-center gap-2">
-            @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition relative'])
+            @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
         </div>
     </div>
 
-    <!-- Saldo Mitra Card (Gambar 1) -->
-    <div class="px-5 pt-4">
-        <div class="bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-2xl p-4 text-white shadow-md relative overflow-hidden">
+    <!-- Saldo Mitra Card (Overlapping Header) -->
+    <div class="px-5 -mt-12 relative z-10">
+        <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-2xl p-5 text-white shadow-xl relative overflow-hidden border border-white/10 flex items-center justify-between">
             <!-- Decorative circle overlay -->
             <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full pointer-events-none"></div>
 
-            <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-1.5 text-blue-100 text-xs font-semibold">
+            <div class="min-w-0">
+                <div class="flex items-center gap-1.5 text-blue-100 text-xs font-semibold mb-1.5">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
                     <span>Saldo Mitra</span>
                 </div>
-
-                <a href="{{ route('mitra.withdraw.form') }}" wire:navigate
-                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-3.5 py-1.5 rounded-xl transition shadow-xs">
-                    Tarik Saldo
-                </a>
-            </div>
-
-            <div class="flex items-baseline justify-between mt-1">
                 <h2 class="text-2xl font-black tracking-tight text-white">
                     Rp {{ number_format($balance ?? 0, 0, ',', '.') }}
                 </h2>
-                <a href="{{ route('mitra.withdraw.history') }}" wire:navigate class="text-[11px] text-blue-100 hover:text-white underline font-medium">
-                    Riwayat Transaksi →
+            </div>
+
+            <div class="flex-shrink-0 ml-4">
+                <a href="{{ route('mitra.withdraw.form') }}" wire:navigate
+                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-5 py-3 rounded-xl transition shadow-md block">
+                    Tarik Saldo
                 </a>
             </div>
         </div>

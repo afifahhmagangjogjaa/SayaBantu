@@ -104,8 +104,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
-                @else
-                    <span class="px-2 py-0.5 rounded-full bg-[#0066FF] text-[10px] font-bold text-white shadow-sm">Cari</span>
                 @endif
             </div>
 

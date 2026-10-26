@@ -31,15 +31,30 @@ class Chat extends Component
         $this->user = Auth::user();
 
         if ($help) {
-            $this->selected_help_id = $help;
-            // Mark customer messages as read
-            ChatModel::where('help_id', $help)
-                ->where('sender_type', 'customer')
-                ->whereNull('read_at')
-                ->update(['read_at' => now()]);
+            if ($this->authorizeHelp($help)) {
+                $this->selected_help_id = $help;
+                // Mark customer messages as read
+                ChatModel::where('help_id', $help)
+                    ->where('sender_type', 'customer')
+                    ->whereNull('read_at')
+                    ->update(['read_at' => now()]);
 
-            $this->markChatNotificationsAsRead($help);
+                $this->markChatNotificationsAsRead($help);
+            } else {
+                $this->dispatch('error', 'Percakapan tidak ditemukan.');
+            }
         }
+    }
+
+    /**
+     * Pastikan percakapan yang dibuka memang ditangani mitra yang login.
+     * Melindungi mount, selectHelp, dan sendMessage dari help milik mitra lain.
+     */
+    private function authorizeHelp($helpId): ?Help
+    {
+        return Help::where('id', $helpId)
+            ->where('mitra_id', Auth::id())
+            ->first();
     }
 
     public function updatingSearch()
@@ -117,11 +132,18 @@ class Chat extends Component
             return;
         }
 
-        // Get help and customer info
-        $help = Help::findOrFail($this->selected_help_id);
+        // Get help and customer info — hanya help yang ditangani mitra ini
+        $help = $this->authorizeHelp($this->selected_help_id);
 
-        if (in_array($help->status, ['selesai', 'completed', 'batal', 'cancelled', 'dibatalkan'])) {
-            $this->dispatch('error', 'Pesanan telah '.(in_array($help->status, ['selesai', 'completed']) ? 'selesai' : 'dibatalkan').'. Percakapan ini telah diarsipkan.');
+        if (! $help) {
+            $this->dispatch('error', 'Percakapan tidak ditemukan.');
+            $this->selected_help_id = null;
+
+            return;
+        }
+
+        if ($chatClosedReason = $help->chatClosedReason()) {
+            $this->dispatch('error', $chatClosedReason);
 
             return;
         }
@@ -149,6 +171,12 @@ class Chat extends Component
     // Select help for chat
     public function selectHelp($help_id)
     {
+        if (! $this->authorizeHelp($help_id)) {
+            $this->dispatch('error', 'Percakapan tidak ditemukan.');
+
+            return;
+        }
+
         $this->selected_help_id = $help_id;
 
         // Mark messages as read

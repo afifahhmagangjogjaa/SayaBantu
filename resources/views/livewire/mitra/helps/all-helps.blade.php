@@ -213,13 +213,13 @@
                                                             this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
                                                         }
                                                     }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
-                                                        â³ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
+                                                        ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
                                                     </span>
                                                 @endif
                                             @endif
                                         @endif
                                         @if($isCancelledByMe)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">⚠️ï¸ Pernah Dibatalkan</span>
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">⚠️ Pernah Dibatalkan</span>
                                         @endif
                                     </div>
                                     <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -532,7 +532,7 @@
                 btn.disabled = true;
             }
 
-            // Langsung ambil bantuan tanpa GPS â€” backend pakai koordinat kota mitra
+            // Langsung ambil bantuan tanpa GPS — backend pakai koordinat kota mitra
             // GPS browser bisa berbeda kota (misal desktop di Jakarta, kota mitra di Bantul)
             // Radius check di backend sudah pakai koordinat kota yg benar
             @this.takeHelp(currentHelpId);

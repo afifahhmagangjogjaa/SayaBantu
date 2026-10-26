@@ -368,7 +368,7 @@
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-3 mb-3">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 shrink-0 text-base">
-                        ⚠️ï¸
+                        ⚠️
                     </div>
                     <div class="flex-1 text-xs space-y-1.5">
                         <div class="flex items-center justify-between">
@@ -1218,7 +1218,7 @@
                     </p>
                     <div class="mb-4 p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-center">
                         <p class="text-xs text-amber-800 font-medium">
-                            ⚠️ï¸ <strong>Perhatian:</strong> Pembatalan akan dicatat ke rekam jejak performa akun Anda dan dapat dikenakan sanksi jika terlalu sering.
+                            ⚠️ <strong>Perhatian:</strong> Pembatalan akan dicatat ke rekam jejak performa akun Anda dan dapat dikenakan sanksi jika terlalu sering.
                         </p>
                     </div>
 

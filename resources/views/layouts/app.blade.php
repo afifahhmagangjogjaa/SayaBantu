@@ -192,7 +192,7 @@
 
 <body class="font-sans antialiased bg-slate-100 flex flex-col items-center justify-center sm:py-6 sm:px-4 min-h-screen min-h-[100dvh]">
     <!-- Centered Mobile Frame container matching login page -->
-    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-auto sm:min-h-[840px] sm:max-h-[92vh] bg-gray-50 sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-hidden">
+    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-[840px] sm:max-h-[92vh] bg-gray-50 sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-hidden">
             <!-- Global notification (toast) for customer actions -->
             <div id="customer-global-notification" class="fixed left-1/2 -translate-x-1/2 pointer-events-none w-full max-w-md px-3 z-[99999]" style="top: calc(0.75rem + env(safe-area-inset-top, 0px));">
                 <div id="customer-global-notification-inner" class="w-full"></div>

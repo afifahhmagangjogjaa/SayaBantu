@@ -72,16 +72,7 @@
                         <p class="text-xs text-white/90 mt-0.5">Pantau status & riwayat pesanan Anda</p>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <a href="{{ route('customer.helps.create') }}" wire:navigate 
-                           class="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white inline-flex items-center gap-1 text-xs font-bold shadow-2xs"
-                           title="Buat Pesanan Baru">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                            </svg>
-                        </a>
-                        @include('components.notification-icon', ['route' => route('customer.notifications.index')])
-                    </div>
+                    @include('components.notification-icon', ['route' => route('customer.notifications.index')])
                 </div>
 
                 <!-- Filter Tabs dengan Sistem Halaman Penuh (Tampilan Asli, Area Biru Dikebawahkan) -->
@@ -130,17 +121,17 @@
                                 x-transition:leave-end="opacity-0 -translate-x-3"
                                 class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
                                 <button type="button" wire:key="tab-menunggu-mitra" @click="page = 1" wire:click="$set('statusFilter', 'menunggu_mitra')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Menunggu Mitra
                                 </button>
 
                                 <button type="button" wire:key="tab-diproses" @click="page = 1" wire:click="$set('statusFilter', 'diproses')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Diproses
                                 </button>
 
                                 <button type="button" wire:key="tab-waiting-confirmation" @click="page = 1" wire:click="$set('statusFilter', 'waiting_customer_confirmation')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Menunggu Konfirmasi
                                 </button>
                             </div>
@@ -155,17 +146,17 @@
                                 x-transition:leave-end="opacity-0 translate-x-3"
                                 class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
                                 <button type="button" wire:key="tab-komplain" @click="page = 2" wire:click="$set('statusFilter', 'komplain')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Komplain & Refund
                                 </button>
 
                                 <button type="button" wire:key="tab-selesai" @click="page = 2" wire:click="$set('statusFilter', 'selesai')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Selesai
                                 </button>
 
                                 <button type="button" wire:key="tab-dibatalkan" @click="page = 2" wire:click="$set('statusFilter', 'dibatalkan')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Dibatalkan
                                 </button>
                             </div>
@@ -271,7 +262,7 @@
                                                                 this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
                                                             }
                                                         }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
-                                                            â³ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
+                                                            ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
                                                         </span>
                                                     @endif
                                                 @endif
@@ -290,7 +281,7 @@
 
                                     @if(!empty($help->partner_cancel_requested_at))
                                         <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-                                            <p class="font-semibold text-amber-900">⚠️ï¸ Rekan Jasa Berhalangan:</p>
+                                            <p class="font-semibold text-amber-900">⚠️ Rekan Jasa Berhalangan:</p>
                                             <p class="italic text-[11px] text-amber-800">"{{ $help->partner_cancel_reason ?: 'Kendala darurat di jalan' }}"</p>
                                             <p class="text-[10px] text-amber-700 mt-1 font-medium">⚡ Sistem otomatis mencari Rekan Jasa pengganti.</p>
                                         </div>
@@ -444,7 +435,7 @@
                                         @endphp
                                         @if($cDeadline)
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200" title="Batas waktu konfirmasi 24 jam">
-                                                â±ï¸ Otomatis selesai {{ $cDeadline->diffForHumans() }}
+                                                ⏱️ Otomatis selesai {{ $cDeadline->diffForHumans() }}
                                             </span>
                                         @endif
                                         <span class="text-xs text-gray-400">{{ optional($help->service_completed_at)->diffForHumans() }}</span>
@@ -695,7 +686,7 @@
                                     @elseif($help->photo)
                                         <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
                                     @else
-                                        <span class="text-xl">⚠️ï¸</span>
+                                        <span class="text-xl">⚠️</span>
                                     @endif
                                 </div>
 
@@ -721,7 +712,7 @@
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 animate-pulse">
-                                                ⚠️ï¸ Dalam Mediasi Admin
+                                                ⚠️ Dalam Mediasi Admin
                                             </span>
                                         @endif
                                         <span class="text-xs text-gray-400">{{ optional($help->complaint_submitted_at ?? $help->updated_at)->diffForHumans() }}</span>
@@ -769,6 +760,19 @@
                 <div class="mt-4">{{ $helps->links('vendor.pagination.custom') }}</div>
             </div>
         </div>
+    </div>
+
+    <!-- FAB: Buat Pesanan Baru -->
+    <div class="fixed left-1/2 -translate-x-1/2 z-40 flex justify-end px-5 pointer-events-none"
+        style="bottom: 76px; max-width: 448px; width: 100vw;">
+        <a href="{{ route('customer.helps.create') }}" wire:navigate
+            class="pointer-events-auto inline-flex items-center justify-center w-11 h-11 rounded-full text-white shadow-lg transition active:scale-95 hover:opacity-90"
+            style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);"
+            title="Buat Pesanan Baru" aria-label="Buat Pesanan Baru">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+        </a>
     </div>
 
     <!-- Helper: hide scrollbars for modals -->
@@ -1346,7 +1350,7 @@
                 editMap = L.map('edit-map').setView(initialLocation, 13);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: 'Â© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                     maxZoom: 19,
                 }).addTo(editMap);
 
@@ -1492,7 +1496,7 @@
                 detailMap = L.map('detail-map', { zoomControl: true, attributionControl: false }).setView(center, 13);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: 'Â© OpenStreetMap contributors',
+                    attribution: '© OpenStreetMap contributors',
                     maxZoom: 19,
                 }).addTo(detailMap);
 

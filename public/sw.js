@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sayabantu-v3';
+const CACHE_NAME = 'sayabantu-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',

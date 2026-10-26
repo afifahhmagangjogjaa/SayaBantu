@@ -914,7 +914,7 @@
                             const iana = zoneIana[zone];
                             const now = new Date();
                             const timeText = formatTimeForZone(now, iana);
-                            tzDisplay.textContent = timeText ? `Waktu lokal: ${zone} â€” ${timeText}` : `Waktu lokal: ${zone}`;
+                            tzDisplay.textContent = timeText ? `Waktu lokal: ${zone} — ${timeText}` : `Waktu lokal: ${zone}`;
                         }
 
                         document.addEventListener('DOMContentLoaded', function() {
@@ -944,7 +944,7 @@
                                     try {
                                         const fmt = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: iana });
                                         const timeText = fmt.format(now);
-                                        if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone} â€” ${timeText}`;
+                                        if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone} — ${timeText}`;
                                     } catch (err) {
                                         if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone}`;
                                     }
@@ -1417,7 +1417,7 @@
                                 <div class="flex justify-between items-center pt-2 border-t border-blue-100">
                                     <span class="text-sm text-gray-600">Batas Waktu Tunggu Mitra</span>
                                     <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">
-                                        â³ {{ $confirmAutoCancelMinutes ?? $auto_cancel_minutes }} Menit
+                                        ⏳ {{ $confirmAutoCancelMinutes ?? $auto_cancel_minutes }} Menit
                                     </span>
                                 </div>
                             @endif
@@ -1613,7 +1613,7 @@
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'Â© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19,
             }).addTo(leafletMapInstance);
 

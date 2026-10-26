@@ -1,5 +1,5 @@
-<div wire:poll.5s class="{{ $selected_help_id ? 'h-screen overflow-hidden' : 'min-h-screen' }} bg-white">
-    <div class="max-w-md mx-auto {{ $selected_help_id ? 'h-screen flex flex-col overflow-hidden' : '' }}">
+<div wire:poll.5s class="{{ $selected_help_id ? 'h-full overflow-hidden' : 'min-h-screen' }} bg-white">
+    <div class="max-w-md mx-auto {{ $selected_help_id ? 'h-full flex flex-col overflow-hidden' : '' }}">
         <!-- Header -->
         <div class="px-5 pt-5 pb-8 relative overflow-hidden flex-shrink-0" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
@@ -71,13 +71,13 @@
                 @endif
             </div>
 
-            <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                 <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 {{ $selected_help_id ? 'pb-24 flex-1 overflow-hidden flex flex-col' : 'pb-28 min-h-[60vh]' }}">
-            <div class="{{ $selected_help_id ? 'flex-1 overflow-hidden flex flex-col' : 'space-y-4' }}">
+        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 {{ $selected_help_id ? 'flex-1 min-h-0 flex flex-col' : 'pb-28 min-h-[60vh]' }}">
+            <div class="{{ $selected_help_id ? 'flex-1 min-h-0 flex flex-col' : 'space-y-4' }}">
                 @if(!$selected_help_id)
                     <div class="relative">
                         <input type="text" wire:model.debounce.400ms="search" placeholder="Cari percakapan atau mitra..."
@@ -147,7 +147,7 @@
                     </div>
                 @else
                     <!-- Messages Body with scrolling -->
-                    <div id="mitraMessagesWrapper" class="flex-1 overflow-y-auto hide-scrollbar px-1 py-1 space-y-3 pb-20"
+                    <div id="mitraMessagesWrapper" class="flex-1 min-h-0 overflow-y-auto hide-scrollbar px-1 py-1 space-y-3 pb-3"
                         x-data="{
                             scrollToBottom() {
                                 this.$el.scrollTop = this.$el.scrollHeight;
@@ -173,21 +173,19 @@
                         @endif
                     </div>
 
-                    @if($selected_help && in_array($selected_help->status, ['selesai', 'completed', 'batal', 'cancelled', 'dibatalkan', 'cancel_accepted']))
-                        <!-- Read-Only Banner when order is completed or cancelled -->
-                        <div class="fixed left-1/2 transform -translate-x-1/2 bg-gray-100 border-t border-gray-200 z-40 shadow-sm px-4 py-2.5 flex items-center justify-center gap-2 text-center"
-                            style="bottom: 64px; max-width: 448px; width: 100vw;">
+                    @if($selected_help && $selected_help->chatClosedReason())
+                        <!-- Read-Only Banner when chat is closed -->
+                        <div class="flex-shrink-0 bg-gray-100 border-t border-gray-200 px-4 py-2.5 flex items-center justify-center gap-2 text-center">
                             <svg class="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m11-6V7a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2z" />
                             </svg>
                             <span class="text-xs text-gray-600 font-medium">
-                                Pesanan telah {{ $selected_help->isSelesai() ? 'selesai' : 'dibatalkan' }}. Percakapan ini telah diarsipkan (hanya-baca).
+                                {{ $selected_help->chatClosedReason() }}
                             </span>
                         </div>
                     @elseif($selected_help && in_array($selected_help->status, ['partner_cancel_requested', 'cancel_requested']))
                         <!-- Banner when cancel requested -->
-                        <div class="fixed left-1/2 transform -translate-x-1/2 bg-amber-50 border-t border-amber-200 z-40 shadow-sm px-4 py-2.5 flex items-center justify-center gap-2 text-center"
-                            style="bottom: 64px; max-width: 448px; width: 100vw;">
+                        <div class="flex-shrink-0 bg-amber-50 border-t border-amber-200 px-4 py-2.5 flex items-center justify-center gap-2 text-center">
                             <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
@@ -196,10 +194,16 @@
                             </span>
                         </div>
                     @else
-                        <!-- Fixed Chat Input Bar: Docked flush right on top of bottom navigation -->
-                        <div class="fixed left-1/2 transform -translate-x-1/2 bg-white border-t border-gray-200 z-40 shadow-md px-3.5 py-2"
-                            style="bottom: 64px; max-width: 448px; width: 100vw;">
-                            <form wire:submit.prevent="sendMessage" class="flex items-center gap-2">
+                        <!-- Chat Input Bar: di dasar frame (mengikuti container, aman di mobile & desktop) -->
+                        <div class="flex-shrink-0 bg-white border-t border-gray-200 shadow-md px-3.5 py-2 relative">
+                            <form wire:submit.prevent="sendMessage" class="relative flex items-center gap-2">
+                                @if($selected_help && $selected_help->isSelesai())
+                                    <div class="absolute -top-8 left-0 right-0 text-center">
+                                        <span class="text-[10px] text-gray-500 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5">
+                                            Percakapan akan ditutup otomatis 1 hari setelah pesanan selesai
+                                        </span>
+                                    </div>
+                                @endif
                                 <input type="text" wire:model.defer="message" placeholder="Tulis pesan..."
                                     class="flex-1 px-3.5 py-2 rounded-xl bg-gray-50 border border-gray-300 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-400 font-medium text-gray-900">
                                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-4 py-2 rounded-xl font-semibold text-sm flex-shrink-0 shadow-xs">Kirim</button>
@@ -224,28 +228,5 @@
             -ms-overflow-style: none !important;
             scrollbar-width: none !important;
         }
-        @if($selected_help_id)
-            /* Kunci dan hilangkan scroll panjang luar browser saat berada di dalam room chat */
-            html, body {
-                overflow: hidden !important;
-                height: 100vh !important;
-                max-height: 100vh !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            main {
-                padding-bottom: 0 !important;
-                margin-bottom: 0 !important;
-                height: 100vh !important;
-                max-height: 100vh !important;
-                overflow: hidden !important;
-            }
-            body > div, body > div > div {
-                height: 100vh !important;
-                max-height: 100vh !important;
-                min-height: 0 !important;
-                overflow: hidden !important;
-            }
-        @endif
     </style>
 </div>

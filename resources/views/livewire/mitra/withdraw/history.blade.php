@@ -1,82 +1,80 @@
 @extends('layouts.mitra')
 
 @section('content')
-    <div class="min-h-screen bg-white">
-        <div class="max-w-md mx-auto">
-            <!-- Header - BRImo Style Standar Bawaan -->
-            <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
-                
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between text-white mb-3">
-                        <a href="{{ route('mitra.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </a>
-
-                        <div class="text-center flex-1 px-2">
-                            <h1 class="text-lg font-bold">Riwayat Transaksi Saldo</h1>
-                            <p class="text-xs text-white/90 mt-0.5">Mutasi pendapatan & penarikan dana</p>
-                        </div>
-
-                        <div class="w-9"></div>
-                    </div>
+    <div class="min-h-screen bg-gray-100 pb-24">
+        <!-- Top Blue Header (Matching Dashboard Design) -->
+        <div class="px-5 pt-8 pb-20 bg-[#0066FF] text-white flex items-center justify-between shadow-xs relative">
+            <div class="flex items-center gap-3">
+                <a href="{{ route('mitra.dashboard') }}" wire:navigate aria-label="Kembali" class="p-2 -ml-2 hover:bg-white/20 rounded-xl transition inline-flex items-center text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="text-base font-extrabold text-white leading-tight">Penghasilan & Saldo</h1>
+                    <p class="text-[11px] text-blue-100 mt-0.5">Mutasi pendapatan & penarikan dana</p>
                 </div>
-
-                <!-- Curved separator (Garis Lengkung Bawaan Asli) -->
-                <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
-                    <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
-                </svg>
             </div>
 
-            <!-- Content -->
-            <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24" x-data="{ currentTab: '{{ request()->query('tab', $activeTab ?? 'income') }}' }">
-                
-                <!-- Balance Card (Simpel & Bersih - Standar Gojek/Grab) -->
-                <div class="mb-5 bg-gradient-to-br from-blue-50 via-white to-sky-50 border border-blue-100 rounded-2xl p-4 shadow-xs">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-[11px] text-gray-500 font-medium">Saldo Tersedia</p>
-                            <p class="text-xl font-black text-gray-900 mt-0.5 tracking-tight">Rp {{ number_format($user->balance ?? 0, 0, ',', '.') }}</p>
-                        </div>
-                        <a href="{{ route('mitra.withdraw.form', ['force' => 1]) }}" wire:navigate class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                            Tarik Saldo
-                        </a>
+            <div class="flex items-center gap-2">
+                @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
+            </div>
+        </div>
+
+        <!-- Content with Overlapping Saldo Card -->
+        <div class="px-5 -mt-12 relative z-10" x-data="{ currentTab: '{{ request()->query('tab', $activeTab ?? 'income') }}' }">
+            
+            <!-- Balance Card (Overlapping Header) -->
+            <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-2xl p-5 text-white shadow-xl relative overflow-hidden border border-white/10 flex items-center justify-between mb-5">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full pointer-events-none"></div>
+
+                <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 text-blue-100 text-xs font-semibold mb-1.5">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <span>Saldo Tersedia</span>
                     </div>
+                    <h2 class="text-2xl font-black tracking-tight text-white">
+                        Rp {{ number_format($user->balance ?? 0, 0, ',', '.') }}
+                    </h2>
                 </div>
 
-                <!-- Status Flash Message -->
-                @if(session('status'))
-                    <div class="mb-4 p-3.5 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl text-xs flex items-start gap-2.5 shadow-2xs">
-                        <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m4 0h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                        </svg>
-                        <span>{{ session('status') }}</span>
-                    </div>
-                @endif
+                <div class="flex-shrink-0 ml-4">
+                    <a href="{{ route('mitra.withdraw.form', ['force' => 1]) }}" wire:navigate
+                       class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-5 py-3 rounded-xl transition shadow-md block">
+                        Tarik Saldo
+                    </a>
+                </div>
+            </div>
 
-                <!-- 2-TAB SEGMENTED CONTROLLER -->
-                <div class="grid grid-cols-2 gap-1.5 p-1 bg-gray-100/90 rounded-2xl mb-5 border border-gray-200/60">
-                    <button type="button" 
-                        @click="currentTab = 'income'"
-                        :class="currentTab === 'income' ? 'bg-white text-emerald-700 shadow-xs font-bold border border-emerald-100' : 'text-gray-500 hover:text-gray-800 font-medium'"
-                        class="py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span>Saldo Masuk</span>
-                    </button>
-                    <button type="button" 
-                        @click="currentTab = 'withdraw'"
-                        :class="currentTab === 'withdraw' ? 'bg-white text-blue-700 shadow-xs font-bold border border-blue-100' : 'text-gray-500 hover:text-gray-800 font-medium'"
-                        class="py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                        <span>Tarik Saldo</span>
-                    </button>
-                </div>   </div>
+            <!-- Status Flash Message -->
+            @if(session('status'))
+                <div class="mb-4 p-3.5 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl text-xs flex items-start gap-2.5 shadow-2xs">
+                    <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m4 0h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                    </svg>
+                    <span>{{ session('status') }}</span>
+                </div>
+            @endif
+
+            <!-- 2-TAB SEGMENTED CONTROLLER -->
+            <div class="grid grid-cols-2 gap-1.5 p-1 bg-white rounded-2xl mb-5 border border-gray-200/90 shadow-2xs">
+                <button type="button" 
+                    @click="currentTab = 'income'"
+                    :class="currentTab === 'income' ? 'bg-[#0066FF] text-white shadow-sm font-bold' : 'text-gray-500 hover:text-gray-800 font-medium'"
+                    class="py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Saldo Masuk</span>
+                </button>
+                <button type="button" 
+                    @click="currentTab = 'withdraw'"
+                    :class="currentTab === 'withdraw' ? 'bg-[#0066FF] text-white shadow-sm font-bold' : 'text-gray-500 hover:text-gray-800 font-medium'"
+                    class="py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                    <span>Tarik Saldo</span>
+                </button>
+            </div>
 
                 <!-- ============================================== -->
                 <!-- TAB 1: SALDO MASUK (PENDAPATAN BANTUAN)        -->

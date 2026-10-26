@@ -22,7 +22,7 @@
         </div>
 
         <!-- Curved separator -->
-        <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
             <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f9fafb"></path>
         </svg>
     </div>
@@ -336,7 +336,7 @@
                                     </span>
                                 @elseif($isRej)
                                     <span class="px-2.5 py-1 text-[11px] font-bold text-red-800 bg-red-100 rounded-full flex-shrink-0">
-                                        âŒ Ditolak
+                                        ❌ Ditolak
                                     </span>
                                 @endif
                             </div>
