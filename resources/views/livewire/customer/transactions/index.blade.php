@@ -1,9 +1,9 @@
 <div class="min-h-screen bg-white">
     <div class="max-w-md mx-auto">
-        <!-- Header - BRImo Style Standar Bawaan -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+        <!-- Header - SayaBantu Style -->
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
@@ -181,18 +181,13 @@
                         @endif
                     @else
                         <!-- Empty State Tab Masuk -->
-                        <div class="text-center py-16">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl">
-                                💰
-                            </div>
-                            <h3 class="text-base font-bold text-gray-800 mb-1">Belum Ada Saldo Masuk</h3>
-                            <p class="text-xs text-gray-500 max-w-xs mx-auto mb-5 leading-relaxed">
-                                Riwayat top-up dan pengembalian saldo Anda akan muncul di sini.
-                            </p>
-                            <a href="{{ route('customer.topup') }}" class="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
-                                Top Up Saldo Sekarang
-                            </a>
-                        </div>
+                        <x-empty-state 
+                            title="Belum Ada Saldo Masuk" 
+                            description="Riwayat top-up dan pengembalian saldo dompet Anda akan muncul di sini." 
+                            icon="wallet" 
+                            actionText="Top Up Saldo Sekarang" 
+                            :actionUrl="route('customer.topup')" 
+                        />
                     @endif
                 </div>
             @endif
@@ -267,18 +262,13 @@
                         @endif
                     @else
                         <!-- Empty State Tab Keluar -->
-                        <div class="text-center py-16">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-3xl">
-                                📤
-                            </div>
-                            <h3 class="text-base font-bold text-gray-800 mb-1">Belum Ada Saldo Keluar</h3>
-                            <p class="text-xs text-gray-500 max-w-xs mx-auto mb-5 leading-relaxed">
-                                Riwayat pembayaran bantuan untuk mitra akan tercatat secara rapi di sini.
-                            </p>
-                            <a href="{{ route('customer.helps.create') }}" class="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
-                                Buat Permintaan Bantuan
-                            </a>
-                        </div>
+                        <x-empty-state 
+                            title="Belum Ada Saldo Keluar" 
+                            description="Riwayat pembayaran bantuan untuk mitra akan tercatat secara rapi di sini." 
+                            icon="clipboard" 
+                            actionText="Buat Permintaan Bantuan" 
+                            :actionUrl="route('customer.helps.create')" 
+                        />
                     @endif
                 </div>
             @endif
@@ -311,7 +301,7 @@
                 @elseif($isTopup)
                     <div class="px-5 pt-6 pb-9 relative overflow-hidden text-white text-center rounded-t-3xl shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                 @else
-                    <div class="px-5 pt-6 pb-9 relative overflow-hidden text-white text-center rounded-t-3xl shrink-0" style="background: linear-gradient(135deg, #0098e7 0%, #0060b0 100%);">
+                    <div class="px-5 pt-6 pb-9 relative overflow-hidden text-white text-center rounded-t-3xl shrink-0" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
                 @endif
                     <!-- Decorative circles -->
                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-12 -mt-12 pointer-events-none"></div>

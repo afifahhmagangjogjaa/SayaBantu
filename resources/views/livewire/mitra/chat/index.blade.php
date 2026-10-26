@@ -1,7 +1,7 @@
-<div wire:poll.3s class="{{ $selected_help_id ? 'h-screen overflow-hidden' : 'min-h-screen' }} bg-white">
+<div wire:poll.5s class="{{ $selected_help_id ? 'h-screen overflow-hidden' : 'min-h-screen' }} bg-white">
     <div class="max-w-md mx-auto {{ $selected_help_id ? 'h-screen flex flex-col overflow-hidden' : '' }}">
         <!-- Header -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden flex-shrink-0" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden flex-shrink-0" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
 
@@ -180,7 +180,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m11-6V7a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2z" />
                             </svg>
                             <span class="text-xs text-gray-600 font-medium">
-                                Pesanan telah {{ in_array($selected_help->status, ['selesai', 'completed']) ? 'selesai' : 'dibatalkan' }}. Percakapan ini telah diarsipkan (hanya-baca).
+                                Pesanan telah {{ $selected_help->isSelesai() ? 'selesai' : 'dibatalkan' }}. Percakapan ini telah diarsipkan (hanya-baca).
                             </span>
                         </div>
                     @elseif($selected_help && in_array($selected_help->status, ['partner_cancel_requested', 'cancel_requested']))

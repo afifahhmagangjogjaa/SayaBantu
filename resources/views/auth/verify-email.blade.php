@@ -3,7 +3,7 @@
         <div>
             <!-- 1. Dynamic Icon (Email Envelope -> Green Checkmark on Verified) -->
             <template x-if="!isVerified">
-                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blue-50 text-[#0098e7] border-2 border-blue-100 flex items-center justify-center shadow-xs transition-all duration-300">
+                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blue-50 text-[#0066FF] border-2 border-blue-100 flex items-center justify-center shadow-xs transition-all duration-300">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
@@ -36,10 +36,10 @@
                 </p>
                 
                 <!-- Status Normal: Menunggu -->
-                <div x-show="!isVerified" class="mt-2.5 inline-flex items-center gap-2 px-3.5 py-1 bg-blue-50/90 text-[#0077cc] text-xs font-semibold rounded-full border border-blue-200/80">
+                <div x-show="!isVerified" class="mt-2.5 inline-flex items-center gap-2 px-3.5 py-1 bg-blue-50/90 text-[#0052CC] text-xs font-semibold rounded-full border border-blue-200/80">
                     <span class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#0098e7]"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#0066FF]"></span>
                     </span>
                     <span>Menunggu verifikasi...</span>
                 </div>
@@ -87,7 +87,7 @@
                 @endphp
                 <a href="{{ $mailUrl }}" target="_blank"
                     class="w-full inline-flex items-center justify-center gap-2 text-white font-bold py-3.5 px-4 rounded-full shadow-md hover:shadow-lg active:scale-98 transition text-sm tracking-wide cursor-pointer"
-                    style="background-color: #0098e7;">
+                    style="background-color: #0066FF;">
                     <span>Buka Aplikasi Email</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -106,7 +106,7 @@
                                 </span>
                             </template>
                             <template x-if="cooldown <= 0">
-                                <button type="submit" class="font-bold text-[#0098e7] hover:underline cursor-pointer">
+                                <button type="submit" class="font-bold text-[#0066FF] hover:underline cursor-pointer">
                                     Kirim Ulang
                                 </button>
                             </template>
@@ -117,7 +117,7 @@
                         <span>Salah alamat email?</span>
                         <form method="POST" action="{{ route('logout') }}" class="inline-block ml-1">
                             @csrf
-                            <button type="submit" class="font-bold text-slate-700 hover:text-[#0098e7] underline transition cursor-pointer">
+                            <button type="submit" class="font-bold text-slate-700 hover:text-[#0066FF] underline transition cursor-pointer">
                                 Ubah Email
                             </button>
                         </form>

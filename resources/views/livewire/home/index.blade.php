@@ -42,7 +42,7 @@
     <div class="max-w-sm mx-auto h-screen flex flex-col overflow-hidden">
 
         <!-- Header (matching mitra/customer help pages) -->
-            <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+            <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">  
                 <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
                 <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
 
@@ -176,44 +176,45 @@
                 </div>
             </div>
 
-            <br>
-
-            <!-- Category and Help Cards Section -->
-            <div class="flex-1 px-5 overflow-y-auto hide-scrollbar">
-                <div class="mb-4">
-                    <h2 class="text-sm font-bold text-gray-800 mb-1 text-center">Platform ini melayani bantuan di berbagai bidang</h2>
+            <!-- Pekerjaan yang tersedia (Blur Preview sesuai mockup) -->
+            <div class="flex-1 px-5 pb-4">
+                <div class="mb-2.5">
+                    <h2 class="text-sm font-bold text-gray-800">Pekerjaan yang tersedia:</h2>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 pb-6">
+                <!-- Gray Container with Rounded White Cards -->
+                <div class="bg-gray-200/90 rounded-2xl p-3.5 space-y-2.5 shadow-inner">
                     @php
-                        $categories = \App\Models\Category::all();
+                        $sampleJobs = [
+                            'Membersihkan rumput',
+                            'Membantu Pindahan Rumah',
+                            'Membersihkan Saluran Air',
+                            'Perbaikan Atap & Bangunan',
+                        ];
                     @endphp
-                    @forelse($categories as $category)
-                        <div class="block bg-white rounded-xl p-3 shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                            <div class="w-12 h-12 rounded-full mb-2 flex items-center justify-center text-2xl" style="background-color: {{ $category->color }}15;">
-                                {{ $category->icon }}
-                            </div>
-                            <h3 class="font-semibold text-sm text-gray-900 mb-1">{{ $category->name }}</h3>
-                            <p class="text-[10px] text-gray-500 line-clamp-2 leading-tight">{{ $category->description }}</p>
+
+                    @foreach($sampleJobs as $job)
+                        <div onclick="window.location='{{ route('login') }}'"
+                             class="bg-white rounded-xl py-3.5 px-4 shadow-xs flex items-center justify-between cursor-pointer transition hover:shadow-md hover:scale-[1.01] active:scale-[0.98]">
+                            <span class="text-sm font-semibold text-gray-800 select-none blur-[4px] filter">
+                                {{ $job }}
+                            </span>
+                            <span class="text-xs text-primary-500 font-bold opacity-60">
+                                🔒 Login
+                            </span>
                         </div>
-                    @empty
-                        <div class="col-span-2 text-center py-8">
-                            <p class="text-sm text-gray-500">Tidak ada kategori tersedia</p>
-                        </div>
-                    @endforelse
+                    @endforeach
                 </div>
-
-
             </div>
 
             <!-- Bottom CTA -->
-            <div class="px-6 py-6 bg-white border-t border-gray-100">
-                <a href="{{ route('login') }}" class="block w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-4 rounded-2xl text-center transition-all duration-200 shadow-lg shadow-primary-500/30">
+            <div class="px-6 py-5 bg-white border-t border-gray-100">
+                <a href="{{ route('login') }}" class="block w-full text-white font-bold py-3.5 rounded-2xl text-center transition-all duration-200 shadow-lg active:scale-98" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
                     Mulai Berbagi Kebaikan
                 </a>
-                <p class="text-xs text-center text-gray-500 mt-3">
+                <p class="text-xs text-center text-gray-500 mt-2.5">
                     Belum punya akun? 
-                    <a href="{{ route('register') }}" class="text-primary-600 font-semibold hover:text-primary-700">Daftar sekarang</a>
+                    <a href="{{ route('login') }}" class="text-primary-600 font-bold hover:text-primary-700 underline">masuk sekarang</a>
                 </p>
             </div>
 

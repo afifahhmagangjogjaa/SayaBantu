@@ -1,9 +1,9 @@
 <div class="min-h-screen bg-white">
 		<div class="max-w-md mx-auto">
-			<!-- Header - BRImo Style -->
-			<div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-				<div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-				<div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+			<!-- Header - SayaBantu Style -->
+			<div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+				<div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+				<div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
 				
 				<div class="relative z-10">
 					<div class="flex items-center justify-between text-white mb-6">
@@ -51,18 +51,13 @@
 
 					{{-- List --}}
 					@if(isset($completedHelps) && $completedHelps->isEmpty())
-						<div class="text-center py-16">
-							<div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-								<svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-								</svg>
-							</div>
-							<h3 class="text-lg font-bold text-gray-800 mb-2">Belum Ada Riwayat</h3>
-							<p class="text-sm text-gray-500 mb-6">Belum ada bantuan yang selesai</p>
-							<a href="{{ route('customer.helps.create') }}" class="inline-block text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition" style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
-								Buat Bantuan Baru
-							</a>
-						</div>
+						<x-empty-state 
+							title="Belum Ada Riwayat Bantuan" 
+							description="Anda belum memiliki bantuan yang telah selesai dikerjakan." 
+							icon="clipboard" 
+							actionText="Buat Bantuan Baru" 
+							:actionUrl="route('customer.helps.create')" 
+						/>
 					@elseif(isset($completedHelps))
 						<div class="space-y-3">
 							@foreach($completedHelps as $help)
@@ -85,13 +80,13 @@
 											</div>
 
 											<div class="text-right flex-shrink-0">
-												<div class="text-sm font-bold" style="color: #0098e7;">Rp {{ number_format($help->amount ?? 0, 0, ',', '.') }}</div>
+												<div class="text-sm font-bold" style="color: #0066FF;">Rp {{ number_format($help->amount ?? 0, 0, ',', '.') }}</div>
 												@if($help->status === 'rejected')
 													<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-semibold mt-1">
 														<svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
 														Ditolak
 													</span>
-												@elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
+												@elseif($help->isDibatalkan())
 													@if($help->complaint_resolution === 'refunded')
 														<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold mt-1">
 															✓ Refund Berhasil
@@ -110,7 +105,7 @@
 											</div>
 										</div>
 
-										<button @click="open = !open" class="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition" style="color: #0098e7;">
+										<button @click="open = !open" class="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition" style="color: #0066FF;">
 											<span x-text="open ? 'Sembunyikan Detail' : 'Lihat Detail'"></span>
 											<svg :class="open ? 'rotate-180' : ''" class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -178,7 +173,7 @@
 														<div class="text-xs text-gray-500 mb-1">Mitra</div>
 														<div class="text-sm text-gray-900">{{ $help->mitra->name }}</div>
 														@if($help->mitra->phone)
-															<a href="tel:{{ $help->mitra->phone }}" class="text-xs font-semibold" style="color: #0098e7;">{{ $help->mitra->phone }}</a>
+															<a href="tel:{{ $help->mitra->phone }}" class="text-xs font-semibold" style="color: #0066FF;">{{ $help->mitra->phone }}</a>
 														@endif
 													</div>
 												@endif
@@ -213,3 +208,4 @@
 		</div>
 	</div>
 </div>
+

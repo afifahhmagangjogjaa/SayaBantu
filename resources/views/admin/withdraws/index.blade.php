@@ -98,7 +98,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 mb-1">Status</label>
-                            <select name="status" onchange="this.form.submit()" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition cursor-pointer">
+                            <select name="status" onchange="this.form.submit()" class="w-full pl-3 pr-8 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition cursor-pointer">
                                 <option value="">Semua Status</option>
                                 <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
                                 <option value="processing" {{ request('status') === 'processing' ? 'selected' : '' }}>Diproses</option>
@@ -109,7 +109,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 mb-1">Bank</label>
-                            <select name="bank_code" onchange="this.form.submit()" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition cursor-pointer">
+                            <select name="bank_code" onchange="this.form.submit()" class="w-full pl-3 pr-8 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition cursor-pointer">
                                 <option value="">Semua Bank</option>
                                 @foreach(($banks ?? []) as $b)
                                     <option value="{{ $b }}" {{ request('bank_code') === $b ? 'selected' : '' }}>{{ $b }}</option>
@@ -254,12 +254,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center">
-                                    <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                    <h3 class="mt-2 text-sm font-semibold text-gray-900">Belum ada request withdraw</h3>
-                                    <p class="mt-1 text-sm text-gray-500">Permintaan penarikan saldo dari mitra akan muncul di sini.</p>
+                                <td colspan="7" class="p-6">
+                                    <x-empty-state 
+                                        icon="wallet" 
+                                        title="Belum Ada Pengajuan Penarikan Saldo" 
+                                        description="Permintaan penarikan saldo dari mitra di wilayah Anda akan muncul di sini." 
+                                        compact 
+                                    />
                                 </td>
                             </tr>
                         @endforelse
@@ -514,12 +515,14 @@
             if (rejectCancel) rejectCancel.addEventListener('click', hideReject);
         }
 
-        // Auto-refresh daftar withdraw setiap 8 detik jika tidak sedang membuka modal
+        // Auto-refresh daftar withdraw setiap 30 detik jika tidak sedang membuka modal atau hover
         setInterval(function() {
             var modalContainer = document.getElementById('admin-withdraw-modal-container');
             var isModalOpen = modalContainer && modalContainer.children.length > 0;
             var isInputFocused = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
-            if (!isModalOpen && !isInputFocused) {
+            var currentTable = document.querySelector('.bg-white.rounded-2xl.shadow-lg');
+            var isHovering = currentTable && currentTable.matches(':hover');
+            if (!isModalOpen && !isInputFocused && !isHovering) {
                 // Fetch silent update
                 fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(function(res) { return res.text(); })
@@ -527,8 +530,7 @@
                         var parser = new DOMParser();
                         var doc = parser.parseFromString(html, 'text/html');
                         var newTable = doc.querySelector('.bg-white.rounded-2xl.shadow-lg');
-                        var currentTable = document.querySelector('.bg-white.rounded-2xl.shadow-lg');
-                        if (newTable && currentTable) {
+                        if (newTable && currentTable && !currentTable.matches(':hover')) {
                             currentTable.innerHTML = newTable.innerHTML;
                             // Re-bind modal triggers
                             document.querySelectorAll('.open-withdraw-modal').forEach(function (btn) {
@@ -548,6 +550,6 @@
                     })
                     .catch(function(e) { /* ignore */ });
             }
-        }, 8000);
+        }, 30000);
     </script>
 @endsection

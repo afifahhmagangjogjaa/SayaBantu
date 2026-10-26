@@ -37,7 +37,29 @@ return [
 
 
     'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
         'maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
+    /*
+    | API wilayah (wilayah.id) untuk dropdown kecamatan/kelurahan.
+    | verify_tls sebaiknya true; hanya dimatikan bila mesin lokal tidak punya
+    | CA bundle yang valid. Master data lokal tetap dipakai lebih dulu.
+    */
+    'wilayah' => [
+        'base_url' => env('WILAYAH_API_URL', 'https://wilayah.id/api'),
+        'verify_tls' => env('WILAYAH_VERIFY_TLS', true),
+    ],
+
+    /*
+    | Klien HTTP umum untuk API pihak ketiga (Nominatim/Photon).
+    | Kosongkan (null) agar verifikasi TLS aktif di production dan mengikuti
+    | perilaku lama (tanpa verifikasi) di environment local.
+    */
+    'external' => [
+        'verify_tls' => env('EXTERNAL_VERIFY_TLS'),
     ],
 
 ];

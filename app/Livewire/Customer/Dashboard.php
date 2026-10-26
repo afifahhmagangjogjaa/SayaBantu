@@ -14,6 +14,8 @@ class Dashboard extends Component
     public $activeTab = 'latest'; // latest, all, history
     public $selectedHelp = null;
     public $selectedHelpData = null;
+    public $search = '';
+    public $showSearchResults = false;
 
     #[On('balance-updated')]
     public function refreshBalance()
@@ -30,6 +32,18 @@ class Dashboard extends Component
     public function setTab($tab)
     {
         $this->activeTab = $tab;
+        $this->resetPage();
+    }
+
+    public function updatedSearch()
+    {
+        $this->showSearchResults = strlen(trim($this->search)) > 0;
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->showSearchResults = false;
     }
 
     public function showHelp($id)
@@ -70,10 +84,6 @@ class Dashboard extends Component
     {
         $user = auth()->user();
 
-        try {
-            Help::cancelExpiredUrgentHelps();
-            Help::autoConfirmExpiredCustomerHelps();
-        } catch (\Throwable $e) {}
 
         $stats = [];
 
@@ -159,6 +169,16 @@ class Dashboard extends Component
             // ignore if Chat model or columns missing
         }
 
+        $categories = \App\Models\Category::all();
+
+        // Search results: filter categories by name when searching
+        $searchResults = collect();
+        if (strlen(trim($this->search)) > 0) {
+            $searchResults = \App\Models\Category::where('name', 'like', '%' . trim($this->search) . '%')
+                ->orWhere('description', 'like', '%' . trim($this->search) . '%')
+                ->get();
+        }
+
         return view('livewire.customer.dashboard', [
             'stats' => $stats,
             'myHelps' => $myHelps,
@@ -166,6 +186,8 @@ class Dashboard extends Component
             'balance' => $balance,
             'activeTab' => $this->activeTab,
             'unreadChatCount' => $unreadChatCount,
+            'categories' => $categories,
+            'searchResults' => $searchResults,
         ]);
     }
 }

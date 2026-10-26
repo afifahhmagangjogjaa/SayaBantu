@@ -1,17 +1,4 @@
-<div class="min-h-screen bg-white"
-    x-data
-    x-init="
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                p => {
-                    $wire.setCoordinates(p.coords.latitude, p.coords.longitude);
-                },
-                err => { console.log('Geolocation init info:', err.message); },
-                { enableHighAccuracy: true, timeout: 8000 }
-            );
-        }
-    "
->
+<div class="min-h-screen bg-white">
     <style>
         :root{
             --brand-500: #0ea5a4;
@@ -62,88 +49,55 @@
     </style>
 
     <div class="max-w-md mx-auto">
-        <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
-            
-            <div class="relative z-10">
-                <div class="flex items-center justify-between text-white mb-3">
-                    <button onclick="window.history.back()" aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
+        <!-- Header - Clean Mobile Header matching Gambar 1 (Daftar Order) -->
+        <div class="px-5 pt-4 pb-3 bg-white border-b border-gray-100 flex items-center justify-between">
+            <h1 class="text-base font-extrabold text-gray-900 tracking-tight">Daftar Order</h1>
 
-                    <div class="text-center flex-1">
-                        <h1 class="text-lg font-bold">Semua Bantuan</h1>
-                        <p class="text-xs text-white/90 mt-0.5">Cari bantuan yang tersedia</p>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        @include('components.notification-icon', ['route' => route('mitra.notifications.index')])
-                    </div>
-                </div>
-
-                <!-- Search Bar -->
-                <div class="relative mt-3">
-                    <input type="text" wire:model.live.debounce.350ms="search" placeholder="Cari nama, lokasi, atau deskripsi..."
-                        class="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-white/95 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-white/80 focus:shadow-md outline-none transition text-xs font-medium">
-                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    @if(!empty($search))
-                        <button type="button" wire:click="$set('search', '')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                    @endif
-                </div>
+            <div class="flex items-center gap-2">
+                @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-1.5 rounded-xl text-gray-600 hover:bg-gray-100 transition relative'])
             </div>
-
-            <!-- Curved separator (SVG) to create non-flat divider into content -->
-            <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
-            </svg>
         </div>
 
-        <!-- Content -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6 min-h-[60vh]">
-            <!-- Modern Sort & Filter Header -->
-            <div class="mb-4">
-                <div class="flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-6 h-6 rounded-lg bg-blue-50 text-[#0098e7] flex items-center justify-center">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                            </svg>
-                        </div>
-                        <span class="text-xs font-bold text-gray-800">Urutkan Bantuan</span>
-                        <span class="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                            {{ $helps->total() ?? count($helps) }} tersedia
-                        </span>
-                    </div>
+        <!-- Filter Tabs (Horizontal Pill Buttons matching Gambar 1) -->
+        <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar px-5 py-2.5 bg-white border-b border-gray-100 sticky top-0 z-20">
+            <button type="button" wire:click="setTab('semua')"
+                class="px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap {{ $tab === 'semua' ? 'bg-[#0066FF] text-white shadow-xs' : 'bg-slate-100 text-gray-600 hover:bg-slate-200' }}">
+                Semua
+            </button>
+            <button type="button" wire:click="setTab('tersedia')"
+                class="px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap {{ $tab === 'tersedia' ? 'bg-[#0066FF] text-white shadow-xs' : 'bg-slate-100 text-gray-600 hover:bg-slate-200' }}">
+                Tersedia
+            </button>
+            <button type="button" wire:click="setTab('proses')"
+                class="px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap {{ $tab === 'proses' ? 'bg-[#0066FF] text-white shadow-xs' : 'bg-slate-100 text-gray-600 hover:bg-slate-200' }}">
+                Dalam Proses
+            </button>
+            <button type="button" wire:click="setTab('selesai')"
+                class="px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap {{ $tab === 'selesai' ? 'bg-[#0066FF] text-white shadow-xs' : 'bg-slate-100 text-gray-600 hover:bg-slate-200' }}">
+                Selesai
+            </button>
+        </div>
 
-                    <!-- Sleek Custom Dropdown Filter -->
-                    <div class="relative inline-flex items-center">
-                        <select wire:model.live="sortBy" 
-                            x-on:change="if($event.target.value === 'nearby' && navigator.geolocation){ navigator.geolocation.getCurrentPosition(p => { $wire.setCoordinates(p.coords.latitude, p.coords.longitude); }); }" 
-                            class="appearance-none pl-3.5 pr-8 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-semibold text-gray-700 shadow-2xs hover:border-[#0098e7]/60 focus:border-[#0098e7] focus:ring-2 focus:ring-blue-100 outline-none transition cursor-pointer">
-                            <option value="latest">✨ Terbaru</option>
-                            <option value="nearby">📍 Terdekat (Maks. {{ (int) ($maxRadius ?? 10) }} km)</option>
-                            <option value="price_high">💰 Harga Tertinggi</option>
-                            <option value="price_low">🏷️ Harga Terendah</option>
-                            <option value="oldest">⏳ Terlama</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div> 
+        <!-- Search Bar -->
+        <div class="px-5 pt-3 pb-1 bg-white">
+            <div class="relative">
+                <input type="text" wire:model.live.debounce.350ms="search" placeholder="Cari pesanan atau lokasi..."
+                    class="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-1 focus:ring-blue-100 outline-none transition text-xs font-medium">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                @if(!empty($search))
+                    <button type="button" wire:click="$set('search', '')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                @endif
+            </div>
+        </div>
+
+        <!-- Content List -->
+        <div class="px-5 pt-3 pb-8"> 
             <div class="space-y-4">
                 {{-- Flash Messages --}}
                 @if (session()->has('error') || session()->has('message') || session()->has('success'))
@@ -195,7 +149,7 @@
                             </div>
                             <a href="{{ route('profile.settings.verification') }}"
                                class="flex-shrink-0 font-bold px-3 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 shadow-xs"
-                               style="background: linear-gradient(135deg, #0098e7, #0077cc); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
+                               style="background: linear-gradient(135deg, #0066FF, #0052CC); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
                                 {{ $hasKtpUploaded ? 'Cek Status' : 'Verifikasi' }}
                             </a>
                         </div>
@@ -259,16 +213,16 @@
                                                             this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
                                                         }
                                                     }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
-                                                        ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
+                                                        â³ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
                                                     </span>
                                                 @endif
                                             @endif
                                         @endif
                                         @if($isCancelledByMe)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">⚠️ Pernah Dibatalkan</span>
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">⚠️ï¸ Pernah Dibatalkan</span>
                                         @endif
                                     </div>
-                                    <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                    <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                 </div>
 
                                 <div class="flex items-center gap-2 mb-2">
@@ -298,7 +252,7 @@
                                 <!-- Lokasi & Radius Jarak -->
                                 <div class="flex items-center gap-1.5 text-xs text-gray-500 mb-3 flex-wrap">
                                     <span class="inline-flex items-center gap-1 font-medium text-gray-700 whitespace-nowrap">
-                                        <span>📍</span>
+                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                         <span>{{ $help->city->name ?? '-' }}</span>
                                     </span>
                                     @if(isset($help->distance))
@@ -340,20 +294,14 @@
                     </div>
                 @empty
                     <!-- Empty State -->
-                    <div class="text-center py-16 bg-white rounded-xl shadow-sm">
-                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                        <p class="text-sm font-semibold text-gray-700">{{ $search ? 'Tidak ada bantuan ditemukan' : 'Belum ada bantuan dalam radius ' . (int) ($maxRadius ?? 10) . ' km' }}</p>
-                        <p class="text-xs text-gray-500 mt-1">
-                            {{ $search ? 'Coba cari dengan kata kunci lain' : 'Cek kembali nanti untuk bantuan baru di sekitar Anda' }}
-                        </p>
-                        @if(!empty($search))
-                            <button type="button" wire:click="$set('search', '')" class="inline-flex items-center gap-1.5 mt-3.5 px-3.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition shadow-2xs">
-                                Reset Pencarian
-                            </button>
-                        @endif
-                    </div>
+                    <x-empty-state 
+                        :icon="$search ? 'search' : 'clipboard'" 
+                        :title="$search ? 'Tidak Ada Bantuan Ditemukan' : 'Belum Ada Bantuan Terdekat'" 
+                        :description="$search ? 'Coba cari dengan kata kunci lain atau bersihkan filter pencarian.' : 'Belum ada bantuan dalam radius ' . (int) ($maxRadius ?? 10) . ' km dari lokasi Anda. Silakan cek kembali beberapa saat lagi.'" 
+                        :actionText="$search ? 'Reset Pencarian' : null" 
+                        actionWireClick="$set('search', '')" 
+                        actionType="secondary" 
+                    />
                 @endforelse
 
                 <!-- Pagination -->
@@ -584,56 +532,18 @@
                 btn.disabled = true;
             }
 
-            let taken = false;
-            const completeTake = (lat = null, lng = null) => {
-                if (taken) return;
-                taken = true;
-                clearTimeout(fallbackTimer);
+            // Langsung ambil bantuan tanpa GPS â€” backend pakai koordinat kota mitra
+            // GPS browser bisa berbeda kota (misal desktop di Jakarta, kota mitra di Bantul)
+            // Radius check di backend sudah pakai koordinat kota yg benar
+            @this.takeHelp(currentHelpId);
 
-                if (lat && lng) {
-                    console.log('📍 Mengambil bantuan dengan lokasi GPS:', { lat, lng });
-                    @this.takeHelp(currentHelpId, lat, lng);
-                } else {
-                    console.log('📍 Mengambil bantuan (koordinat default dari profil mitra)');
-                    @this.takeHelp(currentHelpId);
-                }
+            closePreviewModal();
 
-                closePreviewModal();
-
-                if (btn) {
+            if (btn) {
+                setTimeout(() => {
                     btn.textContent = originalText;
                     btn.disabled = false;
-                }
-            };
-
-            // Batas maksimal tunggu deteksi GPS adalah 1.8 detik agar tidak pernah stuck/macet
-            const fallbackTimer = setTimeout(() => {
-                console.log('⏱️ Waktu deteksi GPS selesai, langsung mengambil bantuan...');
-                completeTake();
-            }, 1800);
-
-            // Coba ambil lokasi secara cepat jika browser mendukung
-            if (navigator.geolocation) {
-                try {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            completeTake(position.coords.latitude, position.coords.longitude);
-                        },
-                        (error) => {
-                            console.warn('⚠️ Lokasi GPS tidak dapat diakses, mengambil bantuan langsung:', error.message);
-                            completeTake();
-                        },
-                        {
-                            enableHighAccuracy: false,
-                            timeout: 1500,
-                            maximumAge: 300000 // gunakan cache lokasi 5 menit terakhir jika ada
-                        }
-                    );
-                } catch (e) {
-                    completeTake();
-                }
-            } else {
-                completeTake();
+                }, 2000);
             }
         }
 

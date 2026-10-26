@@ -21,12 +21,16 @@ return new class extends Migration {
         });
 
         // Migrate existing data from cities.admin_id to admin_city table
-        DB::statement('
-            INSERT INTO admin_city (user_id, city_id, created_at, updated_at)
-            SELECT admin_id, id, NOW(), NOW()
-            FROM cities
-            WHERE admin_id IS NOT NULL
-        ');
+        $now = now();
+        $cities = DB::table('cities')->whereNotNull('admin_id')->get(['id', 'admin_id']);
+        foreach ($cities as $c) {
+            DB::table('admin_city')->insertOrIgnore([
+                'user_id' => $c->admin_id,
+                'city_id' => $c->id,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
     }
 
     /**

@@ -41,7 +41,7 @@
     @endif
 
     {{-- Banner Pembatalan (Hanya jika pembatalan manual, bukan refund mediasi) --}}
-    @if(((in_array($help->status, ['dibatalkan', 'cancelled']) && empty($help->complaint_resolution)) || $help->customer_cancel_reason || $help->partner_cancel_reason))
+    @if((($help->isDibatalkan() && empty($help->complaint_resolution)) || $help->customer_cancel_reason || $help->partner_cancel_reason))
         <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 flex items-start gap-3 shadow-xs">
             <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold shrink-0">
                 ⚠️
@@ -134,11 +134,11 @@
                             </button>
                         @elseif(in_array($help->status, ['partner_on_the_way', 'taken', 'in_progress', 'sedang_diproses']))
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200">Aktif / Berlangsung</span>
-                        @elseif($help->status === 'selesai')
+                        @elseif($help->isSelesai())
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">Selesai</span>
                         @elseif($help->status === 'rejected')
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Ditolak</span>
-                        @elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
+                        @elseif($help->isDibatalkan())
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Dibatalkan</span>
                         @else
                             <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200">{{ ucfirst(str_replace('_', ' ', $help->status)) }}</span>
@@ -204,23 +204,53 @@
                         <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        1. Bukti Selesai dari Mitra
+                        1. Bukti Pengerjaan Mitra (Before & After)
                     </h3>
-                    @if($help->completion_photo)
-                        <div class="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                            <a href="{{ asset('storage/' . $help->completion_photo) }}" target="_blank" class="block group relative">
-                                <img src="{{ asset('storage/' . $help->completion_photo) }}" alt="Bukti Selesai Mitra" class="w-full h-48 object-cover group-hover:opacity-95 transition">
-                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1">
-                                    Lihat Foto Asli
+                    @if($help->completion_photo || $help->before_photo)
+                        @if($help->before_photo && $help->completion_photo)
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                {{-- Before --}}
+                                <div class="rounded-xl overflow-hidden border border-amber-200 bg-amber-50/20">
+                                    <div class="bg-amber-100 text-[11px] font-bold text-amber-800 px-3 py-1 flex items-center justify-between border-b border-amber-200">
+                                        <span>SEBELUM (BEFORE)</span>
+                                    </div>
+                                    <a href="{{ asset('storage/' . $help->before_photo) }}" target="_blank" class="block group relative">
+                                        <img src="{{ asset('storage/' . $help->before_photo) }}" alt="Foto Sebelum" class="w-full h-40 object-cover group-hover:opacity-95 transition">
+                                        <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1">
+                                            Perbesar
+                                        </div>
+                                    </a>
                                 </div>
-                            </a>
-                            @if($help->completion_notes)
-                                <div class="p-3 bg-gray-50 text-xs text-gray-700 border-t border-gray-100">
-                                    <span class="font-semibold text-gray-900 block mb-0.5">Catatan Mitra:</span>
-                                    <p class="italic">"{{ $help->completion_notes }}"</p>
+                                {{-- After --}}
+                                <div class="rounded-xl overflow-hidden border border-emerald-200 bg-emerald-50/20">
+                                    <div class="bg-emerald-100 text-[11px] font-bold text-emerald-800 px-3 py-1 flex items-center justify-between border-b border-emerald-200">
+                                        <span>SESUDAH (AFTER)</span>
+                                    </div>
+                                    <a href="{{ asset('storage/' . $help->completion_photo) }}" target="_blank" class="block group relative">
+                                        <img src="{{ asset('storage/' . $help->completion_photo) }}" alt="Foto Sesudah" class="w-full h-40 object-cover group-hover:opacity-95 transition">
+                                        <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1">
+                                            Perbesar
+                                        </div>
+                                    </a>
                                 </div>
-                            @endif
-                        </div>
+                            </div>
+                        @else
+                            <div class="rounded-xl overflow-hidden border border-gray-200 bg-gray-50 mb-3">
+                                <a href="{{ asset('storage/' . ($help->completion_photo ?? $help->before_photo)) }}" target="_blank" class="block group relative">
+                                    <img src="{{ asset('storage/' . ($help->completion_photo ?? $help->before_photo)) }}" alt="Bukti Selesai Mitra" class="w-full h-48 object-cover group-hover:opacity-95 transition">
+                                    <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1">
+                                        Lihat Foto Asli
+                                    </div>
+                                </a>
+                            </div>
+                        @endif
+
+                        @if($help->completion_notes)
+                            <div class="p-3 bg-gray-50 text-xs text-gray-700 border border-gray-100 rounded-xl">
+                                <span class="font-semibold text-gray-900 block mb-0.5">Catatan Mitra:</span>
+                                <p class="italic">"{{ $help->completion_notes }}"</p>
+                            </div>
+                        @endif
                     @else
                         <div class="p-8 text-center text-xs text-gray-400 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
                             Belum ada bukti unggahan dari mitra

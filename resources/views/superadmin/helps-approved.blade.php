@@ -21,7 +21,7 @@
                     <div class="relative min-w-[170px] flex-1 sm:flex-initial">
                         <select wire:model.live="filterStatus"
                             style="padding-left: 14px; padding-right: 36px; padding-top: 10px; padding-bottom: 10px; font-size: 14px;"
-                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition appearance-none">
+                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
                             <option value="">Semua Status</option>
                             <option value="menunggu_mitra">Menunggu Mitra</option>
                             <option value="dalam_proses">Sedang Diproses</option>
@@ -30,28 +30,18 @@
                             <option value="dibatalkan">Dibatalkan</option>
                             <option value="rejected">Ditolak</option>
                         </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pointer-events-none" style="padding-right: 14px;">
-                            <svg class="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
                     </div>
 
                     <!-- Per Page Filter -->
                     <div class="relative min-w-[120px] flex-1 sm:flex-initial">
                         <select wire:model.live="perPage"
                             style="padding-left: 14px; padding-right: 36px; padding-top: 10px; padding-bottom: 10px; font-size: 14px;"
-                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition appearance-none">
+                            class="w-full bg-gray-50/60 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
                             <option value="10">10 Data</option>
                             <option value="25">25 Data</option>
                             <option value="50">50 Data</option>
                             <option value="100">100 Data</option>
                         </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pointer-events-none" style="padding-right: 14px;">
-                            <svg class="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -107,13 +97,13 @@
                                         {{ in_array($help->status, ['komplain', 'disputed']) ? 'bg-red-100 text-red-800 border border-red-300 animate-pulse' :
                                           ($help->status === 'menunggu_mitra' ? 'bg-amber-100 text-amber-800' : 
                                           ($help->status === 'partner_on_the_way' || $help->status === 'waiting_customer_confirmation' ? 'bg-blue-100 text-blue-800' : 
-                                          ($help->status === 'selesai' || $help->status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 
-                                          ($help->status === 'rejected' || $help->status === 'dibatalkan' || $help->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
+                                          ($help->isSelesai() ? 'bg-emerald-100 text-emerald-800' : 
+                                          ($help->status === 'rejected' || $help->isDibatalkan() ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
                                         @if(in_array($help->status, ['komplain', 'disputed']))
                                             ⚠️ Mediasi Komplain
                                         @elseif($help->status === 'rejected')
                                             Ditolak
-                                        @elseif($help->status === 'dibatalkan' || $help->status === 'cancelled')
+                                        @elseif($help->isDibatalkan())
                                             Dibatalkan
                                         @else
                                             {{ str_replace('_', ' ', $help->status) }}
@@ -226,13 +216,13 @@
                         {{ in_array($detailHelp->status, ['komplain', 'disputed']) ? 'bg-red-100 text-red-800 border border-red-300 animate-pulse' :
                           ($detailHelp->status === 'menunggu_mitra' ? 'bg-amber-100 text-amber-800' :
                           ($detailHelp->status === 'partner_on_the_way' || $detailHelp->status === 'waiting_customer_confirmation' ? 'bg-blue-100 text-blue-800' :
-                          ($detailHelp->status === 'selesai' || $detailHelp->status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
-                          ($detailHelp->status === 'rejected' || $detailHelp->status === 'dibatalkan' || $detailHelp->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
+                          ($detailHelp->isSelesai() ? 'bg-emerald-100 text-emerald-800' :
+                          ($detailHelp->status === 'rejected' || $detailHelp->isDibatalkan() ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
                         @if(in_array($detailHelp->status, ['komplain', 'disputed']))
                             ⚠️ Mediasi Komplain
                         @elseif($detailHelp->status === 'rejected')
                             Ditolak
-                        @elseif($detailHelp->status === 'dibatalkan' || $detailHelp->status === 'cancelled')
+                        @elseif($detailHelp->isDibatalkan())
                             Dibatalkan
                         @else
                             {{ str_replace('_', ' ', $detailHelp->status) }}
@@ -396,21 +386,39 @@
                     </div>
                 </div>
 
-                @if($detailHelp->completion_photo || $detailHelp->complaint_photo)
+                @if($detailHelp->completion_photo || $detailHelp->before_photo || $detailHelp->complaint_photo)
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 text-xs">
-                            <h5 class="font-bold text-gray-700 mb-2 flex items-center gap-1">
-                                <span class="text-green-600">✓</span> Bukti Selesai Mitra
+                            <h5 class="font-bold text-gray-700 mb-2 flex items-center justify-between">
+                                <span class="flex items-center gap-1 text-emerald-700">
+                                    <span>✓</span> Bukti Mitra (Before & After)
+                                </span>
                             </h5>
-                            @if($detailHelp->completion_photo)
-                                <a href="{{ asset('storage/' . $detailHelp->completion_photo) }}" target="_blank" class="block rounded-lg overflow-hidden border border-gray-200 mb-2">
-                                    <img src="{{ asset('storage/' . $detailHelp->completion_photo) }}" alt="Bukti Mitra" class="w-full h-32 object-cover">
+                            @if($detailHelp->before_photo && $detailHelp->completion_photo)
+                                <div class="grid grid-cols-2 gap-2 mb-2">
+                                    <div>
+                                        <span class="text-[10px] font-bold text-amber-700 block mb-0.5">Sebelum:</span>
+                                        <a href="{{ asset('storage/' . $detailHelp->before_photo) }}" target="_blank" class="block rounded-lg overflow-hidden border border-amber-200">
+                                            <img src="{{ asset('storage/' . $detailHelp->before_photo) }}" alt="Sebelum" class="w-full h-24 object-cover">
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-bold text-emerald-700 block mb-0.5">Sesudah:</span>
+                                        <a href="{{ asset('storage/' . $detailHelp->completion_photo) }}" target="_blank" class="block rounded-lg overflow-hidden border border-emerald-200">
+                                            <img src="{{ asset('storage/' . $detailHelp->completion_photo) }}" alt="Sesudah" class="w-full h-24 object-cover">
+                                        </a>
+                                    </div>
+                                </div>
+                            @elseif($detailHelp->completion_photo || $detailHelp->before_photo)
+                                <a href="{{ asset('storage/' . ($detailHelp->completion_photo ?? $detailHelp->before_photo)) }}" target="_blank" class="block rounded-lg overflow-hidden border border-gray-200 mb-2">
+                                    <img src="{{ asset('storage/' . ($detailHelp->completion_photo ?? $detailHelp->before_photo)) }}" alt="Bukti Mitra" class="w-full h-32 object-cover">
                                 </a>
-                                @if($detailHelp->completion_notes)
-                                    <p class="text-[11px] text-gray-600 italic">"{{ $detailHelp->completion_notes }}"</p>
-                                @endif
                             @else
                                 <p class="text-gray-400 italic">Tidak ada foto</p>
+                            @endif
+
+                            @if($detailHelp->completion_notes)
+                                <p class="text-[11px] text-gray-600 italic">"{{ $detailHelp->completion_notes }}"</p>
                             @endif
                         </div>
 

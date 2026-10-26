@@ -56,6 +56,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Demo / Testing Login Fallback
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, the login form accepts a set of well-known demo passwords
+    | (e.g. "Sayabantu123!") for accounts that use one of those passwords.
+    | Keep this FALSE outside local/testing environments — never enable it
+    | in production.
+    |
+    */
+
+    'demo_login' => (bool) env('DEMO_LOGIN', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

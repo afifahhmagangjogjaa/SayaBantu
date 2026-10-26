@@ -139,7 +139,7 @@ new #[Layout('layouts.guest')] class extends Component {
                                 </div>
                                 <h3 class="text-sm font-bold text-gray-900 mb-1">Ambil atau Pilih Foto KTP</h3>
                                 <p class="text-xs text-gray-500 mb-3.5">Format JPG, PNG (Maksimal 5MB)</p>
-                                <div class="inline-flex items-center gap-1.5 bg-[#0098e7] hover:bg-[#0086cc] text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-xs transition active:scale-95">
+                                <div class="inline-flex items-center gap-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-xs transition active:scale-95">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                     </svg>
@@ -200,7 +200,7 @@ new #[Layout('layouts.guest')] class extends Component {
         <div class="mt-auto pt-5 pb-2">
             <button type="submit" wire:loading.attr="disabled"
                 class="w-full bg-primary-500 hover:bg-primary-600 active:scale-98 text-white font-bold py-3.5 rounded-full shadow-md hover:shadow-lg transition text-base tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
-                style="background-color: #0098e7;">
+                style="background-color: #0066FF;">
                 <span wire:loading.remove>Lanjutkan</span>
                 <span wire:loading>Menyimpan...</span>
             </button>

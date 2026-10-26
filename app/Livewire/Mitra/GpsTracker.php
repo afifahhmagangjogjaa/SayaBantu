@@ -28,10 +28,29 @@ class GpsTracker extends Component
         $this->checkTrackingStatus();
     }
 
+    /**
+     * Komponen ini memakai helpId publik, jadi pastikan yang mengakses benar-benar
+     * mitra yang mengerjakan order tersebut (atau admin).
+     */
+    private function helpForCurrentUser(): ?Help
+    {
+        $user = auth()->user();
+        $help = Help::find($this->helpId);
+
+        if (! $help || ! $user) {
+            return null;
+        }
+
+        $isAssignedMitra = (int) $help->mitra_id === (int) $user->id;
+        $isStaff = in_array($user->role, ['admin', 'super_admin'], true);
+
+        return ($isAssignedMitra || $isStaff) ? $help : null;
+    }
+
     public function checkTrackingStatus()
     {
-        $help = Help::find($this->helpId);
-        
+        $help = $this->helpForCurrentUser();
+
         if (!$help) {
             $this->isTracking = false;
             return;
@@ -51,8 +70,8 @@ class GpsTracker extends Component
     public function updateLocation($latitude, $longitude)
     {
         try {
-            $help = Help::find($this->helpId);
-            
+            $help = $this->helpForCurrentUser();
+
             if (!$help) {
                 Log::error("Help not found for GPS update", ['help_id' => $this->helpId]);
                 return [

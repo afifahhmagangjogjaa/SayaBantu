@@ -332,21 +332,21 @@
                 </div>
 
                 <!-- Dropdown Filter Wilayah / Kota -->
-                <select wire:model.live="city_id" class="border border-gray-300 rounded-lg pl-2.5 pr-7 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
+                <select wire:model.live="city_id" class="border border-gray-300 rounded-lg pl-2.5 pr-9 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
                     <option value="">Semua Wilayah</option>
                     @foreach($cities as $city)
                         <option value="{{ $city->id }}">{{ $city->name }}</option>
                     @endforeach
                 </select>
 
-                <select wire:model.live="type" class="border border-gray-300 rounded-lg pl-2.5 pr-7 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
+                <select wire:model.live="type" class="border border-gray-300 rounded-lg pl-2.5 pr-9 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
                     <option value="all">Semua Tipe</option>
                     <option value="topup">Topup</option>
                     <option value="withdraw">Withdraw</option>
                     <option value="other">Lainnya</option>
                 </select>
 
-                <select wire:model.live="period" class="border border-gray-300 rounded-lg pl-2.5 pr-7 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
+                <select wire:model.live="period" class="border border-gray-300 rounded-lg pl-2.5 pr-9 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
                     <option value="this_month">Bulan Ini</option>
                     <option value="all_time">Keseluruhan Transaksi</option>
                     <option value="today">Hari Ini</option>
@@ -354,7 +354,7 @@
                     <option value="custom">Pilih Rentang Tanggal</option>
                 </select>
 
-                <select wire:model.live="perPage" class="border border-gray-300 rounded-lg pl-2.5 pr-7 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
+                <select wire:model.live="perPage" class="border border-gray-300 rounded-lg pl-2.5 pr-9 py-1.5 h-9 bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs sm:text-sm cursor-pointer font-medium text-gray-700">
                     <option value="10">10 / halaman</option>
                     <option value="15">15 / halaman</option>
                     <option value="30">30 / halaman</option>
@@ -665,7 +665,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
-                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                            <select wire:model.live="deleteYear" class="w-full pl-3.5 pr-9 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
                                 @foreach($availableYears ?? [date('Y')] as $yr)
                                     <option value="{{ $yr }}">{{ $yr }}</option>
                                 @endforeach
@@ -674,7 +674,7 @@
 
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Bulan</label>
-                            <select wire:model.live="deleteMonth" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                            <select wire:model.live="deleteMonth" class="w-full pl-3.5 pr-9 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
                                 <option value="1">01 - Januari</option>
                                 <option value="2">02 - Februari</option>
                                 <option value="3">03 - Maret</option>
@@ -714,7 +714,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Tahun</label>
-                            <select wire:model.live="deleteYear" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
+                            <select wire:model.live="deleteYear" class="w-full pl-3.5 pr-9 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 cursor-pointer">
                                 @foreach($availableYears ?? [date('Y')] as $yr)
                                     <option value="{{ $yr }}">{{ $yr }}</option>
                                 @endforeach

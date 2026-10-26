@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Notifications\NewWithdrawRequest;
 use App\Services\PaymentGatewayService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 

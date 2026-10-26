@@ -54,10 +54,10 @@
 
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style -->
-        <!-- Pengatur panjang area biru ke bawah: sesuaikan 'padding-bottom' pada style di bawah ini -->
-        <div class="px-5 pt-5 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0); padding-bottom: 36px;">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+        <!-- Header - SayaBantu Style matching Gambar 2 -->
+        <div class="px-5 pt-5 pb-7 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
@@ -68,11 +68,18 @@
                     </a>
 
                     <div class="text-center flex-1">
-                        <h1 class="text-lg font-bold">Permintaan Saya</h1>
-                        <p class="text-xs text-white/90 mt-0.5">Kelola permintaan bantuan Anda</p>
+                        <h1 class="text-lg font-bold">Pesanan Saya</h1>
+                        <p class="text-xs text-white/90 mt-0.5">Pantau status & riwayat pesanan Anda</p>
                     </div>
 
                     <div class="flex items-center gap-2">
+                        <a href="{{ route('customer.helps.create') }}" 
+                           class="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white inline-flex items-center gap-1 text-xs font-bold shadow-2xs"
+                           title="Buat Pesanan Baru">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </a>
                         @include('components.notification-icon', ['route' => route('customer.notifications.index')])
                     </div>
                 </div>
@@ -123,17 +130,17 @@
                                 x-transition:leave-end="opacity-0 -translate-x-3"
                                 class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
                                 <button type="button" wire:key="tab-menunggu-mitra" @click="page = 1" wire:click="$set('statusFilter', 'menunggu_mitra')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0098e7] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Menunggu Mitra
                                 </button>
 
                                 <button type="button" wire:key="tab-diproses" @click="page = 1" wire:click="$set('statusFilter', 'diproses')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0098e7] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Diproses
                                 </button>
 
                                 <button type="button" wire:key="tab-waiting-confirmation" @click="page = 1" wire:click="$set('statusFilter', 'waiting_customer_confirmation')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0098e7] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Menunggu Konfirmasi
                                 </button>
                             </div>
@@ -148,17 +155,17 @@
                                 x-transition:leave-end="opacity-0 translate-x-3"
                                 class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
                                 <button type="button" wire:key="tab-komplain" @click="page = 2" wire:click="$set('statusFilter', 'komplain')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Komplain & Refund
                                 </button>
 
                                 <button type="button" wire:key="tab-selesai" @click="page = 2" wire:click="$set('statusFilter', 'selesai')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0098e7] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Selesai
                                 </button>
 
                                 <button type="button" wire:key="tab-dibatalkan" @click="page = 2" wire:click="$set('statusFilter', 'dibatalkan')" role="tab"
-                                    class="flex-1 text-center py-1.5 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Dibatalkan
                                 </button>
                             </div>
@@ -206,7 +213,7 @@
                         <input type="text" 
                             wire:model.live.debounce.300ms="search" 
                             placeholder="Cari bantuan, kategori, rekan jasa, atau lokasi..." 
-                            class="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0098e7]/20 focus:border-[#0098e7] focus:bg-white transition">
+                            class="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] focus:bg-white transition">
                         @if(!empty($search))
                             <button type="button" wire:click="resetSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 rounded-full hover:bg-gray-200 transition" title="Hapus pencarian">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,13 +271,13 @@
                                                                 this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
                                                             }
                                                         }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
-                                                            ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
+                                                            â³ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
                                                         </span>
                                                     @endif
                                                 @endif
                                             @endif
                                         </div>
-                                        <span class="text-sm font-extrabold whitespace-nowrap text-[#0098e7]">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                        <span class="text-sm font-extrabold whitespace-nowrap text-[#0066FF]">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                     </div>
 
                                     <div class="flex items-center gap-1.5 mb-2">
@@ -283,7 +290,7 @@
 
                                     @if(!empty($help->partner_cancel_requested_at))
                                         <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-                                            <p class="font-semibold text-amber-900">⚠️ Rekan Jasa Berhalangan:</p>
+                                            <p class="font-semibold text-amber-900">⚠️ï¸ Rekan Jasa Berhalangan:</p>
                                             <p class="italic text-[11px] text-amber-800">"{{ $help->partner_cancel_reason ?: 'Kendala darurat di jalan' }}"</p>
                                             <p class="text-[10px] text-amber-700 mt-1 font-medium">⚡ Sistem otomatis mencari Rekan Jasa pengganti.</p>
                                         </div>
@@ -297,12 +304,12 @@
                                         <div class="text-xs text-gray-500 bg-gray-50/80 px-2.5 py-1 rounded-lg border border-gray-100 inline-block mb-3">📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</div>
                                     @endif
 
-                                    <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
-                                        <span class="text-xs text-gray-500 font-medium">📍 {{ $help->city->name ?? '-' }}</span>
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 pt-2 border-t border-gray-100">
+                                        <span class="text-xs text-gray-500 font-medium min-w-0 truncate"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
-                                        <div class="flex items-center gap-1.5">
+                                        <div class="flex flex-wrap items-center gap-1.5">
                                             <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">Detail</a>
-                                            <button type="button" wire:click.stop="editHelp({{ $help->id }})" class="px-3 py-1.5 bg-[#0098e7] hover:bg-[#0086cc] text-white rounded-lg text-xs font-semibold transition shadow-2xs active:scale-95">Edit</button>
+                                            <button type="button" wire:click.stop="editHelp({{ $help->id }})" class="px-3 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg text-xs font-semibold transition shadow-2xs active:scale-95">Edit</button>
                                             <button type="button" wire:click.stop="confirmDelete({{ $help->id }})" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-semibold transition border border-red-200/80 active:scale-95">Batalkan</button>
                                         </div>
                                     </div>
@@ -331,7 +338,7 @@
                                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
                                             @endif
                                         </div>
-                                        <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                        <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                     </div>
 
                                     @if($help->status === 'partner_cancel_requested')
@@ -346,7 +353,7 @@
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(56,189,248,0.08); color:#0284c7; border:1px solid rgba(3,105,161,0.08);">
                                                 @if($help->status === 'memperoleh_mitra')
                                                     Mitra Ditemukan
-                                                @elseif($help->status === 'taken')
+                                                @elseif($help->isMemperolehMitra())
                                                     Diambil Mitra
                                                 @elseif($help->status === 'partner_on_the_way')
                                                     Rekan Jasa Menuju Lokasi
@@ -373,7 +380,7 @@
                                     @endif
 
                                     <div class="flex items-center gap-3">
-                                        <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
+                                        <span class="text-xs text-gray-500"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
                                         <div class="flex items-center gap-2">
                                             @if($help->mitra)
@@ -387,7 +394,7 @@
                                                 </div>
                                             @endif
 
-                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0098e7] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" title="Buka Chat" aria-label="Buka Chat">
+                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" title="Buka Chat" aria-label="Buka Chat">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                 </svg>
@@ -425,7 +432,7 @@
                                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
                                             @endif
                                         </div>
-                                        <span class="text-xs font-bold whitespace-nowrap" style="color: #0098e7;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                        <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
                                     </div>
 
                                     <div class="flex items-center gap-2 mb-2 flex-wrap">
@@ -437,7 +444,7 @@
                                         @endphp
                                         @if($cDeadline)
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200" title="Batas waktu konfirmasi 24 jam">
-                                                ⏱️ Otomatis selesai {{ $cDeadline->diffForHumans() }}
+                                                â±ï¸ Otomatis selesai {{ $cDeadline->diffForHumans() }}
                                             </span>
                                         @endif
                                         <span class="text-xs text-gray-400">{{ optional($help->service_completed_at)->diffForHumans() }}</span>
@@ -452,7 +459,7 @@
                                     @endif
 
                                     <div class="flex items-center gap-3">
-                                        <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
+                                        <span class="text-xs text-gray-500"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
                                         <div class="flex items-center gap-2">
                                             @if($help->mitra)
@@ -466,7 +473,7 @@
                                                 </div>
                                             @endif
 
-                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0098e7] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" title="Buka Chat" aria-label="Buka Chat">
+                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" title="Buka Chat" aria-label="Buka Chat">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                 </svg>
@@ -515,7 +522,7 @@
                                     </div>
 
                                     <div class="text-right flex-shrink-0">
-                                        <div class="text-sm font-bold" style="color: #0098e7;">Rp {{ number_format($help->amount ?? 0, 0, ',', '.') }}</div>
+                                        <div class="text-sm font-bold" style="color: #0066FF;">Rp {{ number_format($help->amount ?? 0, 0, ',', '.') }}</div>
                                         <div class="flex flex-col gap-1 mt-1">
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
                                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -542,7 +549,7 @@
                                     </div>
                                 </div>
 
-                                <button @click="open = !open" class="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition" style="color: #0098e7;">
+                                <button @click="open = !open" class="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition" style="color: #0066FF;">
                                     <span x-text="open ? 'Sembunyikan Detail' : 'Lihat Detail'"></span>
                                     <svg :class="open ? 'rotate-180' : ''" class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -578,7 +585,7 @@
                                                 <div class="text-xs text-gray-500 mb-1">Mitra</div>
                                                 <div class="text-sm text-gray-900">{{ $help->mitra->name }}</div>
                                                 @if($help->mitra->phone)
-                                                    <a href="tel:{{ $help->mitra->phone }}" class="text-xs font-semibold" style="color: #0098e7;">{{ $help->mitra->phone }}</a>
+                                                    <a href="tel:{{ $help->mitra->phone }}" class="text-xs font-semibold" style="color: #0066FF;">{{ $help->mitra->phone }}</a>
                                                 @endif
                                             </div>
                                         @endif
@@ -624,7 +631,7 @@
                                     @endif
 
                                     <div class="flex items-center gap-2">
-                                        <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
+                                        <span class="text-xs text-gray-500"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
                                         <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
                                             Detail
@@ -688,7 +695,7 @@
                                     @elseif($help->photo)
                                         <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
                                     @else
-                                        <span class="text-xl">⚠️</span>
+                                        <span class="text-xl">⚠️ï¸</span>
                                     @endif
                                 </div>
 
@@ -714,7 +721,7 @@
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 animate-pulse">
-                                                ⚠️ Dalam Mediasi Admin
+                                                ⚠️ï¸ Dalam Mediasi Admin
                                             </span>
                                         @endif
                                         <span class="text-xs text-gray-400">{{ optional($help->complaint_submitted_at ?? $help->updated_at)->diffForHumans() }}</span>
@@ -727,7 +734,7 @@
                                     @endif
 
                                     <div class="flex items-center gap-3">
-                                        <span class="text-xs text-gray-500">📍 {{ $help->city->name ?? '-' }}</span>
+                                        <span class="text-xs text-gray-500"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
                                         <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition shadow-xs">
                                             Detail Mediasi
@@ -739,26 +746,22 @@
                     @endif
                 @empty
                     @if(!empty($search))
-                        <div class="text-center py-12 bg-white rounded-2xl border border-gray-100 p-6 shadow-xs">
-                            <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-blue-50 text-[#0098e7] flex items-center justify-center">
-                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                            <p class="text-sm font-bold text-gray-800">Permintaan tidak ditemukan</p>
-                            <p class="text-xs text-gray-500 mt-1 max-w-xs mx-auto">Tidak ada hasil yang sesuai dengan kata kunci "<span class="font-semibold text-gray-700">{{ $search }}</span>"</p>
-                            <button type="button" wire:click="resetSearch" class="mt-3.5 inline-flex items-center gap-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition active:scale-95">
-                                Reset Pencarian
-                            </button>
-                        </div>
+                        <x-empty-state 
+                            icon="search" 
+                            title="Permintaan Tidak Ditemukan" 
+                            description="Tidak ada hasil yang sesuai dengan kata kunci pencarian Anda." 
+                            actionText="Reset Pencarian" 
+                            actionWireClick="resetSearch" 
+                            actionType="secondary" 
+                        />
                     @else
-                        <div class="text-center py-10 bg-white rounded-xl shadow-sm">
-                            <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            <p class="text-sm font-semibold text-gray-700">Belum ada permintaan</p>
-                            <p class="text-xs text-gray-500 mt-1">Buat permintaan baru dengan menekan tombol <span class="font-semibold">Tambah</span></p>
-                        </div>
+                        <x-empty-state 
+                            icon="clipboard" 
+                            title="Belum Ada Permintaan Bantuan" 
+                            description="Mulai buat permintaan bantuan baru untuk mendapatkan bantuan dari mitra terdekat." 
+                            actionText="Buat Permintaan Baru" 
+                            :actionUrl="route('customer.helps.create')" 
+                        />
                     @endif
                 @endforelse
                 </div>
@@ -818,21 +821,23 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">
                             <span class="flex items-center">
-                                <svg class="w-3.5 h-3.5 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                 </svg>
-                                Lokasi
+                                Detail Lokasi Bantuan / Patokan
                                 <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
-                        <input type="text" wire:model.defer="editLocation" 
-                            placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 05"
-                            class="w-full px-3.5 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 transition bg-white shadow-sm">
+                        <x-smart-location-input 
+                            wire:model.defer="editLocation" 
+                            id="editLocation"
+                            placeholder="Ketik patokan / nama tempat / jalan..."
+                        />
                         <p class="text-xs text-gray-500 mt-1.5 flex items-center">
                             <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                             </svg>
-                            Alamat singkat, contoh: nama jalan, RT/RW
+                            Alamat singkat / patokan, contoh: nama jalan, RT/RW, dekat toko
                         </p>
                         @error('editLocation') 
                             <span class="text-red-500 text-xs mt-1.5 block flex items-center">
@@ -855,9 +860,12 @@
                                 <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
-                        <textarea wire:model.defer="editFullAddress" rows="3"
-                            placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 05, Kelurahan Mangkang, Kecamatan Semarang Barat, dekat Indomaret, rumah cat hijau"
-                            class="w-full px-3.5 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 transition resize-none bg-white shadow-sm"></textarea>
+                        <x-smart-address-input 
+                            wire:model="editFullAddress" 
+                            id="editFullAddress"
+                            rows="3"
+                            placeholder="Ketik nama jalan, perumahan, kelurahan, atau tempat..."
+                        />
                         <p class="text-xs text-gray-500 mt-1.5 flex items-center">
                             <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
@@ -1329,7 +1337,6 @@
                 try {
                     editMap.remove();
                 } catch(e) {
-                    console.log('Error removing map:', e);
                 }
                 editMap = null;
                 editMarker = null;
@@ -1339,7 +1346,7 @@
                 editMap = L.map('edit-map').setView(initialLocation, 13);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    attribution: 'Â© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                     maxZoom: 19,
                 }).addTo(editMap);
 
@@ -1370,15 +1377,10 @@
                 });
 
                 if (navigator.geolocation && !parsedLat && !parsedLng) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const pos = [position.coords.latitude, position.coords.longitude];
-                            editMap.setView(pos, 13);
-                        },
-                        () => {
-                            console.log('Geolocation not available, using default location');
-                        }
-                    );
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        const pos = [position.coords.latitude, position.coords.longitude];
+                        editMap.setView(pos, 13);
+                    });
                 }
             } catch(error) {
                 console.error('Error initializing map:', error);
@@ -1421,6 +1423,24 @@
                 console.error('Error updating coordinates:', error);
             }
         }
+
+        window.addEventListener('smart-address-selected', function(e) {
+            const item = e.detail;
+            if (item && item.lat && item.lng && editMap && editMarker) {
+                editMap.flyTo([item.lat, item.lng], 15);
+                editMarker.setLatLng([item.lat, item.lng]);
+                updateEditCoordinates(item.lat, item.lng);
+            }
+        });
+
+        window.addEventListener('smart-location-selected', function(e) {
+            const item = e.detail;
+            if (item && item.lat && item.lng && editMap && editMarker) {
+                editMap.flyTo([item.lat, item.lng], 15);
+                editMarker.setLatLng([item.lat, item.lng]);
+                updateEditCoordinates(item.lat, item.lng);
+            }
+        });
     </script>
 
     <!-- Detail Modal Map Script -->
@@ -1449,7 +1469,7 @@
             const parsedLng = lng ? parseFloat(lng) : null;
 
             if (detailMap) {
-                try { detailMap.remove(); } catch(e) { console.log('remove detail map error', e); }
+                try { detailMap.remove(); } catch(e) {}
                 detailMap = null;
                 detailMarker = null;
             }
@@ -1465,7 +1485,6 @@
                         center = [parseFloat(json[0].lat), parseFloat(json[0].lon)];
                     }
                 } catch(e) {
-                    console.log('Geocode failed:', e);
                 }
             }
 
@@ -1473,7 +1492,7 @@
                 detailMap = L.map('detail-map', { zoomControl: true, attributionControl: false }).setView(center, 13);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
+                    attribution: 'Â© OpenStreetMap contributors',
                     maxZoom: 19,
                 }).addTo(detailMap);
 

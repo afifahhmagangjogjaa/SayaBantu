@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Rating;
-use App\Models\City;
 use App\Models\User;
 
 class AdminRatingController extends Controller
@@ -15,12 +14,7 @@ class AdminRatingController extends Controller
         $admin = auth()->user();
 
         // Get all cities managed by this admin
-        $cityIds = City::where('admin_id', $admin->id)
-            ->pluck('id')
-            ->merge($admin->managedCities()->pluck('cities.id'))
-            ->push($admin->city_id)
-            ->filter()
-            ->unique();
+        $cityIds = collect($admin ? $admin->getAdminCityIds() : []);
 
         // Query Rekap Pengguna (Mitra & Customer)
         $usersQuery = User::whereIn('role', ['mitra', 'customer', 'kustomer'])
@@ -102,5 +96,24 @@ class AdminRatingController extends Controller
         }
 
         return back()->with('success', $user->is_shadow_banned ? 'User dikenakan Shadow Ban.' : 'User dibebaskan dari Shadow Ban.');
+    }
+
+    public function show(Request $request, Rating $rating)
+    {
+        $rating->load(['rater', 'ratee', 'help.city']);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'rating' => $rating,
+            ]);
+        }
+
+        $targetUserId = $rating->ratee_id ?? $rating->user_id;
+        if ($targetUserId) {
+            return redirect()->route('admin.ratings.user', $targetUserId);
+        }
+
+        return redirect()->route('admin.ratings.index');
     }
 }

@@ -69,7 +69,7 @@ class Cities extends Component
     public function fetchProvinces()
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get('https://wilayah.id/api/provinces.json');
+            $response = \App\Support\ExternalHttp::client()->get('https://wilayah.id/api/provinces.json');
             if ($response->successful()) {
                 $this->apiProvinces = $response->json('data') ?? [];
             }
@@ -81,7 +81,7 @@ class Cities extends Component
     public function fetchCities($provinceCode)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/regencies/{$provinceCode}.json");
+            $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/regencies/{$provinceCode}.json");
             if ($response->successful()) {
                 $this->apiCities = $response->json('data') ?? [];
             }
@@ -184,7 +184,7 @@ class Cities extends Component
         try {
             $cleanSearch = str_replace(['KOTA ADM. ', 'KOTA ', 'KABUPATEN ', 'KAB. '], '', $cityName);
             $query = urlencode($cleanSearch . ', ' . $provinceName . ', Indonesia');
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+            $response = \App\Support\ExternalHttp::client()
                 ->withHeaders(['User-Agent' => 'SayaBantu-App/1.0'])
                 ->timeout(4)
                 ->get("https://nominatim.openstreetmap.org/search?q={$query}&format=json&limit=1");

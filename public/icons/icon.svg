@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="50%" stop-color="#0369a1" />
+      <stop offset="100%" stop-color="#075985" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background with smooth rounded corners -->
+  <rect width="512" height="512" rx="115" fill="url(#bgGradient)"/>
+
+  <!-- Subtle glow inner circle -->
+  <circle cx="256" cy="256" r="180" fill="#ffffff" opacity="0.06"/>
+
+  <!-- Logo Icon: Hands of Help / Shield Gotong Royong -->
+  <g filter="url(#shadow)">
+    <!-- Main Center Shield / Heart of Help -->
+    <path d="M256 110 L370 170 V270 C370 340 320 400 256 420 C192 400 142 340 142 270 V170 Z" fill="#ffffff" opacity="0.95"/>
+    
+    <!-- Heart Symbol Inside -->
+    <path d="M256 315 C256 315 180 260 180 215 C180 188 202 168 228 168 C244 168 253 178 256 182 C259 178 268 168 284 168 C310 168 332 188 332 215 C332 260 256 315 256 315 Z" fill="url(#bgGradient)"/>
+    
+    <!-- Hands Silhouette Embracing -->
+    <path d="M210 240 C220 220 240 210 256 210 C272 210 292 220 302 240" stroke="#ffffff" stroke-width="8" stroke-linecap="round" fill="none"/>
+  </g>
+
+  <!-- Sparkle top right -->
+  <circle cx="365" cy="140" r="14" fill="#fbbf24"/>
+  <path d="M365 118 V162 M343 140 H387" stroke="#fbbf24" stroke-width="4" stroke-linecap="round"/>
+</svg>

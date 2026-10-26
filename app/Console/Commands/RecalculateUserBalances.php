@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\User;
 use App\Models\UserBalance;
-use App\Models\BalanceTransaction;
 
 class RecalculateUserBalances extends Command
 {

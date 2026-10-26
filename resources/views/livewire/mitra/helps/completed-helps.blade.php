@@ -50,7 +50,7 @@
 
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
             
@@ -91,7 +91,7 @@
                     </a>
 
                     <a href="{{ route('mitra.helps.completed') }}" 
-                        class="inline-flex items-center px-4 py-2 rounded-full text-xs font-semibold transition whitespace-nowrap bg-white text-[#0098e7] shadow-md">
+                        class="inline-flex items-center px-4 py-2 rounded-full text-xs font-semibold transition whitespace-nowrap bg-white text-[#0066FF] shadow-md">
                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -129,15 +129,13 @@
 
                 {{-- List --}}
                 @if(isset($helps) && $helps->isEmpty())
-                    <div class="text-center py-16">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-800 mb-2">Belum Ada Riwayat</h3>
-                        <p class="text-sm text-gray-500 mb-6">Belum ada bantuan yang selesai</p>
-                    </div>
+                    <x-empty-state 
+                        title="Belum Ada Riwayat Selesai" 
+                        description="Anda belum memiliki tugas bantuan yang telah selesai dikerjakan." 
+                        icon="clipboard" 
+                        actionText="Cari Bantuan Sekarang" 
+                        :actionUrl="route('mitra.helps.all')" 
+                    />
                 @elseif(isset($helps))
                     <div class="space-y-3">
                         @foreach($helps as $help)
@@ -205,7 +203,7 @@
                                         </div>
                                     </div>
 
-                                    <button @click="open = !open" class="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition" style="color: #0098e7;">
+                                    <button @click="open = !open" class="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition" style="color: #0066FF;">
                                         <span x-text="open ? 'Sembunyikan Detail' : 'Lihat Detail'"></span>
                                         <svg :class="open ? 'rotate-180' : ''" class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -295,7 +293,7 @@
                                         </div>
 
                                         {{-- Rating form for mitra -> customer (only for completed helps) --}}
-                                        @if($help->status === 'selesai' && $help->user && !\App\Models\Rating::hasRated($help->id, auth()->id(), 'mitra_to_customer'))
+                                        @if($help->isSelesai() && $help->user && !\App\Models\Rating::hasRated($help->id, auth()->id(), 'mitra_to_customer'))
                                             <div class="pt-3 border-t border-gray-100">
                                                 @livewire('mitra.rate-customer', ['helpId' => $help->id, 'inline' => true], key('mitra-rate-' . $help->id))
                                             </div>
@@ -318,3 +316,4 @@
         </div>
     </div>
 </div>
+

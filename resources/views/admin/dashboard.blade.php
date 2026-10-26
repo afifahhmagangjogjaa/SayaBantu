@@ -261,7 +261,7 @@
                                             </td>
                                             <td class="py-3 text-gray-600">{{ optional($help->user)->name ?? '-' }}</td>
                                             <td class="py-3"><span
-                                                    class="px-2 py-1 text-xs rounded {{ $help->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : ($help->status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700') }}">{{ ucfirst($help->status) }}</span>
+                                                    class="px-2 py-1 text-xs rounded {{ $help->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : ($help->isSelesai() ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700') }}">{{ ucfirst($help->status) }}</span>
                                             </td>
                                             <td class="py-3 text-gray-800">Rp {{ number_format($help->amount ?? 0, 0, ',', '.') }}
                                             </td>

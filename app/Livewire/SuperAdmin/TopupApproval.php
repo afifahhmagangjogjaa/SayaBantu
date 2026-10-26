@@ -3,8 +3,6 @@
 namespace App\Livewire\SuperAdmin;
 
 use App\Models\BalanceTransaction;
-use App\Models\User;
-use App\Models\UserBalance;
 use App\Notifications\TopupApproved;
 use App\Notifications\TopupRejected;
 use Livewire\Component;
@@ -324,7 +322,7 @@ class TopupApproval extends Component
 
         $availableYears = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
-            ->selectRaw('YEAR(created_at) as year')
+            ->selectRaw(\App\Support\Sql::yearExpression())
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year')

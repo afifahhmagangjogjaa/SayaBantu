@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-gray-50"
-    @if(!$showCompletionModal) wire:poll.3s="loadHelp" @endif
+    @if(!$showCompletionModal) wire:poll.8s="loadHelp" @endif
     x-data="{ 
         showNotification: false, 
         notificationMessage: '',
@@ -12,10 +12,6 @@
             
             // Jika status berubah, tampilkan notifikasi
             if (previousStatus !== currentStatus) {
-                console.log('📍 Status berubah:', {
-                    old: previousStatus,
-                    new: currentStatus
-                });
                 
                 notificationMessage = 'Status pesanan diperbarui';
                 showNotification = true;
@@ -58,7 +54,7 @@
 
     {{-- Header - BRImo Style --}}
     <div class="px-5 pt-5 pb-8 relative overflow-hidden"
-        style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
 
@@ -319,7 +315,7 @@
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5 min-w-0 flex-1">
                     <div class="w-9 h-9 rounded-xl {{ $mitraStatusTheme['icon_bg'] }} flex items-center justify-center shrink-0">
-                        @if(in_array($help->status, ['memperoleh_mitra', 'taken']))
+                        @if($help->isMemperolehMitra())
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -337,7 +333,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
-                        @elseif(in_array($help->status, ['selesai', 'completed']))
+                        @elseif($help->isSelesai())
                             <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -372,7 +368,7 @@
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-3 mb-3">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 shrink-0 text-base">
-                        ⚠️
+                        ⚠️ï¸
                     </div>
                     <div class="flex-1 text-xs space-y-1.5">
                         <div class="flex items-center justify-between">
@@ -437,7 +433,7 @@
                     </div>
                 </div>
             </div>
-        @elseif(in_array($help->status, ['dibatalkan', 'cancelled']))
+        @elseif($help->isDibatalkan())
             <div class="bg-red-50 border border-red-200 rounded-xl p-4 mt-3 mb-3">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
@@ -506,18 +502,24 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                {{-- @if ($help->user->phone)
-                    <a href="tel:{{ $help->user->phone }}"
-                        class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                @if ($help->user->phone)
+                    @php
+                        $cleanUserPhone = preg_replace('/[^0-9]/', '', $help->user->phone);
+                        if (str_starts_with($cleanUserPhone, '0')) {
+                            $cleanUserPhone = '62' . substr($cleanUserPhone, 1);
+                        }
+                        $waUserText = urlencode("Halo Kak " . $help->user->name . ", saya Rekan Jasa SayaBantu (" . ($help->mitra->name ?? 'Mitra') . ") untuk pesanan #" . $help->id . " (" . $help->title . "). Saya siap membantu!");
+                    @endphp
+                    <a href="https://wa.me/{{ $cleanUserPhone }}?text={{ $waUserText }}" target="_blank"
+                        class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 transition shadow-2xs font-semibold text-sm">
+                        <svg class="w-4 h-4 fill-current text-emerald-600" viewBox="0 0 24 24">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
                         </svg>
-                        <span class="text-sm font-semibold text-gray-700">Telepon</span>
+                        <span>WhatsApp</span>
                     </a>
-                @endif --}}
+                @endif
                 <a href="{{ route('mitra.chat', ['help' => $help->id]) }}"
-                    class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition overflow-hidden">
+                    class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition overflow-hidden shadow-2xs">
                     <div class="relative flex items-center justify-center">
                         <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -535,7 +537,7 @@
                             </span>
                         @endif
                     </div>
-                    <span class="text-sm font-semibold text-gray-700">Chat</span>
+                    <span class="text-sm font-semibold text-gray-700">Chat Aplikasi</span>
                 </a>
             </div>
         </div>
@@ -620,8 +622,8 @@
         {{-- GPS Simulator (toggle via GPS_SIMULATOR env) --}}
         @if (config('app.gps_simulator', true) &&
                 $help->mitra_id === auth()->id() &&
-                !in_array($help->status, ['selesai', 'dibatalkan']))
-            @if($help->canPartnerStartJourney() || !in_array($help->status, ['memperoleh_mitra', 'taken']))
+                ! ($help->isSelesai() || $help->isDibatalkan()))
+            @if($help->canPartnerStartJourney() || !$help->isMemperolehMitra())
                 <div class="mb-3">
                     <livewire:mitra.gps-simulator :help-id="$help->id" :key="'gps-simulator-' . $help->id" />
                 </div>
@@ -630,12 +632,12 @@
 
         {{-- Update Status Section --}}
 
-        @if (in_array($help->status, ['memperoleh_mitra', 'taken']))
+        @if ($help->isMemperolehMitra())
             @if ($help->canPartnerStartJourney())
                 <div class="bg-white px-4 py-4 rounded-xl shadow-sm border border-gray-100 mb-3">
                     <button wire:click="markPartnerStarted"
                         class="w-full py-3.5 text-white rounded-xl font-bold text-sm hover:opacity-95 transition flex items-center justify-center gap-2 shadow-sm"
-                        style="background: linear-gradient(135deg, #0098e7, #0077cc); box-shadow: 0 4px 14px rgba(0, 152, 231, 0.35);">
+                        style="background: linear-gradient(135deg, #0066FF, #0052CC); box-shadow: 0 4px 14px rgba(0, 152, 231, 0.35);">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                         </svg>
@@ -715,7 +717,7 @@
                         <div class="flex items-center gap-2 mt-1 flex-wrap">
                             @if($distToCust !== null)
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold {{ $isWithinArrivalRange ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-blue-100 text-blue-800 border border-blue-200' }}">
-                                    📍 Jarak: {{ $distToCust >= 1000 ? number_format($distToCust / 1000, 1) . ' km' : round($distToCust) . ' meter' }}
+                                    Jarak: {{ $distToCust >= 1000 ? number_format($distToCust / 1000, 1) . ' km' : round($distToCust) . ' meter' }}
                                 </span>
                                 @if($isWithinArrivalRange)
                                     <span class="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
@@ -743,7 +745,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
-                        📍 Saya Sudah Tiba di Lokasi
+                        Saya Sudah Tiba di Lokasi
                     </button>
                     <p class="text-xs text-emerald-600 font-semibold text-center mt-2">
                         ✓ Anda sudah berada dalam radius 50m! Klik tombol di atas untuk konfirmasi kedatangan.
@@ -787,7 +789,7 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <h4 class="font-semibold text-xs text-emerald-900">📍 Sudah Tiba di Lokasi</h4>
+                        <h4 class="font-semibold text-xs text-emerald-900">Sudah Tiba di Lokasi</h4>
                         <p class="text-[11px] text-emerald-700 mt-0.5">Silakan temui customer dan klik tombol <strong>Mulai Pekerjaan</strong> untuk memulai.</p>
                     </div>
                 </div>
@@ -803,7 +805,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    ⚙️ Mulai Pekerjaan
+                    Mulai Pekerjaan
                 </button>
                 <p class="text-xs text-gray-500 text-center mt-2">Klik tombol ini setelah Anda siap mengerjakan bantuan</p>
             </div>
@@ -912,32 +914,79 @@
             </div>
         @endif
 
-        {{-- Bukti Pengerjaan / Completion Proof --}}
-        @if ($help->completion_photo)
+        {{-- Bukti Pengerjaan / Before & After Proof --}}
+        @if ($help->completion_photo || $help->before_photo)
             <div class="bg-white px-4 py-4 rounded-xl shadow-sm border border-gray-100 mb-3">
-                <h3 class="font-semibold text-sm text-gray-900 mb-3 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Bukti Pekerjaan Selesai
+                <h3 class="font-semibold text-sm text-gray-900 mb-3 flex items-center justify-between">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Bukti Pengerjaan (Before & After)
+                    </span>
+                    <span class="text-[11px] bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-full border border-emerald-200">
+                        Hasil Kerja
+                    </span>
                 </h3>
-                <div class="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                    <a href="{{ asset('storage/' . $help->completion_photo) }}" target="_blank" class="block group relative">
-                        <img src="{{ asset('storage/' . $help->completion_photo) }}" alt="Bukti Selesai" class="w-full h-48 object-cover group-hover:opacity-95 transition">
-                        <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            Lihat Foto Asli
+
+                @if($help->before_photo && $help->completion_photo)
+                    {{-- Grid 2 Kolom Sebelum & Sesudah --}}
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        {{-- Sebelum --}}
+                        <div class="rounded-xl overflow-hidden border border-amber-200 bg-amber-50/30 flex flex-col">
+                            <div class="bg-amber-100/80 px-2.5 py-1 text-[11px] font-bold text-amber-900 flex items-center gap-1 border-b border-amber-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                SEBELUM (BEFORE)
+                            </div>
+                            <a href="{{ asset('storage/' . $help->before_photo) }}" target="_blank" class="block group relative flex-1">
+                                <img src="{{ asset('storage/' . $help->before_photo) }}" alt="Foto Sebelum" class="w-full h-36 object-cover group-hover:opacity-95 transition">
+                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[10px] font-semibold gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    Perbesar
+                                </div>
+                            </a>
                         </div>
-                    </a>
-                    @if ($help->completion_notes)
-                        <div class="p-3 bg-gray-50 text-xs text-gray-700 border-t border-gray-100">
-                            <span class="font-semibold text-gray-900 block mb-0.5">Catatan Pekerjaan:</span>
-                            <p class="italic">"{{ $help->completion_notes }}"</p>
+
+                        {{-- Sesudah --}}
+                        <div class="rounded-xl overflow-hidden border border-emerald-200 bg-emerald-50/30 flex flex-col">
+                            <div class="bg-emerald-100/80 px-2.5 py-1 text-[11px] font-bold text-emerald-900 flex items-center gap-1 border-b border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                SESUDAH (AFTER)
+                            </div>
+                            <a href="{{ asset('storage/' . $help->completion_photo) }}" target="_blank" class="block group relative flex-1">
+                                <img src="{{ asset('storage/' . $help->completion_photo) }}" alt="Foto Sesudah" class="w-full h-36 object-cover group-hover:opacity-95 transition">
+                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[10px] font-semibold gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    Perbesar
+                                </div>
+                            </a>
                         </div>
-                    @endif
-                </div>
+                    </div>
+                @else
+                    {{-- 1 Foto jika hanya ada completion_photo --}}
+                    <div class="rounded-xl overflow-hidden border border-gray-200 bg-gray-50 mb-3">
+                        <a href="{{ asset('storage/' . $help->completion_photo) }}" target="_blank" class="block group relative">
+                            <img src="{{ asset('storage/' . $help->completion_photo) }}" alt="Bukti Selesai" class="w-full h-48 object-cover group-hover:opacity-95 transition">
+                            <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                Lihat Foto Asli
+                            </div>
+                        </a>
+                    </div>
+                @endif
+
+                @if ($help->completion_notes)
+                    <div class="p-3 bg-gray-50 rounded-xl text-xs text-gray-700 border border-gray-100">
+                        <span class="font-semibold text-gray-900 block mb-0.5">Catatan Pengerjaan:</span>
+                        <p class="italic">"{{ $help->completion_notes }}"</p>
+                    </div>
+                @endif
             </div>
         @endif
 
@@ -1022,7 +1071,7 @@
         @endif
 
         {{-- Rating Customer Form --}}
-        @if (in_array($help->status, ['selesai', 'completed']))
+        @if ($help->isSelesai())
             @php
                 $mitraRating = \App\Models\Rating::where('help_id', $help->id)
                     ->where('rater_id', auth()->id())
@@ -1176,7 +1225,7 @@
                     </p>
                     <div class="mb-4 p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-center">
                         <p class="text-xs text-amber-800 font-medium">
-                            ⚠️ <strong>Perhatian:</strong> Pembatalan akan dicatat ke rekam jejak performa akun Anda dan dapat dikenakan sanksi jika terlalu sering.
+                            ⚠️ï¸ <strong>Perhatian:</strong> Pembatalan akan dicatat ke rekam jejak performa akun Anda dan dapat dikenakan sanksi jika terlalu sering.
                         </p>
                     </div>
 
@@ -1268,15 +1317,86 @@
                 <form wire:submit.prevent="markCompleted" class="p-5 space-y-4 overflow-y-auto flex-1">
                     <p class="text-xs text-gray-600">Unggah foto hasil pengerjaan sebagai bukti bahwa pekerjaan telah selesai dikerjakan.</p>
 
-                    {{-- Upload Foto --}}
+                    {{-- 1. Upload Foto Sebelum (Before Photo) --}}
+                    <div x-data="{ uploadingBefore: false, progressBefore: 0, uploadBeforeError: null }"
+                         x-on:livewire-upload-start="uploadingBefore = true; uploadBeforeError = null"
+                         x-on:livewire-upload-finish="uploadingBefore = false"
+                         x-on:livewire-upload-error="uploadingBefore = false; uploadBeforeError = 'Gagal mengunggah foto sebelum. Pastikan ukuran file maksimal 5 MB.'"
+                         x-on:livewire-upload-progress="progressBefore = $event.detail.progress"
+                         class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/80">
+                        <label class="block text-xs font-bold text-amber-900 mb-1 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                                1. Foto Sebelum Pengerjaan (Before)
+                            </span>
+                            <span class="text-[10px] text-amber-700 font-normal bg-amber-100 px-2 py-0.5 rounded-full">Opsional</span>
+                        </label>
+                        <p class="text-[11px] text-amber-800/80 mb-2">Ambil foto kondisi awal area kerja sebelum dikerjakan.</p>
+
+                        @if ($before_photo)
+                            @php
+                                $previewBeforeUrl = null;
+                                try {
+                                    $previewBeforeUrl = $before_photo->temporaryUrl();
+                                } catch (\Throwable $e) {
+                                    $previewBeforeUrl = null;
+                                }
+                            @endphp
+                            <div class="relative rounded-lg overflow-hidden border border-amber-200 bg-gray-900 h-36 flex items-center justify-center group mb-1.5">
+                                @if($previewBeforeUrl)
+                                    <img src="{{ $previewBeforeUrl }}" alt="Preview Before" class="h-full w-full object-contain">
+                                @else
+                                    <div class="text-white text-xs p-2 text-center">
+                                        <p class="font-bold text-emerald-400">✓ Foto Awal Terpilih</p>
+                                    </div>
+                                @endif
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                    <label for="before_photo_input" class="px-3 py-1 bg-white text-gray-800 text-xs font-semibold rounded-lg cursor-pointer hover:bg-gray-100 transition shadow-xs">
+                                        Ganti Foto
+                                    </label>
+                                </div>
+                            </div>
+                        @else
+                            <label for="before_photo_input" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-amber-300 rounded-lg cursor-pointer bg-white hover:bg-amber-100/50 transition">
+                                <div class="flex flex-col items-center justify-center py-3">
+                                    <svg class="w-6 h-6 text-amber-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <p class="text-xs font-semibold text-gray-700">Pilih Foto Kondisi Awal</p>
+                                    <p class="text-[10px] text-gray-400">JPG, PNG, WebP (Maks 5 MB)</p>
+                                </div>
+                            </label>
+                        @endif
+
+                        <input type="file" id="before_photo_input" wire:model="before_photo" accept="image/png,image/jpeg,image/jpg,image/webp" class="hidden">
+                        
+                        <div x-show="uploadingBefore" class="mt-1.5" style="display: none;">
+                            <div class="w-full bg-amber-200 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-amber-600 h-1.5 rounded-full transition-all duration-200" :style="'width: ' + progressBefore + '%'"></div>
+                            </div>
+                        </div>
+                        <div x-show="uploadBeforeError" class="text-xs text-red-500 mt-1" x-text="uploadBeforeError" style="display: none;"></div>
+                        @error('before_photo')
+                            <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    {{-- 2. Upload Foto Sesudah (After Photo) --}}
                     <div x-data="{ uploading: false, progress: 0, uploadError: null }"
                          x-on:livewire-upload-start="uploading = true; uploadError = null"
                          x-on:livewire-upload-finish="uploading = false"
                          x-on:livewire-upload-error="uploading = false; uploadError = 'Gagal mengunggah foto. Pastikan ukuran file maksimal 5 MB dan format gambar valid.'"
-                         x-on:livewire-upload-progress="progress = $event.detail.progress">
-                        <label class="block text-xs font-semibold text-gray-800 mb-1.5">
-                            Foto Bukti Pengerjaan <span class="text-red-500">*</span>
+                         x-on:livewire-upload-progress="progress = $event.detail.progress"
+                         class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200/80">
+                        <label class="block text-xs font-bold text-emerald-900 mb-1 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                                2. Foto Setelah Selesai (After) <span class="text-red-500">*</span>
+                            </span>
+                            <span class="text-[10px] text-emerald-700 font-semibold bg-emerald-100 px-2 py-0.5 rounded-full">Wajib</span>
                         </label>
+                        <p class="text-[11px] text-emerald-800/80 mb-2">Ambil foto hasil pekerjaan yang telah rapi dan tuntas.</p>
 
                         @if ($completion_photo)
                             @php
@@ -1287,29 +1407,29 @@
                                     $previewUrl = null;
                                 }
                             @endphp
-                            <div class="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-900 h-44 flex items-center justify-center group mb-2">
+                            <div class="relative rounded-lg overflow-hidden border border-emerald-200 bg-gray-900 h-40 flex items-center justify-center group mb-1.5">
                                 @if($previewUrl)
                                     <img src="{{ $previewUrl }}" alt="Preview Bukti" class="h-full w-full object-contain">
                                 @else
-                                    <div class="text-white text-xs p-3 text-center">
-                                        <p class="font-bold text-emerald-400">✓ Foto Berhasil Dipilih</p>
-                                        <p class="text-[11px] text-gray-300 mt-1">{{ is_object($completion_photo) && method_exists($completion_photo, 'getClientOriginalName') ? $completion_photo->getClientOriginalName() : 'Foto bukti' }}</p>
+                                    <div class="text-white text-xs p-2 text-center">
+                                        <p class="font-bold text-emerald-400">✓ Foto Selesai Terpilih</p>
+                                        <p class="text-[10px] text-gray-300 mt-0.5">{{ is_object($completion_photo) && method_exists($completion_photo, 'getClientOriginalName') ? $completion_photo->getClientOriginalName() : 'Foto bukti' }}</p>
                                     </div>
                                 @endif
-                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-                                    <label for="completion_photo_input" class="px-3 py-1.5 bg-white text-gray-800 text-xs font-semibold rounded-lg cursor-pointer hover:bg-gray-100 transition shadow-xs">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                    <label for="completion_photo_input" class="px-3 py-1 bg-white text-gray-800 text-xs font-semibold rounded-lg cursor-pointer hover:bg-gray-100 transition shadow-xs">
                                         Ganti Foto
                                     </label>
                                 </div>
                             </div>
                         @else
-                            <label for="completion_photo_input" class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 transition">
-                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg class="w-8 h-8 text-blue-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            <label for="completion_photo_input" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-emerald-400 rounded-lg cursor-pointer bg-white hover:bg-emerald-100/50 transition">
+                                <div class="flex flex-col items-center justify-center py-3">
+                                    <svg class="w-7 h-7 text-emerald-600 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <p class="text-xs font-semibold text-gray-700">Ambil / Pilih Foto Hasil Pekerjaan</p>
-                                    <p class="text-[11px] text-gray-400 mt-0.5">Format: JPG, PNG, WebP (Maks 5 MB)</p>
+                                    <p class="text-xs font-semibold text-gray-800">Pilih Foto Hasil Selesai</p>
+                                    <p class="text-[10px] text-gray-400">JPG, PNG, WebP (Maks 5 MB)</p>
                                 </div>
                             </label>
                         @endif
@@ -1317,13 +1437,13 @@
                         <input type="file" id="completion_photo_input" wire:model="completion_photo" accept="image/png,image/jpeg,image/jpg,image/webp" class="hidden">
                         
                         {{-- Upload Progress Bar --}}
-                        <div x-show="uploading" class="mt-2" style="display: none;">
-                            <div class="flex items-center justify-between text-[11px] text-blue-600 font-semibold mb-1">
-                                <span>Mengunggah foto...</span>
+                        <div x-show="uploading" class="mt-1.5" style="display: none;">
+                            <div class="flex items-center justify-between text-[10px] text-emerald-700 font-semibold mb-0.5">
+                                <span>Mengunggah foto selesai...</span>
                                 <span x-text="progress + '%'"></span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-200" :style="'width: ' + progress + '%'"></div>
+                            <div class="w-full bg-emerald-200 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-emerald-600 h-1.5 rounded-full transition-all duration-200" :style="'width: ' + progress + '%'"></div>
                             </div>
                         </div>
 

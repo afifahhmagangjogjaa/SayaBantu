@@ -27,7 +27,7 @@ class Users extends Component
     public $name;
     public $email;
     public $phone;
-    public $role = 'kustomer';
+    public $role = 'customer';
     public $status = 'active';
     public $verified = false;
     public $city_id = null;
@@ -70,7 +70,7 @@ class Users extends Component
     public function fetchProvinces()
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get('https://wilayah.id/api/provinces.json');
+            $response = \App\Support\ExternalHttp::client()->get('https://wilayah.id/api/provinces.json');
             if ($response->successful()) {
                 $this->apiProvinces = $response->json('data') ?? [];
             }
@@ -82,7 +82,7 @@ class Users extends Component
     public function fetchCities($provinceCode)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/regencies/{$provinceCode}.json");
+            $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/regencies/{$provinceCode}.json");
             if ($response->successful()) {
                 $this->apiCities = $response->json('data') ?? [];
             }
@@ -94,7 +94,15 @@ class Users extends Component
     public function fetchDistricts($cityCode)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/districts/{$cityCode}.json");
+            $master = \App\Support\JsonMaster::districts();
+            $found = \App\Support\JsonMaster::find($master, $cityCode);
+            if ($found !== []) {
+                $this->apiDistricts = $found;
+                return;
+            }
+
+            $cleanCode = (strlen($cityCode) === 4 && !str_contains($cityCode, '.')) ? substr($cityCode, 0, 2) . '.' . substr($cityCode, 2, 2) : $cityCode;
+            $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/districts/{$cleanCode}.json");
             if ($response->successful()) {
                 $this->apiDistricts = $response->json('data') ?? [];
             }
@@ -106,7 +114,7 @@ class Users extends Component
     public function fetchVillages($districtCode)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/villages/{$districtCode}.json");
+            $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/villages/{$districtCode}.json");
             if ($response->successful()) {
                 $this->apiVillages = $response->json('data') ?? [];
             }
@@ -383,7 +391,7 @@ class Users extends Component
         if ($this->roleFilter === 'mitra') {
             $this->role = 'mitra';
         } else {
-            $this->role = 'kustomer';
+            $this->role = 'customer';
         }
         $this->showCreateModal = true;
     }
@@ -395,7 +403,7 @@ class Users extends Component
         $this->email = '';
         $this->phone = '';
         // Default values
-        $this->role = 'kustomer';
+        $this->role = 'customer';
 
         $this->status = 'active';
         $this->verified = 0;
@@ -485,9 +493,9 @@ class Users extends Component
         if ($this->roleFilter === 'mitra') {
             $this->role = 'mitra';
         } elseif ($this->roleFilter === 'customer' || $this->roleFilter === 'kustomer') {
-            $this->role = 'kustomer';
+            $this->role = 'customer';
         } elseif (empty($this->role)) {
-            $this->role = 'kustomer';
+            $this->role = 'customer';
         }
 
         if (!$isEdit) {
@@ -734,14 +742,14 @@ class Users extends Component
                 });
             })
             ->when($this->roleFilter, function ($query) {
-                if (in_array($this->roleFilter, ['kustomer', 'customer'])) {
-                    $query->whereIn('role', ['kustomer', 'customer']);
+                if (in_array($this->roleFilter, ['customer', 'kustomer'])) {
+                    $query->whereIn('role', ['customer', 'kustomer']);
                 } else {
                     $query->where('role', $this->roleFilter);
                 }
             }, function ($query) {
-                // default: show only mitra, kustomer, and customer
-                $query->whereIn('role', ['mitra', 'kustomer', 'customer']);
+                // default: show only mitra and customer
+                $query->whereIn('role', ['mitra', 'customer', 'kustomer']);
             })
             ->when($this->spFilter !== '' && $this->spFilter !== null, function ($query) {
                 if ($this->spFilter === 'has_sp') {

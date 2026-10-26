@@ -3,135 +3,108 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>sayabantu - Platform Bantuan Sosial</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>sayabantu.com - Jasa Serabutan, Mudah, Cepat, Terpercaya</title>
+    <meta name="description" content="Temukan jasa serabutan yang mudah, cepat, dan terpercaya di sekitar Anda.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Sembunyikan scrollbar bawaan agar tampilan aplikasi mulus tanpa scroll */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
         }
-        .animate-fadeInUp {
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        html, body {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+            height: 100%;
+            overflow: hidden;
         }
     </style>
 </head>
 
-<body class="font-sans antialiased bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-    <div class="max-w-sm mx-auto min-h-screen flex flex-col">
-
-        <!-- Header Navigation -->
-        <header class="px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                </svg>
-                <span class="text-xl font-bold text-gray-800">sayabantu</span>
-            </div>
-            <a href="{{ route('login') }}" class="text-sm font-semibold text-purple-600 hover:text-purple-700">
-                Masuk
-            </a>
+<body class="h-screen h-[100dvh] bg-slate-100 font-sans text-slate-900 antialiased flex flex-col items-center justify-center sm:p-4">
+    <!-- Centered Mobile App Container matching the design mockup -->
+    <main class="w-full max-w-md h-full sm:h-[840px] sm:max-h-[92vh] bg-white sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col justify-between overflow-hidden relative">
+        
+        <!-- Header Section (Logo + Tagline) -->
+        <header class="pt-10 sm:pt-14 px-6 pb-2 text-center shrink-0 z-10">
+            <x-sayabantu-logo size="lg" />
+            
+            <h1 class="mt-4 sm:mt-5 text-base sm:text-[17px] font-bold text-slate-900 leading-snug tracking-tight">
+                Jasa Serabutan,<br>Mudah, Cepat, Terpercaya
+            </h1>
         </header>
 
-        <!-- Hero Section -->
-        <main class="flex-1 flex flex-col justify-center px-6 py-12">
+        <!-- Center Hero Mascot Section -->
+        <section class="relative w-full flex-1 flex items-center justify-center overflow-hidden my-auto min-h-[180px] max-h-[300px]">
+            <img src="{{ asset('images/landing-mascot.png') }}"
+                 alt="Petugas sayabantu.com berkaus biru bertopi memberi jempol"
+                 class="w-full h-full object-cover object-top select-none pointer-events-none">
             
-            <div class="text-center mb-8 animate-fadeInUp">
-                <!-- Main Icon with Gradient Background -->
-                <div class="inline-flex items-center justify-center w-24 h-24 rounded-full gradient-bg shadow-xl mb-6">
-                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            <!-- Soft White Organic Wave Divider at bottom matching mockup -->
+            <svg class="pointer-events-none absolute -bottom-0.5 left-0 w-full h-8 sm:h-10 text-white fill-current" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M0,28 Q200,8 400,28 L400,40 L0,40 Z"></path>
+            </svg>
+        </section>
+
+        <!-- Features Badges (Aman & Terpercaya, Proses Cepat, Harga Bersaing) -->
+        <section class="grid grid-cols-3 gap-2 px-6 pt-3 pb-4 text-center shrink-0">
+            <!-- Feature 1: Aman & Terpercaya -->
+            <div class="flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-[#0066FF] flex items-center justify-center mb-1.5 shadow-2xs">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
                     </svg>
                 </div>
-
-                <!-- Headline -->
-                    <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                    Berbagi <span class="text-transparent bg-clip-text gradient-bg">Kebaikan</span><br/>
-                    Saling Membantu
-                </h1>
-
-                <!-- Subheadline -->
-                <p class="text-gray-600 text-base leading-relaxed max-w-xs mx-auto">
-                    Platform yang menghubungkan mereka yang membutuhkan dengan mereka yang ingin membantu
-                </p>
+                <span class="text-xs sm:text-[13px] font-bold text-gray-800 leading-tight">
+                    Aman<br>&amp; Terpercaya
+                </span>
             </div>
 
-            <!-- Feature Cards -->
-            <div class="grid grid-cols-3 gap-4 mb-8 animate-fadeInUp" style="animation-delay: 0.2s;">
-                <!-- Feature 1 -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
-                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 mb-2">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-700">Bantuan Dana</p>
+            <!-- Feature 2: Proses Cepat -->
+            <div class="flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-[#0066FF] flex items-center justify-center mb-1.5 shadow-2xs">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"/>
+                        <polyline points="12 7 12 12 15 14"/>
+                    </svg>
                 </div>
-
-                <!-- Feature 2 -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
-                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-100 mb-2">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-700">Terpercaya</p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
-                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-pink-100 mb-2">
-                        <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-700">Cepat & Mudah</p>
-                </div>
+                <span class="text-xs sm:text-[13px] font-bold text-gray-800 leading-tight">
+                    Proses<br>Cepat
+                </span>
             </div>
 
-            <!-- CTA Buttons -->
-            <div class="space-y-3 animate-fadeInUp" style="animation-delay: 0.4s;">
-                <!-- Primary CTA -->
-                <a href="{{ route('register') }}"
-                    class="block w-full gradient-bg text-white font-bold py-4 rounded-2xl text-center transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                    Mulai Sekarang
-                </a>
-
-                <!-- Secondary CTA -->
-                <a href="{{ route('login') }}"
-                    class="block w-full bg-white text-gray-700 font-semibold py-4 rounded-2xl text-center transition shadow-sm border-2 border-gray-200 hover:border-purple-300 hover:shadow-md">
-                    Sudah Punya Akun? Masuk
-                </a>
+            <!-- Feature 3: Harga Bersaing -->
+            <div class="flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-[#0066FF] flex items-center justify-center mb-1.5 shadow-2xs">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21.71 8.71l-3.42-3.42a2.008 2.008 0 0 0-2.83 0L13.88 6.87a.996.996 0 0 0 0 1.41l.71.71-3.59 3.59-1.42-1.42a1 1 0 0 0-1.41 0l-.71.71 2.12 2.12-1.41 1.41-2.12-2.12-.71.71a1 1 0 0 0 0 1.41l1.42 1.42-1.41 1.41a.996.996 0 0 0 0 1.41l3.42 3.42c.78.78 2.05.78 2.83 0l8.34-8.34c.78-.78.78-2.05 0-2.83zM15.29 5.29c.39-.39 1.02-.39 1.41 0l3.42 3.42c.39.39.39 1.02 0 1.41l-2.12 2.12-4.83-4.83 2.12-2.12z"/>
+                    </svg>
+                </div>
+                <span class="text-xs sm:text-[13px] font-bold text-gray-800 leading-tight">
+                    Harga<br>Bersaing
+                </span>
             </div>
+        </section>
 
-        </main>
-
-        <!-- Footer -->
-        <footer class="px-6 py-6 text-center">
-            <p class="text-xs text-gray-500">
-                © {{ date('Y') }} sayabantu. Platform Bantuan Sosial Indonesia.
-            </p>
-            @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}"
-                    class="inline-block mt-3 text-xs text-purple-600 hover:text-purple-700 font-semibold">
-                    Lupa Password?
-                </a>
-            @endif
+        <!-- CTA & Footer Section -->
+        <footer class="px-6 pb-8 sm:pb-10 pt-2 shrink-0">
+            <!-- Mulai Sekarang Button -->
+            <a href="{{ route('login') }}"
+               class="w-full flex items-center justify-center py-4 sm:py-4.5 rounded-full bg-[#0066FF] hover:bg-[#0055D4] active:scale-[0.98] text-white font-bold text-base shadow-md shadow-blue-500/25 transition cursor-pointer">
+                Mulai Sekarang
+            </a>
         </footer>
 
-    </div>
+    </main>
 </body>
 
 </html>

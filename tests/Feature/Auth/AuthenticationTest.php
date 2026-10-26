@@ -11,6 +11,17 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function onboardedUser(array $attributes = []): User
+    {
+        return User::factory()->create(array_merge([
+            'role' => 'customer',
+            'status' => 'active',
+            'verified' => true,
+            'is_completed' => true,
+            'email_verified_at' => now(),
+        ], $attributes));
+    }
+
     public function test_login_screen_can_be_rendered(): void
     {
         $response = $this->get('/login');
@@ -22,7 +33,7 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        $user = User::factory()->create();
+        $user = $this->onboardedUser();
 
         $component = Volt::test('pages.auth.login')
             ->set('form.email', $user->email)
@@ -32,8 +43,23 @@ class AuthenticationTest extends TestCase
 
         $component
             ->assertHasNoErrors()
-            ->assertRedirect(route('dashboard', absolute: false));
+            // Aplikasi ini mengarahkan per role, bukan ke /dashboard generik.
+            ->assertRedirect(route('customer.dashboard', absolute: false));
 
+        $this->assertAuthenticated();
+    }
+
+    public function test_users_can_authenticate_using_phone_number(): void
+    {
+        $user = $this->onboardedUser(['phone' => '081234567890']);
+
+        $component = Volt::test('pages.auth.login')
+            ->set('form.email', '081234567890')
+            ->set('form.password', 'password');
+
+        $component->call('login');
+
+        $component->assertHasNoErrors();
         $this->assertAuthenticated();
     }
 
@@ -54,22 +80,23 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_navigation_menu_can_be_rendered(): void
+    public function test_dashboard_redirects_to_role_specific_dashboard(): void
     {
-        $user = User::factory()->create();
+        $customer = $this->onboardedUser();
+        $mitra = $this->onboardedUser(['role' => 'mitra', 'email' => 'mitra@example.test']);
 
-        $this->actingAs($user);
+        $this->actingAs($customer)
+            ->get('/dashboard')
+            ->assertRedirect(route('customer.dashboard'));
 
-        $response = $this->get('/dashboard');
-
-        $response
-            ->assertOk()
-            ->assertSeeVolt('layout.navigation');
+        $this->actingAs($mitra)
+            ->get('/dashboard')
+            ->assertRedirect(route('mitra.dashboard'));
     }
 
     public function test_users_can_logout(): void
     {
-        $user = User::factory()->create();
+        $user = $this->onboardedUser();
 
         $this->actingAs($user);
 

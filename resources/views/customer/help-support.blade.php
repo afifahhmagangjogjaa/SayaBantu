@@ -3,7 +3,7 @@
 
     <div class="min-h-screen bg-gray-50 pb-24">
         <!-- BRImo Header -->
-        <div class="relative bg-gradient-to-br from-[#0098e7] via-[#0077cc] to-[#0060b0] pb-24 overflow-hidden">
+        <div class="relative bg-gradient-to-br from-[#0066FF] via-[#0052CC] to-[#003EA8] pb-24 overflow-hidden">
             <!-- Decorative Circles -->
             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
             <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
@@ -105,7 +105,7 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="font-bold text-gray-900 text-sm">Email</p>
-                            <p class="text-xs text-gray-600 truncate">support@sayabantu.com</p>
+                            <p class="text-xs text-gray-600 break-all">support@sayabantu.com</p>
                         </div>
                         <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -128,7 +128,7 @@
                     </a>
 
                     <a href="tel:+6281234567890" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, #0098e7 0%, #0060b0 100%);">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, #0066FF 0%, #003EA8 100%);">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>

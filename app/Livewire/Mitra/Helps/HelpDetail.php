@@ -6,8 +6,8 @@ use App\Models\Help;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Enums\HelpStatus;
 
 #[Layout('layouts.mitra')]
 class HelpDetail extends Component
@@ -40,7 +40,9 @@ class HelpDetail extends Component
     public $partnerCancelStatus = null; // 'pending' | 'accepted' | 'rejected'
     public $showReassignedModal = false;
 
-    // Completion proof fields
+    // Completion / Before & After proof fields
+    public $before_photo;
+    public $before_notes = '';
     public $completion_photo;
     public $completion_notes = '';
     public $showCompletionModal = false;
@@ -236,12 +238,14 @@ class HelpDetail extends Component
             \Illuminate\Support\Facades\Log::warning('Failed to record PartnerActivity on help cancelled: ' . $e->getMessage());
         }
 
-        // 2. Lepaskan mitra & kembalikan pesanan ke antrean menunggu mitra baru
+        // 2. Catat pembatalan oleh mitra & lepaskan mitra untuk mencari rekan jasa lain
+        $this->help->recordMitraCancellation($mitraId);
+
         $this->help->update([
             'partner_cancel_prev_status' => $oldStatus,
             'partner_cancel_requested_at' => now(),
             'partner_cancel_reason' => $reason,
-            'status' => 'menunggu_mitra',
+            'status' => HelpStatus::MENUNGGU_MITRA->value,
             'mitra_id' => null,
             'partner_current_lat' => null,
             'partner_current_lng' => null,
@@ -343,7 +347,7 @@ class HelpDetail extends Component
 
         $oldStatus = $this->help->status;
         $this->help->update([
-            'status' => 'partner_on_the_way',
+            'status' => HelpStatus::PARTNER_ON_THE_WAY->value,
             'partner_started_at' => now(),
             'partner_started_moving_at' => now(),
         ]);
@@ -388,7 +392,7 @@ class HelpDetail extends Component
 
         $oldStatus = $this->help->status;
         $this->help->update([
-            'status' => 'partner_arrived',
+            'status' => HelpStatus::PARTNER_ARRIVED->value,
             'partner_arrived_at' => now(),
         ]);
 
@@ -433,7 +437,7 @@ class HelpDetail extends Component
         $oldStatus = $this->help->status;
         // Ubah status ke in_progress dan set service_started_at
         $this->help->update([
-            'status' => 'in_progress',
+            'status' => HelpStatus::IN_PROGRESS->value,
             'service_started_at' => now(),
         ]);
 
@@ -471,6 +475,8 @@ class HelpDetail extends Component
     public function closeCompletionModal()
     {
         $this->showCompletionModal = false;
+        $this->before_photo = null;
+        $this->before_notes = '';
         $this->completion_photo = null;
         $this->completion_notes = '';
         $this->resetErrorBag();
@@ -479,23 +485,36 @@ class HelpDetail extends Component
     public function markCompleted()
     {
         $this->validate([
+            'before_photo' => 'nullable|image|max:5120',
+            'before_notes' => 'nullable|string|max:500',
             'completion_photo' => 'required|image|max:5120',
             'completion_notes' => 'nullable|string|max:500',
         ], [
+            'before_photo.image' => 'Foto kondisi awal harus berupa gambar (JPG, PNG, WebP).',
+            'before_photo.max' => 'Ukuran foto kondisi awal maksimal 5 MB.',
+            'before_notes.max' => 'Catatan kondisi awal maksimal 500 karakter.',
             'completion_photo.required' => 'Wajib mengunggah foto bukti selesai pekerjaan.',
-            'completion_photo.image' => 'File bukti harus berupa gambar (JPG, PNG, WebP).',
-            'completion_photo.max' => 'Ukuran foto maksimal 5 MB.',
-            'completion_notes.max' => 'Catatan maksimal 500 karakter.',
+            'completion_photo.image' => 'File bukti selesai harus berupa gambar (JPG, PNG, WebP).',
+            'completion_photo.max' => 'Ukuran foto selesai maksimal 5 MB.',
+            'completion_notes.max' => 'Catatan selesai maksimal 500 karakter.',
         ]);
 
-        $photoPath = $this->completion_photo->store('completion_photos', 'public');
-
-        $this->help->update([
-            'status' => 'waiting_customer_confirmation',
-            'completion_photo' => $photoPath,
-            'completion_notes' => $this->completion_notes,
+        $updateData = [
+            'status' => HelpStatus::WAITING_CUSTOMER_CONFIRMATION->value,
             'service_completed_at' => now(),
-        ]);
+        ];
+
+        if ($this->completion_photo) {
+            $updateData['completion_photo'] = $this->completion_photo->store('completion_photos', 'public');
+            $updateData['completion_notes'] = $this->completion_notes;
+        }
+
+        if ($this->before_photo) {
+            $updateData['before_photo'] = $this->before_photo->store('before_photos', 'public');
+            $updateData['before_notes'] = $this->before_notes;
+        }
+
+        $this->help->update($updateData);
 
         $this->currentStatus = 'waiting_customer_confirmation';
         $this->showCompletionModal = false;

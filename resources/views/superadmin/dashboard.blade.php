@@ -90,18 +90,18 @@
     <div class="mb-6">
         <!-- Chart Section -->
         <div class="w-full bg-white rounded-2xl shadow-xs border border-gray-200/80 p-6 flex flex-col">
-            <div class="flex items-start justify-between mb-4">
-                <div>
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                <div class="min-w-0">
                     <h2 class="text-base sm:text-lg font-medium text-gray-900">Data Pengguna Terakhir</h2>
                     <p class="text-xs text-gray-500">Grafik pendaftaran pengguna</p>
                 </div>
                 
-                <div class="flex flex-col items-end gap-2">
+                <div class="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
                     <!-- Range Tabs -->
                     <div id="chartRangeTabs" role="tablist" class="inline-flex p-1 bg-gray-100 rounded-xl border border-gray-200/80 shadow-xs self-start sm:self-auto">
-                        <button type="button" data-range="daily" class="chart-range-tab px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200">Harian</button>
-                        <button type="button" data-range="monthly" class="chart-range-tab px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200">Bulanan</button>
-                        <button type="button" data-range="yearly" class="chart-range-tab px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200">Tahunan</button>
+                        <button type="button" data-range="daily" class="chart-range-tab px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 whitespace-nowrap">Harian</button>
+                        <button type="button" data-range="monthly" class="chart-range-tab px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 whitespace-nowrap">Bulanan</button>
+                        <button type="button" data-range="yearly" class="chart-range-tab px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 whitespace-nowrap">Tahunan</button>
                     </div>
                 </div>
             </div>
@@ -113,7 +113,7 @@
     </div>
 
     <!-- 3-Column Section: Aksi Cepat, Pengguna Terbaru, Permintaan Terbaru -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <!-- Aksi Cepat -->
         <div class="bg-white rounded-2xl shadow-xs border border-gray-200/80 p-6 hover:shadow-md transition-shadow duration-200 flex flex-col justify-between">
             <div>
@@ -202,14 +202,14 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center justify-between gap-2">
-                                        <span class="text-xs font-medium text-gray-900 truncate block">
+                                        <span class="text-xs font-medium text-gray-900 leading-snug line-clamp-2 min-w-0" title="{{ $u->name }}">
                                             {{ $u->name }}
                                         </span>
-                                        <span class="text-[10px] text-gray-400 whitespace-nowrap">{{ $u->created_at->diffForHumans() }}</span>
+                                        <span class="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">{{ $u->created_at->diffForHumans() }}</span>
                                     </div>
                                     <div class="flex items-center gap-2 mt-1">
-                                        <span class="text-[11px] text-gray-400 truncate">{{ $u->email }}</span>
-                                        <span class="inline-flex items-center px-1.5 py-0.2 text-[10px] font-medium bg-blue-50 text-blue-700 rounded">
+                                        <span class="text-[11px] text-gray-400 truncate min-w-0" title="{{ $u->email }}">{{ $u->email }}</span>
+                                        <span class="inline-flex items-center px-1.5 py-0.2 text-[10px] font-medium bg-blue-50 text-blue-700 rounded flex-shrink-0">
                                             {{ ucfirst($u->role) }}
                                         </span>
                                     </div>

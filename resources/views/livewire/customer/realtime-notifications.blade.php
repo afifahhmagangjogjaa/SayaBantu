@@ -1,5 +1,5 @@
 <div>
-    <div wire:poll.6s="poll"></div>
+    <div wire:poll.15s="poll"></div>
 
     {{-- MODAL POP-UP MERAH SURAT PERINGATAN (COMPACT & PROPORTIONAL) --}}
     @if($sanctionModalOpen && $currentSanction)
@@ -116,12 +116,10 @@
 <script>
     document.addEventListener('livewire:init', () => {
         Livewire.on('help-taken', (event) => {
-            console.log('Livewire help-taken received:', event);
             window.dispatchEvent(new CustomEvent('help-taken', { detail: event }));
         });
 
         Livewire.on('help-new-message', (event) => {
-            console.log('Livewire help-new-message received:', event);
             window.dispatchEvent(new CustomEvent('help-new-message', { detail: event }));
         });
     });

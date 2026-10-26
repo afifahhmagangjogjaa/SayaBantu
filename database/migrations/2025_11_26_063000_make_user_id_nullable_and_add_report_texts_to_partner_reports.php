@@ -17,7 +17,9 @@ return new class extends Migration {
         });
 
         // make user_id nullable using raw SQL (portable for MySQL)
-        DB::statement('ALTER TABLE `partner_reports` MODIFY `user_id` BIGINT UNSIGNED NULL');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE `partner_reports` MODIFY `user_id` BIGINT UNSIGNED NULL');
+        }
 
         Schema::table('partner_reports', function (Blueprint $table) {
             // re-create foreign key

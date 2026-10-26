@@ -13,7 +13,7 @@
 
     <div class="min-h-screen bg-gray-50 pb-24">
         <!-- BRImo Header -->
-        <div class="relative bg-gradient-to-br from-[#0098e7] via-[#0077cc] to-[#0060b0] pb-24 overflow-hidden">
+        <div class="relative bg-gradient-to-br from-[#0066FF] via-[#0052CC] to-[#003EA8] pb-24 overflow-hidden">
             <!-- Decorative Circles -->
             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
             <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
@@ -118,7 +118,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-900 mb-2">
                             <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4" style="color: #0098e7;" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="w-4 h-4" style="color: #0066FF;" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                                 </svg>
                                 Kata Sandi Saat Ini
@@ -127,7 +127,7 @@
                         <div class="relative">
                             <input type="password" name="current_password" id="current_password" required autocomplete="off"
                                 @input="currentPass = $event.target.value"
-                                class="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 focus:border-[#0098e7] focus:ring-2 focus:ring-[#0098e7]/20"
+                                class="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20"
                                 placeholder="Masukkan kata sandi saat ini">
                             <button type="button" onclick="togglePassword('current_password', this)"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
@@ -149,7 +149,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-900 mb-2">
                             <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4" style="color: #0098e7;" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="w-4 h-4" style="color: #0066FF;" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                                 </svg>
                                 Kata Sandi Baru
@@ -158,8 +158,8 @@
                         <div class="relative">
                             <input type="password" name="password" id="password" required autocomplete="new-password"
                                 @input="newPass = $event.target.value"
-                                class="w-full px-4 py-3 pr-12 rounded-xl border transition focus:ring-2 focus:ring-[#0098e7]/20"
-                                :class="(confirmPass && newPass && newPass === confirmPass && newPass.length >= 8) ? 'border-emerald-500 bg-emerald-50/10 focus:border-emerald-500' : 'border-gray-300 focus:border-[#0098e7]'"
+                                class="w-full px-4 py-3 pr-12 rounded-xl border transition focus:ring-2 focus:ring-[#0066FF]/20"
+                                :class="(confirmPass && newPass && newPass === confirmPass && newPass.length >= 8) ? 'border-emerald-500 bg-emerald-50/10 focus:border-emerald-500' : 'border-gray-300 focus:border-[#0066FF]'"
                                 placeholder="Masukkan kata sandi baru">
                             <button type="button" onclick="togglePassword('password', this)"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
@@ -195,7 +195,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-900 mb-2">
                             <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4" style="color: #0098e7;" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="w-4 h-4" style="color: #0066FF;" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                                 </svg>
                                 Konfirmasi Kata Sandi Baru
@@ -204,8 +204,8 @@
                         <div class="relative">
                             <input type="password" name="password_confirmation" id="password_confirmation" required autocomplete="new-password"
                                 @input="confirmPass = $event.target.value"
-                                class="w-full px-4 py-3 pr-12 rounded-xl border transition focus:ring-2 focus:ring-[#0098e7]/20"
-                                :class="(confirmPass && newPass && newPass === confirmPass && newPass.length >= 8) ? 'border-emerald-500 bg-emerald-50/10 focus:border-emerald-500' : 'border-gray-300 focus:border-[#0098e7]'"
+                                class="w-full px-4 py-3 pr-12 rounded-xl border transition focus:ring-2 focus:ring-[#0066FF]/20"
+                                :class="(confirmPass && newPass && newPass === confirmPass && newPass.length >= 8) ? 'border-emerald-500 bg-emerald-50/10 focus:border-emerald-500' : 'border-gray-300 focus:border-[#0066FF]'"
                                 placeholder="Masukkan ulang kata sandi baru">
                             <button type="button" onclick="togglePassword('password_confirmation', this)"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
@@ -268,7 +268,7 @@
                     <button type="submit" id="submit-btn"
                         :disabled="!isValid"
                         :class="!isValid ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-lg'"
-                        class="w-full py-3.5 rounded-xl text-white font-bold transition mt-6 flex items-center justify-center gap-2" style="background: linear-gradient(to right, #0098e7, #0060b0);">
+                        class="w-full py-3.5 rounded-xl text-white font-bold transition mt-6 flex items-center justify-center gap-2" style="background: linear-gradient(to right, #0066FF, #003EA8);">
                         <svg id="btn-spinner" class="hidden w-5 h-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>

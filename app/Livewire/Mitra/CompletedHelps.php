@@ -6,6 +6,7 @@ use App\Models\Help;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
+use App\Enums\HelpStatus;
 
 #[Layout('layouts.mitra')]
 class CompletedHelps extends Component
@@ -35,7 +36,7 @@ class CompletedHelps extends Component
         // Show helps assigned to this mitra that are completed OR rejected
         $query = Help::query()
             ->where('mitra_id', $user->id)
-            ->whereIn('status', ['selesai', 'rejected']);
+            ->whereIn('status', HelpStatus::expand([HelpStatus::SELESAI, HelpStatus::REJECTED]));
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -55,8 +56,8 @@ class CompletedHelps extends Component
 
         $helps = $query->with(['user', 'city', 'category'])->paginate(15);
 
-        $rejectedCount = Help::where('mitra_id', $user->id)->where('status', 'rejected')->count();
-        $completedCount = Help::where('mitra_id', $user->id)->where('status', 'selesai')->count();
+        $rejectedCount = Help::where('mitra_id', $user->id)->whereIn('status', HelpStatus::expand(HelpStatus::REJECTED))->count();
+        $completedCount = Help::where('mitra_id', $user->id)->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI))->count();
 
         return view('livewire.mitra.helps.completed-helps', [
             'helps'          => $helps,

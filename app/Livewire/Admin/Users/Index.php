@@ -7,7 +7,6 @@ use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\City;
 use App\Models\Registration;
-use App\Models\Rating;
 
 class Index extends Component
 {

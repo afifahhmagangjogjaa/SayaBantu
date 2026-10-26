@@ -3,8 +3,6 @@
 namespace App\Livewire\Admin;
 
 use App\Models\BalanceTransaction;
-use App\Models\User;
-use App\Models\UserBalance;
 use App\Notifications\TopupApproved;
 use App\Notifications\TopupRejected;
 use Livewire\Component;
@@ -203,17 +201,105 @@ class TopupApproval extends Component
 
     public function approve($transactionId)
     {
-        // Admin tidak memiliki akses untuk approve
-        session()->flash('error', 'Admin tidak memiliki akses untuk approve. Hubungi Super Admin.');
-        return;
+        $user = auth()->user();
+        $adminCityIds = ($user && $user->role === 'admin') ? $user->getAdminCityIds() : [];
+
+        $query = BalanceTransaction::where('id', $transactionId)
+            ->where('status', 'waiting_approval');
+
+        if (!empty($adminCityIds)) {
+            $query->where(function ($q) use ($adminCityIds) {
+                $q->whereHas('user', function ($sq) use ($adminCityIds) {
+                    $sq->whereIn('city_id', $adminCityIds);
+                })->orWhereHas('user', function ($sq) {
+                    $sq->whereNull('city_id');
+                });
+            });
+        }
+
+        $transaction = $query->first();
+
+        if (!$transaction) {
+            session()->flash('error', 'Request tidak valid, sudah diproses, atau di luar wilayah kelola Anda.');
+            return;
+        }
+
+        try {
+            \DB::beginTransaction();
+
+            // Update transaction status to 'completed' (BalanceTransactionObserver will automatically recalculate user balance)
+            $transaction->update([
+                'status' => 'completed',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+                'processed_at' => now(),
+            ]);
+
+            \DB::commit();
+
+            // Send notification to customer
+            if ($transaction->user) {
+                $transaction->user->notify(new TopupApproved($transaction));
+            }
+
+            session()->flash('success', 'Request top-up berhasil disetujui! Saldo customer telah ditambahkan.');
+
+            $this->closeModal();
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Error approving topup by admin: ' . $e->getMessage());
+            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function reject()
     {
-        // Admin tidak memiliki akses untuk reject
-        session()->flash('error', 'Admin tidak memiliki akses untuk reject. Hubungi Super Admin.');
-        $this->closeModal();
-        return;
+        $this->validate([
+            'rejectionReason' => 'required|string|max:500',
+        ], [
+            'rejectionReason.required' => 'Alasan penolakan harus diisi',
+        ]);
+
+        if (!$this->selectedTransaction || $this->selectedTransaction->status !== 'waiting_approval') {
+            session()->flash('error', 'Request tidak valid atau sudah diproses.');
+            return;
+        }
+
+        $user = auth()->user();
+        $adminCityIds = ($user && $user->role === 'admin') ? $user->getAdminCityIds() : [];
+
+        if (!empty($adminCityIds)) {
+            $txUserCityId = $this->selectedTransaction->user?->city_id;
+            if ($txUserCityId !== null && !in_array($txUserCityId, $adminCityIds)) {
+                session()->flash('error', 'Anda tidak memiliki hak akses untuk memproses transaksi di luar wilayah kelola.');
+                $this->closeModal();
+                return;
+            }
+        }
+
+        try {
+            // Update transaction status
+            $this->selectedTransaction->update([
+                'status' => 'rejected',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+                'rejection_reason' => $this->rejectionReason,
+            ]);
+
+            // Send notification to customer
+            if ($this->selectedTransaction->user) {
+                $this->selectedTransaction->user->notify(new TopupRejected($this->selectedTransaction));
+            }
+
+            session()->flash('success', 'Request top-up telah ditolak.');
+
+            $this->closeModal();
+
+        } catch (\Exception $e) {
+            \Log::error('Error rejecting topup by admin: ' . $e->getMessage());
+            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function render()
@@ -345,7 +431,7 @@ class TopupApproval extends Component
         $availableYears = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->where($baseCityScope)
-            ->selectRaw('YEAR(created_at) as year')
+            ->selectRaw(\App\Support\Sql::yearExpression())
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year')

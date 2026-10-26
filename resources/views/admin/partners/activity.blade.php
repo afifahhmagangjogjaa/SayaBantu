@@ -269,10 +269,11 @@
                                     <td class="px-2.5 py-2.5 whitespace-nowrap">
                                         @if($a->user)
                                             <a href="{{ route('admin.users.show', $a->user) }}"
-                                                class="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline block truncate max-w-[150px]">
+                                                title="{{ $a->user->name }}"
+                                                class="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline block truncate max-w-[180px]">
                                                 {{ $a->user->name }}
                                             </a>
-                                            <p class="text-[10px] text-gray-400 font-normal truncate max-w-[150px]">{{ $a->user->email }}</p>
+                                            <p class="text-[10px] text-gray-400 font-normal truncate max-w-[180px]" title="{{ $a->user->email }}">{{ $a->user->email }}</p>
                                         @else
                                             <span class="text-xs text-gray-400 italic">User Terhapus</span>
                                         @endif

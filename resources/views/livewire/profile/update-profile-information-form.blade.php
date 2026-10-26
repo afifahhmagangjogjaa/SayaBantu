@@ -29,7 +29,7 @@ x-on:profile-saved.window="
             
             <button @click="window.location.href = redirectUrl" 
                     class="w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95"
-                    style="background: linear-gradient(to bottom right, #0098e7, #0060b0);">
+                    style="background: linear-gradient(to bottom right, #0066FF, #003EA8);">
                 Oke
             </button>
         </div>
@@ -53,7 +53,7 @@ x-on:profile-saved.window="
         <div>
             <label class="block text-sm font-semibold text-gray-900 mb-2">
                 <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" style="color: #0098e7;" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-4 h-4" style="color: #0066FF;" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                     </svg>
                     Nama Lengkap
@@ -100,45 +100,6 @@ x-on:profile-saved.window="
             @enderror
         </div>
 
-        <!-- Place and Date of Birth -->
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label class="block text-sm font-semibold text-gray-900 mb-2">
-                    <span class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        Tempat Lahir
-                        <span class="text-red-500 font-bold">*</span>
-                    </span>
-                </label>
-                <input type="text" wire:model="place_of_birth" required
-                    class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white"
-                    placeholder="Contoh: Jakarta">
-                @error('place_of_birth')
-                    <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-900 mb-2">
-                    <span class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        Tanggal Lahir
-                        <span class="text-red-500 font-bold">*</span>
-                    </span>
-                </label>
-                <input type="date" wire:model="date_of_birth" required max="{{ now()->subYears(17)->format('Y-m-d') }}"
-                    onkeydown="return false" onclick="this.showPicker && this.showPicker()"
-                    class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white cursor-pointer">
-                @error('date_of_birth')
-                    <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-        </div>
-
         <!-- Gender (Jenis Kelamin) -->
         <div>
             <label class="block text-sm font-semibold text-gray-900 mb-2">
@@ -165,7 +126,7 @@ x-on:profile-saved.window="
         <div>
             <label class="block text-sm font-semibold text-gray-900 mb-2">
                 <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" style="color: #0098e7;" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-4 h-4" style="color: #0066FF;" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                     </svg>
@@ -223,7 +184,7 @@ x-on:profile-saved.window="
                     <span class="text-red-500 font-bold">*</span>
                 </span>
             </label>
-            <select wire:model="city_id" required
+            <select wire:model="city_id" id="profile_city_id" required
                 class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white">
                 <option value="">-- Pilih Kota --</option>
                 @foreach($cities as $city)
@@ -251,9 +212,14 @@ x-on:profile-saved.window="
                     <span class="text-red-500 font-bold">*</span>
                 </span>
             </label>
-            <textarea wire:model="address" rows="3" required
-                class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition resize-none bg-white"
-                placeholder="Jl. Merdeka No. 123, Kelurahan, Kecamatan"></textarea>
+            <x-smart-address-input 
+                wire:model="address" 
+                id="profile_address"
+                cityRef="#profile_city_id"
+                rows="3"
+                required
+                placeholder="Ketik nama jalan, kelurahan, kecamatan, atau kota..."
+            />
             @error('address')
                 <p class="mt-2 text-xs text-red-600 flex items-center gap-1">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -264,103 +230,11 @@ x-on:profile-saved.window="
             @enderror
         </div>
 
-        <!-- RT / RW (Maksimal 3 digit) -->
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label class="block text-sm font-semibold text-gray-900 mb-2">
-                    RT
-                </label>
-                <input type="text" wire:model="rt" inputmode="numeric" maxlength="3"
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3)" placeholder="001"
-                    class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white">
-                @error('rt')
-                    <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-900 mb-2">
-                    RW
-                </label>
-                <input type="text" wire:model="rw" inputmode="numeric" maxlength="3"
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3)" placeholder="002"
-                    class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white">
-                @error('rw')
-                    <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-        </div>
-
-        <!-- Religion (Agama) -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-900 mb-2">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                    Agama <span class="text-red-500">*</span>
-                </span>
-            </label>
-            <select wire:model="religion"
-                class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white">
-                <option value="">Pilih Agama</option>
-                <option value="Islam">Islam</option>
-                <option value="Kristen">Kristen (Protestan)</option>
-                <option value="Katolik">Katolik</option>
-                <option value="Hindu">Hindu</option>
-                <option value="Buddha">Buddha</option>
-                <option value="Khonghucu">Khonghucu</option>
-            </select>
-            @error('religion')
-                <p class="mt-2 text-xs text-red-600 flex items-center gap-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <!-- Occupation (Pekerjaan) -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-900 mb-2">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    Pekerjaan <span class="text-red-500">*</span>
-                </span>
-            </label>
-            <input type="text" wire:model="occupation"
-                class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white"
-                placeholder="Contoh: Karyawan Swasta, Wiraswasta, Mahasiswa">
-            @error('occupation')
-                <p class="mt-2 text-xs text-red-600 flex items-center gap-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <!-- Marital Status (Status Perkawinan) -->
-        <div>
-            <label class="block text-sm font-semibold text-gray-900 mb-2">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    Status Perkawinan <span class="text-red-500">*</span>
-                </span>
-            </label>
-            <select wire:model="marital_status"
-                class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white">
-                <option value="">Pilih Status Perkawinan</option>
-                <option value="Belum Kawin">Belum Kawin</option>
-                <option value="Kawin">Kawin</option>
-                <option value="Cerai Hidup">Cerai Hidup</option>
-                <option value="Cerai Mati">Cerai Mati</option>
-            </select>
-            @error('marital_status')
-                <p class="mt-2 text-xs text-red-600 flex items-center gap-1">{{ $message }}</p>
-            @enderror
-        </div>
-
         <!-- Submit Button -->
         <div class="pt-2">
             <button type="submit" wire:loading.attr="disabled"
                 class="w-full text-white font-semibold text-sm py-4 rounded-xl hover:shadow-lg transition active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+                style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
                 <span wire:loading.remove wire:target="updateProfileInformation" class="flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -377,4 +251,13 @@ x-on:profile-saved.window="
             </button>
         </div>
     </form>
+
+    <script>
+        window.addEventListener('smart-address-selected', function(ev) {
+            const item = ev.detail;
+            if (item && item.city && typeof @this !== 'undefined') {
+                @this.selectCityByName(item.city);
+            }
+        });
+    </script>
 </div>

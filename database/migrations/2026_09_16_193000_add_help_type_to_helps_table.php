@@ -13,7 +13,11 @@ return new class extends Migration
     {
         if (Schema::hasTable('helps') && !Schema::hasColumn('helps', 'help_type')) {
             Schema::table('helps', function (Blueprint $table) {
-                $table->string('help_type', 20)->default('scheduled')->after('category_id');
+                if (Schema::hasColumn('helps', 'category_id')) {
+                    $table->string('help_type', 20)->default('scheduled')->after('category_id');
+                } else {
+                    $table->string('help_type', 20)->default('scheduled');
+                }
             });
         }
     }

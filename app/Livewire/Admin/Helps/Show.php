@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Helps;
 use Livewire\Component;
 use App\Models\Help;
 use App\Models\User;
+use App\Enums\HelpStatus;
 
 class Show extends Component
 {
@@ -54,14 +55,14 @@ class Show extends Component
 
     public function approveHelp()
     {
-        $this->help->update(['status' => 'menunggu_mitra']);
+        $this->help->update(['status' => HelpStatus::MENUNGGU_MITRA->value]);
         $this->loadHelp();
         session()->flash('message', 'Bantuan berhasil disetujui, menunggu mitra.');
     }
 
     public function rejectHelp()
     {
-        $this->help->update(['status' => 'rejected']);
+        $this->help->update(['status' => HelpStatus::REJECTED->value]);
         $this->loadHelp();
         session()->flash('message', 'Bantuan telah ditolak.');
     }

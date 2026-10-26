@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style Standar Bawaan -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
             
@@ -18,15 +18,7 @@
                         <p class="text-xs text-white/90 mt-0.5">{{ $unreadCount }} belum dibaca</p>
                     </div>
 
-                    @if($unreadCount > 0)
-                        <button type="button" wire:click="markAllAsRead" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center text-white" title="Tandai semua dibaca">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </button>
-                    @else
-                        <div class="w-9"></div>
-                    @endif
+                    <div class="w-9"></div>
                 </div>
             </div>
 
@@ -69,12 +61,12 @@
                 <div class="flex gap-2 overflow-x-auto pb-1">
                     <button type="button" wire:click="setFilter('all')"
                         class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $filter === 'all' ? 'text-white shadow-sm' : 'text-gray-600 bg-gray-100 hover:bg-gray-200' }}"
-                        style="{{ $filter === 'all' ? 'background: linear-gradient(to bottom right, #0098e7, #0060b0);' : '' }}">
+                        style="{{ $filter === 'all' ? 'background: linear-gradient(to bottom right, #0066FF, #003EA8);' : '' }}">
                         Semua ({{ $totalCount }})
                     </button>
                     <button type="button" wire:click="setFilter('unread')"
                         class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $filter === 'unread' ? 'text-white shadow-sm' : 'text-gray-600 bg-gray-100 hover:bg-gray-200' }}"
-                        style="{{ $filter === 'unread' ? 'background: linear-gradient(to bottom right, #0098e7, #0060b0);' : '' }}">
+                        style="{{ $filter === 'unread' ? 'background: linear-gradient(to bottom right, #0066FF, #003EA8);' : '' }}">
                         Belum Dibaca @if($unreadCount > 0) <span class="ml-1 bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[10px] font-bold">{{ $unreadCount }}</span> @endif
                     </button>
                 </div>
@@ -112,13 +104,13 @@
                             if ($isSanction) {
                                 $warningLevel = (int) ($data['warning_level'] ?? 1);
                                 if ($warningLevel === 0) {
-                                    $titleText = '✅ Surat Peringatan Dicabut';
+                                    $titleText = '✓ Surat Peringatan Dicabut';
                                     $bodyText = $data['message'] ?? 'Surat Peringatan pada akun Anda telah resmi dicabut oleh Admin. Status akun Anda kini kembali normal. Ketuk Lihat Detail Surat untuk membaca surat pencabutan selengkapnya.';
                                 } else {
                                     $titleText = match ($warningLevel) {
-                                        1 => '⚠️ Surat Peringatan 1',
-                                        2 => '⚠️ Surat Peringatan 2',
-                                        3 => '⛔ Surat Peringatan 3 - Akun Dinonaktifkan',
+                                        1 => '⚠️ï¸ Surat Peringatan 1',
+                                        2 => '⚠️ï¸ Surat Peringatan 2',
+                                        3 => 'â›” Surat Peringatan 3 - Akun Dinonaktifkan',
                                         default => 'Surat Peringatan Resmi',
                                     };
                                     $bodyText = 'Anda menerima sanksi Surat Peringatan ' . $warningLevel . ' resmi dari SayaBantu. Ketuk Lihat Detail Surat untuk membaca surat selengkapnya.';
@@ -167,9 +159,7 @@
                                         </div>
                                     </div>
                                 @else
-                                    <div class="flex-shrink-0 mt-1">
-                                        <input type="checkbox" wire:model.live="selected" value="{{ $notification->id }}" class="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 cursor-pointer" aria-label="Pilih notifikasi">
-                                    </div>
+                                    {{-- Checkbox dihapus: pilih lewat tombol Pilih Semua di atas --}}
                                 @endif
 
                                 <div class="flex-shrink-0 mt-0.5">
@@ -274,18 +264,13 @@
                     </div>
                 @endif
             @else
-                <div class="text-center py-16">
-                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m4 0h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-base font-bold text-gray-800 mb-1">
-                        {{ $filter === 'unread' ? 'Semua Notifikasi Sudah Dibaca' : 'Belum Ada Notifikasi' }}
-                    </h3>
-                    <p class="text-xs text-gray-500">Notifikasi aktivitas dan pesanan Anda akan muncul di sini</p>
-                </div>
+                <x-empty-state 
+                    :title="$filter === 'unread' ? 'Semua Notifikasi Sudah Dibaca' : 'Belum Ada Notifikasi'" 
+                    description="Notifikasi order bantuan, penarikan saldo, dan akun Anda akan muncul di sini." 
+                    icon="bell" 
+                />
             @endif
         </div>
     </div>
 </div>
+

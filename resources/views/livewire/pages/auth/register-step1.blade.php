@@ -10,12 +10,8 @@ use Livewire\Volt\Component;
 new #[Layout('layouts.guest')] class extends Component {
     public string $nik = '';
     public string $full_name = '';
-    public string $place_of_birth = '';
-    public string $date_of_birth = '';
     public string $gender = '';
     public string $address = '';
-    public string $rt = '';
-    public string $rw = '';
     public string $kelurahan = '';
     public string $kecamatan = '';
     public string $city = '';
@@ -68,7 +64,19 @@ new #[Layout('layouts.guest')] class extends Component {
     public function fetchDistricts($cityCode)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/districts/{$cityCode}.json");
+            // 1. Cek dari master lokal terlebih dahulu (Instan 0ms & 100% Offline)
+            $master = \App\Support\JsonMaster::districts();
+            foreach ([$cityCode, $this->city_id, $this->city ? strtoupper(trim($this->city)) : null] as $lookupKey) {
+                $found = \App\Support\JsonMaster::find($master, $lookupKey);
+                if ($found !== []) {
+                    $this->apiDistricts = $found;
+                    return;
+                }
+            }
+
+            // 2. Fallback via HTTP wilayah.id API dengan kode berformat titik (XX.YY)
+            $cleanCode = (strlen($cityCode) === 4 && !str_contains($cityCode, '.')) ? substr($cityCode, 0, 2) . '.' . substr($cityCode, 2, 2) : $cityCode;
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/districts/{$cleanCode}.json");
             if ($response->successful()) {
                 $this->apiDistricts = $response->json('data') ?? [];
             }
@@ -172,6 +180,45 @@ new #[Layout('layouts.guest')] class extends Component {
         $this->kelurahan = $vill ? $vill['name'] : '';
     }
 
+    public function selectCityByName($cityName, $provinceName = '', $districtName = '')
+    {
+        if (empty($cityName)) return;
+
+        $cleanCity = trim(preg_replace('/\b(KOTA|KABUPATEN|KAB|ADM|ADMINISTRASI)\b/i', '', $cityName));
+        $cleanProv = trim(preg_replace('/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|PROVINSI|DI|DKI)\b/i', '', $provinceName));
+
+        $matchedCity = City::all()->first(function ($c) use ($cleanCity, $cleanProv) {
+            $cName = trim(preg_replace('/\b(KOTA|KABUPATEN|KAB|ADM|ADMINISTRASI)\b/i', '', $c->name));
+            $pName = trim(preg_replace('/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|PROVINSI|DI|DKI)\b/i', '', $c->province ?? ''));
+
+            $cityMatch = stripos($cName, $cleanCity) !== false || stripos($cleanCity, $cName) !== false;
+            if (!$cityMatch) return false;
+
+            if ($cleanProv && $pName) {
+                return stripos($pName, $cleanProv) !== false || stripos($cleanProv, $pName) !== false;
+            }
+            return true;
+        });
+
+        if ($matchedCity) {
+            $this->city_id = $matchedCity->id;
+            $this->city = $matchedCity->name;
+            $this->province = $matchedCity->province ?? '';
+            $this->updatedCityId($matchedCity->id);
+
+            if (!empty($districtName) && !empty($this->apiDistricts)) {
+                $cleanDist = strtolower(trim($districtName));
+                foreach ($this->apiDistricts as $d) {
+                    if (stripos(strtolower($d['name']), $cleanDist) !== false || stripos($cleanDist, strtolower($d['name'])) !== false) {
+                        $this->selectedDistrictCode = $d['code'];
+                        $this->updatedSelectedDistrictCode($d['code']);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     // Preload saved registration values if a registration UUID exists in session
     public function mount(): void
     {
@@ -189,12 +236,8 @@ new #[Layout('layouts.guest')] class extends Component {
 
         $this->nik = $registration->nik ?? $this->nik;
         $this->full_name = $registration->full_name ?? $this->full_name;
-        $this->place_of_birth = $registration->place_of_birth ?? $this->place_of_birth;
-        $this->date_of_birth = $registration->date_of_birth ?? $this->date_of_birth;
         $this->gender = $registration->gender ?? $this->gender;
         $this->address = $registration->address ?? $this->address;
-        $this->rt = $registration->rt ?? $this->rt;
-        $this->rw = $registration->rw ?? $this->rw;
         $this->kelurahan = $registration->kelurahan ?? $this->kelurahan;
         $this->kecamatan = $registration->kecamatan ?? $this->kecamatan;
         $this->city = $registration->city ?? $this->city;
@@ -237,19 +280,12 @@ new #[Layout('layouts.guest')] class extends Component {
     {
         $this->nik = preg_replace('/[^0-9]/', '', (string) $this->nik);
         $this->full_name = preg_replace('/[^a-zA-Z\s]/', '', (string) $this->full_name);
-        $this->place_of_birth = preg_replace('/[^a-zA-Z\s]/', '', (string) $this->place_of_birth);
-        if ($this->rt) $this->rt = preg_replace('/[^0-9]/', '', (string) $this->rt);
-        if ($this->rw) $this->rw = preg_replace('/[^0-9]/', '', (string) $this->rw);
 
         $validated = $this->validate([
             'nik' => ['required', 'string', 'size:16', 'regex:/^[0-9]+$/'],
             'full_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
-            'place_of_birth' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s]+$/'],
-            'date_of_birth' => ['required', 'date', 'before_or_equal:' . now()->subYears(17)->format('Y-m-d')],
             'gender' => ['required', 'in:Laki-laki,Perempuan'],
             'address' => ['required', 'string', 'max:500'],
-            'rt' => ['nullable', 'string', 'max:3', 'regex:/^[0-9]+$/'],
-            'rw' => ['nullable', 'string', 'max:3', 'regex:/^[0-9]+$/'],
             'city_id' => ['required', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
             'city' => ['nullable', 'string', 'max:100'],
             'province' => ['required', 'string', 'max:100'],
@@ -259,13 +295,10 @@ new #[Layout('layouts.guest')] class extends Component {
             'nik.size' => 'NIK harus tepat 16 digit angka.',
             'nik.regex' => 'NIK hanya boleh berupa angka.',
             'full_name.regex' => 'Nama lengkap hanya boleh berisi huruf dan spasi.',
-            'place_of_birth.regex' => 'Tempat lahir hanya boleh berupa huruf dan spasi.',
             'city_id.required' => 'Kota / Kabupaten domisili wajib dipilih.',
             'city_id.exists' => 'Kota yang dipilih saat ini sedang tidak aktif.',
-            'kecamatan.required' => 'Kecamatan wajib dipilih.',
-            'kelurahan.required' => 'Kelurahan / Desa wajib dipilih.',
-            'rt.max' => 'RT maksimal 3 karakter.',
-            'rw.max' => 'RW maksimal 3 karakter.',
+            'kecamatan.required' => 'Kecamatan domisili wajib dipilih.',
+            'kelurahan.required' => 'Kelurahan / Desa domisili wajib dipilih.',
         ]);
 
         // Simpan atau update record registration di database
@@ -383,46 +416,12 @@ new #[Layout('layouts.guest')] class extends Component {
             <x-input-error :messages="$errors->get('gender')" class="mt-1" />
         </div>
 
-        <!-- Alamat -->
-        <div>
-            <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Alamat Lengkap <span class="text-red-500">*</span></label>
-            <textarea wire:model="address" id="address" rows="3" placeholder="Jalan, nomor rumah, gedung, dll."
-                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"></textarea>
-            <x-input-error :messages="$errors->get('address')" class="mt-1" />
-        </div>
-
-        <!-- RT/RW (Maks 3 digit - Opsional) -->
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label for="rt" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">RT <span class="text-gray-400 font-normal">(Opsional)</span></label>
-                <input wire:model="rt" id="rt" type="text" inputmode="numeric" maxlength="3"
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3)" placeholder="001"
-                    class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-                <x-input-error :messages="$errors->get('rt')" class="mt-1" />
-            </div>
-            <div>
-                <label for="rw" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">RW <span class="text-gray-400 font-normal">(Opsional)</span></label>
-                <input wire:model="rw" id="rw" type="text" inputmode="numeric" maxlength="3"
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3)" placeholder="002"
-                    class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-                <x-input-error :messages="$errors->get('rw')" class="mt-1" />
-            </div>
-        </div>
-
-        <!-- Provinsi (Otomatis) -->
-        <div>
-            <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Provinsi</label>
-            <input wire:model="province" id="province" type="text" readonly placeholder="Otomatis terisi dari kota yang dipilih"
-                class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-600 text-sm cursor-not-allowed focus:outline-none font-medium">
-            <x-input-error :messages="$errors->get('province')" class="mt-1" />
-        </div>
-
-        <!-- Kota/Kabupaten (Dropdown Kota Aktif di DB) -->
+        <!-- Kota/Kabupaten Domisili (Dropdown Kota Aktif di DB) -->
         <div>
             <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kota / Kabupaten Domisili <span class="text-red-500">*</span></label>
             <select wire:model.live="city_id" id="city_id"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-                <option value="">-- Pilih Kota / Kabupaten --</option>
+                <option value="">-- Pilih Kota / Kabupaten Domisili --</option>
                 @foreach ($cities as $c)
                     <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->province ?? 'Indonesia' }})</option>
                 @endforeach
@@ -430,13 +429,21 @@ new #[Layout('layouts.guest')] class extends Component {
             <x-input-error :messages="$errors->get('city_id')" class="mt-1" />
         </div>
 
-        <!-- Kecamatan (Dropdown API) -->
+        <!-- Provinsi Domisili (Otomatis) -->
         <div>
-            <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kecamatan <span class="text-red-500">*</span></label>
+            <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Provinsi Domisili</label>
+            <input wire:model="province" id="province" type="text" readonly placeholder="Otomatis terisi dari kota yang dipilih"
+                class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-600 text-sm cursor-not-allowed focus:outline-none font-medium">
+            <x-input-error :messages="$errors->get('province')" class="mt-1" />
+        </div>
+
+        <!-- Kecamatan Domisili (Dropdown API) -->
+        <div>
+            <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kecamatan Domisili <span class="text-red-500">*</span></label>
             <select wire:model.live="selectedDistrictCode" id="kecamatan"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"
                 {{ empty($apiDistricts) ? 'disabled' : '' }}>
-                <option value="">{{ empty($city_id) ? '-- Pilih Kota Terlebih Dahulu --' : (empty($apiDistricts) ? '-- Memuat Kecamatan... --' : '-- Pilih Kecamatan --') }}</option>
+                <option value="">{{ empty($city_id) ? '-- Pilih Kota Domisili Terlebih Dahulu --' : (empty($apiDistricts) ? '-- Memuat Kecamatan... --' : '-- Pilih Kecamatan Domisili --') }}</option>
                 @foreach ($apiDistricts as $d)
                     <option value="{{ $d['code'] }}">{{ $d['name'] }}</option>
                 @endforeach
@@ -444,13 +451,13 @@ new #[Layout('layouts.guest')] class extends Component {
             <x-input-error :messages="$errors->get('kecamatan')" class="mt-1" />
         </div>
 
-        <!-- Kelurahan/Desa (Dropdown API) -->
+        <!-- Kelurahan/Desa Domisili (Dropdown API) -->
         <div>
-            <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kelurahan / Desa <span class="text-red-500">*</span></label>
+            <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kelurahan / Desa Domisili <span class="text-red-500">*</span></label>
             <select wire:model.live="selectedVillageCode" id="kelurahan"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"
                 {{ empty($apiVillages) ? 'disabled' : '' }}>
-                <option value="">{{ empty($selectedDistrictCode) ? '-- Pilih Kecamatan Terlebih Dahulu --' : (empty($apiVillages) ? '-- Memuat Kelurahan... --' : '-- Pilih Kelurahan / Desa --') }}</option>
+                <option value="">{{ empty($selectedDistrictCode) ? '-- Pilih Kecamatan Domisili Terlebih Dahulu --' : (empty($apiVillages) ? '-- Memuat Kelurahan... --' : '-- Pilih Kelurahan / Desa Domisili --') }}</option>
                 @foreach ($apiVillages as $v)
                     <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
                 @endforeach
@@ -458,11 +465,24 @@ new #[Layout('layouts.guest')] class extends Component {
             <x-input-error :messages="$errors->get('kelurahan')" class="mt-1" />
         </div>
 
+        <!-- Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) -->
+        <div>
+            <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) <span class="text-red-500">*</span></label>
+            <x-smart-address-input 
+                wire:model="address" 
+                id="address" 
+                cityRef="#city_id"
+                rows="3" 
+                placeholder="Ketik nama jalan, nomor rumah, RT/RW, atau gunakan saran cerdas..."
+            />
+            <x-input-error :messages="$errors->get('address')" class="mt-1" />
+        </div>
+
         <!-- Next Button -->
         <div class="pt-5 pb-3">
             <button type="submit" wire:loading.attr="disabled"
                 class="w-full bg-primary-500 hover:bg-primary-600 active:scale-98 text-white font-bold py-3.5 rounded-full shadow-md hover:shadow-lg transition text-base tracking-wide disabled:opacity-50"
-                style="background-color: #0098e7;">
+                style="background-color: #0066FF;">
                 <span wire:loading.remove>Lanjutkan</span>
                 <span wire:loading>Memproses...</span>
             </button>
@@ -472,7 +492,7 @@ new #[Layout('layouts.guest')] class extends Component {
     <script>
         (function () {
             const prefix = 'registration_step1_';
-            const fields = ['nik', 'full_name', 'place_of_birth', 'date_of_birth', 'gender', 'address', 'rt', 'rw', 'kelurahan', 'kecamatan', 'city_id', 'city', 'province'];
+            const fields = ['nik', 'full_name', 'gender', 'address', 'kelurahan', 'kecamatan', 'city_id', 'city', 'province'];
 
             window.addEventListener('DOMContentLoaded', () => {
                 try {
@@ -499,6 +519,14 @@ new #[Layout('layouts.guest')] class extends Component {
 
             document.addEventListener('clear-registration-step1', () => {
                 try { fields.forEach(name => localStorage.removeItem(prefix + name)); } catch (e) {}
+            });
+
+            // Listen to smart address selection and auto-match city in Livewire
+            window.addEventListener('smart-address-selected', (ev) => {
+                const item = ev.detail;
+                if (item && item.city && typeof @this !== 'undefined') {
+                    @this.selectCityByName(item.city, item.province || '', item.district || '');
+                }
             });
         })();
     </script>

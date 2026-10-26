@@ -11,6 +11,7 @@ use App\Services\LocationTrackingService;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Schema;
+use App\Enums\HelpStatus;
 
 #[Layout('layouts.mitra')]
 class AllHelps extends Component
@@ -18,16 +19,24 @@ class AllHelps extends Component
     use WithPagination;
 
     protected $queryString = [
+        'tab' => ['except' => 'semua'],
         'search' => ['except' => ''],
         'filterStatus' => ['except' => 'all'],
         'sortBy' => ['except' => 'latest'],
     ];
 
+    public string $tab = 'semua'; // semua, tersedia, proses, selesai
     public $search = '';
     public $filterStatus = 'all'; // all, menunggu_mitra
     public $sortBy = 'latest'; // latest, oldest, nearby, price_high, price_low
     public $userLat = null;
     public $userLng = null;
+
+    public function setTab(string $tab): void
+    {
+        $this->tab = in_array($tab, ['semua', 'tersedia', 'proses', 'selesai']) ? $tab : 'semua';
+        $this->resetPage();
+    }
 
     public function mount()
     {
@@ -54,11 +63,18 @@ class AllHelps extends Component
         $this->userLat = (float) $lat;
         $this->userLng = (float) $lng;
 
-        if (auth()->check()) {
-            auth()->user()->update([
-                'latitude' => $lat,
-                'longitude' => $lng,
-            ]);
+        try {
+            if (auth()->check()) {
+                $columns = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+                $updateData = [];
+                if (in_array('latitude', $columns)) $updateData['latitude'] = $lat;
+                if (in_array('longitude', $columns)) $updateData['longitude'] = $lng;
+                if (!empty($updateData)) {
+                    auth()->user()->update($updateData);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Ignore jika kolom tidak ada di tabel users
         }
 
         $this->resetPage();
@@ -69,10 +85,6 @@ class AllHelps extends Component
         $user = auth()->user();
         \App\Services\KtpVerificationNoticeService::ensurePromptNotification($user);
 
-        try {
-            Help::cancelExpiredUrgentHelps();
-        } catch (\Throwable $e) {}
-
         $isMitraShadowBanned = $user ? $user->isShadowBanned() : false;
 
         $userCity = ($user && $user->city_id) ? \App\Models\City::find($user->city_id) : null;
@@ -80,6 +92,7 @@ class AllHelps extends Component
         $effectiveLng = $this->userLng ?: ($user && $user->longitude ? (float) $user->longitude : ($userCity ? (float) $userCity->longitude : null));
 
         $query = Help::query()
+            ->notCancelledByMitra($user?->id)
             ->whereDoesntHave('user', function ($q) {
                 $q->where('is_shadow_banned', true);
             });
@@ -111,12 +124,31 @@ class AllHelps extends Component
             }
         }
 
-        // Filter berdasarkan status
-        if ($this->filterStatus === 'menunggu_mitra') {
+        // Filter berdasarkan tab (Gambar 1: Semua, Tersedia, Dalam Proses, Selesai)
+        $inProgressStatuses = [
+            'taken', 'partner_on_the_way', 'partner_arrived', 'in_progress', 
+            'sedang_diproses', 'diproses_mitra', 'waiting_customer_confirmation'
+        ];
+
+        if ($this->tab === 'tersedia') {
             $query->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+        } elseif ($this->tab === 'proses') {
+            $query->where('mitra_id', $user?->id)->whereIn('status', $inProgressStatuses);
+        } elseif ($this->tab === 'selesai') {
+            $query->where('mitra_id', $user?->id)->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI));
         } else {
-            // Tampilkan semua bantuan dari semua customer
-            $query->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+            // 'semua'
+            $query->where(function($q) use ($user, $inProgressStatuses) {
+                $q->where(function($sq) use ($user) {
+                    $sq->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+                });
+                if ($user) {
+                    $q->orWhere(function($sq) use ($user, $inProgressStatuses) {
+                        $sq->where('mitra_id', $user->id)
+                           ->whereIn('status', array_merge($inProgressStatuses, HelpStatus::expand(HelpStatus::SELESAI)));
+                    });
+                }
+            });
         }
 
         // Search berdasarkan judul, deskripsi, lokasi, alamat, nama pelanggan, kota, atau kategori
@@ -192,16 +224,16 @@ class AllHelps extends Component
 
         // Cek apakah mitra sedang terkena shadow ban
         if ($user && $user->isShadowBanned()) {
-            session()->flash('error', 'Tidak dapat mengambil bantuan saat ini.');
+            $this->dispatch('livewire-flash-error', 'Tidak dapat mengambil bantuan saat ini.');
             return;
         }
 
         // Cek kuota order mitra (belum verifikasi email = maks 2 order, sudah verifikasi = unlimited)
         if (!$user->canTakeMoreOrders()) {
             if (!$user->hasVerifiedEmail()) {
-                session()->flash('error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.');
+                $this->dispatch('livewire-flash-error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.');
             } else {
-                session()->flash('error', 'Anda telah mencapai batas maksimal order yang dapat diambil.');
+                $this->dispatch('livewire-flash-error', 'Anda telah mencapai batas maksimal order yang dapat diambil.');
             }
             return;
         }
@@ -209,58 +241,59 @@ class AllHelps extends Component
         // Cek kelengkapan biodata
         if (!$user->isProfileComplete()) {
             $missing = implode(', ', optional($user)->getMissingProfileFields() ?? []);
-            session()->flash('error', "Harap lengkapi biodata profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.");
+            $this->dispatch('livewire-flash-error', "Harap lengkapi biodata profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.");
             return $this->redirectRoute('mitra.profile.edit', navigate: true);
         }
 
         // Cek verifikasi KTP oleh admin
         if (!$user->verified) {
-            session()->flash('error', 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi disetujui sebelum dapat mengambil bantuan.');
+            $this->dispatch('livewire-flash-error', 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi disetujui sebelum dapat mengambil bantuan.');
             return;
         }
 
         $help = Help::with('user')->findOrFail($helpId);
 
         if ($help->isExpired() || $help->status !== 'menunggu_mitra') {
-            if ($help->isExpired()) {
-                Help::cancelExpiredUrgentHelps();
-            }
-            session()->flash('error', 'Maaf, batas waktu pencarian mitra untuk bantuan ini sudah habis atau bantuan sudah tidak tersedia.');
+            $this->dispatch('livewire-flash-error', 'Maaf, batas waktu pencarian mitra untuk bantuan ini sudah habis atau bantuan sudah tidak tersedia.');
             return;
         }
 
         if ($help->wasCancelledByMitra(auth()->id())) {
-            session()->flash('error', 'Anda tidak bisa mengambil bantuan ini karena sudah pernah dibatalkan.');
+            $this->dispatch('livewire-flash-error', 'Anda tidak bisa mengambil bantuan ini karena sudah pernah dibatalkan.');
             return;
         }
 
         if ($help->user && $help->user->isShadowBanned()) {
-            session()->flash('error', 'Bantuan ini sudah tidak tersedia.');
+            $this->dispatch('livewire-flash-error', 'Bantuan ini sudah tidak tersedia.');
             return;
         }
 
         if ($help->mitra_id) {
-            session()->flash('error', 'Bantuan ini sudah diambil oleh mitra lain.');
+            $this->dispatch('livewire-flash-error', 'Bantuan ini sudah diambil oleh mitra lain.');
             return;
         }
 
         // Cek apakah jarak melebihi batas maksimal radius mitra
         $maxRadius = (float) AppSetting::get('mitra_max_distance_km', AppSetting::get('max_help_radius_km', 10));
         $userCity = ($user && $user->city_id) ? \App\Models\City::find($user->city_id) : null;
-        $checkLat = $latitude ?: (($user && \Illuminate\Support\Facades\Schema::hasColumn('users', 'latitude') && $user->latitude) ? (float) $user->latitude : ($userCity ? (float) $userCity->latitude : null));
-        $checkLng = $longitude ?: (($user && \Illuminate\Support\Facades\Schema::hasColumn('users', 'longitude') && $user->longitude) ? (float) $user->longitude : ($userCity ? (float) $userCity->longitude : null));
+
+        // Gunakan koordinat kota mitra sebagai patokan (bukan GPS browser yang bisa beda kota)
+        // GPS latitude/longitude dari parameter hanya dipakai jika kolom tersedia di tabel users
+        $hasLatCol = \Illuminate\Support\Facades\Schema::hasColumn('users', 'latitude');
+        $checkLat = ($hasLatCol && $user && $user->latitude) ? (float) $user->latitude : ($userCity ? (float) $userCity->latitude : null);
+        $checkLng = ($hasLatCol && $user && $user->longitude) ? (float) $user->longitude : ($userCity ? (float) $userCity->longitude : null);
 
         if ($checkLat && $checkLng && $help->latitude && $help->longitude) {
             $dist = 6371 * acos(min(1.0, max(-1.0, cos(deg2rad((float)$checkLat)) * cos(deg2rad((float)$help->latitude)) * cos(deg2rad((float)$help->longitude) - deg2rad((float)$checkLng)) + sin(deg2rad((float)$checkLat)) * sin(deg2rad((float)$help->latitude)))));
-            if ($dist > $maxRadius) {
-                session()->flash('error', "Jarak bantuan ini (" . number_format($dist, 1) . " km) melebihi batas maksimal radius {$maxRadius} km.");
+            if ($dist > $maxRadius && (!$user || !$user->city_id || $user->city_id != $help->city_id)) {
+                $this->dispatch('livewire-flash-error', 'Jarak bantuan ini (' . number_format($dist, 1) . ' km) melebihi batas maksimal radius ' . $maxRadius . ' km.');
                 return;
             }
         }
 
         $help->update([
             'mitra_id' => auth()->id(),
-            'status' => 'taken',
+            'status' => HelpStatus::MEMPEROLEH_MITRA->value,
             'taken_at' => now(),
         ]);
 

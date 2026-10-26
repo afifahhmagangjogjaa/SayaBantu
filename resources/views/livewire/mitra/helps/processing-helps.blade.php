@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white" wire:poll.10s>
+<div class="min-h-screen bg-white" wire:poll.20s.visible>
     <style>
         .header-pattern {
             position: relative;
@@ -28,7 +28,7 @@
 
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
             
@@ -61,7 +61,7 @@
                     </button>
 
                     <button type="button" wire:click="switchTab('selesai')"
-                        class="flex-1 text-center py-1.5 px-2 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $tab === 'selesai' ? 'bg-white text-[#0098e7] shadow-md' : 'text-white hover:bg-white/20' }}">
+                        class="flex-1 text-center py-1.5 px-2 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $tab === 'selesai' ? 'bg-white text-[#0066FF] shadow-md' : 'text-white hover:bg-white/20' }}">
                         <span>Selesai</span>
                     </button>
 
@@ -93,7 +93,7 @@
             <div class="mb-4">
                 <div class="relative">
                     <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari bantuan, pelanggan, atau lokasi..."
-                        class="w-full pl-9 pr-9 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-[#0098e7] focus:bg-white focus:outline-none transition">
+                        class="w-full pl-9 pr-9 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-[#0066FF] focus:bg-white focus:outline-none transition">
                     <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
@@ -107,39 +107,36 @@
 
             <!-- Empty State -->
             @if($helps->isEmpty())
-                <div class="text-center py-16 bg-gray-50/60 rounded-2xl border border-gray-100 p-6">
-                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-white flex items-center justify-center shadow-sm">
-                        @if(!empty($search))
-                            <span class="text-2xl">🔍</span>
-                        @elseif($tab === 'diproses')
-                            <span class="text-2xl">⚡</span>
-                        @elseif($tab === 'selesai')
-                            <span class="text-2xl">🎉</span>
-                        @else
-                            <span class="text-2xl">📋</span>
-                        @endif
-                    </div>
-                    @if(!empty($search))
-                        <h3 class="text-sm font-bold text-gray-800">Tidak Ada Hasil Ditemukan</h3>
-                        <p class="text-xs text-gray-500 mt-1 max-w-xs mx-auto">Tidak ditemukan pekerjaan dengan kata kunci "{{ $search }}".</p>
-                        <button type="button" wire:click="$set('search', '')" class="inline-flex items-center gap-1.5 mt-3.5 px-3.5 py-1.5 bg-white text-gray-700 text-xs font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 transition shadow-2xs">
-                            Reset Pencarian
-                        </button>
-                    @elseif($tab === 'diproses')
-                        <h3 class="text-sm font-bold text-gray-800">Tidak Ada Tugas Berjalan</h3>
-                        <p class="text-xs text-gray-500 mt-1 max-w-xs mx-auto">Anda belum mengambil tugas baru. Jelajahi menu Cari untuk menemukan bantuan tersedia!</p>
-                        <a href="{{ route('mitra.helps.all') }}" class="inline-flex items-center gap-1.5 mt-4 px-4 py-2 bg-[#0098e7] text-white text-xs font-semibold rounded-xl shadow-sm hover:bg-[#0086cc] transition">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            Cari Bantuan Tersedia
-                        </a>
-                    @elseif($tab === 'selesai')
-                        <h3 class="text-sm font-bold text-gray-800">Belum Ada Riwayat Selesai</h3>
-                        <p class="text-xs text-gray-500 mt-1">Pekerjaan yang telah berhasil Anda selesaikan akan tercatat rapi di sini.</p>
-                    @else
-                        <h3 class="text-sm font-bold text-gray-800">Tidak Ada Bantuan Dibatalkan</h3>
-                        <p class="text-xs text-gray-500 mt-1">Bagus! Belum ada tugas yang dibatalkan atau ditolak.</p>
-                    @endif
-                </div>
+                @if(!empty($search))
+                    <x-empty-state 
+                        icon="search" 
+                        title="Tidak Ada Hasil Ditemukan" 
+                        description="Tidak ditemukan pekerjaan dengan kata kunci {{ $search }}." 
+                        actionText="Reset Pencarian" 
+                        actionWireClick="$set('search', '')" 
+                        actionType="secondary" 
+                    />
+                @elseif($tab === 'diproses')
+                    <x-empty-state 
+                        icon="clipboard" 
+                        title="Tidak Ada Tugas Berjalan" 
+                        description="Anda belum mengambil tugas baru. Jelajahi menu Cari untuk menemukan bantuan tersedia!" 
+                        actionText="Cari Bantuan Tersedia" 
+                        :actionUrl="route('mitra.helps.all')" 
+                    />
+                @elseif($tab === 'selesai')
+                    <x-empty-state 
+                        icon="check-circle" 
+                        title="Belum Ada Riwayat Selesai" 
+                        description="Pekerjaan yang telah berhasil Anda selesaikan akan tercatat rapi di sini." 
+                    />
+                @else
+                    <x-empty-state 
+                        icon="inbox" 
+                        title="Tidak Ada Bantuan Dibatalkan" 
+                        description="Bagus! Belum ada tugas yang dibatalkan atau ditolak." 
+                    />
+                @endif
             @else
                 <!-- Help Cards List -->
                 <div class="space-y-3">
@@ -160,7 +157,7 @@
                                             @if($tab === 'dibatalkan')
                                                 🚫
                                             @elseif($tab === 'selesai')
-                                                ✅
+                                                ✓
                                             @else
                                                 {{ $help->category?->icon ?? '📦' }}
                                             @endif
@@ -187,7 +184,7 @@
                                         @if($tab === 'diproses')
                                             @if($help->status === 'waiting_customer_confirmation')
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                                    ⏳ Menunggu Konfirmasi Customer
+                                                    â³ Menunggu Konfirmasi Customer
                                                 </span>
                                                 @php
                                                     $mDeadline = $help->getCustomerConfirmationDeadline();
@@ -199,14 +196,14 @@
                                                 @endif
                                             @elseif($help->status === 'partner_cancel_requested')
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                                                    ⚠️ Permintaan Batal Diajukan
+                                                    ⚠️ï¸ Permintaan Batal Diajukan
                                                 </span>
                                             @elseif($help->isScheduled() && !$help->canPartnerStartJourney())
                                                 @php
                                                     $schedDays = (int) now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($help->scheduled_at)->startOfDay(), false);
                                                 @endphp
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                                    ⏳ Terjadwal {{ $schedDays > 0 ? "(H-{$schedDays})" : '(Hari Ini)' }}
+                                                    â³ Terjadwal {{ $schedDays > 0 ? "(H-{$schedDays})" : '(Hari Ini)' }}
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
@@ -274,7 +271,7 @@
                                         </div>
                                     @endif
 
-                                    <p class="text-xs text-gray-600 line-clamp-1 mb-2">📍 {{ $help->location ?? optional($help->city)->name ?? '-' }}</p>
+                                    <p class="text-xs text-gray-600 line-clamp-1 mb-2"><svg class="w-3.5 h-3.5 inline text-gray-400 -mt-0.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->location ?? optional($help->city)->name ?? '-' }}</p>
 
                                     <!-- Bottom Action Strip -->
                                     <div class="flex items-center justify-between gap-3 pt-2 border-t border-gray-100">
@@ -282,7 +279,7 @@
                                         <div class="flex items-center gap-1.5">
                                             @if($tab === 'diproses')
                                                 <a href="{{ route('mitra.chat', ['help' => $help->id]) }}" 
-                                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0098e7] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" 
+                                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" 
                                                     title="Chat Customer" aria-label="Chat Customer">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -41,7 +41,9 @@ return new class extends Migration
         });
 
         // Update enum status - hati-hati, ini akan mengubah enum existing
-        DB::statement("ALTER TABLE balance_transactions MODIFY COLUMN status ENUM('pending', 'waiting_approval', 'approved', 'completed', 'rejected', 'failed') DEFAULT 'pending'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE balance_transactions MODIFY COLUMN status ENUM('pending', 'waiting_approval', 'approved', 'completed', 'rejected', 'failed') DEFAULT 'pending'");
+        }
     }
 
     /**

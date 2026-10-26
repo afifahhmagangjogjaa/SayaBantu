@@ -9,7 +9,6 @@ use App\Notifications\TopupRequestSubmitted;
 use App\Notifications\NewTopupRequest;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\Storage;
 
 class TopupRequest extends Component
 {

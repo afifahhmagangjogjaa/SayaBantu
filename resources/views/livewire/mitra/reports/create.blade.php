@@ -1,6 +1,6 @@
 <div class="min-h-screen bg-gray-50">
     <!-- Header - BRImo style -->
-    <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0098e7, #0077cc, #0060b0);">
+    <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
 
@@ -332,11 +332,11 @@
                                 </div>
                                 @if($isRes)
                                     <span class="px-2.5 py-1 text-[11px] font-bold text-emerald-800 bg-emerald-100 rounded-full flex-shrink-0">
-                                        ✅ Selesai
+                                        ✓ Selesai
                                     </span>
                                 @elseif($isRej)
                                     <span class="px-2.5 py-1 text-[11px] font-bold text-red-800 bg-red-100 rounded-full flex-shrink-0">
-                                        ❌ Ditolak
+                                        âŒ Ditolak
                                     </span>
                                 @endif
                             </div>
