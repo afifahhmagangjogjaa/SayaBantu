@@ -58,11 +58,8 @@
 
         <div class="relative z-10 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                @php
-                    $__avatar = optional(auth()->user())->profile_photo ?? optional(auth()->user())->photo ?? optional(auth()->user())->profile_photo_path ?? null;
-                @endphp
                 <div class="w-11 h-11 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center overflow-hidden shadow-md">
-                    <img src="{{ $__avatar ? asset('storage/' . $__avatar) : asset('images/avatar-placeholder.svg') }}" alt="Avatar" class="w-full h-full object-cover">
+                    <x-user-avatar :user="auth()->user()" class="h-full w-full text-white font-bold" />
                 </div>
                 <div>
                     <p class="text-[11px] text-blue-100 font-medium">Selamat datang 👋</p>
@@ -143,7 +140,7 @@
                                     ];
                                     $catStyle = $catStyles[$cat->id] ?? 'bg-gray-50 text-gray-600';
                                 @endphp
-                                <a href="{{ route('customer.helps.create', ['category_id' => $cat->id]) }}"
+                                <a href="{{ route('customer.helps.create', ['category_id' => $cat->id]) }}" wire:navigate
                                    class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/60 transition group border-b border-gray-50 last:border-0"
                                    wire:click="clearSearch">
                                     <div class="w-10 h-10 rounded-xl {{ $catStyle }} flex items-center justify-center text-lg shrink-0">
@@ -162,7 +159,7 @@
                             @endforeach
                         </div>
                         <div class="border-t border-gray-100 px-4 py-3 bg-gray-50/50">
-                            <a href="{{ route('customer.helps.create') }}" wire:click="clearSearch"
+                            <a href="{{ route('customer.helps.create') }}" wire:navigate wire:click="clearSearch"
                                class="flex items-center gap-2 text-xs font-bold text-[#0066FF] hover:underline">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
@@ -195,7 +192,7 @@
                     <p class="text-[11px] text-blue-100 mt-1 line-clamp-2">
                         Pesan jasa serabutan cepat, mudah, dan terpercaya kapan saja.
                     </p>
-                    <a href="{{ route('customer.helps.create') }}"
+                    <a href="{{ route('customer.helps.create') }}" wire:navigate
                        class="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white text-[#0066FF] hover:bg-blue-50 font-bold text-xs rounded-full shadow-md active:scale-95 transition">
                         <span>Pesan Sekarang</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,7 +236,7 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('customer.topup') }}"
+                    <a href="{{ route('customer.topup') }}" wire:navigate
                        class="px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#0066FF] hover:bg-blue-700 transition shadow-xs flex items-center gap-1 active:scale-95">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -254,7 +251,7 @@
         <div class="mb-6">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-sm font-extrabold text-gray-900">Kategori Jasa</h3>
-                <a href="{{ route('customer.helps.create') }}" class="text-xs font-bold text-[#0066FF] hover:underline">
+                <a href="{{ route('customer.helps.create') }}" wire:navigate class="text-xs font-bold text-[#0066FF] hover:underline">
                     Buat Jasa +
                 </a>
             </div>
@@ -277,7 +274,7 @@
                     @php
                         $style = $categoryStyles[$cat->id] ?? ['bg' => 'bg-gray-50 text-gray-700 border-gray-100', 'label' => $cat->name];
                     @endphp
-                    <a href="{{ route('customer.helps.create', ['category_id' => $cat->id]) }}"
+                    <a href="{{ route('customer.helps.create', ['category_id' => $cat->id]) }}" wire:navigate
                        class="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white border border-gray-100 hover:border-[#0066FF]/30 hover:shadow-xs transition group cursor-pointer text-center">
                         <div class="w-12 h-12 rounded-2xl {{ $style['bg'] }} border flex items-center justify-center text-xl shadow-2xs group-hover:scale-110 transition-transform">
                             {{ $cat->icon ?? '📦' }}
@@ -317,7 +314,7 @@
                         <p class="text-[11px] text-gray-600 truncate mt-0.5">Lengkapi profil Anda untuk membuat bantuan</p>
                     </div>
                 </div>
-                <a href="{{ route('profile.edit') }}" 
+                <a href="{{ route('profile.edit') }}" wire:navigate 
                    class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 cursor-pointer shadow-xs"
                    style="background: linear-gradient(to right, #0066FF, #0052cc); box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);">
                     Lengkapi
@@ -348,7 +345,7 @@
                         </p>
                     </div>
                 </div>
-                <a href="{{ route('profile.settings.verification') }}" 
+                <a href="{{ route('profile.settings.verification') }}" wire:navigate 
                    class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] hover:opacity-95 active:scale-95 cursor-pointer shadow-xs {{ $hasKtpUploaded ? 'text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100' : 'text-white' }}"
                    @if(!$hasKtpUploaded) style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%); box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);" @endif>
                     {{ $hasKtpUploaded ? 'Cek Status' : 'Upload' }}
@@ -466,13 +463,13 @@
         <div class="mb-5">
             <div class="flex items-center justify-between mb-3">
                 <h2 class="text-sm font-extrabold text-gray-900">Pesanan Saya</h2>
-                <a href="{{ route('customer.helps.index') }}" class="text-xs font-bold text-[#0066FF] hover:underline">Lihat Semua →</a>
+                <a href="{{ route('customer.helps.index') }}" wire:navigate class="text-xs font-bold text-[#0066FF] hover:underline">Lihat Semua →</a>
             </div>
 
             <div class="space-y-3">
                 @if($activeTab !== 'history')
                     @forelse($availableHelps as $help)
-                        <a href="{{ route('customer.helps.detail', $help->id) }}"
+                        <a href="{{ route('customer.helps.detail', $help->id) }}" wire:navigate
                             class="block w-full text-left bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all">
                             <div class="flex items-start gap-3">
                                 <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">

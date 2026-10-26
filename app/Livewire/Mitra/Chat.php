@@ -5,19 +5,21 @@ namespace App\Livewire\Mitra;
 use App\Models\Chat as ChatModel;
 use App\Models\Help;
 use App\Models\User;
+use App\Notifications\ChatMessageNotification;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\On;
-use Illuminate\Support\Facades\Auth;
-use App\Notifications\ChatMessageNotification;
-use Illuminate\Support\Str;
 
 class Chat extends Component
 {
     use WithPagination;
 
     public $selected_help_id = null;
+
     public $message = '';
+
     public $search = '';
 
     protected $rules = [
@@ -35,7 +37,7 @@ class Chat extends Component
                 ->where('sender_type', 'customer')
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
-                
+
             $this->markChatNotificationsAsRead($help);
         }
     }
@@ -51,14 +53,14 @@ class Chat extends Component
         $query = Help::where('mitra_id', Auth::id());
 
         // Search by customer name, title, description, or location
-        if (!empty($this->search)) {
+        if (! empty($this->search)) {
             $keyword = trim($this->search);
             $query->where(function ($q) use ($keyword) {
-                $q->where('helps.title', 'like', '%' . $keyword . '%')
-                    ->orWhere('helps.description', 'like', '%' . $keyword . '%')
-                    ->orWhere('helps.location', 'like', '%' . $keyword . '%')
+                $q->where('helps.title', 'like', '%'.$keyword.'%')
+                    ->orWhere('helps.description', 'like', '%'.$keyword.'%')
+                    ->orWhere('helps.location', 'like', '%'.$keyword.'%')
                     ->orWhereHas('user', function ($userQuery) use ($keyword) {
-                        $userQuery->where('name', 'like', '%' . $keyword . '%');
+                        $userQuery->where('name', 'like', '%'.$keyword.'%');
                     });
             });
         }
@@ -76,7 +78,7 @@ class Chat extends Component
                 'user:id,name,selfie_photo',
                 'chatMessages' => function ($q) {
                     $q->latest()->limit(1);
-                }
+                },
             ])
             ->orderByDesc('unread_messages_count')
             ->orderByRaw('COALESCE((SELECT MAX(created_at) FROM chats WHERE chats.help_id = helps.id), helps.updated_at) DESC')
@@ -86,7 +88,7 @@ class Chat extends Component
     // Get all messages for selected help
     public function getMessages()
     {
-        if (!$this->selected_help_id) {
+        if (! $this->selected_help_id) {
             return collect();
         }
 
@@ -109,8 +111,9 @@ class Chat extends Component
 
         $validator->validate();
 
-        if (!$this->selected_help_id) {
+        if (! $this->selected_help_id) {
             $this->dispatch('error', 'Pilih percakapan terlebih dahulu');
+
             return;
         }
 
@@ -118,7 +121,8 @@ class Chat extends Component
         $help = Help::findOrFail($this->selected_help_id);
 
         if (in_array($help->status, ['selesai', 'completed', 'batal', 'cancelled', 'dibatalkan'])) {
-            $this->dispatch('error', 'Pesanan telah ' . (in_array($help->status, ['selesai', 'completed']) ? 'selesai' : 'dibatalkan') . '. Percakapan ini telah diarsipkan.');
+            $this->dispatch('error', 'Pesanan telah '.(in_array($help->status, ['selesai', 'completed']) ? 'selesai' : 'dibatalkan').'. Percakapan ini telah diarsipkan.');
+
             return;
         }
 
@@ -152,10 +156,10 @@ class Chat extends Component
             ->where('sender_type', 'customer')
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
-            
+
         $this->markChatNotificationsAsRead($help_id);
     }
-    
+
     #[On('help-new-message')]
     public function refreshChat()
     {
@@ -164,7 +168,7 @@ class Chat extends Component
                 ->where('sender_type', 'customer')
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
-                
+
             $this->markChatNotificationsAsRead($this->selected_help_id);
         }
     }

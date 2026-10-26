@@ -4,17 +4,22 @@ namespace App\Livewire\Customer;
 
 use App\Models\Help;
 use App\Models\UserBalance;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\On;
 
 class Dashboard extends Component
 {
     use WithPagination;
+
     public $activeTab = 'latest'; // latest, all, history
+
     public $selectedHelp = null;
+
     public $selectedHelpData = null;
+
     public $search = '';
+
     public $showSearchResults = false;
 
     #[On('balance-updated')]
@@ -49,9 +54,10 @@ class Dashboard extends Component
     public function showHelp($id)
     {
         $help = Help::with(['user', 'city', 'mitra', 'category'])->find($id);
-        if (!$help) {
+        if (! $help) {
             $this->selectedHelp = null;
             $this->selectedHelpData = null;
+
             return;
         }
 
@@ -83,7 +89,6 @@ class Dashboard extends Component
     public function render()
     {
         $user = auth()->user();
-
 
         $stats = [];
 
@@ -174,8 +179,8 @@ class Dashboard extends Component
         // Search results: filter categories by name when searching
         $searchResults = collect();
         if (strlen(trim($this->search)) > 0) {
-            $searchResults = \App\Models\Category::where('name', 'like', '%' . trim($this->search) . '%')
-                ->orWhere('description', 'like', '%' . trim($this->search) . '%')
+            $searchResults = \App\Models\Category::where('name', 'like', '%'.trim($this->search).'%')
+                ->orWhere('description', 'like', '%'.trim($this->search).'%')
                 ->get();
         }
 

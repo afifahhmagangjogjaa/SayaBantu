@@ -54,11 +54,8 @@
     <!-- Top Profile Bar matching Gambar 1 (Mitra) -->
     <div class="px-5 pt-4 pb-3 bg-white border-b border-gray-100 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            @php
-                $__avatar = optional(auth()->user())->profile_photo ?? optional(auth()->user())->photo ?? optional(auth()->user())->profile_photo_path ?? null;
-            @endphp
             <div class="w-11 h-11 rounded-full bg-blue-50 border-2 border-[#0066FF]/20 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-2xs">
-                <img src="{{ $__avatar ? asset('storage/' . $__avatar) : asset('images/avatar-placeholder.svg') }}" alt="Avatar" class="w-full h-full object-cover">
+                <x-user-avatar :user="auth()->user()" class="h-full w-full text-[#0066FF] font-bold text-sm" />
             </div>
             <div>
                 <h1 class="text-sm font-extrabold text-gray-900 leading-tight">{{ optional(auth()->user())->name ?? 'Budi Santoso' }}</h1>
@@ -90,7 +87,7 @@
                     <span>Saldo Mitra</span>
                 </div>
 
-                <a href="{{ route('mitra.withdraw.form') }}"
+                <a href="{{ route('mitra.withdraw.form') }}" wire:navigate
                    class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-3.5 py-1.5 rounded-xl transition shadow-xs">
                     Tarik Saldo
                 </a>
@@ -100,7 +97,7 @@
                 <h2 class="text-2xl font-black tracking-tight text-white">
                     Rp {{ number_format($balance ?? 0, 0, ',', '.') }}
                 </h2>
-                <a href="{{ route('mitra.withdraw.history') }}" class="text-[11px] text-blue-100 hover:text-white underline font-medium">
+                <a href="{{ route('mitra.withdraw.history') }}" wire:navigate class="text-[11px] text-blue-100 hover:text-white underline font-medium">
                     Riwayat Transaksi →
                 </a>
             </div>
@@ -216,7 +213,7 @@
                         <p class="text-[11px] text-gray-600 truncate mt-0.5">Lengkapi profil Anda untuk mengambil order bantuan</p>
                     </div>
                 </div>
-                <a href="{{ route('mitra.profile.edit') }}" 
+                <a href="{{ route('mitra.profile.edit') }}" wire:navigate 
                    class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 cursor-pointer shadow-xs"
                    style="background: linear-gradient(to right, #0066FF, #0052cc); box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);">
                     Lengkapi
@@ -247,7 +244,7 @@
                         </p>
                     </div>
                 </div>
-                <a href="{{ route('profile.settings.verification') }}" 
+                <a href="{{ route('profile.settings.verification') }}" wire:navigate 
                    class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] hover:opacity-95 active:scale-95 cursor-pointer shadow-xs {{ $hasKtpUploaded ? 'text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100' : 'text-white' }}"
                    @if(!$hasKtpUploaded) style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%); box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);" @endif>
                     {{ $hasKtpUploaded ? 'Cek Status' : 'Upload' }}
@@ -693,7 +690,7 @@
                         Tidak Dapat Diambil
                     </button>
                     @if(auth()->check() && !auth()->user()->isProfileComplete())
-                        <a href="{{ route('mitra.profile.edit') }}" class="flex-1 bg-red-600 text-white py-2.5 px-4 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
+                        <a href="{{ route('mitra.profile.edit') }}" wire:navigate class="flex-1 bg-red-600 text-white py-2.5 px-4 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
                             Lengkapi Biodata
                         </a>
                     @elseif(auth()->check() && !auth()->user()->verified)

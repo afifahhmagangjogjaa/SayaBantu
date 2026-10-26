@@ -10,8 +10,11 @@ class HelpStatusNotification extends Notification
     use Queueable;
 
     protected $help;
+
     protected $oldStatus;
+
     protected $newStatus;
+
     protected $mitra;
 
     public function __construct($help, $oldStatus = null, $newStatus = null, $mitra = null)
@@ -39,9 +42,9 @@ class HelpStatusNotification extends Notification
              $this->help->admin_notes &&
              str_contains(strtolower($this->help->admin_notes), 'auto-confirm'));
 
-        $formattedAmount = 'Rp ' . number_format($this->help->amount + ($this->help->admin_fee ?? 0), 0, ',', '.');
-        $formattedMitraAmount = 'Rp ' . number_format($this->help->getMitraPayoutAmount(), 0, ',', '.');
-        $helpTitle = $this->help->title ?? 'Bantuan #' . ($this->help->id ?? '');
+        $formattedAmount = 'Rp '.number_format($this->help->amount + ($this->help->admin_fee ?? 0), 0, ',', '.');
+        $formattedMitraAmount = 'Rp '.number_format($this->help->getMitraPayoutAmount(), 0, ',', '.');
+        $helpTitle = $this->help->title ?? 'Bantuan #'.($this->help->id ?? '');
         $customerName = $this->help->customer?->name ?? 'Customer';
 
         $title = match (true) {
@@ -51,25 +54,25 @@ class HelpStatusNotification extends Notification
             in_array(strtolower($this->newStatus), ['komplain', 'disputed']) => '⚠️ Komplain Bantuan Diajukan',
             strtolower($this->newStatus) === 'rejected' => '❌ Bantuan Ditolak',
             strtolower($this->newStatus) === 'dibatalkan' || strtolower($this->newStatus) === 'cancelled' => '❌ Bantuan Dibatalkan',
-            strtolower($this->newStatus) === 'partner_on_the_way' => "🚗 Mitra Dalam Perjalanan",
-            strtolower($this->newStatus) === 'partner_arrived' => "📍 Mitra Telah Tiba di Lokasi",
-            strtolower($this->newStatus) === 'in_progress' => "⚙️ Pekerjaan Dimulai",
-            strtolower($this->newStatus) === 'waiting_customer_confirmation' => "✋ Menunggu Konfirmasi Anda",
+            strtolower($this->newStatus) === 'partner_on_the_way' => '🚗 Mitra Dalam Perjalanan',
+            strtolower($this->newStatus) === 'partner_arrived' => '📍 Mitra Telah Tiba di Lokasi',
+            strtolower($this->newStatus) === 'in_progress' => '⚙️ Pekerjaan Dimulai',
+            strtolower($this->newStatus) === 'waiting_customer_confirmation' => '✋ Menunggu Konfirmasi Anda',
             strtolower($this->newStatus) === 'partner_reassigned' => ($notifiable->role === 'mitra')
-                ? "🔄 Pesanan Dialihkan ke Rekan Jasa Lain"
+                ? '🔄 Pesanan Dialihkan ke Rekan Jasa Lain'
                 : (($notifiable->role === 'admin' || $notifiable->role === 'super_admin')
-                    ? "🔄 Pesanan Dialihkan (Mitra Tidak Bergerak >30m)"
-                    : "🔄 Mencari Rekan Jasa Lain"),
+                    ? '🔄 Pesanan Dialihkan (Mitra Tidak Bergerak >30m)'
+                    : '🔄 Mencari Rekan Jasa Lain'),
             strtolower($this->newStatus) === 'partner_cancelled_direct' => ($notifiable->role === 'admin' || $notifiable->role === 'super_admin')
-                ? "⚠️ Rekan Jasa Membatalkan Bantuan"
+                ? '⚠️ Rekan Jasa Membatalkan Bantuan'
                 : ($notifiable->role === 'mitra'
-                    ? "🔄 Pesanan Dibatalkan"
-                    : "🔄 Rekan Jasa Berhalangan Hadir"),
-            strtolower($this->newStatus) === 'partner_cancel_requested' => "⚠️ Permintaan Pembatalan Mitra",
-            strtolower($this->newStatus) === 'cancel_accepted' => "✅ Pembatalan Disetujui",
-            strtolower($this->newStatus) === 'cancel_rejected' => "❌ Pembatalan Ditolak",
-            in_array(strtolower($this->newStatus), ['selesai', 'completed']) => "🎉 Bantuan Selesai",
-            default => "Update Status Bantuan"
+                    ? '🔄 Pesanan Dibatalkan'
+                    : '🔄 Rekan Jasa Berhalangan Hadir'),
+            strtolower($this->newStatus) === 'partner_cancel_requested' => '⚠️ Permintaan Pembatalan Mitra',
+            strtolower($this->newStatus) === 'cancel_accepted' => '✅ Pembatalan Disetujui',
+            strtolower($this->newStatus) === 'cancel_rejected' => '❌ Pembatalan Ditolak',
+            in_array(strtolower($this->newStatus), ['selesai', 'completed']) => '🎉 Bantuan Selesai',
+            default => 'Update Status Bantuan'
         };
 
         $message = match (true) {
@@ -87,10 +90,10 @@ class HelpStatusNotification extends Notification
                 : (($notifiable->role === 'mitra')
                     ? "Customer mengajukan komplain pada pesanan '{$helpTitle}'. Dana ditahan sementara menunggu mediasi Admin."
                     : "Komplain Anda pada '{$helpTitle}' telah diterima dan sedang ditinjau oleh Admin."),
-            strtolower($this->newStatus) === 'rejected' => 'Permintaan bantuan "' . $helpTitle . '" ditolak oleh admin.' .
-                ($this->help->admin_notes ? ' Alasan: ' . $this->help->admin_notes : ''),
+            strtolower($this->newStatus) === 'rejected' => 'Permintaan bantuan "'.$helpTitle.'" ditolak oleh admin.'.
+                ($this->help->admin_notes ? ' Alasan: '.$this->help->admin_notes : ''),
             strtolower($this->newStatus) === 'dibatalkan' || strtolower($this->newStatus) === 'cancelled' => ($notifiable->role === 'mitra')
-                ? "Customer telah membatalkan pesanan '{$helpTitle}'." . ($this->help->customer_cancel_reason ? " (Alasan: {$this->help->customer_cancel_reason})" : '')
+                ? "Customer telah membatalkan pesanan '{$helpTitle}'.".($this->help->customer_cancel_reason ? " (Alasan: {$this->help->customer_cancel_reason})" : '')
                 : "Bantuan '{$helpTitle}' telah dibatalkan. Saldo sebesar {$formattedAmount} telah dikembalikan ke dompet Anda.",
             strtolower($this->newStatus) === 'partner_on_the_way' => "$mitraName sedang menuju lokasi Anda",
             strtolower($this->newStatus) === 'partner_arrived' => "$mitraName telah tiba di lokasi Anda",
@@ -102,21 +105,21 @@ class HelpStatusNotification extends Notification
                     ? "Pesanan #{$this->help->id} '{$helpTitle}' dialihkan dari {$mitraName} ke antrean pencarian baru karena tidak bergerak >30 menit."
                     : "Sistem sedang mencarikan Rekan Jasa pengganti untuk pesanan '{$helpTitle}'."),
             strtolower($this->newStatus) === 'partner_cancelled_direct' => ($notifiable->role === 'admin' || $notifiable->role === 'super_admin')
-                ? "Rekan Jasa {$mitraName} membatalkan pesanan #{$this->help->id} '{$helpTitle}' (Alasan: " . ($this->help->partner_cancel_reason ?: 'Kendala di jalan') . "). Pesanan telah dikembalikan ke antrean."
+                ? "Rekan Jasa {$mitraName} membatalkan pesanan #{$this->help->id} '{$helpTitle}' (Alasan: ".($this->help->partner_cancel_reason ?: 'Kendala di jalan').'). Pesanan telah dikembalikan ke antrean.'
                 : ($notifiable->role === 'mitra'
                     ? "Anda telah membatalkan pesanan '{$helpTitle}'."
-                    : "Rekan Jasa $mitraName membatalkan pesanan (" . ($this->help->partner_cancel_reason ?: 'Kendala di jalan') . "). Sistem sedang mencarikan Rekan Jasa pengganti untuk Anda."),
+                    : "Rekan Jasa $mitraName membatalkan pesanan (".($this->help->partner_cancel_reason ?: 'Kendala di jalan').'). Sistem sedang mencarikan Rekan Jasa pengganti untuk Anda.'),
             strtolower($this->newStatus) === 'partner_cancel_requested' => "$mitraName meminta pembatalan bantuan. Cek detail pesanan.",
-            strtolower($this->newStatus) === 'cancel_accepted' => "Customer menerima pembatalan. Bantuan dibuka kembali untuk mitra lain.",
-            strtolower($this->newStatus) === 'cancel_rejected' => "Customer menolak pembatalan. Silakan lanjutkan pekerjaan.",
-            in_array(strtolower($this->newStatus), ['selesai', 'completed']) => "Bantuan '" . $helpTitle . "' telah dikonfirmasi selesai.",
+            strtolower($this->newStatus) === 'cancel_accepted' => 'Customer menerima pembatalan. Bantuan dibuka kembali untuk mitra lain.',
+            strtolower($this->newStatus) === 'cancel_rejected' => 'Customer menolak pembatalan. Silakan lanjutkan pekerjaan.',
+            in_array(strtolower($this->newStatus), ['selesai', 'completed']) => "Bantuan '".$helpTitle."' telah dikonfirmasi selesai.",
             default => "Status bantuan diperbarui: {$this->newStatus}"
         };
 
         $url = null;
         $mitraId = $this->mitra?->id ?? $this->help->mitra_id ?? null;
 
-        if (!empty($this->help->id)) {
+        if (! empty($this->help->id)) {
             if ($notifiable->role === 'admin') {
                 if (strtolower($this->newStatus) === 'partner_cancelled_direct' && $mitraId) {
                     $url = route('admin.mitra.show', $mitraId);
@@ -125,7 +128,7 @@ class HelpStatusNotification extends Notification
                 }
             } elseif ($notifiable->role === 'super_admin') {
                 if (strtolower($this->newStatus) === 'partner_cancelled_direct' && $mitraId) {
-                    $url = route('superadmin.users') . '?search=' . urlencode($this->mitra?->email ?? $this->mitra?->name ?? '');
+                    $url = route('superadmin.users').'?search='.urlencode($this->mitra?->email ?? $this->mitra?->name ?? '');
                 } else {
                     $url = route('superadmin.helps.approved');
                 }

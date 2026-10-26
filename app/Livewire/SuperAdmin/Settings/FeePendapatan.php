@@ -2,37 +2,39 @@
 
 namespace App\Livewire\SuperAdmin\Settings;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use App\Models\AppSetting;
-use App\Models\Help;
 use App\Models\BalanceTransaction;
+use App\Models\Help;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.superadmin')]
 #[Title('Fee & Pendapatan Platform - Super Admin')]
 class FeePendapatan extends Component
 {
     public $customer_service_fee_percent = 10;
+
     public $mitra_platform_fee_percent = 10;
+
     public $admin_fee = 0;
 
     protected function rules()
     {
         return [
             'customer_service_fee_percent' => 'required|numeric|min:0|max:100',
-            'mitra_platform_fee_percent'   => 'required|numeric|min:0|max:100',
-            'admin_fee'                    => 'nullable|numeric|min:0',
+            'mitra_platform_fee_percent' => 'required|numeric|min:0|max:100',
+            'admin_fee' => 'nullable|numeric|min:0',
         ];
     }
 
     public function mount()
     {
         $this->customer_service_fee_percent = (float) AppSetting::get('customer_service_fee_percent', 10);
-        $this->mitra_platform_fee_percent   = (float) AppSetting::get('mitra_platform_fee_percent', 10);
-        $this->admin_fee                    = (int) AppSetting::get('admin_fee', 0);
+        $this->mitra_platform_fee_percent = (float) AppSetting::get('mitra_platform_fee_percent', 10);
+        $this->admin_fee = (int) AppSetting::get('admin_fee', 0);
     }
 
     public function save()
@@ -150,7 +152,7 @@ class FeePendapatan extends Component
             ->sum($helpFeeExpr);
 
         $helpFee30 = (float) Help::whereDate('created_at', '>=', Carbon::today()->subDays(29))->sum($helpFeeExpr);
-        
+
         $helpsWithFee = (int) Help::whereRaw('(COALESCE(customer_fee_amount, 0) + COALESCE(mitra_fee_amount, 0)) > 0')->count();
         $avgHelpFee = $helpsWithFee ? ($helpTotalFee / $helpsWithFee) : 0;
 

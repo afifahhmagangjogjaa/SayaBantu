@@ -61,7 +61,7 @@
                             <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                             Data Pribadi
                         </h3>
-                        <a href="{{ route('onboarding.step1') }}" class="text-xs font-bold text-blue-600 hover:underline">Ubah</a>
+                        <a href="{{ route('onboarding.step1') }}" wire:navigate class="text-xs font-bold text-blue-600 hover:underline">Ubah</a>
                     </div>
 
                     <div class="grid grid-cols-2 gap-y-2.5 gap-x-2 text-xs">
@@ -110,7 +110,7 @@
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] font-bold text-gray-700">Foto KTP</span>
-                                <a href="{{ route('onboarding.step2') }}" class="text-[11px] font-bold text-blue-600 hover:underline">Ganti</a>
+                                <a href="{{ route('onboarding.step2') }}" wire:navigate class="text-[11px] font-bold text-blue-600 hover:underline">Ganti</a>
                             </div>
                         </div>
 
@@ -126,7 +126,7 @@
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] font-bold text-gray-700">Foto Selfie</span>
-                                <a href="{{ route('onboarding.step3') }}" class="text-[11px] font-bold text-blue-600 hover:underline">Ganti</a>
+                                <a href="{{ route('onboarding.step3') }}" wire:navigate class="text-[11px] font-bold text-blue-600 hover:underline">Ganti</a>
                             </div>
                         </div>
                     </div>
@@ -134,7 +134,7 @@
 
                 <!-- Submit Button -->
                 <div class="pt-5 pb-2 flex gap-3">
-                    <a href="{{ route('onboarding.step3') }}" class="w-1/3 py-3.5 border border-gray-200 rounded-full text-center text-sm font-bold text-gray-700 hover:bg-gray-100 transition inline-flex items-center justify-center cursor-pointer">
+                    <a href="{{ route('onboarding.step3') }}" wire:navigate class="w-1/3 py-3.5 border border-gray-200 rounded-full text-center text-sm font-bold text-gray-700 hover:bg-gray-100 transition inline-flex items-center justify-center cursor-pointer">
                         ← Kembali
                     </a>
                     <button type="submit"

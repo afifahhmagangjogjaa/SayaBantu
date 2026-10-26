@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Mitra\Notifications;
 
+use Illuminate\Notifications\DatabaseNotification;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use Illuminate\Notifications\DatabaseNotification;
 
 #[Layout('layouts.mitra')]
 class Index extends Component
@@ -13,6 +13,7 @@ class Index extends Component
     use WithPagination;
 
     public $filter = 'all'; // 'all' or 'unread'
+
     public $selected = [];
 
     public function setFilter($mode)
@@ -33,7 +34,9 @@ class Index extends Component
 
     public function bulkMarkAsRead()
     {
-        if (empty($this->selected)) return;
+        if (empty($this->selected)) {
+            return;
+        }
 
         DatabaseNotification::whereIn('id', $this->selected)
             ->where('notifiable_id', auth()->id())
@@ -47,7 +50,9 @@ class Index extends Component
 
     public function bulkDelete()
     {
-        if (empty($this->selected)) return;
+        if (empty($this->selected)) {
+            return;
+        }
 
         $notifications = DatabaseNotification::whereIn('id', $this->selected)
             ->where('notifiable_id', auth()->id())
@@ -56,7 +61,7 @@ class Index extends Component
         $deletedCount = 0;
         foreach ($notifications as $n) {
             $type = $n->data['type'] ?? '';
-            if ($type !== 'sanction_warning' && !str_contains($type, 'sanction')) {
+            if ($type !== 'sanction_warning' && ! str_contains($type, 'sanction')) {
                 $n->delete();
                 $deletedCount++;
             }
@@ -84,7 +89,7 @@ class Index extends Component
         if ($notification && $notification->notifiable_id === auth()->id()) {
             $notification->markAsRead();
         }
-        
+
         return redirect()->to($url);
     }
 
@@ -101,6 +106,7 @@ class Index extends Component
             $type = $notification->data['type'] ?? '';
             if ($type === 'sanction_warning' || str_contains($type, 'sanction')) {
                 session()->flash('error', 'Surat Peringatan adalah sanksi resmi dan tidak dapat dihapus.');
+
                 return;
             }
             $notification->delete();

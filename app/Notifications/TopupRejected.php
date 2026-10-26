@@ -29,9 +29,10 @@ class TopupRejected extends Notification
     public function via(object $notifiable): array
     {
         $settings = $notifiable->notification_settings ?? [];
-        if (isset($settings['transactionUpdate']) && !$settings['transactionUpdate']) {
+        if (isset($settings['transactionUpdate']) && ! $settings['transactionUpdate']) {
             return [];
         }
+
         return ['database'];
     }
 
@@ -42,11 +43,11 @@ class TopupRejected extends Notification
     {
         return (new MailMessage)
             ->subject('Request Top-Up Saldo Ditolak')
-            ->greeting('Halo ' . $notifiable->name . ',')
+            ->greeting('Halo '.$notifiable->name.',')
             ->line('Mohon maaf, request top-up saldo Anda telah ditolak oleh admin.')
-            ->line('Kode Request: ' . $this->transaction->request_code)
-            ->line('Nominal: Rp ' . number_format($this->transaction->amount, 0, ',', '.'))
-            ->line('Alasan Penolakan: ' . $this->transaction->rejection_reason)
+            ->line('Kode Request: '.$this->transaction->request_code)
+            ->line('Nominal: Rp '.number_format($this->transaction->amount, 0, ',', '.'))
+            ->line('Alasan Penolakan: '.$this->transaction->rejection_reason)
             ->line('Silakan periksa kembali bukti transfer Anda dan ajukan request baru.')
             ->action('Buat Request Baru', route('customer.topup'))
             ->line('Jika ada pertanyaan, silakan hubungi customer service kami.');
@@ -66,7 +67,7 @@ class TopupRejected extends Notification
             'request_code' => $this->transaction->request_code,
             'amount' => $this->transaction->amount,
             'rejection_reason' => $this->transaction->rejection_reason,
-            'message' => 'Request top-up saldo Anda ditolak. Alasan: ' . ($this->transaction->rejection_reason ?: 'Bukti transfer tidak valid.'),
+            'message' => 'Request top-up saldo Anda ditolak. Alasan: '.($this->transaction->rejection_reason ?: 'Bukti transfer tidak valid.'),
             'url' => route('customer.topup.history'),
         ];
     }

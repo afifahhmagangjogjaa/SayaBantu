@@ -61,7 +61,7 @@
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
-                    <a href="{{ route('customer.dashboard') }}" aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
+                    <a href="{{ route('customer.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -73,7 +73,7 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <a href="{{ route('customer.helps.create') }}" 
+                        <a href="{{ route('customer.helps.create') }}" wire:navigate 
                            class="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white inline-flex items-center gap-1 text-xs font-bold shadow-2xs"
                            title="Buat Pesanan Baru">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,7 +308,7 @@
                                         <span class="text-xs text-gray-500 font-medium min-w-0 truncate"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
                                         <div class="flex flex-wrap items-center gap-1.5">
-                                            <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">Detail</a>
+                                            <a href="{{ route('customer.helps.detail', $help->id) }}" wire:navigate class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">Detail</a>
                                             <button type="button" wire:click.stop="editHelp({{ $help->id }})" class="px-3 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg text-xs font-semibold transition shadow-2xs active:scale-95">Edit</button>
                                             <button type="button" wire:click.stop="confirmDelete({{ $help->id }})" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-semibold transition border border-red-200/80 active:scale-95">Batalkan</button>
                                         </div>
@@ -394,7 +394,7 @@
                                                 </div>
                                             @endif
 
-                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" title="Buka Chat" aria-label="Buka Chat">
+                                            <a href="{{ route('customer.chat', $help->id) }}" wire:navigate class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" title="Buka Chat" aria-label="Buka Chat">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                 </svg>
@@ -403,7 +403,7 @@
                                     </div>
 
                                     <div class="mt-2.5 flex items-center justify-end gap-1.5 pt-2 border-t border-gray-100">
-                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" wire:navigate class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">
                                             Detail
                                         </a>
                                     </div>
@@ -473,7 +473,7 @@
                                                 </div>
                                             @endif
 
-                                            <a href="{{ route('customer.chat', $help->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" title="Buka Chat" aria-label="Buka Chat">
+                                            <a href="{{ route('customer.chat', $help->id) }}" wire:navigate class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" title="Buka Chat" aria-label="Buka Chat">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                 </svg>
@@ -486,7 +486,7 @@
                                             Konfirmasi
                                         </button>
 
-                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" wire:navigate class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">
                                             Detail
                                         </a>
                                     </div>
@@ -633,7 +633,7 @@
                                     <div class="flex items-center gap-2">
                                         <span class="text-xs text-gray-500"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
-                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" wire:navigate class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
                                             Detail
                                         </a>
                                     </div>
@@ -678,7 +678,7 @@
 
                                     <div class="mt-2.5 flex items-center justify-between text-xs text-gray-400">
                                         <span>{{ optional($help->created_at)->diffForHumans() }}</span>
-                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition">
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" wire:navigate class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition">
                                             Detail
                                         </a>
                                     </div>
@@ -736,7 +736,7 @@
                                     <div class="flex items-center gap-3">
                                         <span class="text-xs text-gray-500"><svg class="w-3.5 h-3.5 inline-block text-gray-400 -mt-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{ $help->city->name ?? '-' }}</span>
                                         <div class="flex-1"></div>
-                                        <a href="{{ route('customer.helps.detail', $help->id) }}" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition shadow-xs">
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" wire:navigate class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition shadow-xs">
                                             Detail Mediasi
                                         </a>
                                     </div>

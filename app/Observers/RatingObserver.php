@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\Models\Rating;
 use App\Models\PartnerActivity;
+use App\Models\Rating;
 
 class RatingObserver
 {
@@ -25,7 +25,7 @@ class RatingObserver
             PartnerActivity::create([
                 'user_id' => $rating->user_id,
                 'activity_type' => 'help_reviewed',
-                'description' => 'Customer menilai bantuan #' . ($rating->help_id ?? ''),
+                'description' => 'Customer menilai bantuan #'.($rating->help_id ?? ''),
                 'ip_address' => $ip,
                 'user_agent' => $ua,
             ]);

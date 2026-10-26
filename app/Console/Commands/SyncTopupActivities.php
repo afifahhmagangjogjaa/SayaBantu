@@ -32,7 +32,7 @@ class SyncTopupActivities extends Command
 
         $formatDescription = function (BalanceTransaction $tx): string {
             $amount = number_format((float) $tx->amount, 0, ',', '.');
-            $order = $tx->order_id ? ('Order #' . $tx->order_id) : 'Order #?';
+            $order = $tx->order_id ? ('Order #'.$tx->order_id) : 'Order #?';
 
             return sprintf('Top up berhasil Rp %s (%s)', $amount, $order);
         };
@@ -62,6 +62,7 @@ class SyncTopupActivities extends Command
                     if ($dryRun) {
                         $this->line("Would create activity for transaction #{$tx->id} ({$description})");
                         $created++;
+
                         continue;
                     }
 
@@ -87,4 +88,3 @@ class SyncTopupActivities extends Command
         return self::SUCCESS;
     }
 }
-

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if (Schema::hasTable('registrations')) {
             Schema::table('registrations', function (Blueprint $table) {
-                if (!Schema::hasColumn('registrations', 'rejection_reason')) {
+                if (! Schema::hasColumn('registrations', 'rejection_reason')) {
                     $table->text('rejection_reason')->nullable()->after('password');
                 }
             });

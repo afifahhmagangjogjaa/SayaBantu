@@ -55,7 +55,7 @@ class BalanceTransactionObserver
             $newBalance = UserBalance::recalculateForUser($transaction->user_id);
 
             // Mark processed_at quietly without firing observer again
-            if (!$transaction->processed_at) {
+            if (! $transaction->processed_at) {
                 $transaction->processed_at = now();
                 $transaction->saveQuietly();
             }
@@ -67,8 +67,8 @@ class BalanceTransactionObserver
                         'activity_type' => 'balance_topup',
                         'description' => sprintf(
                             'Top up berhasil Rp %s %s',
-                            number_format((float)$transaction->amount, 0, ',', '.'),
-                            $transaction->order_id ? '(Order #' . $transaction->order_id . ')' : ''
+                            number_format((float) $transaction->amount, 0, ',', '.'),
+                            $transaction->order_id ? '(Order #'.$transaction->order_id.')' : ''
                         ),
                         'ip_address' => request()?->ip(),
                         'user_agent' => request()?->header('User-Agent'),
@@ -81,7 +81,7 @@ class BalanceTransactionObserver
                 }
             }
 
-            Log::info("BalanceTransactionObserver: completed", [
+            Log::info('BalanceTransactionObserver: completed', [
                 'transaction_id' => $transaction->id,
                 'user_id' => $transaction->user_id,
                 'type' => $transaction->type,
@@ -96,4 +96,3 @@ class BalanceTransactionObserver
         }
     }
 }
-

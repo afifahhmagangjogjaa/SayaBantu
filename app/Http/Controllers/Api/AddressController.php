@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 
 class AddressController extends Controller
 {
@@ -20,7 +19,7 @@ class AddressController extends Controller
         $districtBias = trim($request->get('district', ''));
 
         // Filter out placeholder labels like "-- Pilih ..."
-        $cleanFilter = fn($val) => preg_match('/(--|pilih|memuat)/i', $val) ? '' : trim($val);
+        $cleanFilter = fn ($val) => preg_match('/(--|pilih|memuat)/i', $val) ? '' : trim($val);
         $cityBias = $cleanFilter($cityBias);
         $provinceBias = $cleanFilter($provinceBias);
         $districtBias = $cleanFilter($districtBias);
@@ -29,11 +28,11 @@ class AddressController extends Controller
             return response()->json([]);
         }
 
-        $cacheKey = 'address_suggest_' . md5(strtolower("{$q}|{$cityBias}|{$provinceBias}|{$districtBias}"));
+        $cacheKey = 'address_suggest_'.md5(strtolower("{$q}|{$cityBias}|{$provinceBias}|{$districtBias}"));
 
         if (Cache::has($cacheKey)) {
             $cached = Cache::get($cacheKey);
-            if (!empty($cached) && is_array($cached)) {
+            if (! empty($cached) && is_array($cached)) {
                 return response()->json($cached);
             }
         }
@@ -44,16 +43,17 @@ class AddressController extends Controller
         }
 
         // Sort results to prioritize matching city/province
-        if (!empty($results) && !empty($cityBias)) {
+        if (! empty($results) && ! empty($cityBias)) {
             $cleanCity = strtolower(preg_replace('/\b(kota|kabupaten|kab|adm|administrasi)\b/i', '', $cityBias));
             usort($results, function ($a, $b) use ($cleanCity) {
                 $aMatch = (stripos(strtolower($a['city'] ?? ''), $cleanCity) !== false) || (stripos(strtolower($a['full_address'] ?? ''), $cleanCity) !== false);
                 $bMatch = (stripos(strtolower($b['city'] ?? ''), $cleanCity) !== false) || (stripos(strtolower($b['full_address'] ?? ''), $cleanCity) !== false);
+
                 return ($bMatch ? 1 : 0) - ($aMatch ? 1 : 0);
             });
         }
 
-        if (!empty($results)) {
+        if (! empty($results)) {
             Cache::put($cacheKey, $results, 86400);
         }
 
@@ -67,7 +67,7 @@ class AddressController extends Controller
     {
         try {
             $biasParts = array_filter([$districtBias, $cityBias, $provinceBias]);
-            $searchQuery = !empty($biasParts) ? "{$q}, " . implode(', ', $biasParts) : $q;
+            $searchQuery = ! empty($biasParts) ? "{$q}, ".implode(', ', $biasParts) : $q;
             $encodedQuery = urlencode($searchQuery);
 
             $response = \App\Support\ExternalHttp::client()
@@ -79,7 +79,7 @@ class AddressController extends Controller
                 ->get("https://nominatim.openstreetmap.org/search?q={$encodedQuery}&format=json&addressdetails=1&countrycodes=id&limit=8");
 
             // If empty and we had multiple bias filters, fallback to just city bias
-            if ((!$response->successful() || empty($response->json())) && !empty($biasParts)) {
+            if ((! $response->successful() || empty($response->json())) && ! empty($biasParts)) {
                 $searchQuery = $cityBias ? "{$q}, {$cityBias}" : $q;
                 $encodedQuery = urlencode($searchQuery);
                 $response = \App\Support\ExternalHttp::client()
@@ -91,7 +91,7 @@ class AddressController extends Controller
                     ->get("https://nominatim.openstreetmap.org/search?q={$encodedQuery}&format=json&addressdetails=1&countrycodes=id&limit=8");
             }
 
-            if (!$response->successful() || empty($response->json())) {
+            if (! $response->successful() || empty($response->json())) {
                 return [];
             }
 
@@ -128,31 +128,31 @@ class AddressController extends Controller
 
                 // Build a concise, clean title
                 if ($name && $road && stripos($name, $road) === false && stripos($road, $name) === false) {
-                    $title = $name . ($houseNumber ? " No. {$houseNumber}" : '') . ", {$road}";
+                    $title = $name.($houseNumber ? " No. {$houseNumber}" : '').", {$road}";
                 } elseif ($road) {
-                    $title = $road . ($houseNumber ? " No. {$houseNumber}" : '');
+                    $title = $road.($houseNumber ? " No. {$houseNumber}" : '');
                 } elseif ($name) {
-                    $title = $name . ($houseNumber ? " No. {$houseNumber}" : '');
+                    $title = $name.($houseNumber ? " No. {$houseNumber}" : '');
                 } else {
                     $title = $item['display_name'];
                 }
 
-                $subtitleParts = array_filter([$village, $district, $city, $province], fn($val) => !empty($val) && stripos($title, $val) === false);
+                $subtitleParts = array_filter([$village, $district, $city, $province], fn ($val) => ! empty($val) && stripos($title, $val) === false);
                 $subtitle = implode(', ', array_unique($subtitleParts));
 
                 $fullAddressParts = array_filter([$title, $village, $district, $city, $province]);
                 $fullAddress = implode(', ', array_unique($fullAddressParts));
 
                 $results[] = [
-                    'title'        => $title,
-                    'subtitle'     => $subtitle ?: $item['display_name'],
+                    'title' => $title,
+                    'subtitle' => $subtitle ?: $item['display_name'],
                     'full_address' => $fullAddress ?: $item['display_name'],
-                    'lat'          => (float) $item['lat'],
-                    'lng'          => (float) $item['lon'],
-                    'city'         => $city,
-                    'province'     => $province,
-                    'district'     => $district,
-                    'village'      => $village,
+                    'lat' => (float) $item['lat'],
+                    'lng' => (float) $item['lon'],
+                    'city' => $city,
+                    'province' => $province,
+                    'district' => $district,
+                    'village' => $village,
                 ];
             }
 
@@ -169,14 +169,14 @@ class AddressController extends Controller
     {
         try {
             $biasParts = array_filter([$cityBias, $provinceBias]);
-            $searchQuery = !empty($biasParts) ? "{$q} " . implode(' ', $biasParts) : $q;
+            $searchQuery = ! empty($biasParts) ? "{$q} ".implode(' ', $biasParts) : $q;
             $encodedQuery = urlencode($searchQuery);
 
             $response = \App\Support\ExternalHttp::client()
                 ->timeout(4)
                 ->get("https://photon.komoot.io/api/?q={$encodedQuery}&limit=6&lang=default");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return [];
             }
 
@@ -204,7 +204,7 @@ class AddressController extends Controller
                     }
                 }
 
-                $subtitleParts = array_filter([$district, $city, $province], fn($val) => !empty($val) && $val !== $title);
+                $subtitleParts = array_filter([$district, $city, $province], fn ($val) => ! empty($val) && $val !== $title);
                 $subtitle = implode(', ', array_unique($subtitleParts));
 
                 $addressParts = array_filter([
@@ -215,15 +215,15 @@ class AddressController extends Controller
                 ]);
 
                 $results[] = [
-                    'title'        => $title,
-                    'subtitle'     => $subtitle ?: 'Indonesia',
+                    'title' => $title,
+                    'subtitle' => $subtitle ?: 'Indonesia',
                     'full_address' => implode(', ', array_unique($addressParts)),
-                    'lat'          => (float) ($coords[1] ?? 0),
-                    'lng'          => (float) ($coords[0] ?? 0),
-                    'city'         => $city,
-                    'province'     => $province,
-                    'district'     => $district,
-                    'village'      => '',
+                    'lat' => (float) ($coords[1] ?? 0),
+                    'lng' => (float) ($coords[0] ?? 0),
+                    'city' => $city,
+                    'province' => $province,
+                    'district' => $district,
+                    'village' => '',
                 ];
             }
 

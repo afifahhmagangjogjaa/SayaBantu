@@ -2,14 +2,16 @@
 
 namespace App\Livewire\SuperAdmin;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class NotificationDropdown extends Component
 {
     public $notifications = [];
+
     public $unreadCount = 0;
+
     public $recentUnread = [];
 
     public function mount()
@@ -22,19 +24,20 @@ class NotificationDropdown extends Component
     public function loadNotifications()
     {
         $user = Auth::user();
-        
-        if (!$user) {
+
+        if (! $user) {
             $this->notifications = collect([]);
             $this->unreadCount = 0;
             $this->recentUnread = [];
+
             return;
         }
-        
+
         // Load all notifications (limit to 10 most recent)
         $this->notifications = $user->notifications()
             ->take(10)
             ->get();
-        
+
         // Get unread count
         $this->unreadCount = $user->unreadNotifications()->count();
 
@@ -49,13 +52,13 @@ class NotificationDropdown extends Component
             $data = $notif->data ?? [];
             $type = $data['type'] ?? 'general';
 
-            $title = $data['title'] ?? match($type) {
+            $title = $data['title'] ?? match ($type) {
                 'new_topup_request', 'topup_request_submitted' => '💰 Request Top-Up Saldo Baru',
                 'new_withdraw_request', 'withdraw_status' => '💵 Permintaan Tarik Saldo Baru',
                 'new_registration', 'new_user' => '👤 Pendaftaran Pengguna Baru',
                 'help_taken' => '🤝 Bantuan Diambil',
-                'help_status' => (isset($data['new_status']) && in_array($data['new_status'], ['komplain', 'disputed'])) 
-                    ? '⚠️ Komplain Bantuan Diajukan' 
+                'help_status' => (isset($data['new_status']) && in_array($data['new_status'], ['komplain', 'disputed']))
+                    ? '⚠️ Komplain Bantuan Diajukan'
                     : '📢 Status Bantuan Diperbarui',
                 default => '📢 Pemberitahuan Baru'
             };
@@ -84,7 +87,7 @@ class NotificationDropdown extends Component
         $data = $notification->data ?? [];
         $type = $data['type'] ?? '';
 
-        if (!empty($data['url'])) {
+        if (! empty($data['url'])) {
             return $data['url'];
         }
 
@@ -100,10 +103,12 @@ class NotificationDropdown extends Component
     public function markAsRead($notificationId)
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $notification = $user->notifications()->find($notificationId);
-        
+
         if ($notification) {
             $notification->update(['read_at' => now(), 'popped_at' => $notification->popped_at ?? now()]);
             $this->loadNotifications();
@@ -114,7 +119,9 @@ class NotificationDropdown extends Component
     public function markAllAsRead()
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $user->unreadNotifications()->update(['read_at' => now(), 'popped_at' => now()]);
         $this->loadNotifications();
@@ -124,7 +131,7 @@ class NotificationDropdown extends Component
     public function markAsPopped(array $ids)
     {
         $user = Auth::user();
-        if ($user && !empty($ids)) {
+        if ($user && ! empty($ids)) {
             $user->notifications()->whereIn('id', $ids)->update(['popped_at' => now()]);
         }
     }
@@ -132,10 +139,12 @@ class NotificationDropdown extends Component
     public function deleteNotification($notificationId)
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $notification = $user->notifications()->find($notificationId);
-        
+
         if ($notification) {
             $notification->delete();
             $this->loadNotifications();
@@ -146,7 +155,9 @@ class NotificationDropdown extends Component
     public function deleteAllNotifications()
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $user->notifications()->delete();
         $this->loadNotifications();
@@ -156,13 +167,17 @@ class NotificationDropdown extends Component
     public function openNotification($notificationId)
     {
         $user = Auth::user();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $notification = $user->notifications()->find($notificationId);
-        if (!$notification) return;
+        if (! $notification) {
+            return;
+        }
 
         // Mark as read
-        if (!$notification->read_at) {
+        if (! $notification->read_at) {
             $notification->update(['read_at' => now(), 'popped_at' => $notification->popped_at ?? now()]);
         }
 
@@ -171,7 +186,7 @@ class NotificationDropdown extends Component
         $url = $data['url'] ?? null;
 
         // Determine destination url if not directly present in data
-        if (!$url) {
+        if (! $url) {
             $url = match ($type) {
                 'new_topup_request', 'topup_request_submitted' => route('superadmin.topup.approvals'),
                 'new_withdraw_request', 'withdraw_status' => route('superadmin.withdraws.index'),

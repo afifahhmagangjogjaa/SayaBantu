@@ -2,7 +2,7 @@
     <div class="max-w-2xl mx-auto">
         <!-- Header -->
         <div class="mb-6">
-            <a href="{{ route('customer.dashboard') }}"
+            <a href="{{ route('customer.dashboard') }}" wire:navigate
                 class="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -133,7 +133,7 @@
 
             <!-- Submit Button -->
             <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-                <a href="{{ route('customer.dashboard') }}"
+                <a href="{{ route('customer.dashboard') }}" wire:navigate
                     class="px-6 py-3 bg-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-300">
                     Batal
                 </a>

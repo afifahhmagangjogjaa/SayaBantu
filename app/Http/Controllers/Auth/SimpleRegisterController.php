@@ -4,18 +4,18 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class SimpleRegisterController extends Controller
 {
     public function show(Request $request)
     {
-        if (!$request->has('role') || !in_array($request->query('role'), ['customer', 'mitra'])) {
+        if (! $request->has('role') || ! in_array($request->query('role'), ['customer', 'mitra'])) {
             return redirect()->route('register.choose-role');
         }
 
         $role = $request->query('role');
+
         return view('auth.register-email', compact('role'));
     }
 
@@ -46,7 +46,7 @@ class SimpleRegisterController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
-            ]
+            ],
         ]);
 
         return redirect()->route('onboarding.step1')->with('message', 'Data akun tersimpan. Silakan lengkapi data diri dan dokumen Anda.');

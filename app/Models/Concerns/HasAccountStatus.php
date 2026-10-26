@@ -29,13 +29,13 @@ trait HasAccountStatus
             // 3. Hapus file sesi fisik jika menggunakan file driver
             $sessionPath = storage_path('framework/sessions');
             if (is_dir($sessionPath)) {
-                $files = @glob($sessionPath . '/*');
+                $files = @glob($sessionPath.'/*');
                 if (is_array($files)) {
                     foreach ($files as $file) {
                         if (is_file($file) && basename($file) !== '.gitignore') {
                             $content = @file_get_contents($file);
                             if ($content !== false && strpos($content, (string) $this->id) !== false) {
-                                if (preg_match('/login_[a-z0-9_]+[^\d]+' . $this->id . '([^\d]|$)/', $content)) {
+                                if (preg_match('/login_[a-z0-9_]+[^\d]+'.$this->id.'([^\d]|$)/', $content)) {
                                     @unlink($file);
                                 }
                             }
@@ -44,7 +44,7 @@ trait HasAccountStatus
                 }
             }
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning("Gagal membersihkan sesi user #{$this->id}: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning("Gagal membersihkan sesi user #{$this->id}: ".$e->getMessage());
         }
     }
 
@@ -82,6 +82,7 @@ trait HasAccountStatus
     public function getRoleEnumAttribute(): ?\App\Enums\UserRole
     {
         $roleValue = ($this->role === 'kustomer') ? 'customer' : (string) $this->role;
+
         return \App\Enums\UserRole::tryFrom($roleValue);
     }
 

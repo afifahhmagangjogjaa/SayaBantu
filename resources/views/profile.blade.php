@@ -163,7 +163,7 @@
                 
                 <div class="relative z-10">
                     <div class="flex items-center justify-between text-white mb-8">
-                        <a href="{{ route('dashboard') }}" aria-label="Kembali ke Beranda" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center justify-center">
+                        <a href="{{ route('dashboard') }}" wire:navigate aria-label="Kembali ke Beranda" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
@@ -171,7 +171,7 @@
 
                         <h1 class="text-lg font-bold">Profil Saya</h1>
 
-                        <a href="{{ route('profile.edit') }}" class="p-2 hover:bg-white/20 rounded-lg transition">
+                        <a href="{{ route('profile.edit') }}" wire:navigate class="p-2 hover:bg-white/20 rounded-lg transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
@@ -181,16 +181,8 @@
                     <!-- Profile Avatar & Info -->
                     <div class="text-center avatar-container">
                         <div class="relative inline-block">
-                            @php
-                                $__avatar = optional($user)->profile_photo ?? optional($user)->photo ?? null;
-                            @endphp
-                            @if($__avatar)
-                                <img src="{{ asset('storage/' . $__avatar) }}" alt="Avatar" class="w-24 h-24 rounded-full object-cover mx-auto ring-4 ring-white/30 shadow-xl">
-                            @else
-                                <div class="w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl font-bold mx-auto ring-4 ring-white/30 shadow-xl">
-                                    {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
-                                </div>
-                            @endif
+                            <x-user-avatar :user="$user"
+                                class="w-24 h-24 rounded-full mx-auto text-3xl font-bold text-white bg-white/20 backdrop-blur-sm ring-4 ring-white/30 shadow-xl" />
 
                             <button onclick="Livewire.dispatch('openModal')" class="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-transform duration-200">
                                 <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -275,7 +267,7 @@
                                 Rp {{ number_format($customerBalance, 0, ',', '.') }}
                             </p>
                         </div>
-                        <a href="{{ route('customer.topup') }}"
+                        <a href="{{ route('customer.topup') }}" wire:navigate
                            class="px-4 py-2 rounded-full text-xs font-bold text-white bg-[#0066FF] hover:bg-blue-700 transition shadow-sm flex items-center gap-1 active:scale-95">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -395,7 +387,7 @@
                                 <div class="mt-1 text-amber-800 leading-relaxed">
                                     Upload foto KTP dan foto selfie Anda untuk verifikasi identitas agar dapat menggunakan seluruh fitur aplikasi.
                                 </div>
-                                <a href="{{ route('profile.settings.verification') }}" class="inline-flex items-center gap-1.5 font-bold text-white bg-amber-600 hover:bg-amber-700 px-3.5 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-xs">
+                                <a href="{{ route('profile.settings.verification') }}" wire:navigate class="inline-flex items-center gap-1.5 font-bold text-white bg-amber-600 hover:bg-amber-700 px-3.5 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-xs">
                                     <span>Upload KTP & Selfie Sekarang</span>
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                 </a>
@@ -433,7 +425,7 @@
                             <div class="mt-1 text-amber-800 leading-relaxed">
                                 Mohon lengkapi data profil wajib (<strong>{{ implode(', ', $missingFields) }}</strong>) agar akun Anda lengkap dan dapat mengajukan bantuan.
                             </div>
-                            <a href="{{ route('profile.edit') }}" class="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-2xs">
+                            <a href="{{ route('profile.edit') }}" wire:navigate class="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 px-3 py-1.5 rounded-lg mt-2.5 transition text-xs shadow-2xs">
                                 <span>Lengkapi Biodata Sekarang &rarr;</span>
                             </a>
                         </div>
@@ -443,7 +435,7 @@
                 <!-- Full Width Menu Items -->
                 <div class="space-y-3">
                     <!-- Verifikasi KTP & Identitas -->
-                    <a href="{{ route('profile.settings.verification') }}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:border-orange-200 transition" style="display: flex; align-items: center; gap: 16px;">
+                    <a href="{{ route('profile.settings.verification') }}" wire:navigate class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:border-orange-200 transition" style="display: flex; align-items: center; gap: 16px;">
                         <div class="rounded-xl shadow-md" style="width: 48px; height: 48px; min-width: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);">
                             <svg style="width: 24px; height: 24px; color: #ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
@@ -468,7 +460,7 @@
                     </a>
                     @if(auth()->user() && auth()->user()->role === 'mitra')
                         <!-- Rating & Ulasan (Hanya Mitra) -->
-                        <a href="{{ route('mitra.ratings') }}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-primary-200 transition">
+                        <a href="{{ route('mitra.ratings') }}" wire:navigate class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-primary-200 transition">
                             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 flex-shrink-0">
                                 <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -482,7 +474,7 @@
                     @endif
 
                     <!-- Pengaturan -->
-                    <a href="{{ route('profile.settings') }}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-primary-200 transition">
+                    <a href="{{ route('profile.settings') }}" wire:navigate class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-primary-200 transition">
                         <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-gray-400 to-gray-600 flex-shrink-0">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -495,7 +487,7 @@
                         </svg>
                     </a>
                     <!-- Bantuan & Dukungan -->
-                    <a href="{{ route('customer.help-support') }}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-primary-200 transition">
+                    <a href="{{ route('customer.help-support') }}" wire:navigate class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md hover:border-primary-200 transition">
                         <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-400 to-purple-600 flex-shrink-0">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

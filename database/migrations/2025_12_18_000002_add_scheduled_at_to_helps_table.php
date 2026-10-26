@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('helps', function (Blueprint $table) {
-            if (!Schema::hasColumn('helps', 'scheduled_at')) {
+            if (! Schema::hasColumn('helps', 'scheduled_at')) {
                 $table->dateTime('scheduled_at')->nullable()->after('full_address');
             }
         });

@@ -487,15 +487,8 @@
                 <h3 class="font-semibold text-sm text-gray-900">Informasi Customer</h3>
             </div>
             <div class="flex items-center gap-3 mb-3">
-                @if ($help->user->profile_photo)
-                    <img src="{{ asset('storage/' . $help->user->profile_photo) }}" alt="{{ $help->user->name }}"
-                        class="w-12 h-12 rounded-full object-cover border-2 border-blue-100">
-                @else
-                    <div
-                        class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
-                        {{ strtoupper(substr($help->user->name ?? 'C', 0, 1)) }}
-                    </div>
-                @endif
+                <x-user-avatar :user="$help->user"
+                    class="w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-lg border-2 border-blue-100" />
                 <div class="flex-1">
                     <h4 class="font-semibold text-sm text-gray-900">{{ $help->user->name }}</h4>
                     <p class="text-sm text-gray-600 mt-0.5">{{ $help->city->name ?? '-' }}</p>
@@ -518,7 +511,7 @@
                         <span>WhatsApp</span>
                     </a>
                 @endif
-                <a href="{{ route('mitra.chat', ['help' => $help->id]) }}"
+                <a href="{{ route('mitra.chat', ['help' => $help->id]) }}" wire:navigate
                     class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition overflow-hidden shadow-2xs">
                     <div class="relative flex items-center justify-center">
                         <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1503,7 +1496,7 @@
                 <p class="text-xs text-gray-600 leading-relaxed mb-6">
                     Pesanan ini telah dialihkan oleh customer ke Rekan Jasa lain karena belum ada tanda pergerakan menuju lokasi dalam waktu 30 menit.
                 </p>
-                <a href="{{ route('mitra.dashboard') }}"
+                <a href="{{ route('mitra.dashboard') }}" wire:navigate
                    class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition">
                     Kembali ke Beranda
                 </a>

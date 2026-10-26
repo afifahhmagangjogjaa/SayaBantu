@@ -2,27 +2,28 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasAccountStatus;
+use App\Models\Concerns\HasBalanceWallet;
+use App\Models\Concerns\HasOrderQuota;
+use App\Models\Concerns\HasProfileCompleteness;
+use App\Models\Concerns\HasRatingStats;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Concerns\HasAccountStatus;
-use App\Models\Concerns\HasOrderQuota;
-use App\Models\Concerns\HasBalanceWallet;
-use App\Models\Concerns\HasProfileCompleteness;
-use App\Models\Concerns\HasRatingStats;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasAccountStatus;
-    use HasOrderQuota;
     use HasBalanceWallet;
-    use HasProfileCompleteness;
-    use HasRatingStats;
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+
+    use HasOrderQuota;
+    use HasProfileCompleteness;
+    use HasRatingStats;
 
     protected static function booted()
     {
@@ -36,17 +37,17 @@ class User extends Authenticatable implements MustVerifyEmail
                     ->when($oldEmail && $oldEmail !== $user->email, function ($q) use ($oldEmail) {
                         $q->orWhere('email', $oldEmail);
                     })
-                    ->when(!empty($user->nik), function ($q) use ($user) {
+                    ->when(! empty($user->nik), function ($q) use ($user) {
                         $q->orWhere('nik', $user->nik);
                     })
-                    ->when(!empty($oldNik) && $oldNik !== $user->nik, function ($q) use ($oldNik) {
+                    ->when(! empty($oldNik) && $oldNik !== $user->nik, function ($q) use ($oldNik) {
                         $q->orWhere('nik', $oldNik);
                     })
                     ->first();
 
                 if ($reg) {
                     $cityName = $user->city;
-                    if (empty($cityName) && !empty($user->city_id)) {
+                    if (empty($cityName) && ! empty($user->city_id)) {
                         $cityName = \App\Models\City::find($user->city_id)?->name;
                     }
 
@@ -191,7 +192,6 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Hapus total seluruh sesi aktif pengguna dari database dan file sesi, serta kosongkan remember_token
      */
-
     protected function maritalStatus(): Attribute
     {
         return Attribute::make(
@@ -238,7 +238,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function managedCities()
     {
         return $this->belongsToMany(City::class, 'admin_city', 'user_id', 'city_id')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     // Alias for managedCities
@@ -249,20 +249,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get all city IDs associated with/managed by this admin.
-     *
-     * @return array
      */
     public function getAdminCityIds(): array
     {
         $cityIds = collect();
 
-        if ($this->exists && !empty($this->id)) {
+        if ($this->exists && ! empty($this->id)) {
             $managedDirect = City::where('admin_id', $this->id)->pluck('id');
             $managedPivot = $this->managedCities()->pluck('cities.id');
             $cityIds = $cityIds->merge($managedDirect)->merge($managedPivot);
         }
 
-        if (!empty($this->city_id)) {
+        if (! empty($this->city_id)) {
             $cityIds->push($this->city_id);
         }
 
@@ -287,18 +285,17 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get all active admins managing a specific city.
      *
-     * @param int|null $cityId
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function getAdminsForCity(?int $cityId)
     {
-        if (!$cityId) {
+        if (! $cityId) {
             return collect();
         }
 
         $targetCity = City::find($cityId);
         $targetCityIds = [$cityId];
-        if ($targetCity && !empty($targetCity->code)) {
+        if ($targetCity && ! empty($targetCity->code)) {
             $targetCityIds = City::where('code', $targetCity->code)->pluck('id')->toArray();
         }
 
@@ -308,11 +305,11 @@ class User extends Authenticatable implements MustVerifyEmail
             ->where('status', 'active')
             ->where(function ($query) use ($targetCityIds, $directAdminIds) {
                 $query->whereIn('city_id', $targetCityIds)
-                      ->orWhereHas('managedCities', function ($q) use ($targetCityIds) {
-                          $q->whereIn('cities.id', $targetCityIds);
-                      });
+                    ->orWhereHas('managedCities', function ($q) use ($targetCityIds) {
+                        $q->whereIn('cities.id', $targetCityIds);
+                    });
 
-                if (!empty($directAdminIds)) {
+                if (! empty($directAdminIds)) {
                     $query->orWhereIn('id', $directAdminIds);
                 }
             })
@@ -393,7 +390,6 @@ class User extends Authenticatable implements MustVerifyEmail
      * Cek apakah mitra dapat melakukan penarikan saldo
      * Syarat: Email harus terverifikasi dan profil lengkap
      */
-
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class, 'mitra_id');
@@ -410,7 +406,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Rating::class, 'ratee_id')->where('type', 'mitra_to_customer');
     }
 
-    // Ratings received as mitra (from customer)  
+    // Ratings received as mitra (from customer)
     public function mitraRatings()
     {
         return $this->hasMany(Rating::class, 'ratee_id')->where('type', 'customer_to_mitra');
@@ -456,7 +452,7 @@ class User extends Authenticatable implements MustVerifyEmail
             return $rel->name;
         }
 
-        if (!empty($this->city_id)) {
+        if (! empty($this->city_id)) {
             $city = \App\Models\City::find($this->city_id);
             if ($city) {
                 return $city->name;

@@ -4,10 +4,20 @@ Folder ini **bukan bagian dari aplikasi**. Tidak ada satu pun file di sini yang
 di-autoload, dipanggil route, command, atau scheduler. Isinya skrip sekali pakai
 untuk debugging dan pengecekan data saat pengembangan.
 
+Semua skrip PHP memakai `scripts/bootstrap.php` untuk memuat autoloader dan
+`bootstrap/app.php`, jadi tidak perlu menulis path relatif sendiri-sendiri:
+
+```php
+$app = require_once __DIR__.'/bootstrap.php';        // dari scripts/
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+```
+
+Untuk skrip di `legacy/`, pakai `__DIR__.'/../bootstrap.php'`.
+
 Jalankan manual bila perlu, contoh:
 
 ```bash
-php scripts/check_balance.php
+php scripts/check_balance.php 12
 php scripts/check_roles.php
 ```
 

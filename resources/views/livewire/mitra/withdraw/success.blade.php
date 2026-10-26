@@ -53,10 +53,10 @@
                 </div>
 
                 <div class="flex gap-2.5 pt-2">
-                    <a href="{{ route('mitra.withdraw.history') }}" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm">
+                    <a href="{{ route('mitra.withdraw.history') }}" wire:navigate class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm">
                         Lihat Riwayat
                     </a>
-                    <a href="{{ route('mitra.dashboard') }}" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
+                    <a href="{{ route('mitra.dashboard') }}" wire:navigate class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
                         Ke Dashboard
                     </a>
                 </div>

@@ -2,19 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Enums\HelpStatus;
 use App\Models\Concerns\HandlesMitraCancellation;
 use App\Models\Concerns\HandlesPayoutAndConfirmation;
-use App\Models\Concerns\HasJourneyTimeline;
 use App\Models\Concerns\HasHelpStatus;
+use App\Models\Concerns\HasJourneyTimeline;
+use Illuminate\Database\Eloquent\Model;
 
 class Help extends Model
 {
+    use HandlesMitraCancellation;
+    use HandlesPayoutAndConfirmation;
     use HasHelpStatus;
     use HasJourneyTimeline;
-    use HandlesPayoutAndConfirmation;
-    use HandlesMitraCancellation;
+
     protected $fillable = [
         'user_id',
         'city_id',
@@ -158,7 +158,7 @@ class Help extends Model
 
     public function scopeInMitraCity($query, $user)
     {
-        if (!$user || empty($user->city_id)) {
+        if (! $user || empty($user->city_id)) {
             return $query;
         }
 
@@ -168,7 +168,7 @@ class Help extends Model
         return $query->where(function ($q) use ($user, $userCityCode) {
             $q->where('helps.city_id', $user->city_id);
 
-            if (!$userCityCode) {
+            if (! $userCityCode) {
                 return;
             }
 
@@ -183,7 +183,7 @@ class Help extends Model
                 $regencyId = (int) $m[1];
             }
 
-            if (!$regencyId) {
+            if (! $regencyId) {
                 return;
             }
 
@@ -261,7 +261,6 @@ class Help extends Model
      * 2. ATAU jika mitra terlambat berangkat (> 30 menit) dan saat ini masih dalam perjalanan (belum tiba di lokasi)
      * Hak ini otomatis tertutup begitu mitra sudah tiba di lokasi (partner_arrived) atau mulai bekerja.
      */
-
     public static function cancelExpiredUrgentHelps(): int
     {
         $expiredHelps = static::where('status', 'menunggu_mitra')
@@ -307,5 +306,4 @@ class Help extends Model
     {
         return \App\Console\Commands\AutoConfirmHelps::autoConfirmExpired(null, $userId, $mitraId);
     }
-
 }

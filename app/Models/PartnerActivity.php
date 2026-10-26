@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class PartnerActivity extends Model
 {
@@ -25,11 +25,7 @@ class PartnerActivity extends Model
     /**
      * Create a partner activity record.
      *
-     * @param mixed $user User model or user id
-     * @param string $activityType
-     * @param string|null $description
-     * @param string|null $ip
-     * @param string|null $userAgent
+     * @param  mixed  $user  User model or user id
      * @return static
      */
     public static function record($user, string $activityType, ?string $description = null, ?string $ip = null, ?string $userAgent = null)

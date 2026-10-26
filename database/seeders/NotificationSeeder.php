@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Help;
+use App\Models\User;
 use App\Notifications\HelpTakenNotification;
+use Illuminate\Database\Seeder;
 
 class NotificationSeeder extends Seeder
 {

@@ -2,17 +2,21 @@
 
 namespace App\Livewire\Admin\Helps;
 
-use Livewire\Component;
+use App\Enums\HelpStatus;
 use App\Models\Help;
 use App\Models\User;
-use App\Enums\HelpStatus;
+use Livewire\Component;
 
 class Show extends Component
 {
     public $helpId;
+
     public $help;
+
     public $showDecisionModal = false;
+
     public $decisionType = ''; // 'refund' | 'reject_complaint'
+
     public $admin_notes = '';
 
     public function mount($id)
@@ -29,12 +33,12 @@ class Show extends Component
     public function toggleShadowBan($userId)
     {
         $user = User::findOrFail($userId);
-        $user->is_shadow_banned = !((bool) $user->is_shadow_banned);
+        $user->is_shadow_banned = ! ((bool) $user->is_shadow_banned);
         $user->shadow_banned_at = $user->is_shadow_banned ? now() : null;
         $user->save();
 
         $this->loadHelp();
-        $label = $user->is_shadow_banned 
+        $label = $user->is_shadow_banned
             ? "👻 Shadow Ban berhasil diaktifkan untuk {$user->name}. Permintaan berikutnya akan disembunyikan secara senyap."
             : "✅ Shadow Ban berhasil dinonaktifkan untuk {$user->name}.";
         session()->flash('message', $label);
@@ -47,7 +51,7 @@ class Show extends Component
         $user->save();
 
         $this->loadHelp();
-        $label = $user->status === 'blocked' 
+        $label = $user->status === 'blocked'
             ? "⛔ Pengguna {$user->name} berhasil diblokir."
             : "✅ Blokir pengguna {$user->name} berhasil dibuka.";
         session()->flash('message', $label);
@@ -90,8 +94,8 @@ class Show extends Component
         $this->validate([
             'admin_notes' => 'required|string|min:5|max:1000',
         ], [
-            'admin_notes.required' => $isRejectHelp 
-                ? 'Wajib mengisi alasan penolakan bantuan.' 
+            'admin_notes.required' => $isRejectHelp
+                ? 'Wajib mengisi alasan penolakan bantuan.'
                 : 'Wajib mengisi catatan/alasan keputusan mediasi.',
             'admin_notes.min' => 'Catatan minimal :min karakter.',
             'admin_notes.max' => 'Catatan maksimal :max karakter.',
@@ -111,6 +115,7 @@ class Show extends Component
         if (in_array($this->help->status, ['selesai', 'completed', 'dibatalkan', 'cancelled', 'rejected'])) {
             session()->flash('error', 'Bantuan tidak dapat ditolak karena sudah selesai atau dibatalkan.');
             $this->closeDecisionModal();
+
             return;
         }
 
@@ -127,7 +132,7 @@ class Show extends Component
     public function approveRefund()
     {
         $oldStatus = $this->help->status;
-        
+
         // Mengubah status menjadi 'dibatalkan' -> HelpObserver otomatis mengembalikan saldo 100% ke customer
         $this->help->update([
             'status' => 'dibatalkan',
@@ -142,18 +147,20 @@ class Show extends Component
             if ($customer) {
                 $customer->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'dibatalkan', $customer));
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         // Notifikasi ke Mitra
         try {
             if ($this->help->mitra) {
                 $this->help->mitra->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'dibatalkan', $this->help->mitra));
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->showDecisionModal = false;
         $this->loadHelp();
-        session()->flash('message', 'Komplain customer disetujui. Dana sebesar Rp ' . number_format($this->help->amount + ($this->help->admin_fee ?? 0), 0, ',', '.') . ' telah dikembalikan ke saldo customer.');
+        session()->flash('message', 'Komplain customer disetujui. Dana sebesar Rp '.number_format($this->help->amount + ($this->help->admin_fee ?? 0), 0, ',', '.').' telah dikembalikan ke saldo customer.');
     }
 
     public function rejectComplaint()
@@ -175,23 +182,25 @@ class Show extends Component
             if ($customer) {
                 $customer->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'selesai', $customer));
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         // Notifikasi ke Mitra
         try {
             if ($this->help->mitra) {
                 $this->help->mitra->notify(new \App\Notifications\HelpStatusNotification($this->help, $oldStatus, 'selesai', $this->help->mitra));
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->showDecisionModal = false;
         $this->loadHelp();
-        session()->flash('message', 'Komplain ditolak. Pekerjaan dinyatakan selesai dan dana sebesar Rp ' . number_format($this->help->amount, 0, ',', '.') . ' telah dicairkan ke saldo mitra.');
+        session()->flash('message', 'Komplain ditolak. Pekerjaan dinyatakan selesai dan dana sebesar Rp '.number_format($this->help->amount, 0, ',', '.').' telah dicairkan ke saldo mitra.');
     }
 
     public function render()
     {
         return view('admin.helps-show')
-            ->layout('layouts.admin', ['pageTitle' => 'Detail Bantuan #' . $this->helpId]);
+            ->layout('layouts.admin', ['pageTitle' => 'Detail Bantuan #'.$this->helpId]);
     }
 }

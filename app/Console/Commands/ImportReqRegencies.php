@@ -2,15 +2,16 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 use App\Models\City;
 use App\Models\Province;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ImportReqRegencies extends Command
 {
     protected $signature = 'import:req-regencies {--dry-run}';
+
     protected $description = 'Import or sync rows from req_regencies (+ req_provinces) into cities table';
 
     public function handle()
@@ -29,10 +30,11 @@ class ImportReqRegencies extends Command
 
         if (! $source) {
             $this->error('No supported source tables found. Checked: req_regencies, reg_regencies, regencies.');
+
             return 1;
         }
 
-        $this->info('Using source: ' . $source);
+        $this->info('Using source: '.$source);
 
         if ($source === 'req') {
             $rows = DB::table('req_regencies')
@@ -57,12 +59,13 @@ class ImportReqRegencies extends Command
         $bar = $this->output->createProgressBar($rows->count());
         $bar->start();
 
-        $created = 0; $updated = 0;
+        $created = 0;
+        $updated = 0;
 
         foreach ($rows as $r) {
             $bar->advance();
 
-            $code = 'reqr-' . $r->regency_id;
+            $code = 'reqr-'.$r->regency_id;
 
             // find by code or by name+province as fallback
             $city = City::where('code', $code)->orWhere(function ($q) use ($r) {
@@ -81,9 +84,15 @@ class ImportReqRegencies extends Command
                 'code' => $code,
                 'is_active' => true,
             ];
-            if (! empty($r->latitude)) $data['latitude'] = $r->latitude;
-            if (! empty($r->longitude)) $data['longitude'] = $r->longitude;
-            if ($provModel) $data['province_id'] = $provModel->id;
+            if (! empty($r->latitude)) {
+                $data['latitude'] = $r->latitude;
+            }
+            if (! empty($r->longitude)) {
+                $data['longitude'] = $r->longitude;
+            }
+            if ($provModel) {
+                $data['province_id'] = $provModel->id;
+            }
 
             if ($city) {
                 $city->update($data);

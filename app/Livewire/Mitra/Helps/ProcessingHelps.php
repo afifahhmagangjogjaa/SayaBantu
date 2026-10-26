@@ -2,11 +2,11 @@
 
 namespace App\Livewire\Mitra\Helps;
 
+use App\Enums\HelpStatus;
 use App\Models\Help;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use App\Enums\HelpStatus;
 
 #[Layout('layouts.mitra')]
 class ProcessingHelps extends Component
@@ -14,6 +14,7 @@ class ProcessingHelps extends Component
     use WithPagination;
 
     public $tab = 'diproses'; // 'diproses' | 'selesai' | 'dibatalkan'
+
     public $search = '';
 
     protected $queryString = [
@@ -29,7 +30,7 @@ class ProcessingHelps extends Component
         'sedang_diproses',
         'partner_cancel_requested',
         'diproses_mitra',
-        'waiting_customer_confirmation'
+        'waiting_customer_confirmation',
     ];
 
     public function mount()
@@ -62,8 +63,9 @@ class ProcessingHelps extends Component
     public function completeHelp($helpId)
     {
         $help = Help::where('id', $helpId)->where('mitra_id', auth()->id())->first();
-        if (!$help) {
+        if (! $help) {
             $this->dispatch('error', 'Bantuan tidak ditemukan atau bukan milik Anda');
+
             return;
         }
 
@@ -71,7 +73,7 @@ class ProcessingHelps extends Component
             'status' => HelpStatus::WAITING_CUSTOMER_CONFIRMATION->value,
         ]);
 
-        if (!$help->service_completed_at) {
+        if (! $help->service_completed_at) {
             $help->update(['service_completed_at' => now()]);
         }
 
@@ -97,22 +99,22 @@ class ProcessingHelps extends Component
                 ->latest();
         }
 
-        if (!empty($this->search)) {
+        if (! empty($this->search)) {
             $keyword = trim($this->search);
             $query->where(function ($q) use ($keyword) {
-                $q->where('helps.title', 'like', '%' . $keyword . '%')
-                    ->orWhere('helps.description', 'like', '%' . $keyword . '%')
-                    ->orWhere('helps.location', 'like', '%' . $keyword . '%')
-                    ->orWhere('helps.full_address', 'like', '%' . $keyword . '%')
+                $q->where('helps.title', 'like', '%'.$keyword.'%')
+                    ->orWhere('helps.description', 'like', '%'.$keyword.'%')
+                    ->orWhere('helps.location', 'like', '%'.$keyword.'%')
+                    ->orWhere('helps.full_address', 'like', '%'.$keyword.'%')
                     ->orWhereHas('user', function ($u) use ($keyword) {
-                        $u->where('name', 'like', '%' . $keyword . '%')
-                            ->orWhere('phone', 'like', '%' . $keyword . '%');
+                        $u->where('name', 'like', '%'.$keyword.'%')
+                            ->orWhere('phone', 'like', '%'.$keyword.'%');
                     })
                     ->orWhereHas('city', function ($c) use ($keyword) {
-                        $c->where('name', 'like', '%' . $keyword . '%');
+                        $c->where('name', 'like', '%'.$keyword.'%');
                     })
                     ->orWhereHas('category', function ($cat) use ($keyword) {
-                        $cat->where('name', 'like', '%' . $keyword . '%');
+                        $cat->where('name', 'like', '%'.$keyword.'%');
                     });
             });
         }

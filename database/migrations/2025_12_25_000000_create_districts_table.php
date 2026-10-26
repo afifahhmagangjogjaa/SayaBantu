@@ -21,10 +21,10 @@ class CreateDistrictsTable extends Migration
                 $table->timestamps();
 
                 $table->foreign('regency_id')
-                      ->references('id')
-                      ->on('regencies')
-                      ->onUpdate('cascade')
-                      ->onDelete('restrict');
+                    ->references('id')
+                    ->on('regencies')
+                    ->onUpdate('cascade')
+                    ->onDelete('restrict');
 
                 $table->engine = 'InnoDB';
                 $table->charset = 'utf8mb4';

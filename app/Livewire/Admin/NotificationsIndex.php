@@ -2,15 +2,16 @@
 
 namespace App\Livewire\Admin;
 
+use Illuminate\Notifications\DatabaseNotification;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Notifications\DatabaseNotification;
 
 class NotificationsIndex extends Component
 {
     use WithPagination;
 
     public $filter = 'all'; // 'all' or 'unread'
+
     public $selected = [];
 
     public function setFilter($mode)
@@ -32,7 +33,9 @@ class NotificationsIndex extends Component
 
     public function bulkMarkAsRead()
     {
-        if (empty($this->selected)) return;
+        if (empty($this->selected)) {
+            return;
+        }
 
         DatabaseNotification::whereIn('id', $this->selected)
             ->where('notifiable_id', auth()->id())
@@ -46,7 +49,9 @@ class NotificationsIndex extends Component
 
     public function bulkDelete()
     {
-        if (empty($this->selected)) return;
+        if (empty($this->selected)) {
+            return;
+        }
 
         DatabaseNotification::whereIn('id', $this->selected)
             ->where('notifiable_id', auth()->id())
@@ -86,10 +91,10 @@ class NotificationsIndex extends Component
             $data = $notification->data ?? [];
             if (($data['type'] ?? '') === 'help_status' && ($data['new_status'] ?? '') === 'partner_cancelled_direct') {
                 $mitraId = $data['mitra_id'] ?? null;
-                if (!$mitraId && !empty($data['help_id'])) {
+                if (! $mitraId && ! empty($data['help_id'])) {
                     $help = \App\Models\Help::find($data['help_id']);
                     $mitraId = $help?->mitra_id;
-                    if (!$mitraId) {
+                    if (! $mitraId) {
                         $activity = \App\Models\PartnerActivity::where('activity_type', 'help_cancelled')->where('description', 'like', "%#{$data['help_id']}%")->latest()->first();
                         $mitraId = $activity?->user_id;
                     }
@@ -122,25 +127,26 @@ class NotificationsIndex extends Component
         // City scoping filter
         $filtered = $rawNotifs->filter(function ($notif) use ($adminCityIds) {
             $data = $notif->data ?? [];
-            if (!empty($data['url']) && str_contains($data['url'], '/superadmin/')) {
+            if (! empty($data['url']) && str_contains($data['url'], '/superadmin/')) {
                 return false;
             }
-            if (!empty($data['city_id'])) {
-                return in_array((int)$data['city_id'], $adminCityIds);
+            if (! empty($data['city_id'])) {
+                return in_array((int) $data['city_id'], $adminCityIds);
             }
-            if (!empty($data['help_id'])) {
+            if (! empty($data['help_id'])) {
                 $help = \App\Models\Help::find($data['help_id']);
                 if ($help && $help->city_id) {
-                    return in_array((int)$help->city_id, $adminCityIds);
+                    return in_array((int) $help->city_id, $adminCityIds);
                 }
             }
             $targetUserId = $data['mitra_id'] ?? $data['user_id'] ?? null;
             if ($targetUserId) {
                 $targetUser = \App\Models\User::find($targetUserId);
                 if ($targetUser && $targetUser->city_id) {
-                    return in_array((int)$targetUser->city_id, $adminCityIds);
+                    return in_array((int) $targetUser->city_id, $adminCityIds);
                 }
             }
+
             return true;
         });
 
@@ -156,12 +162,12 @@ class NotificationsIndex extends Component
         );
 
         $unreadCount = $filtered->whereNull('read_at')->count();
-        $totalCount  = $filtered->count();
+        $totalCount = $filtered->count();
 
         return view('livewire.admin.notifications-index', [
             'notifications' => $notifications,
-            'unreadCount'   => $unreadCount,
-            'totalCount'    => $totalCount,
+            'unreadCount' => $unreadCount,
+            'totalCount' => $totalCount,
         ])->layout('layouts.admin', ['pageTitle' => 'Semua Notifikasi']);
     }
 }

@@ -20,12 +20,13 @@ trait HasBalanceWallet
     {
         // Use UserBalance helper methods to modify balance and record transactions.
         $userBalance = $this->balance()->first();
-        if (!$userBalance) {
+        if (! $userBalance) {
             $userBalance = $this->balance()->create(['balance' => 0]);
         }
 
-        if ($amountDelta === 0)
+        if ($amountDelta === 0) {
             return;
+        }
 
         if ($amountDelta > 0) {
             // Refund / topup

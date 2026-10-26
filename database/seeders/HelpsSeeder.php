@@ -2,14 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\City;
 use App\Models\Help;
 use App\Models\User;
-use App\Models\City;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 
 class HelpsSeeder extends Seeder
 {
@@ -19,7 +18,7 @@ class HelpsSeeder extends Seeder
     public function run(): void
     {
         // Pastikan folder storage/helps ada
-        if (!File::exists(storage_path('app/public/helps'))) {
+        if (! File::exists(storage_path('app/public/helps'))) {
             File::makeDirectory(storage_path('app/public/helps'), 0755, true);
         }
 
@@ -129,9 +128,10 @@ class HelpsSeeder extends Seeder
 
         // Get Budi user only
         $budiUser = User::where('email', 'budi@example.com')->first();
-        
-        if (!$budiUser) {
+
+        if (! $budiUser) {
             $this->command->error('❌ User budi@example.com tidak ditemukan! Pastikan UserSeeder sudah dijalankan.');
+
             return;
         }
 
@@ -187,10 +187,10 @@ class HelpsSeeder extends Seeder
         ];
 
         foreach ($images as $image) {
-            $path = storage_path('app/public/helps/' . $image);
+            $path = storage_path('app/public/helps/'.$image);
 
             // Create a simple placeholder image using GD
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 $width = 800;
                 $height = 600;
                 $img = imagecreatetruecolor($width, $height);

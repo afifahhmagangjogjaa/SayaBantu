@@ -216,7 +216,7 @@ new #[Layout('layouts.blank')] class extends Component
                                 <div class="text-xs">
                                     <p class="font-bold text-red-800">Gagal Mengubah Password</p>
                                     <p class="mt-0.5 text-red-600 leading-relaxed">{{ $message }}</p>
-                                    <a href="{{ route('admin.password.request') }}" class="inline-block mt-2 font-semibold text-primary-600 hover:underline">
+                                    <a href="{{ route('admin.password.request') }}" wire:navigate class="inline-block mt-2 font-semibold text-primary-600 hover:underline">
                                         Minta link baru &rarr;
                                     </a>
                                 </div>
@@ -479,7 +479,7 @@ new #[Layout('layouts.blank')] class extends Component
                                 <div class="text-xs">
                                     <p class="font-bold text-red-800">Gagal Mengubah Password</p>
                                     <p class="mt-0.5 text-red-600 leading-relaxed">{{ $message }}</p>
-                                    <a href="{{ route('password.request') }}" class="inline-block mt-2 font-semibold text-blue-600 hover:underline">
+                                    <a href="{{ route('password.request') }}" wire:navigate class="inline-block mt-2 font-semibold text-blue-600 hover:underline">
                                         Minta link baru &rarr;
                                     </a>
                                 </div>

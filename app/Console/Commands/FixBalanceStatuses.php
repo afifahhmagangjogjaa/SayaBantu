@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 class FixBalanceStatuses extends Command
 {
     protected $signature = 'balances:fix-statuses';
+
     protected $description = 'Fix common typos in balance_transactions.status (e.g. panding -> pending)';
 
     public function handle()
@@ -25,12 +26,12 @@ class FixBalanceStatuses extends Command
 
         foreach ($mapping as $wrong => $correct) {
             $count = DB::table('balance_transactions')
-                ->whereRaw("LOWER(TRIM(status)) = ?", [$wrong])
+                ->whereRaw('LOWER(TRIM(status)) = ?', [$wrong])
                 ->count();
 
             if ($count > 0) {
                 DB::table('balance_transactions')
-                    ->whereRaw("LOWER(TRIM(status)) = ?", [$wrong])
+                    ->whereRaw('LOWER(TRIM(status)) = ?', [$wrong])
                     ->update(['status' => $correct, 'updated_at' => now()]);
 
                 $this->info("Updated {$count} rows: '{$wrong}' -> '{$correct}'");
@@ -38,6 +39,7 @@ class FixBalanceStatuses extends Command
         }
 
         $this->info('Done.');
+
         return 0;
     }
 }

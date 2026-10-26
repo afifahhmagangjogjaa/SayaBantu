@@ -5,7 +5,7 @@
         <!-- Top Back Bar -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:px-6 sm:py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <a href="{{ route('admin.partners.report') }}"
+                <a href="{{ route('admin.partners.report') }}" wire:navigate
                     class="inline-flex items-center gap-2 px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-xl transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -128,7 +128,7 @@
                     @if ($report->reporter)
                         <div class="flex items-center justify-between">
                             <div>
-                                <a href="{{ route('admin.users.show', $report->reporter) }}"
+                                <a href="{{ route('admin.users.show', $report->reporter) }}" wire:navigate
                                     class="text-primary-600 hover:text-primary-700 hover:underline font-medium">
                                     {{ $report->reporter->name }}
                                 </a>
@@ -137,7 +137,7 @@
                                     Role: <span class="font-semibold">{{ ucfirst($report->reporter->role) }}</span>
                                 </div>
                             </div>
-                            <a href="{{ route('admin.users.show', $report->reporter) }}"
+                            <a href="{{ route('admin.users.show', $report->reporter) }}" wire:navigate
                                 class="px-3 py-1.5 border border-gray-300 rounded-full text-xs text-gray-700 hover:bg-gray-50">
                                 Lihat Profil
                             </a>
@@ -145,7 +145,7 @@
                     @elseif ($report->user)
                         <div class="flex items-center justify-between">
                             <div>
-                                <a href="{{ route('admin.users.show', $report->user) }}"
+                                <a href="{{ route('admin.users.show', $report->user) }}" wire:navigate
                                     class="text-primary-600 hover:text-primary-700 hover:underline font-medium">
                                     {{ $report->user->name }}
                                 </a>
@@ -154,7 +154,7 @@
                                     Role: <span class="font-semibold">{{ ucfirst($report->user->role) }}</span>
                                 </div>
                             </div>
-                            <a href="{{ route('admin.users.show', $report->user) }}"
+                            <a href="{{ route('admin.users.show', $report->user) }}" wire:navigate
                                 class="px-3 py-1.5 border border-gray-300 rounded-full text-xs text-gray-700 hover:bg-gray-50">
                                 Lihat Profil
                             </a>
@@ -171,7 +171,7 @@
                         @if ($report->reportedUser)
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <a href="{{ route('admin.users.show', $report->reportedUser) }}"
+                                    <a href="{{ route('admin.users.show', $report->reportedUser) }}" wire:navigate
                                         class="text-primary-600 hover:text-primary-700 hover:underline font-medium">
                                         {{ $report->reportedUser->name }}
                                     </a>
@@ -180,7 +180,7 @@
                                         Role: <span class="font-semibold">{{ ucfirst($report->reportedUser->role) }}</span>
                                     </div>
                                 </div>
-                                <a href="{{ route('admin.users.show', $report->reportedUser) }}"
+                                <a href="{{ route('admin.users.show', $report->reportedUser) }}" wire:navigate
                                     class="px-3 py-1.5 border border-gray-300 rounded-full text-xs text-gray-700 hover:bg-gray-50">
                                     Lihat Profil
                                 </a>

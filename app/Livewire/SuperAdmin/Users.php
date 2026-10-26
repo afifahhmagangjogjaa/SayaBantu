@@ -2,12 +2,12 @@
 
 namespace App\Livewire\SuperAdmin;
 
+use App\Models\City;
+use App\Models\User;
+use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use App\Models\User;
-use App\Models\City;
-use Illuminate\Validation\Rule;
 
 #[Layout('layouts.superadmin')]
 class Users extends Component
@@ -15,56 +15,94 @@ class Users extends Component
     use WithPagination;
 
     public $search = '';
+
     public $roleFilter = '';
+
     public $spFilter = '';
+
     public $perPage = 10;
+
     public $selectedUser = null;
+
     public $selectedUserSpHistory = [];
+
     public $userId = null;
+
     public $pageType = 'users';
 
     // form fields
     public $name;
+
     public $email;
+
     public $phone;
+
     public $role = 'customer';
+
     public $status = 'active';
+
     public $verified = false;
+
     public $city_id = null;
+
     public $managed_city_ids = []; // Array for multiple cities
+
     public $address = null;
+
     public $nik = null;
+
     public $place_of_birth = null;
+
     public $date_of_birth = null;
+
     public $gender = null;
+
     public $rt = null;
+
     public $rw = null;
+
     public $kelurahan = null;
+
     public $kecamatan = null;
+
     public $province = null;
+
     public $religion = null;
+
     public $marital_status = null;
+
     public $occupation = null;
+
     public $password = null;
 
     // modal flags
     public $showViewModal = false;
+
     public $showEditModal = false;
+
     public $showCreateModal = false;
+
     public $showConfirmDelete = false;
+
     public $confirmingDeleteId = null;
 
     // Wilayah.id API dropdowns for Kecamatan & Kelurahan
     public $apiProvinces = [];
+
     public $apiCities = [];
+
     public $apiDistricts = [];
+
     public $apiVillages = [];
+
     public $selectedCityCode = '';
+
     public $selectedDistrictCode = '';
+
     public $selectedVillageCode = '';
 
     protected $queryString = [
-        'roleFilter' => ['except' => '', 'as' => 'role']
+        'roleFilter' => ['except' => '', 'as' => 'role'],
     ];
 
     public function fetchProvinces()
@@ -98,10 +136,11 @@ class Users extends Component
             $found = \App\Support\JsonMaster::find($master, $cityCode);
             if ($found !== []) {
                 $this->apiDistricts = $found;
+
                 return;
             }
 
-            $cleanCode = (strlen($cityCode) === 4 && !str_contains($cityCode, '.')) ? substr($cityCode, 0, 2) . '.' . substr($cityCode, 2, 2) : $cityCode;
+            $cleanCode = (strlen($cityCode) === 4 && ! str_contains($cityCode, '.')) ? substr($cityCode, 0, 2).'.'.substr($cityCode, 2, 2) : $cityCode;
             $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/districts/{$cleanCode}.json");
             if ($response->successful()) {
                 $this->apiDistricts = $response->json('data') ?? [];
@@ -132,9 +171,10 @@ class Users extends Component
         $this->selectedVillageCode = '';
         $this->apiVillages = [];
 
-        if (!$id) {
+        if (! $id) {
             $this->province = '';
             $this->selectedCityCode = '';
+
             return;
         }
 
@@ -147,9 +187,10 @@ class Users extends Component
 
     public function resolveCityCodeAndFetchDistricts($city)
     {
-        if (!empty($city->code)) {
+        if (! empty($city->code)) {
             $this->selectedCityCode = $city->code;
             $this->fetchDistricts($this->selectedCityCode);
+
             return;
         }
 
@@ -158,9 +199,10 @@ class Users extends Component
         $prov = collect($this->apiProvinces)->first(function ($p) use ($city, $cleanProvInput) {
             $pName = $p['name'];
             $cleanP = trim(preg_replace('/\b(DAERAH|ISTIMEWA|KHUSUS|IBUKOTA|PROVINSI|DI|DKI)\b/i', '', $pName));
+
             return strtoupper(trim($city->province)) === strtoupper(trim($pName)) ||
-                (!empty($cleanProvInput) && stripos($cleanP, $cleanProvInput) !== false) ||
-                (!empty($cleanProvInput) && stripos($pName, $cleanProvInput) !== false) ||
+                (! empty($cleanProvInput) && stripos($cleanP, $cleanProvInput) !== false) ||
+                (! empty($cleanProvInput) && stripos($pName, $cleanProvInput) !== false) ||
                 stripos($pName, trim($city->province)) !== false ||
                 stripos(trim($city->province), $pName) !== false;
         });
@@ -171,9 +213,10 @@ class Users extends Component
             $cityApi = collect($this->apiCities)->first(function ($c) use ($city, $cityNameClean) {
                 $apiName = $c['name'];
                 $cleanApi = trim(preg_replace('/\b(KOTA\s+ADM|KOTA|KABUPATEN|KAB)\b/i', '', $apiName));
+
                 return strtoupper(trim($city->name)) === strtoupper(trim($apiName)) ||
-                    (!empty($cityNameClean) && stripos($cleanApi, $cityNameClean) !== false) ||
-                    (!empty($cityNameClean) && stripos($apiName, $cityNameClean) !== false);
+                    (! empty($cityNameClean) && stripos($cleanApi, $cityNameClean) !== false) ||
+                    (! empty($cityNameClean) && stripos($apiName, $cityNameClean) !== false);
             });
 
             if ($cityApi) {
@@ -229,6 +272,7 @@ class Users extends Component
     {
         $this->resetPage();
     }
+
     public function updatedSpFilter()
     {
         $this->resetPage();
@@ -242,8 +286,9 @@ class Users extends Component
     public function viewUser($id)
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             session()->flash('error', 'User not found');
+
             return;
         }
 
@@ -257,21 +302,21 @@ class Users extends Component
 
             foreach ($notifs as $notif) {
                 $data = $notif->data ?? [];
-                $lvl  = (int) ($data['warning_level'] ?? 0);
+                $lvl = (int) ($data['warning_level'] ?? 0);
                 $spHistory[] = [
-                    'level'  => $lvl,
+                    'level' => $lvl,
                     'reason' => $data['reason'] ?? null,
-                    'date'   => \Carbon\Carbon::parse($notif->created_at)->translatedFormat('d M Y, H:i'),
-                    'type'   => $lvl === 0 ? 'reset' : 'sanction',
+                    'date' => \Carbon\Carbon::parse($notif->created_at)->translatedFormat('d M Y, H:i'),
+                    'type' => $lvl === 0 ? 'reset' : 'sanction',
                 ];
             }
 
             // Fallback: jika tidak ada notifikasi, ambil dari log admin_notes laporan
             if (empty($spHistory)) {
                 $reports = \App\Models\PartnerReport::where(function ($q) use ($user) {
-                        $q->where('reported_user_id', $user->id)
-                          ->orWhere('reporter_id', $user->id);
-                    })
+                    $q->where('reported_user_id', $user->id)
+                        ->orWhere('reporter_id', $user->id);
+                })
                     ->whereNotNull('admin_notes')
                     ->where('admin_notes', '!=', '')
                     ->get(['id', 'admin_notes', 'title']);
@@ -279,16 +324,16 @@ class Users extends Component
                 foreach ($reports as $rep) {
                     $lines = array_filter(
                         explode("\n", $rep->admin_notes),
-                        fn($l) => trim($l) !== ''
+                        fn ($l) => trim($l) !== ''
                             && (str_contains($l, 'memberikan sanksi') || str_contains($l, 'mencabut') || str_contains($l, 'Surat Peringatan'))
                             && str_contains(strtolower($l), strtolower($user->name))
                     );
                     foreach ($lines as $line) {
                         $spHistory[] = [
-                            'level'  => null,
+                            'level' => null,
                             'reason' => null,
-                            'log'    => trim($line),
-                            'type'   => 'log',
+                            'log' => trim($line),
+                            'type' => 'log',
                         ];
                     }
                 }
@@ -305,8 +350,9 @@ class Users extends Component
     public function editUser($id)
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             session()->flash('error', 'User not found');
+
             return;
         }
         $this->selectedUser = $user;
@@ -351,9 +397,9 @@ class Users extends Component
                 $this->province = $city->province;
                 $this->resolveCityCodeAndFetchDistricts($city);
 
-                if (!empty($this->kecamatan) && !empty($this->apiDistricts)) {
+                if (! empty($this->kecamatan) && ! empty($this->apiDistricts)) {
                     $distApi = collect($this->apiDistricts)->firstWhere('name', strtoupper(trim($this->kecamatan)));
-                    if (!$distApi) {
+                    if (! $distApi) {
                         $distApi = collect($this->apiDistricts)->first(function ($d) {
                             return str_contains(strtoupper($d['name']), strtoupper(trim($this->kecamatan))) || str_contains(strtoupper(trim($this->kecamatan)), strtoupper($d['name']));
                         });
@@ -362,9 +408,9 @@ class Users extends Component
                         $this->selectedDistrictCode = $distApi['code'];
                         $this->fetchVillages($this->selectedDistrictCode);
 
-                        if (!empty($this->kelurahan) && !empty($this->apiVillages)) {
+                        if (! empty($this->kelurahan) && ! empty($this->apiVillages)) {
                             $villApi = collect($this->apiVillages)->firstWhere('name', strtoupper(trim($this->kelurahan)));
-                            if (!$villApi) {
+                            if (! $villApi) {
                                 $villApi = collect($this->apiVillages)->first(function ($v) {
                                     return str_contains(strtoupper($v['name']), strtoupper(trim($this->kelurahan))) || str_contains(strtoupper(trim($this->kelurahan)), strtoupper($v['name']));
                                 });
@@ -438,8 +484,9 @@ class Users extends Component
     public function toggleStatus($id)
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             session()->flash('error', 'User tidak ditemukan');
+
             return;
         }
 
@@ -453,12 +500,13 @@ class Users extends Component
     public function toggleShadowBan($id)
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             session()->flash('error', 'User tidak ditemukan');
+
             return;
         }
 
-        $user->is_shadow_banned = !((bool) $user->is_shadow_banned);
+        $user->is_shadow_banned = ! ((bool) $user->is_shadow_banned);
         $user->save();
 
         if ($this->selectedUser && $this->selectedUser->id == $id) {
@@ -471,7 +519,7 @@ class Users extends Component
 
     public function saveUser()
     {
-        $isEdit = !empty($this->selectedUser);
+        $isEdit = ! empty($this->selectedUser);
 
         // build validation rules and handle unique email on update
         $emailRules = ['required', 'email', 'max:255'];
@@ -486,8 +534,12 @@ class Users extends Component
         $this->place_of_birth = preg_replace('/[^a-zA-Z\s]/', '', (string) $this->place_of_birth);
         $this->nik = preg_replace('/[^0-9]/', '', (string) $this->nik);
         $this->phone = preg_replace('/[^0-9]/', '', (string) $this->phone);
-        if ($this->rt) $this->rt = preg_replace('/[^0-9]/', '', (string) $this->rt);
-        if ($this->rw) $this->rw = preg_replace('/[^0-9]/', '', (string) $this->rw);
+        if ($this->rt) {
+            $this->rt = preg_replace('/[^0-9]/', '', (string) $this->rt);
+        }
+        if ($this->rw) {
+            $this->rw = preg_replace('/[^0-9]/', '', (string) $this->rw);
+        }
 
         // Auto-assign role based on current management section
         if ($this->roleFilter === 'mitra') {
@@ -498,7 +550,7 @@ class Users extends Component
             $this->role = 'customer';
         }
 
-        if (!$isEdit) {
+        if (! $isEdit) {
             $this->status = 'active';
         }
 
@@ -513,8 +565,8 @@ class Users extends Component
             'verified' => 'required|boolean',
             'city_id' => [
                 'required',
-                $isEdit 
-                    ? 'exists:cities,id' 
+                $isEdit
+                    ? 'exists:cities,id'
                     : \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true),
             ],
             'managed_city_ids' => 'nullable|array',
@@ -524,8 +576,8 @@ class Users extends Component
                 'string',
                 'size:16',
                 'regex:/^[0-9]+$/',
-                ($this->selectedUser ? $this->selectedUser->id : $this->userId) 
-                    ? \Illuminate\Validation\Rule::unique('users', 'nik')->ignore($this->selectedUser ? $this->selectedUser->id : $this->userId) 
+                ($this->selectedUser ? $this->selectedUser->id : $this->userId)
+                    ? \Illuminate\Validation\Rule::unique('users', 'nik')->ignore($this->selectedUser ? $this->selectedUser->id : $this->userId)
                     : \Illuminate\Validation\Rule::unique('users', 'nik'),
             ],
             'place_of_birth' => [$isEdit ? 'nullable' : 'required', 'string', 'max:100', 'regex:/^[a-zA-Z\s]+$/'],
@@ -616,19 +668,20 @@ class Users extends Component
 
         if ($this->selectedUser) {
             $user = User::find($this->selectedUser->id);
-            if (!$user) {
+            if (! $user) {
                 session()->flash('error', 'User not found');
+
                 return;
             }
             // Only update password if provided
-            if (!empty($this->password)) {
+            if (! empty($this->password)) {
                 $data['password'] = bcrypt($this->password);
             } else {
                 unset($data['password']);
             }
 
             $user->update($data);
-            
+
             // Sync managed cities for admin role
             if ($this->role === 'admin') {
                 $user->managedCities()->sync($this->managed_city_ids ?? []);
@@ -648,7 +701,7 @@ class Users extends Component
             } catch (\Exception $e) {
                 // ignore error to not break the save
             }
-            
+
             session()->flash('message', 'User updated successfully');
         } else {
             // create new user with provided password
@@ -656,7 +709,7 @@ class Users extends Component
             $data['email_verified_at'] = now();
             $data['is_completed'] = true;
             $user = User::create($data);
-            
+
             // Sync managed cities for admin role
             if ($this->role === 'admin') {
                 $user->managedCities()->sync($this->managed_city_ids ?? []);
@@ -678,7 +731,7 @@ class Users extends Component
                     // ignore
                 }
             }
-            
+
             session()->flash('message', 'User created successfully');
         }
 
@@ -690,13 +743,14 @@ class Users extends Component
 
     public function deleteUser()
     {
-        if (!$this->confirmingDeleteId) {
+        if (! $this->confirmingDeleteId) {
             return;
         }
         $user = User::find($this->confirmingDeleteId);
-        if (!$user) {
+        if (! $user) {
             session()->flash('error', 'User not found');
             $this->showConfirmDelete = false;
+
             return;
         }
         $userEmail = $user->email;
@@ -736,9 +790,9 @@ class Users extends Component
         $users = User::with(['city', 'managedCities'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('email', 'like', '%' . $this->search . '%')
-                        ->orWhere('phone', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('email', 'like', '%'.$this->search.'%')
+                        ->orWhere('phone', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->roleFilter, function ($query) {

@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Customer\Transactions;
 
+use App\Models\BalanceTransaction;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\BalanceTransaction;
 
 class Index extends Component
 {
@@ -13,6 +13,7 @@ class Index extends Component
     protected $paginationTheme = 'tailwind';
 
     public $activeTab = 'masuk'; // 'masuk' (Saldo Masuk) or 'keluar' (Uang Keluar)
+
     public $selectedTransaction = null;
 
     protected $queryString = [
@@ -38,9 +39,10 @@ class Index extends Component
     public function showTransaction($id)
     {
         $transaction = BalanceTransaction::with(['help', 'approvedBy'])->find($id);
-        
-        if (!$transaction || $transaction->user_id !== auth()->id()) {
+
+        if (! $transaction || $transaction->user_id !== auth()->id()) {
             session()->flash('error', 'Transaksi tidak ditemukan.');
+
             return;
         }
 
@@ -60,8 +62,8 @@ class Index extends Component
             'proof_of_payment' => $transaction->proof_of_payment,
             'rejection_reason' => $transaction->rejection_reason,
             'approved_by_name' => $transaction->approvedBy?->name,
-            'approved_at' => $transaction->approved_at ? $transaction->approved_at->format('d M Y • H:i') . ' WIB' : null,
-            'created_at' => $transaction->created_at ? $transaction->created_at->format('d M Y • H:i') . ' WIB' : '-',
+            'approved_at' => $transaction->approved_at ? $transaction->approved_at->format('d M Y • H:i').' WIB' : null,
+            'created_at' => $transaction->created_at ? $transaction->created_at->format('d M Y • H:i').' WIB' : '-',
             'created_at_human' => $transaction->created_at ? $transaction->created_at->diffForHumans() : '',
         ];
     }
@@ -73,7 +75,10 @@ class Index extends Component
 
     protected function formatPaymentMethod($method)
     {
-        if (!$method) return null;
+        if (! $method) {
+            return null;
+        }
+
         return match (strtolower($method)) {
             'bank_bca' => 'Bank BCA',
             'bank_mandiri' => 'Bank Mandiri',
@@ -93,10 +98,10 @@ class Index extends Component
             $transactions = BalanceTransaction::where('user_id', $user->id)
                 ->where(function ($q) {
                     $q->whereIn('type', ['topup', 'deposit'])
-                      ->orWhere('description', 'like', '%topup%')
-                      ->orWhere('description', 'like', '%top-up%')
-                      ->orWhere('description', 'like', '%refund%')
-                      ->orWhere('description', 'like', '%pengembalian%');
+                        ->orWhere('description', 'like', '%topup%')
+                        ->orWhere('description', 'like', '%top-up%')
+                        ->orWhere('description', 'like', '%refund%')
+                        ->orWhere('description', 'like', '%pengembalian%');
                 })
                 ->with(['help'])
                 ->latest()
@@ -106,7 +111,7 @@ class Index extends Component
             $transactions = BalanceTransaction::where('user_id', $user->id)
                 ->where(function ($q) {
                     $q->whereIn('type', ['deduction', 'withdraw', 'fee'])
-                      ->orWhere('description', 'like', 'Pembayaran%');
+                        ->orWhere('description', 'like', 'Pembayaran%');
                 })
                 ->with(['help'])
                 ->latest()

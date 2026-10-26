@@ -29,14 +29,14 @@ class NewReportNotification extends Notification
 
         $url = route('admin.partners.reports.show', $this->report->id);
 
-        $cityId = $this->report->reportedHelp?->city_id 
-            ?? $this->report->reporter?->city_id 
-            ?? $this->report->reportedUser?->city_id 
+        $cityId = $this->report->reportedHelp?->city_id
+            ?? $this->report->reporter?->city_id
+            ?? $this->report->reportedUser?->city_id
             ?? null;
 
         return [
             'type' => 'new_report',
-            'title' => '⚠️ Laporan Aduan Baru: ' . \Illuminate\Support\Str::limit($this->report->title, 35),
+            'title' => '⚠️ Laporan Aduan Baru: '.\Illuminate\Support\Str::limit($this->report->title, 35),
             'message' => "{$rolePrefix} {$reporterName} mengajukan laporan aduan: '{$this->report->message}'",
             'report_id' => $this->report->id,
             'city_id' => $cityId,

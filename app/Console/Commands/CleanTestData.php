@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\User;
+use App\Models\UserBalance;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User;
-use App\Models\UserBalance;
 
 class CleanTestData extends Command
 {
@@ -30,7 +30,7 @@ class CleanTestData extends Command
         'app:clean-test-data',
         'test:clean-data',
         'db:reset-test',
-        'db:clean'
+        'db:clean',
     ];
 
     /**
@@ -42,8 +42,6 @@ class CleanTestData extends Command
 
     /**
      * Tables that must NEVER be deleted (Master data sistem).
-     *
-     * @var array
      */
     protected array $protectedTables = [
         'migrations',
@@ -59,8 +57,6 @@ class CleanTestData extends Command
 
     /**
      * Transactional and test tables to purge (in order of child to parent).
-     *
-     * @var array
      */
     protected array $tablesToPurge = [
         'partner_activities',
@@ -111,8 +107,9 @@ class CleanTestData extends Command
 
         if ($superAdmins->isEmpty()) {
             $this->error(' PERINGATAN: Tidak ditemukan akun dengan role super_admin di tabel users!');
-            if (!$force && !$this->confirm('Apakah Anda ingin tetap melanjutkan? (Tidak ada akun super admin yang terdeteksi)', false)) {
+            if (! $force && ! $this->confirm('Apakah Anda ingin tetap melanjutkan? (Tidak ada akun super admin yang terdeteksi)', false)) {
                 $this->warn('Operasi dibatalkan.');
+
                 return Command::FAILURE;
             }
         } else {
@@ -128,7 +125,7 @@ class CleanTestData extends Command
         if ($keepAdmins) {
             $admins = User::where('role', 'admin')->get();
             $adminIds = $admins->pluck('id')->toArray();
-            $this->line('  <fg=green>✓</> <fg=white>Akun Admin Kota dipertahankan karena opsi --keep-admins aktif (' . $admins->count() . ' akun).</>');
+            $this->line('  <fg=green>✓</> <fg=white>Akun Admin Kota dipertahankan karena opsi --keep-admins aktif ('.$admins->count().' akun).</>');
         } else {
             $this->line('  <fg=gray>•</> <fg=gray>Akun testing customer, mitra, dan admin kota akan dibersihkan (tambahkan flag --keep-admins jika ingin admin kota tetap ada).</>');
         }
@@ -136,13 +133,14 @@ class CleanTestData extends Command
         $this->newLine();
 
         // 2. Konfirmasi interaktif jika bukan --force
-        if (!$force) {
+        if (! $force) {
             $this->line('<fg=red;options=bold> PERHATIAN:</> Tindakan ini akan mengosongkan semua transaksi pengujian');
             $this->line('seperti order bantuan, riwayat chat, rating, transaksi saldo, dan user testing.');
             $this->newLine();
 
-            if (!$this->confirm('Apakah Anda yakin ingin menghapus data pengujian tersebut sekarang?', false)) {
+            if (! $this->confirm('Apakah Anda yakin ingin menghapus data pengujian tersebut sekarang?', false)) {
                 $this->info(' Operasi dibatalkan oleh pengguna. Tidak ada data yang dihapus.');
+
                 return Command::SUCCESS;
             }
         }
@@ -170,12 +168,13 @@ class CleanTestData extends Command
                     // Reset auto increment ke 1 jika memungkinkan
                     try {
                         DB::statement("ALTER TABLE `{$tableName}` AUTO_INCREMENT = 1;");
-                    } catch (\Throwable $e) {}
+                    } catch (\Throwable $e) {
+                    }
 
                     $summary[] = [
                         'name' => $tableName,
                         'status' => '<fg=green>Dibersihkan (Truncated)</>',
-                        'count' => $countBefore . ' baris',
+                        'count' => $countBefore.' baris',
                     ];
                 } else {
                     $summary[] = [
@@ -196,7 +195,7 @@ class CleanTestData extends Command
                     $summary[] = [
                         'name' => 'admin_city (relasi kota)',
                         'status' => '<fg=green>Dibersihkan (Non-Admin)</>',
-                        'count' => $deletedAc . ' baris',
+                        'count' => $deletedAc.' baris',
                     ];
                 } else {
                     $acBefore = DB::table('admin_city')->count();
@@ -204,7 +203,7 @@ class CleanTestData extends Command
                     $summary[] = [
                         'name' => 'admin_city (relasi kota)',
                         'status' => '<fg=green>Dibersihkan</>',
-                        'count' => $acBefore . ' baris',
+                        'count' => $acBefore.' baris',
                     ];
                 }
             }
@@ -228,7 +227,7 @@ class CleanTestData extends Command
                 $summary[] = [
                     'name' => 'user_balances (saldo user)',
                     'status' => '<fg=green>Dibersihkan (Kecuali Super Admin)</>',
-                    'count' => $deletedBalances . ' baris',
+                    'count' => $deletedBalances.' baris',
                 ];
             }
             $bar->advance();
@@ -239,14 +238,14 @@ class CleanTestData extends Command
                 $deletedSessions = DB::table('sessions')
                     ->where(function ($q) use ($preservedUserIds) {
                         $q->whereNull('user_id')
-                          ->orWhereNotIn('user_id', $preservedUserIds);
+                            ->orWhereNotIn('user_id', $preservedUserIds);
                     })
                     ->delete();
 
                 $summary[] = [
                     'name' => 'sessions (sesi login)',
                     'status' => '<fg=green>Dibersihkan (Sesi SA Tersimpan)</>',
-                    'count' => $deletedSessions . ' sesi',
+                    'count' => $deletedSessions.' sesi',
                 ];
             }
             $bar->advance();
@@ -262,7 +261,7 @@ class CleanTestData extends Command
             $summary[] = [
                 'name' => 'users (akun testing)',
                 'status' => '<fg=green>Dihapus (Super Admin Aman)</>',
-                'count' => $deletedUsersCount . ' akun',
+                'count' => $deletedUsersCount.' akun',
             ];
             $bar->advance();
 
@@ -291,7 +290,7 @@ class CleanTestData extends Command
                 $summary[] = [
                     'name' => 'storage (file upload test)',
                     'status' => '<fg=green>File dibersihkan</>',
-                    'count' => $deletedFilesCount . ' file',
+                    'count' => $deletedFilesCount.' file',
                 ];
                 $bar->advance();
             }
@@ -333,7 +332,7 @@ class CleanTestData extends Command
         foreach ($superAdmins as $sa) {
             $this->line("   • Email: <fg=bright-cyan>{$sa->email}</> (Role: <fg=yellow>{$sa->role}</>)");
         }
-        $this->line('   • URL Login: <fg=bright-yellow>' . url('/admin/login') . '</>');
+        $this->line('   • URL Login: <fg=bright-yellow>'.url('/admin/login').'</>');
         $this->newLine();
 
         return Command::SUCCESS;

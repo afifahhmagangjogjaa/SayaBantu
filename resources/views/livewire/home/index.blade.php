@@ -209,12 +209,12 @@
 
             <!-- Bottom CTA -->
             <div class="px-6 py-5 bg-white border-t border-gray-100">
-                <a href="{{ route('login') }}" class="block w-full text-white font-bold py-3.5 rounded-2xl text-center transition-all duration-200 shadow-lg active:scale-98" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+                <a href="{{ route('login') }}" wire:navigate class="block w-full text-white font-bold py-3.5 rounded-2xl text-center transition-all duration-200 shadow-lg active:scale-98" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
                     Mulai Berbagi Kebaikan
                 </a>
                 <p class="text-xs text-center text-gray-500 mt-2.5">
                     Belum punya akun? 
-                    <a href="{{ route('login') }}" class="text-primary-600 font-bold hover:text-primary-700 underline">masuk sekarang</a>
+                    <a href="{{ route('login') }}" wire:navigate class="text-primary-600 font-bold hover:text-primary-700 underline">masuk sekarang</a>
                 </p>
             </div>
 

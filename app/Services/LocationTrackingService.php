@@ -19,11 +19,11 @@ class LocationTrackingService
 
     /**
      * Hitung jarak antara dua titik koordinat menggunakan formula Haversine
-     * 
-     * @param float $lat1 Latitude titik pertama
-     * @param float $lng1 Longitude titik pertama
-     * @param float $lat2 Latitude titik kedua
-     * @param float $lng2 Longitude titik kedua
+     *
+     * @param  float  $lat1  Latitude titik pertama
+     * @param  float  $lng1  Longitude titik pertama
+     * @param  float  $lat2  Latitude titik kedua
+     * @param  float  $lng2  Longitude titik kedua
      * @return float Jarak dalam meter
      */
     public function calculateDistance($lat1, $lng1, $lat2, $lng2): float
@@ -46,19 +46,14 @@ class LocationTrackingService
 
     /**
      * Update lokasi mitra dan status bantuan berdasarkan GPS
-     * 
-     * @param Help $help
-     * @param float $currentLat
-     * @param float $currentLng
-     * @return array
      */
     public function updatePartnerLocation(Help $help, float $currentLat, float $currentLng): array
     {
         // Validasi apakah help masih aktif
-        if (!in_array($help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived', 'in_progress', 'sedang_diproses'])) {
+        if (! in_array($help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived', 'in_progress', 'sedang_diproses'])) {
             return [
                 'success' => false,
-                'message' => 'Bantuan tidak dalam status aktif'
+                'message' => 'Bantuan tidak dalam status aktif',
             ];
         }
 
@@ -67,16 +62,16 @@ class LocationTrackingService
         $help->partner_current_lng = $currentLng;
 
         // Cek apakah lokasi awal sudah disimpan
-        if (!$help->partner_initial_lat || !$help->partner_initial_lng) {
+        if (! $help->partner_initial_lat || ! $help->partner_initial_lng) {
             // Simpan sebagai lokasi awal
             $help->partner_initial_lat = $currentLat;
             $help->partner_initial_lng = $currentLng;
             $help->save();
 
-            Log::info("Lokasi awal mitra disimpan", [
+            Log::info('Lokasi awal mitra disimpan', [
                 'help_id' => $help->id,
                 'lat' => $currentLat,
-                'lng' => $currentLng
+                'lng' => $currentLng,
             ]);
 
             return [
@@ -84,7 +79,7 @@ class LocationTrackingService
                 'message' => 'Lokasi awal mitra berhasil disimpan',
                 'status' => $help->status,
                 'distance_from_initial' => 0,
-                'distance_to_customer' => null
+                'distance_to_customer' => null,
             ];
         }
 
@@ -97,9 +92,9 @@ class LocationTrackingService
         );
 
         // Hitung jarak ke lokasi customer (fallback ke koordinat kota atau default jika null/0)
-        $targetLat = !empty($help->latitude) ? (float) $help->latitude : (!empty($help->city?->latitude) ? (float) $help->city->latitude : -7.7956);
-        $targetLng = !empty($help->longitude) ? (float) $help->longitude : (!empty($help->city?->longitude) ? (float) $help->city->longitude : 110.3695);
-        
+        $targetLat = ! empty($help->latitude) ? (float) $help->latitude : (! empty($help->city?->latitude) ? (float) $help->city->latitude : -7.7956);
+        $targetLng = ! empty($help->longitude) ? (float) $help->longitude : (! empty($help->city?->longitude) ? (float) $help->city->longitude : 110.3695);
+
         $distanceToCustomer = $this->calculateDistance(
             $currentLat,
             $currentLng,
@@ -118,10 +113,10 @@ class LocationTrackingService
                 $help->partner_started_moving_at = now();
                 $statusChanged = true;
 
-                Log::info("Status berubah: Rekan jasa menuju lokasi", [
+                Log::info('Status berubah: Rekan jasa menuju lokasi', [
                     'help_id' => $help->id,
                     'old_status' => $oldStatus,
-                    'distance_from_initial' => round($distanceFromInitial, 2)
+                    'distance_from_initial' => round($distanceFromInitial, 2),
                 ]);
             }
         }
@@ -135,10 +130,10 @@ class LocationTrackingService
                 $help->partner_arrived_at = now();
                 $statusChanged = true;
 
-                Log::info("Status berubah: Rekan jasa tiba di lokasi (auto-arrived <= 10m)", [
+                Log::info('Status berubah: Rekan jasa tiba di lokasi (auto-arrived <= 10m)', [
                     'help_id' => $help->id,
                     'old_status' => $oldStatus,
-                    'distance_to_customer' => round($distanceToCustomer, 2)
+                    'distance_to_customer' => round($distanceToCustomer, 2),
                 ]);
             }
         }
@@ -151,7 +146,7 @@ class LocationTrackingService
                 $help->user->notify(new \App\Notifications\HelpStatusNotification($help, $oldStatus, $help->status, $help->mitra));
                 Log::info('Sent HelpStatusNotification to customer', ['help_id' => $help->id, 'old_status' => $oldStatus, 'new_status' => $help->status]);
             } catch (\Throwable $e) {
-                Log::warning('Failed to send HelpStatusNotification: ' . $e->getMessage(), ['help_id' => $help->id]);
+                Log::warning('Failed to send HelpStatusNotification: '.$e->getMessage(), ['help_id' => $help->id]);
             }
         }
 
@@ -165,18 +160,13 @@ class LocationTrackingService
             'distance_to_customer' => $distanceToCustomer ? round($distanceToCustomer, 2) : null,
             'thresholds' => [
                 'moving' => self::MOVING_THRESHOLD,
-                'arrival' => self::ARRIVAL_THRESHOLD
-            ]
+                'arrival' => self::ARRIVAL_THRESHOLD,
+            ],
         ];
     }
 
     /**
      * Set lokasi awal mitra saat mengambil bantuan
-     * 
-     * @param Help $help
-     * @param float $lat
-     * @param float $lng
-     * @return void
      */
     public function setInitialLocation(Help $help, float $lat, float $lng): void
     {
@@ -186,18 +176,15 @@ class LocationTrackingService
         $help->partner_current_lng = $lng;
         $help->save();
 
-        Log::info("Lokasi awal mitra di-set saat mengambil bantuan", [
+        Log::info('Lokasi awal mitra di-set saat mengambil bantuan', [
             'help_id' => $help->id,
             'lat' => $lat,
-            'lng' => $lng
+            'lng' => $lng,
         ]);
     }
 
     /**
      * Dapatkan status tracking untuk ditampilkan ke user
-     * 
-     * @param Help $help
-     * @return array
      */
     public function getTrackingStatus(Help $help): array
     {
@@ -207,20 +194,20 @@ class LocationTrackingService
             'partner_location' => null,
             'customer_location' => null,
             'distance_to_customer' => null,
-            'estimated_status' => null
+            'estimated_status' => null,
         ];
 
         if ($help->partner_current_lat && $help->partner_current_lng) {
             $status['partner_location'] = [
                 'lat' => (float) $help->partner_current_lat,
-                'lng' => (float) $help->partner_current_lng
+                'lng' => (float) $help->partner_current_lng,
             ];
         }
 
         if ($help->latitude && $help->longitude) {
             $status['customer_location'] = [
                 'lat' => (float) $help->latitude,
-                'lng' => (float) $help->longitude
+                'lng' => (float) $help->longitude,
             ];
 
             // Hitung jarak jika kedua lokasi tersedia

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('helps', function (Blueprint $table) {
-            if (!Schema::hasColumn('helps', 'last_cancelled_mitra_id')) {
+            if (! Schema::hasColumn('helps', 'last_cancelled_mitra_id')) {
                 $table->unsignedBigInteger('last_cancelled_mitra_id')->nullable()->after('customer_cancel_reason');
                 $table->foreign('last_cancelled_mitra_id')
                     ->references('id')
@@ -20,7 +20,7 @@ return new class extends Migration
                     ->nullOnDelete();
             }
 
-            if (!Schema::hasColumn('helps', 'cancelled_mitra_ids')) {
+            if (! Schema::hasColumn('helps', 'cancelled_mitra_ids')) {
                 $table->json('cancelled_mitra_ids')->nullable()->after('last_cancelled_mitra_id');
             }
         });

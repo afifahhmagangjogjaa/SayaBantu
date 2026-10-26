@@ -3,8 +3,8 @@
 namespace App\Livewire\Customer;
 
 use App\Models\BalanceTransaction;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class BalanceTransactionHistory extends Component
 {

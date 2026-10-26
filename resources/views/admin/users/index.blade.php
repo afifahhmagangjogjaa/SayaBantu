@@ -180,7 +180,7 @@
                                         @endphp
 
                                         @if (!is_null($avgRating) && $avgRating > 0 && $ratingsCount > 0)
-                                            <a href="{{ route('admin.ratings.index', ['search' => $user->email ?? $user->name], false) }}" 
+                                            <a href="{{ route('admin.ratings.index', ['search' => $user->email ?? $user->name], false) }}" wire:navigate 
                                                title="Klik untuk melihat ulasan pengguna di menu Rating & Ulasan"
                                                class="inline-flex items-center group cursor-pointer hover:opacity-85 transition">
                                                 <span class="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-200 group-hover:bg-amber-100 transition shadow-2xs">

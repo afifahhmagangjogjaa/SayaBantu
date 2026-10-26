@@ -6,8 +6,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
-        commands: __DIR__ . '/../routes/console.php',
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('admin*') || $request->is('superadmin*') || str_contains($referer, '/admin') || str_contains($referer, '/superadmin')) {
                 return route('admin.login', absolute: false);
             }
+
             return route('login', absolute: false);
         });
 
@@ -46,20 +47,22 @@ return Application::configure(basePath: dirname(__DIR__))
                 } elseif ($user->role === 'mitra') {
                     return route('mitra.dashboard', absolute: false);
                 }
+
                 return route('customer.dashboard', absolute: false);
             }
+
             return route('login', absolute: false);
         });
 
         $middleware->alias([
             'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
-            'admin'       => \App\Http\Middleware\EnsureAdmin::class,
-            'customer'    => \App\Http\Middleware\EnsureCustomer::class,
-            'kustomer'    => \App\Http\Middleware\EnsureCustomer::class, // Legacy fallback
-            'mitra'       => \App\Http\Middleware\EnsureMitra::class,
-            
+            'admin' => \App\Http\Middleware\EnsureAdmin::class,
+            'customer' => \App\Http\Middleware\EnsureCustomer::class,
+            'kustomer' => \App\Http\Middleware\EnsureCustomer::class, // Legacy fallback
+            'mitra' => \App\Http\Middleware\EnsureMitra::class,
+
             // Tambahkan alias ini di sini:
-            'onboarded'   => \App\Http\Middleware\EnsureOnboardingCompleted::class,
+            'onboarded' => \App\Http\Middleware\EnsureOnboardingCompleted::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

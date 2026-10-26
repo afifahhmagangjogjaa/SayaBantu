@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Help;
 use App\Models\BalanceTransaction;
+use App\Models\Help;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class AdminFeeTestSeeder extends Seeder
 {
@@ -19,8 +19,9 @@ class AdminFeeTestSeeder extends Seeder
         $customer = User::where('email', 'budi@example.com')->first();
         $mitra = User::where('role', 'mitra')->first();
 
-        if (!$customer || !$mitra) {
+        if (! $customer || ! $mitra) {
             $this->command->error('Test users not found. Please run UserSeeder first.');
+
             return;
         }
 
@@ -51,7 +52,7 @@ class AdminFeeTestSeeder extends Seeder
                 ->where('title', $helpData['title'])
                 ->first();
 
-            if (!$help) {
+            if (! $help) {
                 $help = Help::create([
                     'user_id' => $customer->id,
                     'city_id' => $customer->city_id,
@@ -104,9 +105,9 @@ class AdminFeeTestSeeder extends Seeder
         }
 
         $this->command->info('Admin fee test data created successfully!');
-        $this->command->info('Total help admin fees: Rp ' . number_format(array_sum(array_column($helps, 'admin_fee')), 0, ',', '.'));
-        $this->command->info('Total topup admin fees: Rp ' . number_format(array_sum(array_column($topups, 'admin_fee')), 0, ',', '.'));
-        $this->command->info('Grand total admin fees: Rp ' . number_format(
+        $this->command->info('Total help admin fees: Rp '.number_format(array_sum(array_column($helps, 'admin_fee')), 0, ',', '.'));
+        $this->command->info('Total topup admin fees: Rp '.number_format(array_sum(array_column($topups, 'admin_fee')), 0, ',', '.'));
+        $this->command->info('Grand total admin fees: Rp '.number_format(
             array_sum(array_column($helps, 'admin_fee')) + array_sum(array_column($topups, 'admin_fee')),
             0,
             ',',

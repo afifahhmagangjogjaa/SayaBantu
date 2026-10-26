@@ -7,7 +7,7 @@
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
-                    <a href="{{ route('mitra.profile') }}" aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition">
+                    <a href="{{ route('mitra.profile') }}" wire:navigate aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -52,7 +52,7 @@
                         <h2 class="text-xl font-bold text-gray-900 mb-1">Berhasil!</h2>
                         <p class="text-sm text-gray-600 mb-6">{{ $successMsg }}</p>
                         
-                        <a href="{{ route('mitra.profile') }}" 
+                        <a href="{{ route('mitra.profile') }}" wire:navigate 
                            class="block w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95 cursor-pointer text-center"
                            style="background: linear-gradient(to bottom right, #0066FF, #003EA8);">
                             Oke

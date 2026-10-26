@@ -38,11 +38,11 @@ class TopupRequestSubmitted extends Notification
     {
         return (new MailMessage)
             ->subject('Request Top-Up Saldo Diterima')
-            ->greeting('Halo ' . $notifiable->name . '!')
+            ->greeting('Halo '.$notifiable->name.'!')
             ->line('Request top-up saldo Anda telah berhasil diterima.')
-            ->line('Kode Request: ' . $this->transaction->request_code)
-            ->line('Nominal: Rp ' . number_format($this->transaction->amount, 0, ',', '.'))
-            ->line('Total Pembayaran: Rp ' . number_format($this->transaction->total_payment, 0, ',', '.'))
+            ->line('Kode Request: '.$this->transaction->request_code)
+            ->line('Nominal: Rp '.number_format($this->transaction->amount, 0, ',', '.'))
+            ->line('Total Pembayaran: Rp '.number_format($this->transaction->total_payment, 0, ',', '.'))
             ->line('Request Anda akan diverifikasi oleh Super Admin maksimal 1x24 jam.')
             ->action('Lihat Status', route('customer.topup.history'))
             ->line('Terima kasih telah menggunakan layanan kami!');

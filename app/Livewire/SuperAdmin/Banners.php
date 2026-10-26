@@ -2,12 +2,12 @@
 
 namespace App\Livewire\SuperAdmin;
 
+use App\Models\AppSetting;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\Attributes\Layout;
-use App\Models\AppSetting;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 
 #[Layout('layouts.superadmin', ['title' => 'Pengaturan Banner', 'breadcrumb' => 'Super Admin'])]
 class Banners extends Component
@@ -16,12 +16,16 @@ class Banners extends Component
 
     // store arrays of stored paths
     public $customerBanners = [];
+
     public $mitraBanners = [];
+
     public $homeBanners = [];
 
     // temporary uploaded files (multiple)
     public $customerUploads = [];
+
     public $mitraUploads = [];
+
     public $homeUploads = [];
 
     public function mount()
@@ -42,6 +46,7 @@ class Banners extends Component
 
         if (empty($this->customerUploads)) {
             session()->flash('info', 'Pilih file banner customer terlebih dahulu.');
+
             return;
         }
 
@@ -55,8 +60,8 @@ class Banners extends Component
             session()->flash('message', 'Banner customer berhasil disimpan.');
             $this->dispatchSliderUpdate();
         } catch (\Exception $e) {
-            Log::error('Error saving customer banner: ' . $e->getMessage());
-            session()->flash('error', 'Gagal menyimpan banner customer: ' . $e->getMessage());
+            Log::error('Error saving customer banner: '.$e->getMessage());
+            session()->flash('error', 'Gagal menyimpan banner customer: '.$e->getMessage());
         }
     }
 
@@ -71,6 +76,7 @@ class Banners extends Component
 
         if (empty($this->mitraUploads)) {
             session()->flash('info', 'Pilih file banner mitra terlebih dahulu.');
+
             return;
         }
 
@@ -84,8 +90,8 @@ class Banners extends Component
             session()->flash('message', 'Banner mitra berhasil disimpan.');
             $this->dispatchSliderUpdate();
         } catch (\Exception $e) {
-            Log::error('Error saving mitra banner: ' . $e->getMessage());
-            session()->flash('error', 'Gagal menyimpan banner mitra: ' . $e->getMessage());
+            Log::error('Error saving mitra banner: '.$e->getMessage());
+            session()->flash('error', 'Gagal menyimpan banner mitra: '.$e->getMessage());
         }
     }
 
@@ -100,6 +106,7 @@ class Banners extends Component
 
         if (empty($this->homeUploads)) {
             session()->flash('info', 'Pilih file banner beranda terlebih dahulu.');
+
             return;
         }
 
@@ -113,28 +120,28 @@ class Banners extends Component
             session()->flash('message', 'Banner beranda berhasil disimpan.');
             $this->dispatchSliderUpdate();
         } catch (\Exception $e) {
-            Log::error('Error saving home banner: ' . $e->getMessage());
-            session()->flash('error', 'Gagal menyimpan banner beranda: ' . $e->getMessage());
+            Log::error('Error saving home banner: '.$e->getMessage());
+            session()->flash('error', 'Gagal menyimpan banner beranda: '.$e->getMessage());
         }
     }
 
     public function save()
     {
         $savedAny = false;
-        if (!empty($this->customerUploads)) {
+        if (! empty($this->customerUploads)) {
             $this->saveCustomer();
             $savedAny = true;
         }
-        if (!empty($this->mitraUploads)) {
+        if (! empty($this->mitraUploads)) {
             $this->saveMitra();
             $savedAny = true;
         }
-        if (!empty($this->homeUploads)) {
+        if (! empty($this->homeUploads)) {
             $this->saveHome();
             $savedAny = true;
         }
 
-        if (!$savedAny) {
+        if (! $savedAny) {
             session()->flash('info', 'Tidak ada file yang dipilih untuk diunggah.');
         }
     }
@@ -165,7 +172,9 @@ class Banners extends Component
 
     public function removeCustomer($index)
     {
-        if (!isset($this->customerBanners[$index])) return;
+        if (! isset($this->customerBanners[$index])) {
+            return;
+        }
         $path = $this->customerBanners[$index];
         if ($path && Storage::disk('public')->exists($path)) {
             Storage::disk('public')->delete($path);
@@ -178,7 +187,9 @@ class Banners extends Component
 
     public function removeMitra($index)
     {
-        if (!isset($this->mitraBanners[$index])) return;
+        if (! isset($this->mitraBanners[$index])) {
+            return;
+        }
         $path = $this->mitraBanners[$index];
         if ($path && Storage::disk('public')->exists($path)) {
             Storage::disk('public')->delete($path);
@@ -191,7 +202,9 @@ class Banners extends Component
 
     public function removeHome($index)
     {
-        if (!isset($this->homeBanners[$index])) return;
+        if (! isset($this->homeBanners[$index])) {
+            return;
+        }
         $path = $this->homeBanners[$index];
         if ($path && Storage::disk('public')->exists($path)) {
             Storage::disk('public')->delete($path);

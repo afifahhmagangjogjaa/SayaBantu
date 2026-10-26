@@ -19,7 +19,7 @@ class EnsureMitra
             return $next($request);
         }
 
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
@@ -30,11 +30,12 @@ class EnsureMitra
         // For Livewire requests when blocked or inactive: return 403 JSON so frontend catches it and displays modal
         if ($isBannedOrBlocked && $request->is('livewire*')) {
             $user->purgeSessions();
+
             return response()->json([
                 'status' => $user->status,
                 'is_blocked' => true,
                 'is_inactive' => ($user->status === 'inactive'),
-                'message' => $user->status === 'inactive' ? 'Akun Anda telah dinonaktifkan oleh administrator.' : 'Akun Anda telah diblokir. Silakan hubungi admin.'
+                'message' => $user->status === 'inactive' ? 'Akun Anda telah dinonaktifkan oleh administrator.' : 'Akun Anda telah diblokir. Silakan hubungi admin.',
             ], 403);
         }
 
@@ -44,12 +45,13 @@ class EnsureMitra
             auth()->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
             return redirect()->route('login')->withErrors([
-                'email' => $user->status === 'inactive' ? 'Akun Anda telah dinonaktifkan oleh administrator.' : 'Akun Anda telah diblokir. Silakan hubungi administrator.'
+                'email' => $user->status === 'inactive' ? 'Akun Anda telah dinonaktifkan oleh administrator.' : 'Akun Anda telah diblokir. Silakan hubungi administrator.',
             ]);
         }
 
-        if (!$user->isMitra()) {
+        if (! $user->isMitra()) {
             abort(403, 'Unauthorized. Mitra access only.');
         }
 
@@ -77,13 +79,14 @@ class EnsureMitra
 
         // Jika mitra belum terverifikasi dan mencoba akses halaman yang dibatasi,
         // arahkan ke halaman edit profil untuk upload KTP
-        if (!$user->verified && !in_array($request->route()?->getName(), $allowedRoutes)) {
+        if (! $user->verified && ! in_array($request->route()?->getName(), $allowedRoutes)) {
             // Biarkan Livewire internal requests lewat agar tidak break UI
             if ($request->is('livewire*')) {
                 return $next($request);
             }
 
             session()->flash('error', 'Akun Anda belum terverifikasi. Silakan upload foto KTP dan Selfie terlebih dahulu, lalu tunggu persetujuan admin.');
+
             return redirect()->route('mitra.profile.edit');
         }
 

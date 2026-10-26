@@ -102,7 +102,7 @@
                             Filter
                         </button>
                         @if (request()->hasAny(['status', 'category', 'report_type', 'search', 'start_date', 'end_date']) && (request('status') !== 'all' || request('category') !== 'all' || request('report_type') !== 'all' || request('search') || request('start_date') || request('end_date')))
-                            <a href="{{ route('admin.partners.report') }}"
+                            <a href="{{ route('admin.partners.report') }}" wire:navigate
                                 class="px-6 py-2.5 bg-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-300 transition">
                                 Reset
                             </a>
@@ -153,13 +153,13 @@
                                     </td>
                                     <td class="px-2.5 py-2.5 whitespace-nowrap">
                                         @if ($report->reporter)
-                                            <a href="{{ route('admin.users.show', $report->reporter) }}"
+                                            <a href="{{ route('admin.users.show', $report->reporter) }}" wire:navigate
                                                 class="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline block truncate max-w-[140px]">
                                                 {{ $report->reporter->name }}
                                             </a>
                                             <div class="text-[10px] text-gray-400 truncate max-w-[140px]">{{ $report->reporter->email }}</div>
                                         @elseif ($report->user)
-                                            <a href="{{ route('admin.users.show', $report->user) }}"
+                                            <a href="{{ route('admin.users.show', $report->user) }}" wire:navigate
                                                 class="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline block truncate max-w-[140px]">
                                                 {{ $report->user->name }}
                                             </a>
@@ -170,7 +170,7 @@
                                     </td>
                                     <td class="px-2.5 py-2.5 whitespace-nowrap">
                                         @if ($report->reportedUser)
-                                            <a href="{{ route('admin.users.show', $report->reportedUser) }}"
+                                            <a href="{{ route('admin.users.show', $report->reportedUser) }}" wire:navigate
                                                 class="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline block truncate max-w-[140px]">
                                                 {{ $report->reportedUser->name }}
                                             </a>
@@ -219,7 +219,7 @@
                                         @endif
                                     </td>
                                     <td class="px-2.5 py-2.5 whitespace-nowrap text-center text-xs">
-                                        <a href="{{ route('admin.partners.reports.show', $report) }}"
+                                        <a href="{{ route('admin.partners.reports.show', $report) }}" wire:navigate
                                             class="inline-flex items-center px-2.5 py-1 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-100 transition shadow-2xs">
                                             Detail
                                         </a>

@@ -310,7 +310,7 @@
         @if($notifications->count() > 0)
             <div class="px-4 py-3 border-t border-gray-200 text-center">
                 <a 
-                    href="{{ route('admin.notifications.index') }}" 
+                    href="{{ route('admin.notifications.index') }}" wire:navigate 
                     class="text-sm text-primary-600 hover:text-primary-700 font-semibold"
                 >
                     Lihat Semua Notifikasi

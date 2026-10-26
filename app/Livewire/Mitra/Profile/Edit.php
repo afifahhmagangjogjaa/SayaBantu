@@ -1,16 +1,21 @@
 <?php
+
 namespace App\Livewire\Mitra\Profile;
 
-use Livewire\Component;
 use App\Models\City;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class Edit extends Component
 {
     public bool $showModal = false;
+
     public ?string $name = null;
+
     public ?string $phone = null;
+
     public ?int $city_id = null;
+
     public ?string $bio = null;
 
     protected function rules(): array

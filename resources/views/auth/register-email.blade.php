@@ -237,7 +237,7 @@
         <div class="mt-6 pt-3 text-center">
             <p class="text-xs sm:text-sm text-gray-500 font-medium">
                 Sudah punya akun?
-                <a href="{{ route('login') }}" class="font-bold text-[#0066FF] hover:underline ml-1">Login</a>
+                <a href="{{ route('login') }}" wire:navigate class="font-bold text-[#0066FF] hover:underline ml-1">Login</a>
             </p>
         </div>
     </div>

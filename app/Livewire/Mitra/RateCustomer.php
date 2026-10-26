@@ -2,17 +2,22 @@
 
 namespace App\Livewire\Mitra;
 
-use Livewire\Component;
 use App\Models\Help;
 use App\Models\Rating;
+use Livewire\Component;
 
 class RateCustomer extends Component
 {
     public $help;
+
     public $rating = 0;
+
     public $review = '';
+
     public $showModal = false;
+
     public $alreadyRated = false;
+
     public $inline = false;
 
     protected $rules = [
@@ -82,20 +87,23 @@ class RateCustomer extends Component
         $this->validate();
 
         // Check if help is completed (accept both 'completed' and 'selesai')
-        if (!in_array($this->help->status, ['completed', 'selesai'])) {
+        if (! in_array($this->help->status, ['completed', 'selesai'])) {
             session()->flash('error', 'Hanya bisa memberi rating untuk bantuan yang sudah selesai');
+
             return;
         }
 
         // Check if already rated
         if ($this->alreadyRated) {
             session()->flash('error', 'Anda sudah memberikan rating untuk customer ini');
+
             return;
         }
 
         // Check if this mitra handled this help
         if ($this->help->mitra_id !== auth()->id()) {
             session()->flash('error', 'Anda tidak berhak memberikan rating untuk bantuan ini');
+
             return;
         }
 
@@ -113,7 +121,7 @@ class RateCustomer extends Component
         ]);
 
         session()->flash('success', 'Rating berhasil diberikan!');
-        
+
         $this->alreadyRated = true;
         $this->closeModal();
 

@@ -11,19 +11,22 @@ class History extends Component
     use WithPagination;
 
     public $title = 'Riwayat Bantuan';
-    
+
     public $selectedHelp = null;
+
     public $selectedHelpData = null;
+
     public $showModal = false;
 
     public function showHelpDetail($helpId)
     {
         $help = Help::with(['user', 'city', 'mitra', 'category'])->find($helpId);
-        
-        if (!$help) {
+
+        if (! $help) {
             $this->selectedHelp = null;
             $this->selectedHelpData = null;
             $this->showModal = false;
+
             return;
         }
 
@@ -52,7 +55,7 @@ class History extends Component
             'created_at_human' => $help->created_at?->diffForHumans(),
             'completed_at' => $help->updated_at?->format('d M Y, H:i'),
         ];
-        
+
         $this->showModal = true;
     }
 
@@ -66,8 +69,8 @@ class History extends Component
     public function render()
     {
         // DEBUG: Confirm component is loading
-        \Log::info('History Component Loaded for user: ' . auth()->id());
-        
+        \Log::info('History Component Loaded for user: '.auth()->id());
+
         $completedHelps = Help::where('user_id', auth()->id())
             ->whereIn('status', ['selesai', 'rejected', 'dibatalkan'])
             ->with(['user', 'city', 'mitra', 'category'])
@@ -75,7 +78,7 @@ class History extends Component
             ->paginate(10);
 
         return view('livewire.customer.helps.history', [
-            'completedHelps' => $completedHelps
+            'completedHelps' => $completedHelps,
         ])->layout('layouts.app');
     }
 }

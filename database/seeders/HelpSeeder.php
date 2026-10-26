@@ -2,14 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\AppSetting;
+use App\Models\Category;
+use App\Models\City;
 use App\Models\Help;
 use App\Models\User;
-use App\Models\City;
-use App\Models\Category;
-use App\Models\AppSetting;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Schema;
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
 
 class HelpSeeder extends Seeder
 {
@@ -135,28 +134,28 @@ class HelpSeeder extends Seeder
                     'title' => $item['title'],
                 ],
                 [
-                    'order_id'             => 'HLP-' . strtoupper(substr(md5($item['title'] . $item['user_id']), 0, 8)),
-                    'help_type'            => 'scheduled',
-                    'category_id'          => $item['category_id'],
-                    'city_id'              => $item['city_id'],
-                    'amount'               => $amt,
-                    'base_amount'          => $amt,
+                    'order_id' => 'HLP-'.strtoupper(substr(md5($item['title'].$item['user_id']), 0, 8)),
+                    'help_type' => 'scheduled',
+                    'category_id' => $item['category_id'],
+                    'city_id' => $item['city_id'],
+                    'amount' => $amt,
+                    'base_amount' => $amt,
                     'customer_fee_percent' => $custFeePercent,
-                    'customer_fee_amount'  => $cFee,
-                    'total_customer_paid'  => $total,
-                    'mitra_fee_percent'    => $mitraFeePercent,
-                    'mitra_fee_amount'     => $mFee,
-                    'net_mitra_amount'     => $netM,
-                    'admin_fee'            => 0,
-                    'total_amount'         => $total,
-                    'description'          => $item['description'],
-                    'location'             => $item['location'],
-                    'full_address'         => $item['full_address'],
-                    'scheduled_at'         => $item['scheduled_at'],
-                    'latitude'             => $item['latitude'],
-                    'longitude'            => $item['longitude'],
-                    'status'               => 'menunggu_mitra',
-                    'mitra_id'             => null,
+                    'customer_fee_amount' => $cFee,
+                    'total_customer_paid' => $total,
+                    'mitra_fee_percent' => $mitraFeePercent,
+                    'mitra_fee_amount' => $mFee,
+                    'net_mitra_amount' => $netM,
+                    'admin_fee' => 0,
+                    'total_amount' => $total,
+                    'description' => $item['description'],
+                    'location' => $item['location'],
+                    'full_address' => $item['full_address'],
+                    'scheduled_at' => $item['scheduled_at'],
+                    'latitude' => $item['latitude'],
+                    'longitude' => $item['longitude'],
+                    'status' => 'menunggu_mitra',
+                    'mitra_id' => null,
                 ]
             );
         }

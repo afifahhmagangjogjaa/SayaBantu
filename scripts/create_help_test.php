@@ -1,15 +1,14 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
-$app = require __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-$kernel->bootstrap();
 
-use App\Models\User;
+$app = require_once __DIR__.'/bootstrap.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
 use App\Models\Help;
 use App\Models\PartnerActivity;
+use App\Models\User;
 
 $user = User::where('role', 'customer')->first() ?? User::first();
-if (!$user) {
+if (! $user) {
     echo "No user found\n";
     exit(1);
 }
@@ -28,5 +27,5 @@ echo "Help created id: {$help->id}\n";
 
 $activities = PartnerActivity::where('user_id', $user->id)->orderBy('created_at', 'desc')->take(5)->get();
 foreach ($activities as $a) {
-    echo $a->id . ' | ' . $a->activity_type . ' | ' . ($a->description ?? '-') . '\n';
+    echo $a->id.' | '.$a->activity_type.' | '.($a->description ?? '-').'\n';
 }

@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
-use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AdminNotificationSeeder extends Seeder
 {
@@ -22,6 +22,7 @@ class AdminNotificationSeeder extends Seeder
 
         if ($targetUsers->isEmpty()) {
             $this->command->warn('No admin or super admin user found.');
+
             return;
         }
 
@@ -35,7 +36,7 @@ class AdminNotificationSeeder extends Seeder
                         'customer_name' => 'Budi Santoso',
                         'customer_id' => 3,
                         'amount' => 150000,
-                        'request_code' => 'TPU-' . date('Ymd') . '-001',
+                        'request_code' => 'TPU-'.date('Ymd').'-001',
                         'message' => 'Request top-up baru dari Budi Santoso sebesar Rp 150.000 menunggu verifikasi',
                         'url' => route('superadmin.topup.approvals'),
                     ],
@@ -91,7 +92,7 @@ class AdminNotificationSeeder extends Seeder
                         'customer_name' => 'Dwiki Kurniawan',
                         'customer_id' => 12,
                         'amount' => 50000,
-                        'request_code' => 'TPU-' . date('Ymd') . '-002',
+                        'request_code' => 'TPU-'.date('Ymd').'-002',
                         'message' => 'Request top-up baru dari Dwiki Kurniawan sebesar Rp 50.000',
                         'url' => route('superadmin.topup.approvals'),
                     ],

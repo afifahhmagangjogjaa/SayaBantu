@@ -2,16 +2,19 @@
 
 namespace App\Livewire\Mitra;
 
-use Livewire\Component;
 use App\Models\Chat as ChatModel;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Livewire\Component;
 
 class RealtimeNotifications extends Component
 {
     public $last_chat_id = 0;
+
     public $last_notification_check = null;
+
     public $sanctionModalOpen = false;
+
     public $currentSanction = null;
 
     public function mount()
@@ -27,12 +30,12 @@ class RealtimeNotifications extends Component
 
     public function poll()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return;
         }
 
         // Check for unpopped sanctions & report status
-        if (!$this->sanctionModalOpen) {
+        if (! $this->sanctionModalOpen) {
             $this->checkUnpoppedSanctions();
             $this->checkUnpoppedReportStatus();
             $this->checkUnpoppedHelpStatus();
@@ -46,7 +49,7 @@ class RealtimeNotifications extends Component
             ->first();
 
         if ($new) {
-            Log::info('[RealtimeNotifications] found new chat id=' . $new->id . ' help_id=' . $new->help_id . ' message=' . Str::limit($new->message, 120));
+            Log::info('[RealtimeNotifications] found new chat id='.$new->id.' help_id='.$new->help_id.' message='.Str::limit($new->message, 120));
 
             $this->last_chat_id = $new->id;
 
@@ -85,12 +88,12 @@ class RealtimeNotifications extends Component
 
                     // Dispatch a browser event via inline JS so frontend can react
                     $this->js(sprintf(
-                        "console.log('🔔 Mitra help-status notification'); window.dispatchEvent(new CustomEvent('mitra-help-status', { detail: { helpId: %d, newStatus: '%s', message: '%s', title: '%s' } })); if (typeof window.showGlobalFlashToast === 'function') { window.showGlobalFlashToast('%s', '%s'); } if (typeof window.playNotifChime === 'function') { window.playNotifChime(); }",
+                        "window.dispatchEvent(new CustomEvent('mitra-help-status', { detail: { helpId: %d, newStatus: '%s', message: '%s', title: '%s' } })); if (typeof window.showGlobalFlashToast === 'function') { window.showGlobalFlashToast('%s', '%s'); } if (typeof window.playNotifChime === 'function') { window.playNotifChime(); }",
                         $helpId,
                         addslashes($newStatus ?? ''),
                         addslashes($notifMsg),
                         addslashes($notifTitle),
-                        addslashes($notifTitle . ': ' . $notifMsg),
+                        addslashes($notifTitle.': '.$notifMsg),
                         $toastType
                     ));
 
@@ -101,8 +104,8 @@ class RealtimeNotifications extends Component
                     $notification->update(['popped_at' => now()]);
                     $this->js(sprintf(
                         "if (typeof window.showGlobalFlashToast === 'function') { window.showGlobalFlashToast('%s', '%s'); } if (typeof window.playNotifChime === 'function') { window.playNotifChime(); }",
-                        addslashes(($data['title'] ?? 'Aduan') . ': ' . ($data['message'] ?? '')),
-                        match($data['new_status'] ?? '') {
+                        addslashes(($data['title'] ?? 'Aduan').': '.($data['message'] ?? '')),
+                        match ($data['new_status'] ?? '') {
                             'resolved' => 'success',
                             'dismissed' => 'error',
                             default => 'success',
@@ -111,13 +114,13 @@ class RealtimeNotifications extends Component
                 }
             }
         } catch (\Throwable $e) {
-            Log::warning('[RealtimeNotifications] failed processing mitra notifications: ' . $e->getMessage());
+            Log::warning('[RealtimeNotifications] failed processing mitra notifications: '.$e->getMessage());
         }
     }
 
     public function checkUnpoppedReportStatus()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return;
         }
 
@@ -136,8 +139,8 @@ class RealtimeNotifications extends Component
 
             $this->js(sprintf(
                 "setTimeout(() => { if (typeof window.showGlobalFlashToast === 'function') { window.showGlobalFlashToast('%s', '%s'); } if (typeof window.playNotifChime === 'function') { window.playNotifChime(); } }, 600);",
-                addslashes(($data['title'] ?? 'Aduan') . ': ' . ($data['message'] ?? '')),
-                match($data['new_status'] ?? '') {
+                addslashes(($data['title'] ?? 'Aduan').': '.($data['message'] ?? '')),
+                match ($data['new_status'] ?? '') {
                     'resolved' => 'success',
                     'dismissed' => 'error',
                     default => 'success',
@@ -148,7 +151,7 @@ class RealtimeNotifications extends Component
 
     public function checkUnpoppedHelpStatus()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return;
         }
 
@@ -160,6 +163,7 @@ class RealtimeNotifications extends Component
             ->first(function ($n) {
                 $type = $n->data['type'] ?? '';
                 $newStatus = $n->data['new_status'] ?? '';
+
                 return $type === 'help_status' && in_array($newStatus, ['partner_reassigned', 'dibatalkan', 'cancelled', 'partner_cancelled_direct']);
             });
 
@@ -171,14 +175,14 @@ class RealtimeNotifications extends Component
             $msg = $data['message'] ?? 'Status pesanan Anda telah diperbarui.';
             $this->js(sprintf(
                 "setTimeout(() => { if (typeof window.showGlobalFlashToast === 'function') { window.showGlobalFlashToast('%s', 'error'); } if (typeof window.playNotifChime === 'function') { window.playNotifChime(); } }, 600);",
-                addslashes($title . ': ' . $msg)
+                addslashes($title.': '.$msg)
             ));
         }
     }
 
     public function checkUnpoppedSanctions()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return;
         }
 
@@ -189,6 +193,7 @@ class RealtimeNotifications extends Component
             ->get()
             ->first(function ($n) {
                 $type = $n->data['type'] ?? '';
+
                 return $type === 'sanction_warning' || str_contains($type, 'sanction') || $n->type === 'App\Notifications\SanctionNotification';
             });
 
@@ -202,12 +207,13 @@ class RealtimeNotifications extends Component
             // SP 0 (cabut sanksi): JANGAN tampilkan modal merah, cukup toast/flash hijau
             if ($level === 0) {
                 $this->js("setTimeout(() => { if (typeof window.showGlobalFlashToast === 'function') { window.showGlobalFlashToast('\u2705 Surat Peringatan Dicabut: Status SP pada akun Anda telah resmi dicabut oleh Admin. Akun Anda kini kembali normal.', 'success'); } if (typeof window.playNotifChime === 'function') { window.playNotifChime(); } }, 400);");
+
                 return;
             }
 
             $this->currentSanction = [
                 'id' => (string) $notif->id,
-                'title' => $data['title'] ?? ('⚠️ Surat Peringatan ' . $level),
+                'title' => $data['title'] ?? ('⚠️ Surat Peringatan '.$level),
                 'message' => $data['message'] ?? 'Anda menerima Surat Peringatan dari admin.',
                 'reason' => $data['reason'] ?? null,
                 'warning_level' => $level,
@@ -239,6 +245,7 @@ class RealtimeNotifications extends Component
             auth()->logout();
             session()->invalidate();
             session()->regenerateToken();
+
             return redirect()->route('login')->with('error', 'Akun Mitra Anda telah dinonaktifkan/diblokir secara permanen dari sistem karena menerima Surat Peringatan 3.');
         }
     }
@@ -251,7 +258,7 @@ class RealtimeNotifications extends Component
         $this->sanctionModalOpen = false;
         $this->currentSanction = null;
 
-        if ($id && !str_starts_with($id, 'user_warning_level_')) {
+        if ($id && ! str_starts_with($id, 'user_warning_level_')) {
             return redirect()->route('notifications.sanction', $id);
         }
 

@@ -4,14 +4,14 @@
         <div class="px-5 pt-6 pb-6 rounded-b-3xl shadow-lg mb-6" style="background: linear-gradient(135deg, #0066FF, #0052cc);">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('customer.dashboard') }}" class="text-white hover:opacity-80 transition">
+                    <a href="{{ route('customer.dashboard') }}" wire:navigate class="text-white hover:opacity-80 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
                     </a>
                     <h1 class="text-xl font-bold text-white">Top-Up Saldo</h1>
                 </div>
-                <a href="{{ route('customer.topup.history') }}" class="flex items-center gap-1 px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg transition">
+                <a href="{{ route('customer.topup.history') }}" wire:navigate class="flex items-center gap-1 px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -51,10 +51,10 @@
                 @endif
 
                 <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
-                    <a href="{{ route('customer.topup.history') }}" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
+                    <a href="{{ route('customer.topup.history') }}" wire:navigate class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
                         Lihat Riwayat & Status
                     </a>
-                    <a href="{{ route('customer.dashboard') }}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition">
+                    <a href="{{ route('customer.dashboard') }}" wire:navigate class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition">
                         Kembali ke Dashboard
                     </a>
                 </div>
@@ -65,14 +65,14 @@
     <div class="bg-gradient-to-br from-primary-500 to-primary-600 px-5 pt-6 pb-8 rounded-b-3xl shadow-lg">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
-                <a href="{{ route('customer.dashboard') }}" class="text-white">
+                <a href="{{ route('customer.dashboard') }}" wire:navigate class="text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
                 <h1 class="text-xl font-bold text-white">Top-Up Saldo</h1>
             </div>
-            <a href="{{ route('customer.topup.history') }}" class="flex items-center gap-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold rounded-lg transition">
+            <a href="{{ route('customer.topup.history') }}" wire:navigate class="flex items-center gap-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold rounded-lg transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
@@ -233,7 +233,7 @@
                     <!-- Buttons -->
                     <div class="space-y-2">
                         <div class="flex gap-3">
-                            <a href="{{ route('customer.dashboard') }}"
+                            <a href="{{ route('customer.dashboard') }}" wire:navigate
                                 class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold text-center hover:bg-gray-200">
                                 Batal
                             </a>

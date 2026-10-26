@@ -2,17 +2,21 @@
 
 namespace App\Livewire\Customer;
 
-use Livewire\Component;
 use App\Models\Chat as ChatModel;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Livewire\Component;
 
 class RealtimeNotifications extends Component
 {
     public $last_chat_id = 0;
+
     public $last_notification_check = null;
+
     public $processed_ids = [];
+
     public $sanctionModalOpen = false;
+
     public $currentSanction = null;
 
     public function mount()
@@ -24,7 +28,7 @@ class RealtimeNotifications extends Component
                 ->latest()
                 ->take(30)
                 ->pluck('id')
-                ->map(fn($id) => (string) $id)
+                ->map(fn ($id) => (string) $id)
                 ->toArray();
 
             $this->checkUnpoppedSanctions();
@@ -36,12 +40,12 @@ class RealtimeNotifications extends Component
 
     public function poll()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return;
         }
 
         // Check for unpopped sanctions & report status & topup
-        if (!$this->sanctionModalOpen) {
+        if (! $this->sanctionModalOpen) {
             $this->checkUnpoppedSanctions();
             $this->checkUnpoppedReportStatus();
             $this->checkUnpoppedTopups();
@@ -55,7 +59,7 @@ class RealtimeNotifications extends Component
             ->first();
 
         if ($new) {
-            Log::info('[Customer\RealtimeNotifications] found new chat id=' . $new->id . ' help_id=' . $new->help_id . ' message=' . Str::limit($new->message, 120));
+            Log::info('[Customer\RealtimeNotifications] found new chat id='.$new->id.' help_id='.$new->help_id.' message='.Str::limit($new->message, 120));
 
             $this->last_chat_id = $new->id;
 
@@ -90,7 +94,7 @@ class RealtimeNotifications extends Component
             Log::info('[Customer\\RealtimeNotifications] processing notification', [
                 'id' => $notification->id,
                 'type' => $notification->type,
-                'data' => $data
+                'data' => $data,
             ]);
 
             // Handle help_taken notification
@@ -100,9 +104,9 @@ class RealtimeNotifications extends Component
                     helpId: $data['help_id'] ?? null,
                     mitraName: $data['mitra_name'] ?? 'Mitra'
                 );
-                
+
                 $this->js(sprintf(
-                    "console.log('🔔 Dispatching help-taken event from backend'); window.dispatchEvent(new CustomEvent('help-taken', { detail: { helpId: %d, mitraName: '%s' } }))",
+                    "window.dispatchEvent(new CustomEvent('help-taken', { detail: { helpId: %d, mitraName: '%s' } }))",
                     $data['help_id'] ?? 0,
                     addslashes($data['mitra_name'] ?? 'Mitra')
                 ));
@@ -132,7 +136,7 @@ class RealtimeNotifications extends Component
                 );
 
                 $this->js(sprintf(
-                    "console.log('🔔 Dispatching help-status event from backend'); window.dispatchEvent(new CustomEvent('help-status-update', { detail: { helpId: %d, helpTitle: '%s', status: '%s', newStatus: '%s', message: '%s', mitraName: '%s', notifTitle: '%s', url: '%s' } }))",
+                    "window.dispatchEvent(new CustomEvent('help-status-update', { detail: { helpId: %d, helpTitle: '%s', status: '%s', newStatus: '%s', message: '%s', mitraName: '%s', notifTitle: '%s', url: '%s' } }))",
                     $helpId ?? 0,
                     addslashes($helpTitle ?? ''),
                     addslashes($newStatus ?? ''),
@@ -151,7 +155,7 @@ class RealtimeNotifications extends Component
                 $this->dispatch('balance-updated');
                 $this->js("window.dispatchEvent(new CustomEvent('balance-updated'))");
 
-                $amount = isset($data['amount']) ? 'Rp ' . number_format((float)$data['amount'], 0, ',', '.') : '';
+                $amount = isset($data['amount']) ? 'Rp '.number_format((float) $data['amount'], 0, ',', '.') : '';
                 $title = $data['title'] ?? 'Top-Up Saldo Disetujui! ✅';
                 $message = $data['message'] ?? ("Request top-up saldo Anda sebesar $amount telah disetujui! Saldo sudah masuk.");
                 $url = $data['url'] ?? route('customer.transactions.index', ['tab' => 'masuk']);
@@ -178,7 +182,7 @@ class RealtimeNotifications extends Component
 
                 $title = $data['title'] ?? 'Top-Up Saldo Ditolak ❌';
                 $reason = $data['rejection_reason'] ?? '';
-                $message = $data['message'] ?? ("Request top-up saldo Anda ditolak." . ($reason ? " Alasan: $reason" : ''));
+                $message = $data['message'] ?? ('Request top-up saldo Anda ditolak.'.($reason ? " Alasan: $reason" : ''));
                 $url = $data['url'] ?? route('customer.topup.history');
 
                 $this->dispatch('customer-toast', [
@@ -202,7 +206,7 @@ class RealtimeNotifications extends Component
                 $notification->update(['popped_at' => now()]);
 
                 $title = $data['title'] ?? '⏳ Request Top-Up Terkirim';
-                $amount = isset($data['amount']) ? 'Rp ' . number_format((float)$data['amount'], 0, ',', '.') : '';
+                $amount = isset($data['amount']) ? 'Rp '.number_format((float) $data['amount'], 0, ',', '.') : '';
                 $message = $data['message'] ?? "Request top-up saldo Anda sebesar $amount telah diterima dan menunggu verifikasi Admin.";
                 $url = $data['url'] ?? route('customer.topup.history');
 
@@ -278,7 +282,7 @@ class RealtimeNotifications extends Component
 
     public function checkUnpoppedReportStatus()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return;
         }
 
@@ -314,7 +318,7 @@ class RealtimeNotifications extends Component
 
     public function checkUnpoppedTopups()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return;
         }
 
@@ -325,11 +329,12 @@ class RealtimeNotifications extends Component
             ->get()
             ->first(function ($n) {
                 $type = $n->data['type'] ?? '';
+
                 return in_array($type, ['topup_approved', 'topup_rejected', 'topup_request_submitted'])
                     || in_array($n->type, [
-                        'App\Notifications\TopupApproved', 
+                        'App\Notifications\TopupApproved',
                         'App\Notifications\TopupRejected',
-                        'App\Notifications\TopupRequestSubmitted'
+                        'App\Notifications\TopupRequestSubmitted',
                     ]);
             });
 
@@ -342,7 +347,7 @@ class RealtimeNotifications extends Component
             $isRejected = $type === 'topup_rejected' || $notif->type === 'App\Notifications\TopupRejected';
 
             if ($isApproved) {
-                $amount = isset($data['amount']) ? 'Rp ' . number_format((float)$data['amount'], 0, ',', '.') : '';
+                $amount = isset($data['amount']) ? 'Rp '.number_format((float) $data['amount'], 0, ',', '.') : '';
                 $title = $data['title'] ?? 'Top-Up Saldo Disetujui! ✅';
                 $message = $data['message'] ?? ("Request top-up saldo Anda sebesar $amount telah disetujui! Saldo sudah masuk.");
                 $url = $data['url'] ?? route('customer.transactions.index', ['tab' => 'masuk']);
@@ -353,12 +358,12 @@ class RealtimeNotifications extends Component
             } elseif ($isRejected) {
                 $title = $data['title'] ?? 'Top-Up Saldo Ditolak ❌';
                 $reason = $data['rejection_reason'] ?? '';
-                $message = $data['message'] ?? ("Request top-up saldo Anda ditolak." . ($reason ? " Alasan: $reason" : ''));
+                $message = $data['message'] ?? ('Request top-up saldo Anda ditolak.'.($reason ? " Alasan: $reason" : ''));
                 $url = $data['url'] ?? route('customer.topup.history');
                 $toastType = 'error';
             } else {
                 $title = $data['title'] ?? '⏳ Request Top-Up Terkirim';
-                $amount = isset($data['amount']) ? 'Rp ' . number_format((float)$data['amount'], 0, ',', '.') : '';
+                $amount = isset($data['amount']) ? 'Rp '.number_format((float) $data['amount'], 0, ',', '.') : '';
                 $message = $data['message'] ?? ("Request top-up saldo Anda sebesar $amount telah diterima dan menunggu verifikasi Admin.");
                 $url = $data['url'] ?? route('customer.topup.history');
                 $toastType = 'info';
@@ -384,7 +389,7 @@ class RealtimeNotifications extends Component
 
     public function checkUnpoppedRejections()
     {
-        if (!auth()->check() || !in_array(auth()->user()->role, ['customer', 'kustomer', 'user'])) {
+        if (! auth()->check() || ! in_array(auth()->user()->role, ['customer', 'kustomer', 'user'])) {
             return;
         }
 
@@ -396,6 +401,7 @@ class RealtimeNotifications extends Component
             ->first(function ($n) {
                 $data = $n->data;
                 $status = strtolower($data['new_status'] ?? ($data['status'] ?? ''));
+
                 return in_array($status, ['rejected', 'ditolak']);
             });
 
@@ -420,7 +426,7 @@ class RealtimeNotifications extends Component
 
     public function checkUnpoppedSanctions()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return;
         }
 
@@ -431,6 +437,7 @@ class RealtimeNotifications extends Component
             ->get()
             ->first(function ($n) {
                 $type = $n->data['type'] ?? '';
+
                 return $type === 'sanction_warning' || str_contains($type, 'sanction') || $n->type === 'App\Notifications\SanctionNotification';
             });
 
@@ -444,12 +451,13 @@ class RealtimeNotifications extends Component
             // SP 0 (cabut sanksi): JANGAN tampilkan modal merah, cukup toast hijau
             if ($level === 0) {
                 $this->js("setTimeout(() => { window.dispatchEvent(new CustomEvent('customer-toast', { detail: { title: '✅ Surat Peringatan Dicabut', message: 'Status SP pada akun Anda telah resmi dicabut oleh Admin. Akun Anda kini kembali normal.', type: 'completed', timeout: 7000 } })); if (typeof window.playNotifChime === 'function') { window.playNotifChime(); } }, 400);");
+
                 return;
             }
 
             $this->currentSanction = [
                 'id' => (string) $notif->id,
-                'title' => $data['title'] ?? ('⚠️ Surat Peringatan ' . $level),
+                'title' => $data['title'] ?? ('⚠️ Surat Peringatan '.$level),
                 'message' => $data['message'] ?? 'Anda menerima Surat Peringatan dari admin.',
                 'reason' => $data['reason'] ?? null,
                 'warning_level' => $level,
@@ -481,6 +489,7 @@ class RealtimeNotifications extends Component
             auth()->logout();
             session()->invalidate();
             session()->regenerateToken();
+
             return redirect()->route('login')->with('error', 'Akun Anda telah dinonaktifkan/diblokir secara permanen dari sistem karena menerima Surat Peringatan 3.');
         }
     }
@@ -493,7 +502,7 @@ class RealtimeNotifications extends Component
         $this->sanctionModalOpen = false;
         $this->currentSanction = null;
 
-        if ($id && !str_starts_with($id, 'user_warning_level_')) {
+        if ($id && ! str_starts_with($id, 'user_warning_level_')) {
             return redirect()->route('notifications.sanction', $id);
         }
 

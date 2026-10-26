@@ -2,11 +2,11 @@
 
 namespace App\Livewire\Admin\Verifications;
 
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
 use App\Models\Registration;
 use App\Models\User;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.admin')]
 class Index extends Component
@@ -14,11 +14,17 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+
     public $statusFilter = '';
+
     public $perPage = 10;
+
     public $showModal = false;
+
     public $selectedId = null;
+
     public $showRejectForm = false;
+
     public $rejectReason = '';
 
     public function updatedSearch()
@@ -67,15 +73,16 @@ class Index extends Component
     {
         $targetId = $id ?? $this->selectedId;
         $reg = Registration::find($targetId);
-        if (!$reg) {
+        if (! $reg) {
             session()->flash('message', 'Registrasi tidak ditemukan');
+
             return;
         }
         $reg->update(['status' => 'approved']);
 
         // Jika ada user terkait, update status dan verifikasi
         try {
-            if (!empty($reg->email)) {
+            if (! empty($reg->email)) {
                 $user = User::where('email', $reg->email)->first();
                 if ($user) {
                     $user->verified = true;
@@ -85,7 +92,7 @@ class Index extends Component
                     try {
                         $user->notify(new \App\Notifications\KtpVerificationStatusNotification('approved'));
                     } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP approved: ' . $e->getMessage());
+                        \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP approved: '.$e->getMessage());
                     }
                 }
             }
@@ -100,9 +107,10 @@ class Index extends Component
     public function confirmReject($id = null)
     {
         $targetId = $id ?? $this->selectedId;
-        if (!$targetId) {
+        if (! $targetId) {
             session()->flash('message', 'Registrasi tidak ditemukan');
             $this->closeModal();
+
             return;
         }
 
@@ -111,9 +119,10 @@ class Index extends Component
         ]);
 
         $reg = Registration::find($targetId);
-        if (!$reg) {
+        if (! $reg) {
             session()->flash('message', 'Registrasi tidak ditemukan');
             $this->closeModal();
+
             return;
         }
 
@@ -125,7 +134,7 @@ class Index extends Component
         ]);
 
         try {
-            if (!empty($reg->email)) {
+            if (! empty($reg->email)) {
                 $user = User::where('email', $reg->email)->first();
                 if ($user) {
                     $user->verified = false;
@@ -135,7 +144,7 @@ class Index extends Component
                     try {
                         $user->notify(new \App\Notifications\KtpVerificationStatusNotification('rejected', $reason));
                     } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP rejected: ' . $e->getMessage());
+                        \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP rejected: '.$e->getMessage());
                     }
                 }
             }
@@ -154,14 +163,14 @@ class Index extends Component
         if ($this->search) {
             $searchTerm = trim($this->search);
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('full_name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('email', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('nik', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('address', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('city', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('kelurahan', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('kecamatan', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('province', 'like', '%' . $searchTerm . '%');
+                $q->where('full_name', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('email', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('nik', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('address', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('city', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('kelurahan', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('kecamatan', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('province', 'like', '%'.$searchTerm.'%');
             });
         }
 
@@ -169,14 +178,14 @@ class Index extends Component
             if ($this->statusFilter === 'pending') {
                 $query->where(function ($q) {
                     $q->whereNull('status')
-                      ->orWhere('status', 'pending')
-                      ->orWhereNotIn('status', ['approved', 'rejected']);
+                        ->orWhere('status', 'pending')
+                        ->orWhereNotIn('status', ['approved', 'rejected']);
                 });
             } else {
                 $query->where('status', $this->statusFilter);
             }
         }
-        
+
         $admin = auth()->user();
         // Filter by admin's managed cities if user is admin
         if ($admin && $admin->role === 'admin') {
@@ -185,15 +194,15 @@ class Index extends Component
             if ($cityIds->isNotEmpty()) {
                 $cityNames = \App\Models\City::whereIn('id', $cityIds)
                     ->pluck('name')
-                    ->map(fn($n) => strtolower(trim($n)))
+                    ->map(fn ($n) => strtolower(trim($n)))
                     ->all();
 
                 $query->where(function ($q) use ($cityIds, $cityNames) {
                     $q->whereIn('city_id', $cityIds);
-                    if (!empty($cityNames)) {
+                    if (! empty($cityNames)) {
                         $q->orWhere(function ($subQ) use ($cityNames) {
                             foreach ($cityNames as $cityName) {
-                                $subQ->orWhereRaw('LOWER(city) LIKE ?', ['%' . $cityName . '%']);
+                                $subQ->orWhereRaw('LOWER(city) LIKE ?', ['%'.$cityName.'%']);
                             }
                         });
                     }
@@ -202,7 +211,7 @@ class Index extends Component
                 $query->whereRaw('1 = 0');
             }
         }
-        
+
         $verifications = $query->with('user')->latest()->paginate($this->perPage);
         $selected = $this->selectedId ? Registration::with('user')->find($this->selectedId) : null;
 

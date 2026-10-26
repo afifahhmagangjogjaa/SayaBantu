@@ -16,7 +16,7 @@ class SanctionNotificationController extends Controller
         }
 
         $type = $notification->data['type'] ?? '';
-        if ($type !== 'sanction_warning' && !str_contains($type, 'sanction')) {
+        if ($type !== 'sanction_warning' && ! str_contains($type, 'sanction')) {
             abort(404, 'Bukan notifikasi surat peringatan.');
         }
 
@@ -41,7 +41,7 @@ class SanctionNotificationController extends Controller
 
     public function acknowledge($id)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 

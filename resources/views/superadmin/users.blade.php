@@ -187,7 +187,7 @@
                                         }
                                     @endphp
                                     @if($avgRating > 0 && $ratingCount > 0)
-                                        <a href="{{ route('superadmin.ratings.index', ['search' => $user->email ?? $user->name]) }}"
+                                        <a href="{{ route('superadmin.ratings.index', ['search' => $user->email ?? $user->name]) }}" wire:navigate
                                            class="inline-flex items-center group cursor-pointer hover:opacity-85 transition"
                                            title="Lihat ulasan di menu Rating & Ulasan">
                                             <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-200 group-hover:bg-amber-100 transition shadow-2xs">
@@ -476,7 +476,7 @@
                                     <span class="text-xs text-gray-400 italic">Belum ada rating atau ulasan</span>
                                 @endif
                             </div>
-                            <a href="{{ route('superadmin.ratings.index', ['search' => $selectedUser->email ?? $selectedUser->name]) }}"
+                            <a href="{{ route('superadmin.ratings.index', ['search' => $selectedUser->email ?? $selectedUser->name]) }}" wire:navigate
                                 class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-black text-xs font-semibold rounded-lg shadow-2xs transition flex-shrink-0 cursor-pointer"
                                 title="Buka menu Rating & Ulasan">
                                 <span>Lihat Semua Ulasan</span>

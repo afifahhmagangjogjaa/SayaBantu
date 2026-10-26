@@ -37,7 +37,7 @@
             <!-- Summary Cards (Clickable Quick Filters) -->
             <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                 <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                    <a href="{{ route('admin.withdraws.index') }}" 
+                    <a href="{{ route('admin.withdraws.index') }}" wire:navigate 
                         class="p-3.5 rounded-xl border transition-all duration-200 {{ !request('status') ? 'bg-primary-50 border-primary-300 ring-2 ring-primary-200' : 'bg-white border-gray-200 hover:border-gray-300' }}">
                         <div class="text-xs font-medium text-gray-500">Semua Request</div>
                         <div class="text-xl font-bold text-gray-900 mt-1">{{ $counts['all'] ?? 0 }}</div>
@@ -84,7 +84,7 @@
                                     class="w-full bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
                                     placeholder="Nama mitra, no. rek, email, ID (#12), nominal..." />
                                 @if(request('search') || request('user'))
-                                    <a href="{{ route('admin.withdraws.index', request()->except('search', 'user', 'page')) }}" 
+                                    <a href="{{ route('admin.withdraws.index', request()->except('search', 'user', 'page')) }}" wire:navigate 
                                        class="absolute inset-y-0 right-0 flex items-center text-gray-400 hover:text-gray-600 transition cursor-pointer" 
                                        style="padding-right: 12px;"
                                        title="Hapus pencarian">
@@ -143,7 +143,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             @if(request()->hasAny(['search', 'user', 'status', 'bank_code', 'date_from', 'date_to']))
-                                <a href="{{ route('admin.withdraws.index') }}"
+                                <a href="{{ route('admin.withdraws.index') }}" wire:navigate
                                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-xs font-semibold">
                                     Reset Filter
                                 </a>
@@ -226,17 +226,11 @@
                                 </td>
                                 <td class="px-2.5 py-2.5 text-center whitespace-nowrap">
                                     <div class="flex items-center justify-center gap-1.5">
-                                        @if(auth()->user() && auth()->user()->isSuperAdmin())
-                                            <button data-id="{{ $item->id }}"
-                                                class="open-withdraw-modal inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold cursor-pointer">
-                                                Proses
-                                            </button>
-                                        @else
-                                            <a href="{{ route('admin.withdraws.show', $item) }}" 
-                                               class="inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold">
-                                                Detail
-                                            </a>
-                                        @endif
+                                        {{-- Semua aksi (setujui/tolak) dilakukan di halaman detail --}}
+                                        <a href="{{ route('admin.withdraws.show', $item) }}" wire:navigate 
+                                           class="inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold">
+                                            {{ $item->status === 'pending' ? 'Proses' : 'Detail' }}
+                                        </a>
                                         @if($item->status !== 'pending')
                                             <form action="{{ route('admin.withdraws.destroy', $item) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data riwayat withdraw ini?');" class="inline">
                                                 @csrf
@@ -447,109 +441,29 @@
             </div>
         </div>
     </div>
-    <!-- Modal container -->
-    <div id="admin-withdraw-modal-container"></div>
 
     <script>
-        (function () {
-            function openModal(id) {
-                var container = document.getElementById('admin-withdraw-modal-container');
-                // Fetch modal HTML
-                fetch('/admin/withdraws/' + id + '/modal')
-                    .then(function (res) { return res.text(); })
-                    .then(function (html) {
-                        container.innerHTML = html;
-                        // Ensure modal scripts/behavior are initialized after injection
-                        initAdminWithdrawModal(container);
-                        // Optionally scroll to top so modal is visible
-                        window.scrollTo(0, 0);
-                    })
-                    .catch(function (err) { console.error('Failed to load modal:', err); });
-            }
-
-            document.querySelectorAll('.open-withdraw-modal').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var id = this.getAttribute('data-id');
-                    openModal(id);
-                });
-            });
-        })();
-
-        // Initialize modal behavior for injected admin withdraw modal
-        function initAdminWithdrawModal(container) {
-            // Find the injected modal node
-            var modal = container.querySelector('#admin-withdraw-modal');
-            if (!modal) return;
-
-            var overlay = modal.querySelector('#admin-withdraw-modal-overlay');
-            var closeBtn = modal.querySelector('#close-admin-withdraw-modal');
-
-            function removeModal() { container.innerHTML = ''; }
-            if (closeBtn) closeBtn.addEventListener('click', removeModal);
-            if (overlay) overlay.addEventListener('click', removeModal);
-
-            // Inline reject form (toggle visibility inside the injected modal)
-            // support both the old and new ID names for the reject trigger
-            var openReject = modal.querySelector('#open-reject-modal-local, #open-reject-local');
-            var rejectForm = modal.querySelector('#reject-form-local');
-            var rejectCancel = modal.querySelector('#reject-cancel-local');
-
-            // lock body scroll while modal is open and restore on close
-            document.body.style.overflow = 'hidden';
-            function restoreBodyScroll() { document.body.style.overflow = ''; }
-            // ensure restore when modal removed
-            var originalRemove = removeModal;
-            removeModal = function () { restoreBodyScroll(); originalRemove(); };
-
-            function showReject() {
-                if (rejectForm) {
-                    rejectForm.classList.remove('hidden');
-                    // focus first input when shown
-                    var input = rejectForm.querySelector('input[name="note"]');
-                    if (input) input.focus();
-                }
-            }
-            function hideReject() { if (rejectForm) rejectForm.classList.add('hidden'); }
-
-            if (openReject) openReject.addEventListener('click', showReject);
-            if (rejectCancel) rejectCancel.addEventListener('click', hideReject);
-        }
-
-        // Auto-refresh daftar withdraw setiap 30 detik jika tidak sedang membuka modal atau hover
-        setInterval(function() {
-            var modalContainer = document.getElementById('admin-withdraw-modal-container');
-            var isModalOpen = modalContainer && modalContainer.children.length > 0;
+        // Auto-refresh daftar withdraw setiap 30 detik jika filter tidak sedang diisi atau tabel tidak di-hover
+        setInterval(function () {
             var isInputFocused = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
             var currentTable = document.querySelector('.bg-white.rounded-2xl.shadow-lg');
             var isHovering = currentTable && currentTable.matches(':hover');
-            if (!isModalOpen && !isInputFocused && !isHovering) {
-                // Fetch silent update
-                fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                    .then(function(res) { return res.text(); })
-                    .then(function(html) {
-                        var parser = new DOMParser();
-                        var doc = parser.parseFromString(html, 'text/html');
-                        var newTable = doc.querySelector('.bg-white.rounded-2xl.shadow-lg');
-                        if (newTable && currentTable && !currentTable.matches(':hover')) {
-                            currentTable.innerHTML = newTable.innerHTML;
-                            // Re-bind modal triggers
-                            document.querySelectorAll('.open-withdraw-modal').forEach(function (btn) {
-                                btn.addEventListener('click', function () {
-                                    var id = this.getAttribute('data-id');
-                                    var container = document.getElementById('admin-withdraw-modal-container');
-                                    fetch('/admin/withdraws/' + id + '/modal')
-                                        .then(function (res) { return res.text(); })
-                                        .then(function (mHtml) {
-                                            container.innerHTML = mHtml;
-                                            initAdminWithdrawModal(container);
-                                            window.scrollTo(0, 0);
-                                        });
-                                });
-                            });
-                        }
-                    })
-                    .catch(function(e) { /* ignore */ });
+
+            if (isInputFocused || isHovering) {
+                return;
             }
+
+            fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (res) { return res.text(); })
+                .then(function (html) {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    var newTable = doc.querySelector('.bg-white.rounded-2xl.shadow-lg');
+                    if (newTable && currentTable && !currentTable.matches(':hover')) {
+                        currentTable.innerHTML = newTable.innerHTML;
+                    }
+                })
+                .catch(function () { /* ignore */ });
         }, 30000);
     </script>
 @endsection

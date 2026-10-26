@@ -11,7 +11,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/verifications', \App\Livewire\Admin\Verifications\Index::class)->name('verifications');
 
     Route::get('/withdraws', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'index'])->name('withdraws.index');
-    Route::get('/withdraws/{withdraw}/modal', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'modal'])->name('withdraws.modal');
+    Route::post('/withdraws/{withdraw}/approve', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'approve'])->name('withdraws.approve');
+    Route::post('/withdraws/{withdraw}/reject', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'reject'])->name('withdraws.reject');
     Route::get('/withdraws/{withdraw}', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'show'])->name('withdraws.show');
     Route::delete('/withdraws/clear-all', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroyAll'])->name('withdraws.destroy_all');
     Route::delete('/withdraws/delete-period', [\App\Http\Controllers\Admin\AdminWithdrawController::class, 'destroyPeriod'])->name('withdraws.destroy_period');

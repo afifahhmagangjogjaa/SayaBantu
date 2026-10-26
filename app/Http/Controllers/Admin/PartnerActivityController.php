@@ -53,7 +53,7 @@ class PartnerActivityController extends Controller
 
     public function exportCsv(Request $request)
     {
-        $filename = 'aktivitas_mitra_' . now()->format('Ymd_His') . '.csv';
+        $filename = 'aktivitas_mitra_'.now()->format('Ymd_His').'.csv';
         $activityLabels = $this->getActivityLabels();
 
         $callback = function () use ($request, $activityLabels) {
@@ -72,10 +72,15 @@ class PartnerActivityController extends Controller
                         $user = $row->user;
                         $role = 'Internal';
                         if ($user) {
-                            if ($user->isMitra()) $role = 'Mitra';
-                            elseif ($user->isCustomer()) $role = 'Customer';
-                            elseif ($user->isAdmin()) $role = 'Admin';
-                            elseif ($user->isSuperAdmin()) $role = 'Super Admin';
+                            if ($user->isMitra()) {
+                                $role = 'Mitra';
+                            } elseif ($user->isCustomer()) {
+                                $role = 'Customer';
+                            } elseif ($user->isAdmin()) {
+                                $role = 'Admin';
+                            } elseif ($user->isSuperAdmin()) {
+                                $role = 'Super Admin';
+                            }
                         }
 
                         $actName = $activityLabels[$row->activity_type] ?? ucwords(str_replace('_', ' ', $row->activity_type));
@@ -104,7 +109,7 @@ class PartnerActivityController extends Controller
 
     public function exportExcel(Request $request)
     {
-        $filename = 'aktivitas_mitra_' . now()->format('Ymd_His') . '.xls';
+        $filename = 'aktivitas_mitra_'.now()->format('Ymd_His').'.xls';
         $activityLabels = $this->getActivityLabels();
 
         $activities = $this->buildFilteredQuery($request)
@@ -164,24 +169,24 @@ class PartnerActivityController extends Controller
 
             $actName = $activityLabels[$row->activity_type] ?? ucwords(str_replace('_', ' ', $row->activity_type));
 
-            $userDisplay = '<b>' . htmlspecialchars($user?->name ?? 'User Terhapus') . '</b>';
+            $userDisplay = '<b>'.htmlspecialchars($user?->name ?? 'User Terhapus').'</b>';
             if ($user && $user->email) {
-                $userDisplay .= '<br/><span style="color: #64748b; font-size: 9pt;">' . htmlspecialchars($user->email) . '</span>';
+                $userDisplay .= '<br/><span style="color: #64748b; font-size: 9pt;">'.htmlspecialchars($user->email).'</span>';
             }
 
             $waktuDiff = $row->created_at ? $row->created_at->diffForHumans() : '-';
-            $waktuFull = $row->created_at ? '(' . $row->created_at->format('Y-m-d H:i:s') . ' WIB)' : '';
-            $waktuDisplay = '<b>' . htmlspecialchars($waktuDiff) . '</b><br/><span style="color: #64748b; font-size: 8.5pt;">' . htmlspecialchars($waktuFull) . '</span>';
+            $waktuFull = $row->created_at ? '('.$row->created_at->format('Y-m-d H:i:s').' WIB)' : '';
+            $waktuDisplay = '<b>'.htmlspecialchars($waktuDiff).'</b><br/><span style="color: #64748b; font-size: 8.5pt;">'.htmlspecialchars($waktuFull).'</span>';
 
             $html .= '<tr>';
-            $html .= '<td style="text-align: center;">' . ($index + 1) . '</td>';
-            $html .= '<td>' . $userDisplay . '</td>';
-            $html .= '<td class="' . $roleClass . '" style="text-align: center;">' . $role . '</td>';
-            $html .= '<td>' . htmlspecialchars($actName) . '</td>';
-            $html .= '<td>' . htmlspecialchars($row->description ?? '-') . '</td>';
-            $html .= '<td style="font-family: Consolas, monospace; text-align: center;">' . htmlspecialchars($row->ip_address ?? '-') . '</td>';
-            $html .= '<td>' . htmlspecialchars($row->user_agent ?? '-') . '</td>';
-            $html .= '<td style="text-align: center; white-space: nowrap;">' . $waktuDisplay . '</td>';
+            $html .= '<td style="text-align: center;">'.($index + 1).'</td>';
+            $html .= '<td>'.$userDisplay.'</td>';
+            $html .= '<td class="'.$roleClass.'" style="text-align: center;">'.$role.'</td>';
+            $html .= '<td>'.htmlspecialchars($actName).'</td>';
+            $html .= '<td>'.htmlspecialchars($row->description ?? '-').'</td>';
+            $html .= '<td style="font-family: Consolas, monospace; text-align: center;">'.htmlspecialchars($row->ip_address ?? '-').'</td>';
+            $html .= '<td>'.htmlspecialchars($row->user_agent ?? '-').'</td>';
+            $html .= '<td style="text-align: center; white-space: nowrap;">'.$waktuDisplay.'</td>';
             $html .= '</tr>';
         }
 
@@ -189,7 +194,7 @@ class PartnerActivityController extends Controller
 
         return response($html, 200, [
             'Content-Type' => 'application/vnd.ms-excel; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 
@@ -211,7 +216,7 @@ class PartnerActivityController extends Controller
         if (auth()->user() && auth()->user()->role === 'admin') {
             $admin = auth()->user();
             $cityIds = collect($admin ? $admin->getAdminCityIds() : []);
-                
+
             $query->whereHas('user', function ($q) use ($cityIds) {
                 $q->whereIn('city_id', $cityIds);
             });
@@ -287,7 +292,7 @@ class PartnerActivityController extends Controller
         $user->password = bcrypt($newPassword);
         $user->save();
 
-        return back()->with('success', 'Password mitra telah direset. Password baru: ' . $newPassword);
+        return back()->with('success', 'Password mitra telah direset. Password baru: '.$newPassword);
     }
 
     protected function detectSuspicious(PartnerActivity $selectedActivity, $recentActivities): array
@@ -315,7 +320,7 @@ class PartnerActivityController extends Controller
         }
 
         return [
-            'flag' => !empty($reasons),
+            'flag' => ! empty($reasons),
             'reasons' => $reasons,
         ];
     }

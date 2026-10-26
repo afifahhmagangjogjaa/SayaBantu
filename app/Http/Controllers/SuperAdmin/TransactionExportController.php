@@ -16,10 +16,10 @@ class TransactionExportController extends Controller
      */
     public function export(Request $request): StreamedResponse
     {
-        $type   = $request->get('type', 'all');
+        $type = $request->get('type', 'all');
         $search = $request->get('search');
-        $from   = $request->get('from');
-        $to     = $request->get('to');
+        $from = $request->get('from');
+        $to = $request->get('to');
         $cityId = $request->get('city_id');
 
         $query = BalanceTransaction::query();
@@ -29,10 +29,10 @@ class TransactionExportController extends Controller
             if ($type === 'withdraw') {
                 $query->where(function ($q) {
                     $q->where('type', 'withdraw')
-                      ->orWhere(function ($sub) {
-                          $sub->whereIn('type', ['deduction', 'withdraw_deduction'])
-                              ->whereHas('user', fn($u) => $u->where('role', 'mitra'));
-                      });
+                        ->orWhere(function ($sub) {
+                            $sub->whereIn('type', ['deduction', 'withdraw_deduction'])
+                                ->whereHas('user', fn ($u) => $u->where('role', 'mitra'));
+                        });
                 });
             } elseif ($type === 'topup') {
                 $query->where('type', 'topup');
@@ -48,12 +48,12 @@ class TransactionExportController extends Controller
             $s = trim($search);
             $query->where(function ($q) use ($s) {
                 $q->where('request_code', 'like', "%{$s}%")
-                  ->orWhere('order_id', 'like', "%{$s}%")
-                  ->orWhere('reference_id', 'like', "%{$s}%")
-                  ->orWhereHas('user', function ($qu) use ($s) {
-                      $qu->where('name', 'like', "%{$s}%")
-                         ->orWhere('email', 'like', "%{$s}%");
-                  });
+                    ->orWhere('order_id', 'like', "%{$s}%")
+                    ->orWhere('reference_id', 'like', "%{$s}%")
+                    ->orWhereHas('user', function ($qu) use ($s) {
+                        $qu->where('name', 'like', "%{$s}%")
+                            ->orWhere('email', 'like', "%{$s}%");
+                    });
             });
         }
 
@@ -79,7 +79,7 @@ class TransactionExportController extends Controller
         }
 
         $transactions = $query->with(['user.city'])->orderBy('created_at', 'desc')->get();
-        $filename = 'Laporan-Transaksi-' . $cityName . '-' . now()->format('Ymd-His') . '.xls';
+        $filename = 'Laporan-Transaksi-'.$cityName.'-'.now()->format('Ymd-His').'.xls';
 
         return response()->streamDownload(function () use ($transactions, $cityName) {
             $this->renderExcelContent($transactions, $cityName);
@@ -109,10 +109,10 @@ class TransactionExportController extends Controller
             .title-main { font-size: 16pt; font-weight: bold; text-align: center; color: #1e3a8a; }
             .title-sub { font-size: 10pt; color: #64748b; text-align: center; }
         </style></head><body>';
-        
+
         echo '<table>';
-        echo '<tr><td colspan="9" class="title-main" style="border:none; padding-top:10px; padding-bottom:4px;">LAPORAN DAFTAR TRANSAKSI (' . strtoupper(str_replace('-', ' ', $cityName)) . ')</td></tr>';
-        echo '<tr><td colspan="9" class="title-sub" style="border:none; padding-bottom:15px;">Tanggal Cetak: ' . now()->translatedFormat('d F Y, H:i') . ' WIB | Oleh: ' . htmlspecialchars(auth()->user()->name ?? 'Super Admin') . '</td></tr>';
+        echo '<tr><td colspan="9" class="title-main" style="border:none; padding-top:10px; padding-bottom:4px;">LAPORAN DAFTAR TRANSAKSI ('.strtoupper(str_replace('-', ' ', $cityName)).')</td></tr>';
+        echo '<tr><td colspan="9" class="title-sub" style="border:none; padding-bottom:15px;">Tanggal Cetak: '.now()->translatedFormat('d F Y, H:i').' WIB | Oleh: '.htmlspecialchars(auth()->user()->name ?? 'Super Admin').'</td></tr>';
         echo '</table>';
 
         echo '<table>';
@@ -152,21 +152,21 @@ class TransactionExportController extends Controller
             $userCity = $t->user->city_name ?? '-';
 
             echo "<tr {$rowBg}>";
-            echo '<td class="text-center">' . $no++ . '</td>';
-            echo '<td class="text-center">' . ($t->created_at ? $t->created_at->format('d/m/Y H:i') : '-') . '</td>';
-            echo '<td class="text-left">' . htmlspecialchars(optional($t->user)->name ?? '-') . '</td>';
-            echo '<td class="text-left">' . htmlspecialchars(optional($t->user)->email ?? '-') . '</td>';
-            echo '<td class="text-center">' . htmlspecialchars($userCity) . '</td>';
-            echo '<td class="text-center">' . $label . '</td>';
-            echo '<td class="text-right font-bold">' . number_format($t->amount, 0, ',', '.') . '</td>';
-            echo '<td class="text-center">' . htmlspecialchars($refCode) . '</td>';
-            echo '<td class="text-center">' . $statusLabel . '</td>';
+            echo '<td class="text-center">'.$no++.'</td>';
+            echo '<td class="text-center">'.($t->created_at ? $t->created_at->format('d/m/Y H:i') : '-').'</td>';
+            echo '<td class="text-left">'.htmlspecialchars(optional($t->user)->name ?? '-').'</td>';
+            echo '<td class="text-left">'.htmlspecialchars(optional($t->user)->email ?? '-').'</td>';
+            echo '<td class="text-center">'.htmlspecialchars($userCity).'</td>';
+            echo '<td class="text-center">'.$label.'</td>';
+            echo '<td class="text-right font-bold">'.number_format($t->amount, 0, ',', '.').'</td>';
+            echo '<td class="text-center">'.htmlspecialchars($refCode).'</td>';
+            echo '<td class="text-center">'.$statusLabel.'</td>';
             echo '</tr>';
         }
 
         echo '<tr>';
         echo '<td colspan="6" class="text-right font-bold bg-total">TOTAL KESELURUHAN</td>';
-        echo '<td class="text-right font-bold bg-total">Rp ' . number_format($total, 0, ',', '.') . '</td>';
+        echo '<td class="text-right font-bold bg-total">Rp '.number_format($total, 0, ',', '.').'</td>';
         echo '<td colspan="2" class="bg-total"></td>';
         echo '</tr>';
 

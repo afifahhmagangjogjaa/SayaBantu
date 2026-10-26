@@ -1,11 +1,7 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-$kernel->bootstrap();
+$app = require_once __DIR__.'/bootstrap.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 use App\Models\BalanceTransaction;
 use App\Models\UserBalance;
@@ -29,6 +25,7 @@ foreach ($rows as $tx) {
         $amount = (float) $tx->amount;
         if ($amount <= 0) {
             Log::warning('Skipping zero/negative amount', ['transaction_id' => $tx->id]);
+
             return;
         }
 
