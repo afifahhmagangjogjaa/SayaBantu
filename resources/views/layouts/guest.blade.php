@@ -48,9 +48,9 @@
     </style>
 </head>
 
-<body class="min-h-screen min-h-[100dvh] bg-slate-100 font-sans text-slate-900 antialiased flex flex-col items-center justify-center sm:py-6 sm:px-4">
+<body class="min-h-screen min-h-[100dvh] bg-slate-100 font-sans text-slate-900 antialiased flex flex-col items-center sm:justify-start sm:pt-2 sm:pb-6 sm:px-4">
     <!-- Centered Mobile Frame container matching modern mockup and landing page -->
-    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-auto sm:min-h-[780px] sm:max-h-[92vh] bg-white sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-y-auto overflow-x-hidden">
+    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-auto sm:min-h-[780px] sm:max-h-[calc(100dvh-1rem)] bg-white sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-y-auto overflow-x-hidden">
         @php
             $currentRoute = request()->route() ? request()->route()->getName() : '';
             $isModernAuth = in_array($currentRoute, [

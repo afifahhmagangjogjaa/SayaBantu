@@ -6,7 +6,7 @@ use App\Models\City;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.mitra-layout')]
+#[Layout('layouts.mitra')]
 class EditPage extends Component
 {
     public ?string $name = null;

@@ -30,9 +30,9 @@
     </style>
 </head>
 
-<body class="h-screen h-[100dvh] bg-slate-100 font-sans text-slate-900 antialiased flex flex-col items-center justify-center sm:p-4">
+<body class="h-screen h-[100dvh] bg-slate-100 font-sans text-slate-900 antialiased flex flex-col items-center sm:justify-start sm:pt-2 sm:pb-6 sm:px-4">
     <!-- Centered Mobile App Container matching the design mockup -->
-    <main class="w-full max-w-md h-full sm:h-[840px] sm:max-h-[92vh] bg-white sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col justify-between overflow-hidden relative">
+    <main class="w-full max-w-md h-full sm:h-[840px] sm:max-h-[calc(100dvh-1rem)] bg-white sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col justify-between overflow-hidden relative">
         
         <!-- Header Section (Logo + Tagline) -->
         <header class="pt-10 sm:pt-14 px-6 pb-2 text-center shrink-0 z-10">

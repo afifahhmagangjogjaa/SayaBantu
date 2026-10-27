@@ -196,7 +196,7 @@
                                                 @endif
                                             @elseif($help->status === 'partner_cancel_requested')
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                                                    ⚠️ Permintaan Batal Diajukan
+                                                    Permintaan Batal Diajukan
                                                 </span>
                                             @elseif($help->isScheduled() && !$help->canPartnerStartJourney())
                                                 @php

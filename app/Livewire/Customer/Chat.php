@@ -182,6 +182,11 @@ class Chat extends Component
         $this->markChatNotificationsAsRead($help_id);
     }
 
+    public function selectConversation($help_id)
+    {
+        return $this->selectHelp($help_id);
+    }
+
     #[On('help-new-message')]
     public function refreshChat()
     {

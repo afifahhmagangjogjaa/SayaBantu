@@ -102,7 +102,7 @@ new #[Layout('layouts.guest')] class extends Component {
                 Masuk ke Akun Anda
             </h2>
             <p class="text-xs text-gray-500 mt-1">
-                Jasa Serabutan, Mudah, Cepat, Terpercaya
+                Platform Jasa & Bantuan Terpercaya untuk Customer & Mitra
             </p>
         </div>
 

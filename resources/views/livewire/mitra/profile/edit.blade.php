@@ -57,7 +57,7 @@
                             <div class="mt-3">
                                 <label class="block text-sm font-medium text-gray-700">Kota</label>
                                 <select wire:model.defer="city_id" class="mt-1 block w-full border rounded px-3 py-2">
-                                    <option value="">-- Pilih Kota --</option>
+                                    <option value="">Pilih Kota</option>
                                     @foreach($cities as $city)
                                         <option value="{{ $city->id }}">{{ $city->name }}</option>
                                     @endforeach

@@ -4,12 +4,14 @@ namespace App\Livewire\Customer\Helps;
 
 use App\Models\AppSetting;
 use App\Models\BalanceTransaction;
+use App\Models\Category;
 use App\Models\City;
 use App\Models\Help;
 use App\Models\UserBalance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -25,7 +27,28 @@ class Create extends Component
 
     public $amount = '';
 
+    #[Url]
     public $category_id = '';
+
+    public $other_category = '';
+
+    public function isOtherCategory(): bool
+    {
+        if (empty($this->category_id)) {
+            return false;
+        }
+        $cat = Category::find($this->category_id);
+
+        return $cat && strtolower(trim($cat->name)) === 'lainnya';
+    }
+
+    public function updatedCategoryId($value)
+    {
+        if (! $this->isOtherCategory()) {
+            $this->other_category = '';
+            $this->resetErrorBag('other_category');
+        }
+    }
 
     public $city_id = '';
 
@@ -138,6 +161,20 @@ class Create extends Component
 
     public function mount()
     {
+        $requestedCat = request()->query('category_id') ?? request()->query('category');
+        if (!empty($requestedCat)) {
+            if (is_numeric($requestedCat)) {
+                if (Category::where('id', $requestedCat)->exists()) {
+                    $this->category_id = (string) $requestedCat;
+                }
+            } else {
+                $matchedCat = Category::where('name', 'like', '%' . trim($requestedCat) . '%')->first();
+                if ($matchedCat) {
+                    $this->category_id = (string) $matchedCat->id;
+                }
+            }
+        }
+
         $this->minNominal = (int) AppSetting::get('min_help_nominal', 10000);
         $this->maxNominal = (int) AppSetting::get('max_help_nominal', 10000000);
 
@@ -605,6 +642,7 @@ class Create extends Component
         'equipment_provided' => 'nullable|string|max:1000',
         'amount' => 'required|numeric|min:10000|max:10000000',
         'category_id' => 'required|exists:categories,id',
+        'other_category' => 'nullable|string|max:100',
         'city_id' => 'required|exists:cities,id,is_active,1',
         'location' => 'required|string|max:255',
         'full_address' => 'required|string|max:1000',
@@ -680,6 +718,14 @@ class Create extends Component
             $this->messages['auto_cancel_minutes.max'] = 'Batas waktu tunggu maksimal 180 menit';
         }
 
+        if ($this->isOtherCategory()) {
+            $this->rules['other_category'] = 'required|string|min:2|max:100';
+            $this->messages['other_category.required'] = 'Silakan tuliskan kategori bantuan yang Anda butuhkan';
+            $this->messages['other_category.min'] = 'Nama kategori minimal 2 karakter';
+        } else {
+            $this->rules['other_category'] = 'nullable|string|max:100';
+        }
+
         // Fallback koordinat jika belum dipilih di peta
         if (empty($this->latitude) || empty($this->longitude)) {
             if ($this->city_id) {
@@ -747,6 +793,7 @@ class Create extends Component
                 'auto_cancel_minutes' => $minutes,
                 'auto_cancel_at' => $autoCancelAt,
                 'category_id' => $this->category_id,
+                'other_category' => $this->isOtherCategory() ? trim($this->other_category) : null,
                 'city_id' => $this->city_id,
                 'title' => $this->title,
                 'amount' => $baseAmount,
@@ -852,6 +899,14 @@ class Create extends Component
             $this->messages['auto_cancel_minutes.required'] = 'Batas waktu tunggu pembatalan otomatis wajib ditentukan';
             $this->messages['auto_cancel_minutes.min'] = 'Batas waktu tunggu minimal 30 menit';
             $this->messages['auto_cancel_minutes.max'] = 'Batas waktu tunggu maksimal 180 menit';
+        }
+
+        if ($this->isOtherCategory()) {
+            $this->rules['other_category'] = 'required|string|min:2|max:100';
+            $this->messages['other_category.required'] = 'Silakan tuliskan kategori bantuan yang Anda butuhkan';
+            $this->messages['other_category.min'] = 'Nama kategori minimal 2 karakter';
+        } else {
+            $this->rules['other_category'] = 'nullable|string|max:100';
         }
 
         $this->validate();

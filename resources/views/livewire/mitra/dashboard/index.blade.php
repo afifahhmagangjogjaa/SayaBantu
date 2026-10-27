@@ -71,6 +71,11 @@
         <div class="flex items-center gap-2">
             @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
         </div>
+
+        <!-- Wave Separator (SVG) bergelombang di bagian bawah header -->
+        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
+            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f3f4f6"></path>
+        </svg>
     </div>
 
     <!-- Saldo Mitra Card (Overlapping Header) -->
@@ -93,8 +98,8 @@
 
             <div class="flex-shrink-0 ml-4">
                 <a href="{{ route('mitra.withdraw.form') }}" wire:navigate
-                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-5 py-3 rounded-xl transition shadow-md block">
-                    Tarik Saldo
+                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-4 py-3 rounded-xl transition shadow-md block whitespace-nowrap">
+                    Penarikan Saldo
                 </a>
             </div>
         </div>
@@ -260,9 +265,9 @@
                     <div class="min-w-0">
                         <div class="font-bold text-gray-900 text-xs flex items-center gap-1.5 flex-wrap">
                             <span>Verifikasi Email</span>
-                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">Maks. 2 Order & Belum Bisa Tarik Saldo</span>
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">Maks. 2 Order & Belum Bisa Penarikan Saldo</span>
                         </div>
-                        <p class="text-[11px] text-gray-600 truncate mt-0.5">Verifikasi untuk ambil order tanpa batas & tarik saldo</p>
+                        <p class="text-[11px] text-gray-600 truncate mt-0.5">Verifikasi untuk ambil order tanpa batas & penarikan saldo</p>
                     </div>
                 </div>
                 <form method="POST" action="{{ route('verification.send') }}" class="flex-shrink-0" onsubmit="event.preventDefault(); window.sendEmailVerification(this.querySelector('button'), '{{ route('verification.send') }}');">

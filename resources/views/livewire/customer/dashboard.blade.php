@@ -51,7 +51,7 @@
     </style>
 
     <!-- Top Header Bar - Blue gradient matching mockup -->
-    <div class="px-5 pt-6 pb-4 sticky top-0 z-30 header-pattern" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+    <div class="px-5 pt-6 pb-6 sticky top-0 z-30 header-pattern" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
         <!-- Decorative circles -->
         <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12 pointer-events-none"></div>
@@ -169,6 +169,11 @@
                 </div>
             @endif
         </div>
+
+        <!-- Wave Separator (SVG) bergelombang -->
+        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 20px;">
+            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+        </svg>
     </div>
 
     <!-- Main Content Body -->

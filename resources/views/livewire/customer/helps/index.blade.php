@@ -121,17 +121,17 @@
                                 x-transition:leave-end="opacity-0 -translate-x-3"
                                 class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
                                 <button type="button" wire:key="tab-menunggu-mitra" @click="page = 1" wire:click="$set('statusFilter', 'menunggu_mitra')" role="tab"
-                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Menunggu Mitra
                                 </button>
 
                                 <button type="button" wire:key="tab-diproses" @click="page = 1" wire:click="$set('statusFilter', 'diproses')" role="tab"
-                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Diproses
                                 </button>
 
                                 <button type="button" wire:key="tab-waiting-confirmation" @click="page = 1" wire:click="$set('statusFilter', 'waiting_customer_confirmation')" role="tab"
-                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Menunggu Konfirmasi
                                 </button>
                             </div>
@@ -146,17 +146,17 @@
                                 x-transition:leave-end="opacity-0 translate-x-3"
                                 class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
                                 <button type="button" wire:key="tab-komplain" @click="page = 2" wire:click="$set('statusFilter', 'komplain')" role="tab"
-                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Komplain & Refund
                                 </button>
 
                                 <button type="button" wire:key="tab-selesai" @click="page = 2" wire:click="$set('statusFilter', 'selesai')" role="tab"
-                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Selesai
                                 </button>
 
                                 <button type="button" wire:key="tab-dibatalkan" @click="page = 2" wire:click="$set('statusFilter', 'dibatalkan')" role="tab"
-                                    class="flex-1 text-left py-2 px-3 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Dibatalkan
                                 </button>
                             </div>
@@ -281,7 +281,7 @@
 
                                     @if(!empty($help->partner_cancel_requested_at))
                                         <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-                                            <p class="font-semibold text-amber-900">⚠️ Rekan Jasa Berhalangan:</p>
+                                            <p class="font-semibold text-amber-900">Rekan Jasa Berhalangan:</p>
                                             <p class="italic text-[11px] text-amber-800">"{{ $help->partner_cancel_reason ?: 'Kendala darurat di jalan' }}"</p>
                                             <p class="text-[10px] text-amber-700 mt-1 font-medium">⚡ Sistem otomatis mencari Rekan Jasa pengganti.</p>
                                         </div>
@@ -686,7 +686,9 @@
                                     @elseif($help->photo)
                                         <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
                                     @else
-                                        <span class="text-xl">⚠️</span>
+                                        <svg class="w-6 h-6 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
                                     @endif
                                 </div>
 
@@ -711,8 +713,9 @@
                                                 ✕ Komplain Ditolak
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 animate-pulse">
-                                                ⚠️ Dalam Mediasi Admin
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                                Dalam Mediasi Admin
                                             </span>
                                         @endif
                                         <span class="text-xs text-gray-400">{{ optional($help->complaint_submitted_at ?? $help->updated_at)->diffForHumans() }}</span>
