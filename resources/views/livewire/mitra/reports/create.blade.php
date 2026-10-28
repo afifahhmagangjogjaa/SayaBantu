@@ -1,29 +1,29 @@
-<div class="min-h-screen bg-gray-50">
-    <!-- Header - BRImo style -->
-    <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
-        <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+<div class="min-h-screen bg-slate-50 pb-20">
+    <!-- Header - SayaBantu Brand Blue with Wave Separator -->
+    <div class="px-5 pt-6 pb-12 relative overflow-hidden text-white bg-[#0066FF]">
+        <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-16 -mb-16 pointer-events-none"></div>
 
         <div class="relative z-10 max-w-md mx-auto">
-            <div class="flex items-center justify-between text-white mb-6">
-                <button onclick="window.history.back()" aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition">
+            <div class="flex items-center justify-between text-white mb-3">
+                <button onclick="window.history.back()" aria-label="Kembali" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-xl transition active:scale-95 shrink-0 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
 
                 <div class="text-center flex-1 px-2">
-                    <h1 class="text-lg font-bold">Buat Laporan Aduan</h1>
-                    <p class="text-xs text-white/90 mt-0.5">Laporkan masalah atau kendala yang Anda alami</p>
+                    <h1 class="text-lg font-black text-white tracking-tight leading-tight">Buat Laporan Aduan</h1>
+                    <p class="text-xs text-blue-100 font-medium mt-0.5">Laporkan masalah atau kendala yang Anda alami</p>
                 </div>
 
-                <div class="w-9"></div>
+                <div class="w-9 h-9 shrink-0"></div>
             </div>
         </div>
 
-        <!-- Curved separator -->
-        <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f9fafb"></path>
+        <!-- Wave Separator (SVG) bergelombang -->
+        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
+            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f8fafc"></path>
         </svg>
     </div>
 
@@ -62,7 +62,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
                             </svg>
                             Judul Laporan
-                            <span class="text-red-500">*</span>
                         </span>
                     </label>
                     <input type="text" id="title" wire:model="title"
@@ -86,7 +85,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
                             Jenis Laporan
-                            <span class="text-red-500">*</span>
                         </span>
                     </label>
                     <select id="report_type" wire:model="report_type"
@@ -210,7 +208,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
                             </svg>
                             Detail Laporan
-                            <span class="text-red-500">*</span>
                         </span>
                     </label>
                     <textarea id="message" wire:model="message" rows="6"
@@ -274,8 +271,8 @@
                         Batal
                     </a>
                     <button type="submit"
-                        class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all transform hover:-translate-y-0.5">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="inline-flex items-center justify-center px-6 py-3 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-bold rounded-xl shadow-md transition active:scale-95">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                         </svg>
                         Kirim Laporan
@@ -336,7 +333,7 @@
                                     </span>
                                 @elseif($isRej)
                                     <span class="px-2.5 py-1 text-[11px] font-bold text-red-800 bg-red-100 rounded-full flex-shrink-0">
-                                        âŒ Ditolak
+                                        ❌ Ditolak
                                     </span>
                                 @endif
                             </div>

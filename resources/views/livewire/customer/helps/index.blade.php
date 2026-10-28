@@ -72,16 +72,7 @@
                         <p class="text-xs text-white/90 mt-0.5">Pantau status & riwayat pesanan Anda</p>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <a href="{{ route('customer.helps.create') }}" wire:navigate 
-                           class="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white inline-flex items-center gap-1 text-xs font-bold shadow-2xs"
-                           title="Buat Pesanan Baru">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                            </svg>
-                        </a>
-                        @include('components.notification-icon', ['route' => route('customer.notifications.index')])
-                    </div>
+                    @include('components.notification-icon', ['route' => route('customer.notifications.index')])
                 </div>
 
                 <!-- Filter Tabs dengan Sistem Halaman Penuh (Tampilan Asli, Area Biru Dikebawahkan) -->
@@ -130,17 +121,17 @@
                                 x-transition:leave-end="opacity-0 -translate-x-3"
                                 class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
                                 <button type="button" wire:key="tab-menunggu-mitra" @click="page = 1" wire:click="$set('statusFilter', 'menunggu_mitra')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Menunggu Mitra
                                 </button>
 
                                 <button type="button" wire:key="tab-diproses" @click="page = 1" wire:click="$set('statusFilter', 'diproses')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Diproses
                                 </button>
 
                                 <button type="button" wire:key="tab-waiting-confirmation" @click="page = 1" wire:click="$set('statusFilter', 'waiting_customer_confirmation')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Menunggu Konfirmasi
                                 </button>
                             </div>
@@ -155,17 +146,17 @@
                                 x-transition:leave-end="opacity-0 translate-x-3"
                                 class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
                                 <button type="button" wire:key="tab-komplain" @click="page = 2" wire:click="$set('statusFilter', 'komplain')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Komplain & Refund
                                 </button>
 
                                 <button type="button" wire:key="tab-selesai" @click="page = 2" wire:click="$set('statusFilter', 'selesai')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Selesai
                                 </button>
 
                                 <button type="button" wire:key="tab-dibatalkan" @click="page = 2" wire:click="$set('statusFilter', 'dibatalkan')" role="tab"
-                                    class="flex-1 text-center py-2 px-1 sm:px-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
                                     Dibatalkan
                                 </button>
                             </div>
@@ -271,7 +262,7 @@
                                                                 this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
                                                             }
                                                         }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
-                                                            â³ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
+                                                            ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
                                                         </span>
                                                     @endif
                                                 @endif
@@ -290,7 +281,7 @@
 
                                     @if(!empty($help->partner_cancel_requested_at))
                                         <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-                                            <p class="font-semibold text-amber-900">⚠️ï¸ Rekan Jasa Berhalangan:</p>
+                                            <p class="font-semibold text-amber-900">Rekan Jasa Berhalangan:</p>
                                             <p class="italic text-[11px] text-amber-800">"{{ $help->partner_cancel_reason ?: 'Kendala darurat di jalan' }}"</p>
                                             <p class="text-[10px] text-amber-700 mt-1 font-medium">⚡ Sistem otomatis mencari Rekan Jasa pengganti.</p>
                                         </div>
@@ -444,7 +435,7 @@
                                         @endphp
                                         @if($cDeadline)
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200" title="Batas waktu konfirmasi 24 jam">
-                                                â±ï¸ Otomatis selesai {{ $cDeadline->diffForHumans() }}
+                                                ⏱️ Otomatis selesai {{ $cDeadline->diffForHumans() }}
                                             </span>
                                         @endif
                                         <span class="text-xs text-gray-400">{{ optional($help->service_completed_at)->diffForHumans() }}</span>
@@ -695,7 +686,9 @@
                                     @elseif($help->photo)
                                         <img src="{{ asset('storage/' . $help->photo) }}" alt="{{ $help->title }}" class="w-full h-full object-cover">
                                     @else
-                                        <span class="text-xl">⚠️ï¸</span>
+                                        <svg class="w-6 h-6 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
                                     @endif
                                 </div>
 
@@ -720,8 +713,9 @@
                                                 ✕ Komplain Ditolak
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 animate-pulse">
-                                                ⚠️ï¸ Dalam Mediasi Admin
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                                Dalam Mediasi Admin
                                             </span>
                                         @endif
                                         <span class="text-xs text-gray-400">{{ optional($help->complaint_submitted_at ?? $help->updated_at)->diffForHumans() }}</span>
@@ -771,6 +765,19 @@
         </div>
     </div>
 
+    <!-- FAB: Buat Pesanan Baru -->
+    <div class="fixed left-1/2 -translate-x-1/2 z-40 flex justify-end px-5 pointer-events-none"
+        style="bottom: 76px; max-width: 448px; width: 100vw;">
+        <a href="{{ route('customer.helps.create') }}" wire:navigate
+            class="pointer-events-auto inline-flex items-center justify-center w-11 h-11 rounded-full text-white shadow-lg transition active:scale-95 hover:opacity-90"
+            style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);"
+            title="Buat Pesanan Baru" aria-label="Buat Pesanan Baru">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+        </a>
+    </div>
+
     <!-- Helper: hide scrollbars for modals -->
     <style>
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -803,7 +810,6 @@
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                                 Judul Bantuan
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <input type="text" wire:model.defer="editTitle" placeholder="Contoh: Bantu Bersihkan Taman" class="w-full px-3.5 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 transition bg-white shadow-sm">
@@ -825,7 +831,6 @@
                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                 </svg>
                                 Detail Lokasi Bantuan / Patokan
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <x-smart-location-input 
@@ -857,7 +862,6 @@
                                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                                 </svg>
                                 Alamat Lengkap
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <x-smart-address-input 
@@ -890,7 +894,6 @@
                                     <path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5z" />
                                 </svg>
                                 Kota
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <div>
@@ -914,7 +917,6 @@
                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                 </svg>
                                 Tandai Lokasi di Peta
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <div id="edit-map" class="w-full h-48 rounded-xl border-2 border-gray-200 shadow-sm mb-2"></div>
@@ -953,7 +955,6 @@
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                                 Deskripsi Bantuan
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <textarea wire:model.defer="editDescription" rows="4"
@@ -1237,7 +1238,7 @@
                 {{-- Radio Reason Selection --}}
                 <div class="mb-4 text-left">
                     <label class="text-xs font-bold text-gray-700 block mb-2">
-                        Pilih Alasan Pembatalan <span class="text-red-500">*</span>
+                        Pilih Alasan Pembatalan
                     </label>
                     <div class="space-y-2 max-h-52 overflow-y-auto pr-1">
                         @foreach($this->availableCancelReasons as $reason)
@@ -1255,7 +1256,7 @@
                 {{-- Custom reason textarea when Lainnya selected --}}
                 @if($selectedCancelReason === 'Lainnya')
                     <div class="mb-4 text-left">
-                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda <span class="text-red-500">*</span></label>
+                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda</label>
                         <textarea wire:model="customCancelReason" rows="2" placeholder="Contoh: Perlu reschedule atau ada keperluan mendesak..." class="w-full text-xs p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
                         @error('customCancelReason')
                             <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p>
@@ -1346,7 +1347,7 @@
                 editMap = L.map('edit-map').setView(initialLocation, 13);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: 'Â© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                     maxZoom: 19,
                 }).addTo(editMap);
 
@@ -1492,7 +1493,7 @@
                 detailMap = L.map('detail-map', { zoomControl: true, attributionControl: false }).setView(center, 13);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: 'Â© OpenStreetMap contributors',
+                    attribution: '© OpenStreetMap contributors',
                     maxZoom: 19,
                 }).addTo(detailMap);
 

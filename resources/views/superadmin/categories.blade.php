@@ -191,7 +191,7 @@
                     <form wire:submit.prevent="saveCategory" class="space-y-6">
                         <div class="grid grid-cols-1 gap-5">
                             <div>
-                                <label class="text-xs font-medium text-gray-700">Nama Kategori <span class="text-red-500">*</span></label>
+                                <label class="text-xs font-medium text-gray-700">Nama Kategori</label>
                                 <input type="text" wire:model="name" class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Misal: Rumah Tangga">
                                 @error('name') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                             </div>

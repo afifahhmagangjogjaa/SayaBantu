@@ -451,7 +451,7 @@ new #[Layout('layouts.blank')] class extends Component
                     </div>
 
                     <!-- Curved separator into content -->
-                    <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+                    <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                         <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
                     </svg>
                 </div>
@@ -507,7 +507,7 @@ new #[Layout('layouts.blank')] class extends Component
                             @else
                                 <div>
                                     <label for="email_cust" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                                        Alamat Email <span class="text-red-500">*</span>
+                                        Alamat Email
                                     </label>
                                     <input wire:model="email" id="email_cust" type="email" required autofocus
                                         placeholder="nama@example.com"
@@ -519,7 +519,7 @@ new #[Layout('layouts.blank')] class extends Component
                             <!-- Password Baru -->
                             <div>
                                 <label for="password_cust" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                                    Password Baru <span class="text-red-500">*</span>
+                                    Password Baru
                                 </label>
                                 <div class="relative">
                                     <input wire:model="password" id="password_cust" :type="showPass ? 'text' : 'password'" required autofocus
@@ -560,7 +560,7 @@ new #[Layout('layouts.blank')] class extends Component
                             <!-- Konfirmasi Password -->
                             <div>
                                 <label for="password_confirmation_cust" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                                    Ulangi Password Baru <span class="text-red-500">*</span>
+                                    Ulangi Password Baru
                                 </label>
                                 <div class="relative">
                                     <input wire:model="password_confirmation" id="password_confirmation_cust" :type="showConfirm ? 'text' : 'password'" required

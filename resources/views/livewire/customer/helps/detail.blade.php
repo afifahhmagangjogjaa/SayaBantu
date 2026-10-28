@@ -81,7 +81,7 @@
 
         <div class="relative z-10 max-w-md mx-auto">
             <div class="flex items-center justify-between text-white mb-6">
-                <button onclick="window.history.back()" aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition">
+                <button onclick="window.history.back()" aria-label="Kembali" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-lg transition shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -92,18 +92,12 @@
                     <p class="text-xs text-white/90 mt-0.5">Detail permintaan bantuan Anda</p>
                 </div>
 
-                {{-- <div class="w-9">
-                    <button class="p-2 hover:bg-white/20 rounded-lg transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01" />
-                        </svg>
-                    </button>
-                </div> --}}
+                <div class="w-9 h-9 shrink-0"></div>
             </div>
         </div>        
 
             <!-- Curved separator (SVG) to create non-flat divider into content -->
-            <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                 <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
             </svg>
     </div>
@@ -308,7 +302,7 @@
                         @elseif($isRejected)
                             ✕ Komplain Ditolak
                         @else
-                            ⚠️ Mediasi Admin
+                            Mediasi Admin
                         @endif
                     </span>
                 </div>
@@ -1045,7 +1039,9 @@
                     <div class="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between bg-red-50/90 shrink-0">
                         <div class="flex items-center gap-2.5">
                             <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                                ⚠️
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
                             </div>
                             <div>
                                 <h3 class="text-sm font-bold text-gray-900">Ajukan Komplain & Refund</h3>
@@ -1070,7 +1066,7 @@
                             {{-- Upload Bukti Foto (Wajib) --}}
                             <div>
                                 <label class="block text-xs font-bold text-gray-800 mb-1">
-                                    Foto Bukti Masalah / Hasil Tidak Sesuai <span class="text-red-500">*</span>
+                                    Foto Bukti Masalah / Hasil Tidak Sesuai
                                 </label>
                                 <p class="text-[11px] text-gray-500 mb-2">Unggah foto yang memperlihatkan kondisi hasil kerja yang belum selesai atau bermasalah.</p>
                                 
@@ -1108,7 +1104,7 @@
                             {{-- Alasan Komplain --}}
                             <div>
                                 <label class="block text-xs font-bold text-gray-800 mb-1">
-                                    Penjelasan Alasan Komplain <span class="text-red-500">*</span>
+                                    Penjelasan Alasan Komplain
                                 </label>
                                 <textarea wire:model="complaint_reason" rows="3" placeholder="Jelaskan secara detail bagian mana yang belum selesai atau tidak sesuai deskripsi bantuan..."
                                     class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-gray-50 focus:bg-white transition resize-none"></textarea>
@@ -1201,7 +1197,7 @@
 
                     {{-- Star Rating --}}
                     <div class="mb-4">
-                        <label class="block text-sm font-semibold text-gray-900 mb-2">Rating *</label>
+                        <label class="block text-sm font-semibold text-gray-900 mb-2">Rating</label>
                         <div class="flex items-center gap-2">
                             @for($i = 1; $i <= 5; $i++)
                                 <button 
@@ -1476,7 +1472,7 @@
                 {{-- Radio Reason Selection --}}
                 <div class="mb-4 text-left">
                     <label class="text-xs font-bold text-gray-700 block mb-2">
-                        Pilih Alasan Pembatalan <span class="text-red-500">*</span>
+                        Pilih Alasan Pembatalan
                     </label>
                     <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
                         @foreach($this->availableCancelReasons as $reason)
@@ -1494,7 +1490,7 @@
                 {{-- Custom reason textarea when Lainnya selected --}}
                 @if($selectedCancelReason === 'Lainnya')
                     <div class="mb-4 text-left">
-                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda <span class="text-red-500">*</span></label>
+                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda</label>
                         <textarea wire:model="customCancelReason" rows="2" placeholder="Contoh: Perlu reschedule atau ada keperluan mendesak..." class="w-full text-xs p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
                         @error('customCancelReason')
                             <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p>

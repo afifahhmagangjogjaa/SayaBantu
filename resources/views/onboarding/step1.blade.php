@@ -26,7 +26,7 @@
                 <!-- NIK -->
                 <div>
                     <label for="nik" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        NIK (Nomor Induk Kependudukan) <span class="text-red-500">*</span>
+                        NIK (Nomor Induk Kependudukan)
                     </label>
                     <input name="nik" id="nik" type="text" maxlength="16" placeholder="Masukkan 16 digit NIK"
                         value="{{ old('nik', $user->nik ?? '') }}" required
@@ -42,9 +42,9 @@
                 <!-- Nama Lengkap -->
                 <div>
                     <label for="name" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Nama Lengkap <span class="text-red-500">*</span>
+                        Nama Lengkap
                     </label>
-                    <input name="name" id="name" type="text" placeholder="Nama lengkap sesuai KTP"
+                    <input name="name" id="name" type="text" autocomplete="name" placeholder="Nama lengkap sesuai KTP"
                         value="{{ old('name', $user->name ?? '') }}" required
                         oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium @error('name') border-red-500 @enderror">
@@ -55,7 +55,7 @@
                 @php $currentGender = old('gender', $user->gender ?? 'Laki-laki'); @endphp
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Jenis Kelamin <span class="text-red-500">*</span>
+                        Jenis Kelamin
                     </label>
                     <div class="grid grid-cols-2 gap-3">
                         <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer border transition border-gray-200 bg-gray-50/70 text-gray-700 hover:bg-blue-50/40">
@@ -73,9 +73,9 @@
                 <!-- No WhatsApp -->
                 <div>
                     <label for="phone" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        No. WhatsApp / HP <span class="text-red-500">*</span>
+                        No. WhatsApp / HP
                     </label>
-                    <input name="phone" id="phone" type="text" maxlength="13" placeholder="08xxxxxxxxxx"
+                    <input name="phone" id="phone" type="tel" autocomplete="tel" maxlength="13" placeholder="08xxxxxxxxxx"
                         value="{{ old('phone', $user->phone ?? '') }}" required
                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)"
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium @error('phone') border-red-500 @enderror">
@@ -100,11 +100,11 @@
                 <!-- 1. PROVINSI DOMISILI -->
                 <div>
                     <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Provinsi Domisili <span class="text-red-500">*</span>
+                        Provinsi Domisili
                     </label>
                     <select name="province" id="province" required onchange="handleProvinceChange()"
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium @error('province') border-red-500 @enderror">
-                        <option value="">-- Pilih Provinsi Domisili --</option>
+                        <option value="">Pilih Provinsi Domisili</option>
                         @foreach($provinces as $prov)
                             <option value="{{ $prov }}" {{ $savedProvince === $prov ? 'selected' : '' }}>
                                 {{ $prov }}
@@ -117,11 +117,11 @@
                 <!-- 2. KOTA DOMISILI -->
                 <div>
                     <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Kota Domisili <span class="text-red-500">*</span>
+                        Kota Domisili
                     </label>
                     <select name="city_id" id="city_id" required onchange="handleCityChange()" disabled
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('city_id') border-red-500 @enderror">
-                        <option value="">-- Pilih Provinsi Domisili Terlebih Dahulu --</option>
+                        <option value="">Pilih Provinsi Domisili Terlebih Dahulu</option>
                     </select>
                     @error('city_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -129,11 +129,11 @@
                 <!-- 3. KECAMATAN DOMISILI -->
                 <div>
                     <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Kecamatan Domisili <span class="text-red-500">*</span>
+                        Kecamatan Domisili
                     </label>
                     <select name="kecamatan" id="kecamatan" required onchange="handleDistrictChange()" disabled
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('kecamatan') border-red-500 @enderror">
-                        <option value="">-- Pilih Kota Domisili Terlebih Dahulu --</option>
+                        <option value="">Pilih Kota Domisili Terlebih Dahulu</option>
                     </select>
                     @error('kecamatan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -141,11 +141,11 @@
                 <!-- 4. KELURAHAN / DESA DOMISILI -->
                 <div>
                     <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Kelurahan / Desa Domisili <span class="text-red-500">*</span>
+                        Kelurahan / Desa Domisili
                     </label>
                     <select name="kelurahan" id="kelurahan" required disabled
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('kelurahan') border-red-500 @enderror">
-                        <option value="">-- Pilih Kecamatan Domisili Terlebih Dahulu --</option>
+                        <option value="">Pilih Kecamatan Domisili Terlebih Dahulu</option>
                     </select>
                     @error('kelurahan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -153,11 +153,12 @@
                 <!-- 5. ALAMAT LENGKAP DOMISILI -->
                 <div>
                     <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) <span class="text-red-500">*</span>
+                        Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah)
                     </label>
-                    <x-smart-address-input 
-                        name="address" 
-                        id="address" 
+                    <x-smart-address-input
+                        name="address"
+                        id="address"
+                        autocomplete="street-address"
                         cityRef="#city_id"
                         rows="2" 
                         required 
@@ -261,15 +262,15 @@
 
             const selectedProv = provSelect.value;
 
-            citySelect.innerHTML = '<option value="">-- Pilih Kota / Kabupaten --</option>';
+            citySelect.innerHTML = '<option value="">Pilih Kota / Kabupaten</option>';
             citySelect.disabled = true;
-            kecSelect.innerHTML = '<option value="">-- Pilih Kota Terlebih Dahulu --</option>';
+            kecSelect.innerHTML = '<option value="">Pilih Kota Terlebih Dahulu</option>';
             kecSelect.disabled = true;
-            kelSelect.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+            kelSelect.innerHTML = '<option value="">Pilih Kecamatan Terlebih Dahulu</option>';
             kelSelect.disabled = true;
 
             if (!selectedProv) {
-                citySelect.innerHTML = '<option value="">-- Pilih Provinsi Terlebih Dahulu --</option>';
+                citySelect.innerHTML = '<option value="">Pilih Provinsi Terlebih Dahulu</option>';
                 return;
             }
 
@@ -280,7 +281,7 @@
             ));
 
             if (filteredCities.length === 0) {
-                citySelect.innerHTML = '<option value="">-- Tidak ada kota terdaftar --</option>';
+                citySelect.innerHTML = '<option value="">Tidak ada kota terdaftar</option>';
                 return;
             }
 
@@ -314,9 +315,9 @@
             const kelSelect = document.getElementById('kelurahan');
 
             if (!selectedOpt || !selectedOpt.value) {
-                kecSelect.innerHTML = '<option value="">-- Pilih Kota Terlebih Dahulu --</option>';
+                kecSelect.innerHTML = '<option value="">Pilih Kota Terlebih Dahulu</option>';
                 kecSelect.disabled = true;
-                kelSelect.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+                kelSelect.innerHTML = '<option value="">Pilih Kecamatan Terlebih Dahulu</option>';
                 kelSelect.disabled = true;
                 return;
             }
@@ -326,9 +327,9 @@
             let cityCode = selectedOpt.getAttribute('data-code') || '';
             const cityName = selectedOpt.getAttribute('data-name') || selectedOpt.textContent || '';
 
-            kecSelect.innerHTML = '<option value="">-- Memuat Kecamatan... --</option>';
+            kecSelect.innerHTML = '<option value="">Memuat Kecamatan...</option>';
             kecSelect.disabled = true;
-            kelSelect.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+            kelSelect.innerHTML = '<option value="">Pilih Kecamatan Terlebih Dahulu</option>';
             kelSelect.disabled = true;
 
             try {
@@ -406,7 +407,7 @@
                 }
 
                 if (districts.length > 0) {
-                    kecSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+                    kecSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
                     districts.forEach(d => {
                         const opt = document.createElement('option');
                         opt.value = d.name;
@@ -429,11 +430,11 @@
                         }
                     }
                 } else {
-                    kecSelect.innerHTML = '<option value="">-- Gagal memuat kecamatan --</option>';
+                    kecSelect.innerHTML = '<option value="">Gagal memuat kecamatan</option>';
                 }
             } catch (e) {
                 console.error('Error fetching districts:', e);
-                kecSelect.innerHTML = '<option value="">-- Gagal memuat kecamatan --</option>';
+                kecSelect.innerHTML = '<option value="">Gagal memuat kecamatan</option>';
             }
         }
 
@@ -443,7 +444,7 @@
             const selectedOpt = kecSelect.options[kecSelect.selectedIndex];
 
             if (!selectedOpt || !selectedOpt.value) {
-                kelSelect.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+                kelSelect.innerHTML = '<option value="">Pilih Kecamatan Terlebih Dahulu</option>';
                 kelSelect.disabled = true;
                 return;
             }
@@ -451,7 +452,7 @@
             const districtCode = selectedOpt.getAttribute('data-code') || '';
             const districtName = selectedOpt.value || selectedOpt.textContent || '';
 
-            kelSelect.innerHTML = '<option value="">-- Memuat Kelurahan... --</option>';
+            kelSelect.innerHTML = '<option value="">Memuat Kelurahan...</option>';
             kelSelect.disabled = true;
 
             try {
@@ -478,7 +479,7 @@
                 }
 
                 if (villages.length > 0) {
-                    kelSelect.innerHTML = '<option value="">-- Pilih Kelurahan / Desa --</option>';
+                    kelSelect.innerHTML = '<option value="">Pilih Kelurahan / Desa</option>';
                     villages.forEach(v => {
                         const opt = document.createElement('option');
                         opt.value = v.name;
@@ -500,11 +501,11 @@
                         }
                     }
                 } else {
-                    kelSelect.innerHTML = '<option value="">-- Tidak ada data kelurahan --</option>';
+                    kelSelect.innerHTML = '<option value="">Tidak ada data kelurahan</option>';
                 }
             } catch (e) {
                 console.error('Error fetching villages:', e);
-                kelSelect.innerHTML = '<option value="">-- Gagal memuat kelurahan --</option>';
+                kelSelect.innerHTML = '<option value="">Gagal memuat kelurahan</option>';
             }
         }
 

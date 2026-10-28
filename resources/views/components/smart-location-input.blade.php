@@ -72,38 +72,16 @@
         </div>
     </div>
 
-    <!-- Quick Chips / Rekomendasi Format Patokan Cepat -->
-    <div class="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
-        <span class="text-gray-400 text-[10px] font-medium flex items-center gap-0.5">
-            <svg class="w-3 h-3 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14H8a4 4 0 01-.82-7.915A4.002 4.002 0 0115 10a3.992 3.992 0 01-3 4z" />
-            </svg>
-            Contoh:
-        </span>
-        <button type="button" @click="insertPrefix('Depan ')" 
-            class="px-2.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition cursor-pointer font-medium">
-            🏢 Depan...
-        </button>
-        <button type="button" @click="insertPrefix('Dekat ')" 
-            class="px-2.5 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition cursor-pointer font-medium">
-            🏪 Dekat...
-        </button>
-        <button type="button" @click="insertPrefix('Seberang ')" 
-            class="px-2.5 py-1.5 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition cursor-pointer font-medium">
-            📍 Seberang...
-        </button>
-        <button type="button" @click="insertPrefix('Masuk Gang ')" 
-            class="px-2.5 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition cursor-pointer font-medium">
-            🚪 Masuk Gang...
-        </button>
-        <template x-if="lastSmartAddressTitle">
+    <!-- Tombol sinkronisasi otomatis nama alamat cerdas (opsional) -->
+    <template x-if="lastSmartAddressTitle">
+        <div class="mt-1.5 flex items-center text-[11px]">
             <button type="button" @click="useSmartAddressTitle()" 
-                class="px-2 py-0.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition cursor-pointer font-medium flex items-center gap-1 animate-pulse">
+                class="px-2.5 py-1 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition cursor-pointer font-medium flex items-center gap-1">
                 <span>📋 Pakai:</span>
-                <span class="font-bold truncate max-w-[120px]" x-text="lastSmartAddressTitle"></span>
+                <span class="font-bold truncate max-w-[150px]" x-text="lastSmartAddressTitle"></span>
             </button>
-        </template>
-    </div>
+        </div>
+    </template>
 
     <!-- Autocomplete Dropdown List -->
     <div 

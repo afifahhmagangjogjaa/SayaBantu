@@ -50,7 +50,7 @@
                 <!-- Nama Lengkap -->
                 <div>
                     <label for="name" class="block text-xs font-bold text-gray-700 mb-1.5">
-                        Nama Lengkap <span class="text-red-500">*</span>
+                        Nama Lengkap
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -58,7 +58,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
                         </div>
-                        <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus
+                        <input id="name" type="text" name="name" autocomplete="name" value="{{ old('name') }}" required autofocus
                             placeholder="Contoh: Budi Santoso"
                             oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                             @input="nameVal = $event.target.value"
@@ -78,7 +78,7 @@
                 <!-- Alamat Email -->
                 <div>
                     <label for="email" class="block text-xs font-bold text-gray-700 mb-1.5">
-                        Alamat Email <span class="text-red-500">*</span>
+                        Alamat Email
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -86,7 +86,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
                         </div>
-                        <input id="email" type="email" name="email" value="{{ old('email') }}" required
+                        <input id="email" type="email" name="email" autocomplete="email" value="{{ old('email') }}" required
                             @input="emailVal = $event.target.value"
                             placeholder="nama@email.com"
                             class="w-full pl-10 pr-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-4 focus:ring-blue-100 transition shadow-2xs font-medium @error('email') border-red-500 @enderror">
@@ -105,7 +105,7 @@
                 <!-- Kata Sandi -->
                 <div>
                     <label for="password" class="block text-xs font-bold text-gray-700 mb-1.5">
-                        Kata Sandi <span class="text-red-500">*</span>
+                        Kata Sandi
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -113,7 +113,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                         </div>
-                        <input id="password" :type="showPass ? 'text' : 'password'" name="password" required
+                        <input id="password" :type="showPass ? 'text' : 'password'" name="password" autocomplete="new-password" required
                             @input="newPass = $event.target.value"
                             placeholder="Minimal 8 karakter"
                             class="w-full pl-10 pr-12 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-4 focus:ring-blue-100 transition shadow-2xs font-medium @error('password') border-red-500 @enderror">
@@ -155,7 +155,7 @@
                 <!-- Konfirmasi Kata Sandi -->
                 <div>
                     <label for="password_confirmation" class="block text-xs font-bold text-gray-700 mb-1.5">
-                        Konfirmasi Kata Sandi <span class="text-red-500">*</span>
+                        Konfirmasi Kata Sandi
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -163,7 +163,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                         </div>
-                        <input id="password_confirmation" :type="showConfirmPass ? 'text' : 'password'" name="password_confirmation" required
+                        <input id="password_confirmation" :type="showConfirmPass ? 'text' : 'password'" name="password_confirmation" autocomplete="new-password" required
                             @input="confirmPass = $event.target.value"
                             placeholder="Ulangi kata sandi"
                             class="w-full pl-10 pr-12 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-4 focus:ring-blue-100 transition shadow-2xs font-medium">

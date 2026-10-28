@@ -23,7 +23,7 @@
             </div>
 
             <!-- Curved separator (Garis Lengkung Bawaan Asli) -->
-            <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                 <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
             </svg>
         </div>
@@ -108,9 +108,9 @@
                                     $bodyText = $data['message'] ?? 'Surat Peringatan pada akun Anda telah resmi dicabut oleh Admin. Status akun Anda kini kembali normal. Ketuk Lihat Detail Surat untuk membaca surat pencabutan selengkapnya.';
                                 } else {
                                     $titleText = match ($warningLevel) {
-                                        1 => '⚠️ï¸ Surat Peringatan 1',
-                                        2 => '⚠️ï¸ Surat Peringatan 2',
-                                        3 => 'â›” Surat Peringatan 3 - Akun Dinonaktifkan',
+                                        1 => '⚠️ Surat Peringatan 1',
+                                        2 => '⚠️ Surat Peringatan 2',
+                                        3 => '⛔ Surat Peringatan 3 - Akun Dinonaktifkan',
                                         default => 'Surat Peringatan Resmi',
                                     };
                                     $bodyText = 'Anda menerima sanksi Surat Peringatan ' . $warningLevel . ' resmi dari SayaBantu. Ketuk Lihat Detail Surat untuk membaca surat selengkapnya.';

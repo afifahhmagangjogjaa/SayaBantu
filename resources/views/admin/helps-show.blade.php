@@ -479,7 +479,7 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-800 mb-1">
-                            {{ $decisionType === 'reject_help' ? 'Alasan Penolakan (Akan Dilihat Customer)' : 'Catatan Keputusan Mediasi Admin' }} <span class="text-red-500 font-bold">*</span>
+                            {{ $decisionType === 'reject_help' ? 'Alasan Penolakan (Akan Dilihat Customer)' : 'Catatan Keputusan Mediasi Admin' }}
                         </label>
                         <textarea wire:model="admin_notes" rows="3" placeholder="{{ $decisionType === 'reject_help' ? 'Contoh: Permintaan tidak sesuai ketentuan layanan atau informasi lokasi tidak jelas...' : 'Wajib masukkan alasan keputusan atau catatan mediasi untuk arsip...' }}"
                             class="w-full px-3 py-2 text-xs border @error('admin_notes') border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-200 @else border-gray-300 bg-gray-50 focus:bg-white focus:ring-primary-500 @enderror rounded-xl focus:ring-2 transition"></textarea>

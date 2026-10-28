@@ -19,6 +19,7 @@ class Help extends Model
         'user_id',
         'city_id',
         'category_id',
+        'other_category',
         'help_type',
         'title',
         'amount',
@@ -130,6 +131,15 @@ class Help extends Model
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function getCategoryNameAttribute(): string
+    {
+        if ($this->category && strtolower(trim($this->category->name)) === 'lainnya' && !empty($this->other_category)) {
+            return $this->other_category;
+        }
+
+        return $this->category?->name ?? ($this->other_category ?: 'Lainnya');
     }
 
     public function mitra()

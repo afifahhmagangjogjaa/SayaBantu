@@ -361,7 +361,7 @@ new #[Layout('layouts.guest')] class extends Component {
     <form wire:submit="nextStep" class="space-y-4">
         <!-- NIK -->
         <div>
-            <label for="nik" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">NIK (Nomor Induk Kependudukan) <span class="text-red-500">*</span></label>
+            <label for="nik" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">NIK (Nomor Induk Kependudukan)</label>
             <input wire:model.live="nik" id="nik" type="text" maxlength="16" placeholder="Masukkan 16 digit NIK"
                 oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16)"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
@@ -374,7 +374,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <!-- Nama Lengkap -->
         <div>
-            <label for="full_name" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Nama Lengkap <span class="text-red-500">*</span></label>
+            <label for="full_name" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Nama Lengkap</label>
             <input wire:model="full_name" id="full_name" type="text" placeholder="Nama lengkap sesuai KTP"
                 oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
@@ -384,14 +384,14 @@ new #[Layout('layouts.guest')] class extends Component {
         <!-- Tempat & Tanggal Lahir -->
         <div class="grid grid-cols-2 gap-3">
             <div>
-                <label for="place_of_birth" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Tempat Lahir <span class="text-red-500">*</span></label>
+                <label for="place_of_birth" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Tempat Lahir</label>
                 <input wire:model="place_of_birth" id="place_of_birth" type="text" placeholder="Kota lahir (hanya huruf)"
                     oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                     class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
                 <x-input-error :messages="$errors->get('place_of_birth')" class="mt-1" />
             </div>
             <div>
-                <label for="date_of_birth" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Tanggal Lahir <span class="text-red-500">*</span></label>
+                <label for="date_of_birth" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Tanggal Lahir</label>
                 <input wire:model="date_of_birth" id="date_of_birth" type="date" max="{{ now()->subYears(17)->format('Y-m-d') }}" onkeydown="return false" onclick="this.showPicker()"
                     class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
                 <x-input-error :messages="$errors->get('date_of_birth')" class="mt-1" />
@@ -400,7 +400,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <!-- Jenis Kelamin -->
         <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Jenis Kelamin <span class="text-red-500">*</span></label>
+            <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Jenis Kelamin</label>
             <div class="grid grid-cols-2 gap-3">
                 <label
                     class="flex items-center px-4 py-3 rounded-xl cursor-pointer border transition {{ $gender === 'Laki-laki' ? 'border-blue-500 bg-blue-50/50 text-blue-900 ring-1 ring-blue-500 font-semibold' : 'border-gray-200 bg-gray-50/70 text-gray-700' }}">
@@ -418,10 +418,10 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <!-- Kota/Kabupaten Domisili (Dropdown Kota Aktif di DB) -->
         <div>
-            <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kota / Kabupaten Domisili <span class="text-red-500">*</span></label>
+            <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kota / Kabupaten Domisili</label>
             <select wire:model.live="city_id" id="city_id"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-                <option value="">-- Pilih Kota / Kabupaten Domisili --</option>
+                <option value="">Pilih Kota / Kabupaten Domisili</option>
                 @foreach ($cities as $c)
                     <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->province ?? 'Indonesia' }})</option>
                 @endforeach
@@ -439,11 +439,11 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <!-- Kecamatan Domisili (Dropdown API) -->
         <div>
-            <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kecamatan Domisili <span class="text-red-500">*</span></label>
+            <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kecamatan Domisili</label>
             <select wire:model.live="selectedDistrictCode" id="kecamatan"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"
                 {{ empty($apiDistricts) ? 'disabled' : '' }}>
-                <option value="">{{ empty($city_id) ? '-- Pilih Kota Domisili Terlebih Dahulu --' : (empty($apiDistricts) ? '-- Memuat Kecamatan... --' : '-- Pilih Kecamatan Domisili --') }}</option>
+                <option value="">{{ empty($city_id) ? 'Pilih Kota Domisili Terlebih Dahulu' : (empty($apiDistricts) ? 'Memuat Kecamatan...' : 'Pilih Kecamatan Domisili') }}</option>
                 @foreach ($apiDistricts as $d)
                     <option value="{{ $d['code'] }}">{{ $d['name'] }}</option>
                 @endforeach
@@ -453,11 +453,11 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <!-- Kelurahan/Desa Domisili (Dropdown API) -->
         <div>
-            <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kelurahan / Desa Domisili <span class="text-red-500">*</span></label>
+            <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kelurahan / Desa Domisili</label>
             <select wire:model.live="selectedVillageCode" id="kelurahan"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"
                 {{ empty($apiVillages) ? 'disabled' : '' }}>
-                <option value="">{{ empty($selectedDistrictCode) ? '-- Pilih Kecamatan Domisili Terlebih Dahulu --' : (empty($apiVillages) ? '-- Memuat Kelurahan... --' : '-- Pilih Kelurahan / Desa Domisili --') }}</option>
+                <option value="">{{ empty($selectedDistrictCode) ? 'Pilih Kecamatan Domisili Terlebih Dahulu' : (empty($apiVillages) ? 'Memuat Kelurahan...' : 'Pilih Kelurahan / Desa Domisili') }}</option>
                 @foreach ($apiVillages as $v)
                     <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
                 @endforeach
@@ -467,7 +467,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <!-- Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) -->
         <div>
-            <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) <span class="text-red-500">*</span></label>
+            <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah)</label>
             <x-smart-address-input 
                 wire:model="address" 
                 id="address" 

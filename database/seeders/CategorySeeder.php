@@ -21,7 +21,7 @@ class CategorySeeder extends Seeder
             ],
             [
                 'name' => 'Bencana Alam',
-                'icon' => '⚠️',
+                'icon' => '🚨',
                 'color' => '#EF4444',
                 'description' => 'Bantuan untuk korban bencana alam',
             ],
