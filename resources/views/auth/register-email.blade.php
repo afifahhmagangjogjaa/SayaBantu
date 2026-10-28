@@ -50,7 +50,7 @@
                 <!-- Nama Lengkap -->
                 <div>
                     <label for="name" class="block text-xs font-bold text-gray-700 mb-1.5">
-                        Nama Lengkap <span class="text-red-500">*</span>
+                        Nama Lengkap
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -78,7 +78,7 @@
                 <!-- Alamat Email -->
                 <div>
                     <label for="email" class="block text-xs font-bold text-gray-700 mb-1.5">
-                        Alamat Email <span class="text-red-500">*</span>
+                        Alamat Email
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -105,7 +105,7 @@
                 <!-- Kata Sandi -->
                 <div>
                     <label for="password" class="block text-xs font-bold text-gray-700 mb-1.5">
-                        Kata Sandi <span class="text-red-500">*</span>
+                        Kata Sandi
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -155,7 +155,7 @@
                 <!-- Konfirmasi Kata Sandi -->
                 <div>
                     <label for="password_confirmation" class="block text-xs font-bold text-gray-700 mb-1.5">
-                        Konfirmasi Kata Sandi <span class="text-red-500">*</span>
+                        Konfirmasi Kata Sandi
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">

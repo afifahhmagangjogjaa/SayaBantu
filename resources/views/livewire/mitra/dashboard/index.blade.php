@@ -58,7 +58,7 @@
                 <x-user-avatar :user="auth()->user()" class="h-full w-full text-white font-bold text-sm" />
             </div>
             <div>
-                <h1 class="text-base font-extrabold text-white leading-tight">{{ optional(auth()->user())->name ?? 'Budi Santoso' }}</h1>
+                <h1 class="text-base font-extrabold text-white leading-tight">{{ trim(preg_replace('/\s*\((?:Mitra|Customer)[^)]*\)|\s*(?:Mitra|Customer)\b/i', '', optional(auth()->user())->name ?? 'Budi Santoso')) }}</h1>
                 <div class="mt-1">
                     <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-400/30">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>

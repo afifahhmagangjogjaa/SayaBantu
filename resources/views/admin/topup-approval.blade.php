@@ -574,7 +574,7 @@
 
                     <form wire:submit.prevent="reject">
                         <div class="mb-4">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Alasan Penolakan *</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Alasan Penolakan</label>
                             <textarea wire:model="rejectionReason" rows="4"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
                                 placeholder="Jelaskan alasan penolakan..."></textarea>

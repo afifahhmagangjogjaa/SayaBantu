@@ -810,7 +810,6 @@
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                                 Judul Bantuan
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <input type="text" wire:model.defer="editTitle" placeholder="Contoh: Bantu Bersihkan Taman" class="w-full px-3.5 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 transition bg-white shadow-sm">
@@ -832,7 +831,6 @@
                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                 </svg>
                                 Detail Lokasi Bantuan / Patokan
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <x-smart-location-input 
@@ -864,7 +862,6 @@
                                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                                 </svg>
                                 Alamat Lengkap
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <x-smart-address-input 
@@ -897,7 +894,6 @@
                                     <path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5z" />
                                 </svg>
                                 Kota
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <div>
@@ -921,7 +917,6 @@
                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                 </svg>
                                 Tandai Lokasi di Peta
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <div id="edit-map" class="w-full h-48 rounded-xl border-2 border-gray-200 shadow-sm mb-2"></div>
@@ -960,7 +955,6 @@
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                                 Deskripsi Bantuan
-                                <span class="text-red-500 ml-1">*</span>
                             </span>
                         </label>
                         <textarea wire:model.defer="editDescription" rows="4"
@@ -1244,7 +1238,7 @@
                 {{-- Radio Reason Selection --}}
                 <div class="mb-4 text-left">
                     <label class="text-xs font-bold text-gray-700 block mb-2">
-                        Pilih Alasan Pembatalan <span class="text-red-500">*</span>
+                        Pilih Alasan Pembatalan
                     </label>
                     <div class="space-y-2 max-h-52 overflow-y-auto pr-1">
                         @foreach($this->availableCancelReasons as $reason)
@@ -1262,7 +1256,7 @@
                 {{-- Custom reason textarea when Lainnya selected --}}
                 @if($selectedCancelReason === 'Lainnya')
                     <div class="mb-4 text-left">
-                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda <span class="text-red-500">*</span></label>
+                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda</label>
                         <textarea wire:model="customCancelReason" rows="2" placeholder="Contoh: Perlu reschedule atau ada keperluan mendesak..." class="w-full text-xs p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
                         @error('customCancelReason')
                             <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p>

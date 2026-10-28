@@ -63,7 +63,7 @@
                 </div>
                 <div>
                     <p class="text-[11px] text-blue-100 font-medium">Selamat datang 👋</p>
-                    <h1 class="text-base font-extrabold text-white leading-tight">Halo, {{ Str::words(optional(auth()->user())->name ?? 'Customer', 2, '') }}!</h1>
+                    <h1 class="text-base font-extrabold text-white leading-tight">Halo, {{ Str::words(trim(preg_replace('/\s*\((?:Mitra|Customer)[^)]*\)|\s*(?:Mitra|Customer)\b/i', '', optional(auth()->user())->name ?? 'Customer')), 2, '') }}!</h1>
                 </div>
             </div>
 

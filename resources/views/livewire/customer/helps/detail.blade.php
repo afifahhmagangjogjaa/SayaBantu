@@ -1066,7 +1066,7 @@
                             {{-- Upload Bukti Foto (Wajib) --}}
                             <div>
                                 <label class="block text-xs font-bold text-gray-800 mb-1">
-                                    Foto Bukti Masalah / Hasil Tidak Sesuai <span class="text-red-500">*</span>
+                                    Foto Bukti Masalah / Hasil Tidak Sesuai
                                 </label>
                                 <p class="text-[11px] text-gray-500 mb-2">Unggah foto yang memperlihatkan kondisi hasil kerja yang belum selesai atau bermasalah.</p>
                                 
@@ -1104,7 +1104,7 @@
                             {{-- Alasan Komplain --}}
                             <div>
                                 <label class="block text-xs font-bold text-gray-800 mb-1">
-                                    Penjelasan Alasan Komplain <span class="text-red-500">*</span>
+                                    Penjelasan Alasan Komplain
                                 </label>
                                 <textarea wire:model="complaint_reason" rows="3" placeholder="Jelaskan secara detail bagian mana yang belum selesai atau tidak sesuai deskripsi bantuan..."
                                     class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-gray-50 focus:bg-white transition resize-none"></textarea>
@@ -1197,7 +1197,7 @@
 
                     {{-- Star Rating --}}
                     <div class="mb-4">
-                        <label class="block text-sm font-semibold text-gray-900 mb-2">Rating *</label>
+                        <label class="block text-sm font-semibold text-gray-900 mb-2">Rating</label>
                         <div class="flex items-center gap-2">
                             @for($i = 1; $i <= 5; $i++)
                                 <button 
@@ -1472,7 +1472,7 @@
                 {{-- Radio Reason Selection --}}
                 <div class="mb-4 text-left">
                     <label class="text-xs font-bold text-gray-700 block mb-2">
-                        Pilih Alasan Pembatalan <span class="text-red-500">*</span>
+                        Pilih Alasan Pembatalan
                     </label>
                     <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
                         @foreach($this->availableCancelReasons as $reason)
@@ -1490,7 +1490,7 @@
                 {{-- Custom reason textarea when Lainnya selected --}}
                 @if($selectedCancelReason === 'Lainnya')
                     <div class="mb-4 text-left">
-                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda <span class="text-red-500">*</span></label>
+                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda</label>
                         <textarea wire:model="customCancelReason" rows="2" placeholder="Contoh: Perlu reschedule atau ada keperluan mendesak..." class="w-full text-xs p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
                         @error('customCancelReason')
                             <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p>

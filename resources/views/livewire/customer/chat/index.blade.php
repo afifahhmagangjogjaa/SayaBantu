@@ -40,7 +40,7 @@
                                 <x-user-avatar :user="$selected_help->mitra" class="h-full w-full" />
                             </div>
                             <div class="flex-1 min-w-0">
-                                <h1 class="font-extrabold text-sm text-white truncate leading-tight">{{ optional($selected_help->mitra)->name ?? 'Mitra' }}</h1>
+                                <h1 class="font-extrabold text-sm text-white truncate leading-tight">{{ trim(preg_replace('/\s*\((?:Mitra|Customer)[^)]*\)|\s*(?:Mitra|Customer)\b/i', '', optional($selected_help->mitra)->name ?? 'Mitra')) }}</h1>
                                 <p class="text-[11px] text-blue-100 truncate mt-0.5">{{ Str::limit(optional($selected_help)->title ?? optional($selected_help)->description, 35) }}</p>
                             </div>
                         </div>

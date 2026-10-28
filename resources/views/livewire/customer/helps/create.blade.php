@@ -548,7 +548,7 @@
                             </label>
                             <select wire:model.live="city_id" id="city-select"
                                 class="w-full px-4 py-3 text-xs font-semibold rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition bg-white text-gray-800">
-                                <option value="">-- Pilih Kota --</option>
+                                <option value="">Pilih Kota</option>
                                 @foreach ($cities as $city)
                                     @php
                                         // Koordinat fallback akurat kota-kota umum jika database belum terisi

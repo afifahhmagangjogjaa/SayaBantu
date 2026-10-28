@@ -152,8 +152,8 @@
 
         <!-- Step 1: Form Pengisian Data -->
         @if ($currentStep === 1)
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-4">Langkah 1: Isi Data Pengisian</h2>
+            <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+                <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-4">Langkah 1: Isi Data Pengisian</h2>
                 
                 <form wire:submit.prevent="nextStep">
                     <!-- Nominal -->
@@ -187,25 +187,25 @@
                     <!-- Quick Amount Buttons -->
                     <div class="mb-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nominal Cepat:</label>
-                        <div class="grid grid-cols-5 gap-2">
+                        <div class="grid grid-cols-5 gap-1.5 sm:gap-2">
                             <button type="button" wire:click="setQuickAmount(20000)"
-                                class="px-3 py-2 text-sm font-semibold rounded-lg border-2 {{ $amount == 20000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
+                                class="px-1.5 sm:px-3 py-2 text-xs sm:text-sm font-bold text-center rounded-lg border-2 {{ $amount == 20000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
                                 20K
                             </button>
                             <button type="button" wire:click="setQuickAmount(50000)"
-                                class="px-3 py-2 text-sm font-semibold rounded-lg border-2 {{ $amount == 50000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
+                                class="px-1.5 sm:px-3 py-2 text-xs sm:text-sm font-bold text-center rounded-lg border-2 {{ $amount == 50000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
                                 50K
                             </button>
                             <button type="button" wire:click="setQuickAmount(100000)"
-                                class="px-3 py-2 text-sm font-semibold rounded-lg border-2 {{ $amount == 100000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
+                                class="px-1.5 sm:px-3 py-2 text-xs sm:text-sm font-bold text-center rounded-lg border-2 {{ $amount == 100000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
                                 100K
                             </button>
                             <button type="button" wire:click="setQuickAmount(200000)"
-                                class="px-3 py-2 text-sm font-semibold rounded-lg border-2 {{ $amount == 200000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
+                                class="px-1.5 sm:px-3 py-2 text-xs sm:text-sm font-bold text-center rounded-lg border-2 {{ $amount == 200000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
                                 200K
                             </button>
                             <button type="button" wire:click="setQuickAmount(500000)"
-                                class="px-3 py-2 text-sm font-semibold rounded-lg border-2 {{ $amount == 500000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
+                                class="px-1.5 sm:px-3 py-2 text-xs sm:text-sm font-bold text-center rounded-lg border-2 {{ $amount == 500000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
                                 500K
                             </button>
                         </div>
@@ -274,8 +274,8 @@
 
         <!-- Step 2: Detail Pembayaran -->
         @if ($currentStep === 2)
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-4">Langkah 2: Detail Pembayaran</h2>
+            <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+                <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-4">Langkah 2: Detail Pembayaran</h2>
                 
                 <!-- Rincian Pembayaran -->
                 <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-6 mb-6">
@@ -402,15 +402,15 @@
                                             @if(file_exists(public_path('images/payment/qris.png')))
                                                 <img src="{{ asset('images/payment/qris.png') }}" 
                                                     alt="QRIS QR Code" 
-                                                    class="w-64 h-64 mx-auto border-2 border-gray-200 rounded-xl shadow-lg">
+                                                    class="w-full max-w-[220px] aspect-square mx-auto border-2 border-gray-200 rounded-xl shadow-lg object-contain">
                                             @else
-                                                <div class="w-64 h-64 mx-auto border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center">
+                                                <div class="w-full max-w-[220px] aspect-square mx-auto border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center p-4">
                                                     <div class="text-center">
-                                                        <svg class="w-16 h-16 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                                                         </svg>
-                                                        <p class="text-sm text-gray-500">QR Code belum tersedia</p>
-                                                        <p class="text-xs text-gray-400 mt-1">Upload file: public/images/payment/qris.png</p>
+                                                        <p class="text-xs font-semibold text-gray-500">QR Code belum tersedia</p>
+                                                        <p class="text-[10px] text-gray-400 mt-0.5">Upload file: public/images/payment/qris.png</p>
                                                     </div>
                                                 </div>
                                             @endif

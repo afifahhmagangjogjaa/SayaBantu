@@ -95,13 +95,13 @@ new #[Layout('layouts.guest')] class extends Component {
 <div class="w-full flex-1 flex flex-col justify-between" x-data="{ testOpen: false, demoRole: 'customer' }">
     <div>
         <!-- Top Logo sayabantu.com -->
-        <div class="pt-1 pb-3 text-center">
+        <div class="pt-1 pb-4 mb-2 text-center">
             <x-sayabantu-logo size="lg" />
             
             <h2 class="text-xl font-extrabold text-gray-900 mt-4 tracking-tight">
                 Masuk ke Akun Anda
             </h2>
-            <p class="text-xs text-gray-500 mt-1">
+            <p class="text-xs text-gray-500 mt-1.5">
                 Platform Jasa & Bantuan Terpercaya untuk Customer & Mitra
             </p>
         </div>
@@ -118,7 +118,7 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         @endif
 
-        <form wire:submit="login" class="space-y-4 mt-1">
+        <form wire:submit="login" class="space-y-4 mt-5">
             <!-- Nomor HP / Email -->
             <div>
                 <label for="email" class="block text-xs font-bold text-gray-700 mb-1.5">
@@ -131,7 +131,7 @@ new #[Layout('layouts.guest')] class extends Component {
                         </svg>
                     </div>
                     <input wire:model="form.email" id="email" type="text" name="email" required
-                        autocomplete="username" placeholder="Contoh: 08123456789 atau email"
+                        autocomplete="username" placeholder="Masukkan nomor HP atau email"
                         class="w-full pl-10 pr-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-4 focus:ring-blue-100 transition shadow-2xs font-medium">
                 </div>
                 <x-input-error :messages="$errors->get('form.email')" class="mt-1.5" />
@@ -139,17 +139,9 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <!-- Password -->
             <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label for="password" class="block text-xs font-bold text-gray-700">
-                        Password
-                    </label>
-                    @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" wire:navigate
-                            class="text-[11px] font-semibold text-[#0066FF] hover:underline">
-                            Lupa password?
-                        </a>
-                    @endif
-                </div>
+                <label for="password" class="block text-xs font-bold text-gray-700 mb-1.5">
+                    Password
+                </label>
                 <div class="relative" x-data="{ show: false }">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,6 +164,15 @@ new #[Layout('layouts.guest')] class extends Component {
                     </button>
                 </div>
                 <x-input-error :messages="$errors->get('form.password')" class="mt-1.5" />
+
+                @if (Route::has('password.request'))
+                    <div class="flex justify-end mt-2">
+                        <a href="{{ route('password.request') }}" wire:navigate
+                            class="text-xs font-semibold text-[#0066FF] hover:underline">
+                            Lupa password?
+                        </a>
+                    </div>
+                @endif
             </div>
 
             <!-- Login Button -->

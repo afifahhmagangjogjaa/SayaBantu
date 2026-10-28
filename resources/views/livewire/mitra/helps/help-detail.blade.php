@@ -1231,7 +1231,7 @@
                                   rows="4" 
                                   class="w-full p-3 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
                                   placeholder="Contoh: kendaraan rusak, ban bocor, kendala darurat..."></textarea>
-                        <p class="text-xs text-gray-500 mt-1">*Wajib/disarankan mengisi alasan yang jelas</p>
+                        <p class="text-xs text-gray-500 mt-1">Wajib/disarankan mengisi alasan yang jelas</p>
                     </div>
 
                     {{-- Buttons --}}
@@ -1387,7 +1387,7 @@
                         <label class="block text-xs font-bold text-emerald-900 mb-1 flex items-center justify-between">
                             <span class="flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-                                2. Foto Setelah Selesai (After) <span class="text-red-500">*</span>
+                                2. Foto Setelah Selesai (After)
                             </span>
                             <span class="text-[10px] text-emerald-700 font-semibold bg-emerald-100 px-2 py-0.5 rounded-full">Wajib</span>
                         </label>
