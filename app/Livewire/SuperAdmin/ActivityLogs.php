@@ -2,10 +2,10 @@
 
 namespace App\Livewire\SuperAdmin;
 
+use App\Models\PartnerActivity;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use App\Models\PartnerActivity;
 
 #[Layout('layouts.superadmin', ['title' => 'Log Aktivitas', 'breadcrumb' => 'Super Admin'])]
 class ActivityLogs extends Component
@@ -13,10 +13,15 @@ class ActivityLogs extends Component
     use WithPagination;
 
     public $search = '';
+
     public $roleFilter = 'all';
+
     public $actionFilter = 'all';
+
     public $dateFrom;
+
     public $dateTo;
+
     public $perPage = 20;
 
     public function mount()
@@ -86,12 +91,12 @@ class ActivityLogs extends Component
         // Search filter
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('description', 'like', '%' . $this->search . '%')
-                  ->orWhere('activity_type', 'like', '%' . $this->search . '%')
-                  ->orWhereHas('user', function ($userQuery) {
-                      $userQuery->where('name', 'like', '%' . $this->search . '%')
-                                ->orWhere('email', 'like', '%' . $this->search . '%');
-                  });
+                $q->where('description', 'like', '%'.$this->search.'%')
+                    ->orWhere('activity_type', 'like', '%'.$this->search.'%')
+                    ->orWhereHas('user', function ($userQuery) {
+                        $userQuery->where('name', 'like', '%'.$this->search.'%')
+                            ->orWhere('email', 'like', '%'.$this->search.'%');
+                    });
             });
         }
 
@@ -131,9 +136,15 @@ class ActivityLogs extends Component
         $stats = [
             'total_logs' => PartnerActivity::count(),
             'today_logs' => PartnerActivity::whereDate('created_at', today())->count(),
-            'admin_logs' => PartnerActivity::whereHas('user', function ($q) { $q->where('role', 'admin'); })->count(),
-            'customer_logs' => PartnerActivity::whereHas('user', function ($q) { $q->whereIn('role', ['customer', 'kustomer']); })->count(),
-            'mitra_logs' => PartnerActivity::whereHas('user', function ($q) { $q->where('role', 'mitra'); })->count(),
+            'admin_logs' => PartnerActivity::whereHas('user', function ($q) {
+                $q->where('role', 'admin');
+            })->count(),
+            'customer_logs' => PartnerActivity::whereHas('user', function ($q) {
+                $q->whereIn('role', ['customer', 'kustomer']);
+            })->count(),
+            'mitra_logs' => PartnerActivity::whereHas('user', function ($q) {
+                $q->where('role', 'mitra');
+            })->count(),
         ];
 
         return view('livewire.super-admin.activity-logs', [

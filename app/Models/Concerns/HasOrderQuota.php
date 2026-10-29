@@ -20,6 +20,30 @@ trait HasOrderQuota
         return $this->getMitraHelpsCount();
     }
 
+    public function getOngoingOrdersCount(): int
+    {
+        $inProgressStatuses = [
+            'memperoleh_mitra',
+            'taken',
+            'partner_on_the_way',
+            'partner_arrived',
+            'in_progress',
+            'sedang_diproses',
+            'partner_cancel_requested',
+            'diproses_mitra',
+            'waiting_customer_confirmation',
+        ];
+
+        return $this->takenHelps()
+            ->whereIn('status', $inProgressStatuses)
+            ->count();
+    }
+
+    public function hasActiveOngoingOrder(): bool
+    {
+        return $this->getOngoingOrdersCount() >= 1;
+    }
+
     public function getMaxActiveOrdersLimit(): int
     {
         return $this->hasVerifiedEmail() ? 999 : 2;
@@ -27,6 +51,10 @@ trait HasOrderQuota
 
     public function canTakeMoreOrders(): bool
     {
+        if ($this->hasActiveOngoingOrder()) {
+            return false;
+        }
+
         return $this->getMitraHelpsCount() < $this->getMaxActiveOrdersLimit();
     }
 
@@ -37,20 +65,26 @@ trait HasOrderQuota
 
     public function getCannotTakeHelpReason(): ?string
     {
-        if (!$this->isProfileComplete()) {
+        if (! $this->isProfileComplete()) {
             $missing = implode(', ', $this->getMissingProfileFields());
+
             return "Harap lengkapi biodata profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.";
         }
 
-        if (!$this->verified) {
-            return "Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi selesai sebelum dapat mengambil bantuan.";
+        if (! $this->verified) {
+            return 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi selesai sebelum dapat mengambil bantuan.';
         }
 
-        if (!$this->canTakeMoreOrders()) {
-            if (!$this->hasVerifiedEmail()) {
-                return "Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.";
+        if ($this->hasActiveOngoingOrder()) {
+            return 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.';
+        }
+
+        if (! $this->canTakeMoreOrders()) {
+            if (! $this->hasVerifiedEmail()) {
+                return 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.';
             }
-            return "Anda telah mencapai batas maksimal order bantuan.";
+
+            return 'Anda telah mencapai batas maksimal order bantuan.';
         }
 
         return null;
@@ -63,13 +97,14 @@ trait HasOrderQuota
 
     public function getCannotTopupReason(): ?string
     {
-        if (!$this->isProfileComplete()) {
+        if (! $this->isProfileComplete()) {
             $missing = implode(', ', $this->getMissingProfileFields());
+
             return "Harap lengkapi profil Anda ({$missing}) terlebih dahulu sebelum melakukan Top Up.";
         }
 
-        if (!$this->verified) {
-            return "Akun Anda sedang menunggu verifikasi KTP oleh Admin. Anda belum dapat melakukan Top Up sebelum KTP diverifikasi.";
+        if (! $this->verified) {
+            return 'Akun Anda sedang menunggu verifikasi KTP oleh Admin. Anda belum dapat melakukan Top Up sebelum KTP diverifikasi.';
         }
 
         return null;

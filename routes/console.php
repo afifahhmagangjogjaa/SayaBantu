@@ -14,4 +14,3 @@ Schedule::command('helps:auto-confirm')->everyTenMinutes();
 // Dulu ini dipanggil di dalam render() halaman; sekarang dijadwalkan agar tetap
 // berjalan walau tidak ada yang membuka halaman.
 Schedule::command('helps:auto-cancel')->everyMinute();
-

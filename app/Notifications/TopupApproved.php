@@ -29,9 +29,10 @@ class TopupApproved extends Notification
     public function via(object $notifiable): array
     {
         $settings = $notifiable->notification_settings ?? [];
-        if (isset($settings['transactionUpdate']) && !$settings['transactionUpdate']) {
+        if (isset($settings['transactionUpdate']) && ! $settings['transactionUpdate']) {
             return [];
         }
+
         return ['database'];
     }
 
@@ -42,10 +43,10 @@ class TopupApproved extends Notification
     {
         return (new MailMessage)
             ->subject('✅ Request Top-Up Saldo Disetujui')
-            ->greeting('Kabar Baik, ' . $notifiable->name . '!')
+            ->greeting('Kabar Baik, '.$notifiable->name.'!')
             ->line('Request top-up saldo Anda telah disetujui oleh admin.')
-            ->line('Kode Request: ' . $this->transaction->request_code)
-            ->line('Nominal: Rp ' . number_format($this->transaction->amount, 0, ',', '.'))
+            ->line('Kode Request: '.$this->transaction->request_code)
+            ->line('Nominal: Rp '.number_format($this->transaction->amount, 0, ',', '.'))
             ->line('Saldo Anda telah bertambah dan siap digunakan.')
             ->action('Lihat Saldo', route('customer.dashboard'))
             ->line('Terima kasih telah menggunakan layanan kami!');
@@ -64,7 +65,7 @@ class TopupApproved extends Notification
             'transaction_id' => $this->transaction->id,
             'request_code' => $this->transaction->request_code,
             'amount' => $this->transaction->amount,
-            'message' => 'Request top-up saldo Anda telah disetujui! Saldo Rp ' . number_format($this->transaction->amount, 0, ',', '.') . ' telah ditambahkan.',
+            'message' => 'Request top-up saldo Anda telah disetujui! Saldo Rp '.number_format($this->transaction->amount, 0, ',', '.').' telah ditambahkan.',
             'url' => route('customer.topup.history'),
         ];
     }

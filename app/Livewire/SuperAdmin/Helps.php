@@ -2,11 +2,11 @@
 
 namespace App\Livewire\SuperAdmin;
 
+use App\Enums\HelpStatus;
+use App\Models\Help;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use App\Models\Help;
-use App\Enums\HelpStatus;
 
 #[Layout('layouts.superadmin')]
 class Helps extends Component
@@ -14,7 +14,9 @@ class Helps extends Component
     use WithPagination;
 
     public $search = '';
+
     public $statusFilter = '';
+
     public $perPage = 10;
 
     public function updatedSearch()
@@ -34,7 +36,7 @@ class Helps extends Component
 
     public function viewHelp($id)
     {
-        session()->flash('message', 'View help #' . $id);
+        session()->flash('message', 'View help #'.$id);
     }
 
     public function approveHelp($id)
@@ -57,8 +59,8 @@ class Helps extends Component
             ->with(['customer', 'city'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%');
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->statusFilter, function ($query) {

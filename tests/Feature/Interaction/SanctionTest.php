@@ -2,9 +2,6 @@
 
 namespace Tests\Feature\Interaction;
 
-use App\Models\Category;
-use App\Models\City;
-use App\Models\Help;
 use App\Models\PartnerReport;
 use App\Models\User;
 use App\Notifications\SanctionNotification;

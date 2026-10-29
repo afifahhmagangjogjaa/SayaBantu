@@ -10,8 +10,11 @@ class ChatMessageNotification extends Notification
     use Queueable;
 
     public $helpId;
+
     public $message;
+
     public $fromId;
+
     public $fromName;
 
     public function __construct($helpId, $message, $fromId = null, $fromName = null)
@@ -25,9 +28,10 @@ class ChatMessageNotification extends Notification
     public function via($notifiable)
     {
         $settings = $notifiable->notification_settings ?? [];
-        if (isset($settings['generalNotification']) && !$settings['generalNotification']) {
+        if (isset($settings['generalNotification']) && ! $settings['generalNotification']) {
             return [];
         }
+
         return ['database'];
     }
 

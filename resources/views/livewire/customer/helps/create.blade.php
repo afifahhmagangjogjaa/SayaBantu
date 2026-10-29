@@ -66,7 +66,7 @@
 
                 <div class="relative z-10">
                     <div class="flex items-center justify-between text-white mb-3">
-                        <a href="{{ route('customer.dashboard') }}" aria-label="Kembali ke Dashboard"
+                        <a href="{{ route('customer.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard"
                             class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -84,14 +84,14 @@
                 </div>
 
                 <!-- Curved separator -->
-                <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none"
-                    aria-hidden="true">
-                    <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+                <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none"
+                    aria-hidden="true" style="display: block; height: 24px;">
+                    <path d="M0,32 C420,68 1020,12 1440,32 L1440,72 L0,72 Z" fill="#ffffff"></path>
                 </svg>
             </div>
 
             <!-- Content -->
-            <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-8">
+            <div class="bg-white px-5 pt-3 pb-8 -mt-[1px]">
                 @if(!$isProfileComplete)
                     <div class="py-6 text-center">
                         <div class="w-16 h-16 bg-amber-50 border border-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-amber-500 shadow-2xs">
@@ -121,7 +121,7 @@
                         @endif
 
                         <div class="flex flex-col gap-2.5">
-                            <a href="{{ route('profile.edit') }}"
+                            <a href="{{ route('profile.edit') }}" wire:navigate
                                class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs shadow-md hover:shadow-lg transition flex items-center justify-center gap-2"
                                 style="background: linear-gradient(to right, #0066FF, #0052CC);">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,7 +129,7 @@
                                 </svg>
                                 Lengkapi Profil Sekarang
                             </a>
-                            <a href="{{ route('customer.dashboard') }}"
+                            <a href="{{ route('customer.dashboard') }}" wire:navigate
                                class="w-full py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center justify-center">
                                 Kembali ke Beranda
                             </a>
@@ -148,14 +148,14 @@
                         </p>
 
                         <div class="flex flex-col gap-2.5">
-                            <a href="{{ route('profile.settings.verification') }}"
+                            <a href="{{ route('profile.settings.verification') }}" wire:navigate
                                class="w-full py-3 px-4 rounded-xl text-amber-800 bg-amber-50 border border-amber-200 font-bold text-xs shadow-xs hover:bg-amber-100 transition flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                                 Cek Status Dokumen KTP
                             </a>
-                            <a href="{{ route('customer.dashboard') }}"
+                            <a href="{{ route('customer.dashboard') }}" wire:navigate
                                class="w-full py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center justify-center">
                                 Kembali ke Beranda
                             </a>
@@ -193,13 +193,13 @@
                                 </button>
                             </form>
 
-                            <a href="{{ route('customer.helps.index') }}"
+                            <a href="{{ route('customer.helps.index') }}" wire:navigate
                                class="w-full py-3 px-4 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 text-white shadow-md hover:opacity-95"
                                style="background: linear-gradient(to right, #0066FF, #0052CC);">
                                 Lihat Bantuan Saya
                             </a>
 
-                            <a href="{{ route('customer.dashboard') }}"
+                            <a href="{{ route('customer.dashboard') }}" wire:navigate
                                class="w-full py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center justify-center">
                                 Kembali ke Beranda
                             </a>
@@ -216,7 +216,6 @@
                                         <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
                                     </svg>
                                     Judul Bantuan
-                                    <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
                             <input type="text" wire:model="title"
@@ -240,14 +239,13 @@
                                         <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
                                     </svg>
                                     Kategori Bantuan
-                                    <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
-                            <select wire:model="category_id"
+                            <select wire:model.live="category_id"
                                 class="w-full px-4 py-3 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition bg-white">
-                                <option value="">-- Pilih Kategori --</option>
+                                <option value="">Pilih Kategori</option>
                                 @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    <option value="{{ $category->id }}" @selected((string)$category_id === (string)$category->id)>{{ $category->name }}</option>
                                 @endforeach
                             </select>
                             @error('category_id')
@@ -258,6 +256,35 @@
                                     {{ $message }}
                                 </span>
                             @enderror
+
+                            @php
+                                $selectedCategory = $categories->firstWhere('id', $category_id);
+                                $isOtherSelected = $selectedCategory && strtolower(trim($selectedCategory->name)) === 'lainnya';
+                            @endphp
+
+                            @if($isOtherSelected)
+                                <div class="mt-2.5">
+                                    <label class="block text-xs font-bold text-gray-700 mb-1.5">
+                                        <span class="flex items-center">
+                                            <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                            Nama Kategori Lainnya
+                                        </span>
+                                    </label>
+                                    <input type="text" wire:model="other_category"
+                                        placeholder="Ketikkan nama kategori (contoh: Cuci Sepatu, Pasang Keramik, dll.)"
+                                        class="w-full px-4 py-3 text-sm rounded-lg border @error('other_category') border-red-500 @else border-gray-300 @enderror focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition bg-white">
+                                    @error('other_category')
+                                        <span class="text-red-500 text-xs mt-1.5 block flex items-center">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Jenis Bantuan (Urgent vs Terjadwal) -->
@@ -268,7 +295,6 @@
                                         <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
                                     </svg>
                                     Jenis Bantuan
-                                    <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
                             <div class="grid grid-cols-2 gap-3">
@@ -315,7 +341,6 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                             Batas Waktu Tunggu Mitra (Auto-Batal)
-                                            <span class="text-red-500">*</span>
                                         </span>
                                     </label>
                                     <p class="text-[11px] text-gray-600 mb-2.5 leading-relaxed">
@@ -358,12 +383,11 @@
                                         <path fill-rule="evenodd" d="M6 2a1 1 0 000 2h8a1 1 0 100-2H6zM4 6a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" clip-rule="evenodd" />
                                     </svg>
                                     Jadwal Pelaksanaan Bantuan
-                                    <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-[11px] font-medium text-gray-600 mb-1">Tanggal <span class="text-red-500">*</span></label>
+                                    <label class="block text-[11px] font-medium text-gray-600 mb-1">Tanggal</label>
                                     <input type="date" wire:model.live="scheduled_date" min="{{ date('Y-m-d') }}" max="{{ $help_type === 'urgent' ? date('Y-m-d', strtotime('+1 day')) : date('Y-12-31') }}" onkeydown="return false" onclick="this.showPicker()"
                                         class="w-full px-3 py-2 text-sm rounded-lg border @error('scheduled_date') border-red-400 bg-red-50/30 @else border-gray-300 bg-white @enderror focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                                     @error('scheduled_date')
@@ -371,7 +395,7 @@
                                     @enderror
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-medium text-gray-600 mb-1">Jam <span class="text-red-500">*</span></label>
+                                    <label class="block text-[11px] font-medium text-gray-600 mb-1">Jam</label>
                                     <input type="time" wire:model.live="scheduled_time" onclick="this.showPicker()"
                                         class="w-full px-3 py-2 text-sm rounded-lg border @error('scheduled_time') border-red-400 bg-red-50/30 @else border-gray-300 bg-white @enderror focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                                     @error('scheduled_time')
@@ -436,7 +460,6 @@
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
                                     </svg>
                                     Nominal Uang untuk Mitra
-                                    <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
                             <div class="relative">
@@ -521,12 +544,11 @@
                                         <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                     </svg>
                                     Kota / Wilayah Layanan
-                                    <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
                             <select wire:model.live="city_id" id="city-select"
                                 class="w-full px-4 py-3 text-xs font-semibold rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition bg-white text-gray-800">
-                                <option value="">-- Pilih Kota --</option>
+                                <option value="">Pilih Kota</option>
                                 @foreach ($cities as $city)
                                     @php
                                         // Koordinat fallback akurat kota-kota umum jika database belum terisi
@@ -584,7 +606,6 @@
                                         <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                     </svg>
                                     Alamat Lengkap
-                                    <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
                             <x-smart-address-input 
@@ -618,7 +639,6 @@
                                         <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                     </svg>
                                     Detail Lokasi Bantuan / Patokan
-                                    <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
                             <x-smart-location-input 
@@ -651,7 +671,6 @@
                                         <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                                     </svg>
                                     Tandai Lokasi di Peta
-                                    <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
 
@@ -693,7 +712,6 @@
                                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
                                     Deskripsi Bantuan
-                                    <span class="text-red-500 ml-1">*</span>
                                 </span>
                             </label>
                             <textarea wire:model="description" rows="4"
@@ -833,7 +851,7 @@
 
                         <!-- Submit Button -->
                         <div class="flex gap-3 pt-4">
-                            <a href="{{ route('dashboard') }}"
+                            <a href="{{ route('dashboard') }}" wire:navigate
                                 class="flex-1 inline-flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-5 py-3 text-sm rounded-lg font-semibold hover:bg-gray-50 transition text-center">
                                 Batal
                             </a>
@@ -914,7 +932,7 @@
                             const iana = zoneIana[zone];
                             const now = new Date();
                             const timeText = formatTimeForZone(now, iana);
-                            tzDisplay.textContent = timeText ? `Waktu lokal: ${zone} â€” ${timeText}` : `Waktu lokal: ${zone}`;
+                            tzDisplay.textContent = timeText ? `Waktu lokal: ${zone} — ${timeText}` : `Waktu lokal: ${zone}`;
                         }
 
                         document.addEventListener('DOMContentLoaded', function() {
@@ -944,7 +962,7 @@
                                     try {
                                         const fmt = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: iana });
                                         const timeText = fmt.format(now);
-                                        if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone} â€” ${timeText}`;
+                                        if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone} — ${timeText}`;
                                     } catch (err) {
                                         if (tzDisplayEl) tzDisplayEl.textContent = `Waktu lokal: ${zone}`;
                                     }
@@ -1145,7 +1163,7 @@
                         <!-- Input Nominal Top Up -->
                         <div>
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-                                <label style="font-weight: 700; color: #334155; font-size: 12px;">Nominal Transfer <span style="color: #ef4444;">*</span></label>
+                                <label style="font-weight: 700; color: #334155; font-size: 12px;">Nominal Transfer</label>
                                 @if($topupDeficit > 0)
                                     <button type="button" wire:click="setTopupQuickAmount({{ (int)(ceil($topupDeficit / 1000) * 1000) }})"
                                         style="font-size: 10px; font-weight: 700; color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; padding: 2px 7px; border-radius: 6px; cursor: pointer;">
@@ -1210,7 +1228,7 @@
 
                         <!-- Pilihan Tab Metode Pembayaran -->
                         <div>
-                            <label style="display: block; font-weight: 700; color: #334155; font-size: 12px; margin-bottom: 6px;">Metode Pembayaran <span style="color: #ef4444;">*</span></label>
+                            <label style="display: block; font-weight: 700; color: #334155; font-size: 12px; margin-bottom: 6px;">Metode Pembayaran</label>
                             
                             <!-- Segmented Switcher -->
                             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 3px; background: #f1f5f9; border-radius: 10px; margin-bottom: 10px;">
@@ -1259,7 +1277,7 @@
                                                     <div style="display: flex; align-items: center; justify-content: space-between;">
                                                         <span style="font-weight: 800; color: #0f172a; font-size: 12px;">{{ $bank['name'] }}</span>
                                                         <button type="button" 
-                                                            onclick="event.stopPropagation(); navigator.clipboard.writeText('{{ $bank['account_number'] }}'); alert('Nomor rekening {{ $bank['name'] }} ({{ $bank['account_number'] }}) berhasil disalin!');"
+                                                            onclick="event.stopPropagation(); navigator.clipboard.writeText('{{ $bank['account_number'] }}'); (window.sbToast ? window.sbToast('Nomor rekening {{ $bank['name'] }} berhasil disalin!', 'success') : alert('Nomor rekening {{ $bank['name'] }} ({{ $bank['account_number'] }}) berhasil disalin!'));"
                                                             style="padding: 2px 6px; font-size: 10px; font-weight: 700; background: #e2e8f0; color: #0369a1; border-radius: 4px; border: none; cursor: pointer;">
                                                             📋 Salin
                                                         </button>
@@ -1282,7 +1300,7 @@
 
                         <!-- Upload Bukti Transfer -->
                         <div>
-                            <label style="display: block; font-weight: 700; color: #334155; font-size: 12px; margin-bottom: 6px;">Upload Bukti Transfer <span style="color: #ef4444;">*</span></label>
+                            <label style="display: block; font-weight: 700; color: #334155; font-size: 12px; margin-bottom: 6px;">Upload Bukti Transfer</label>
                             
                             @if ($topupReceipt)
                                 <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; background: #f8fafc; padding: 8px; text-align: center;">
@@ -1330,7 +1348,7 @@
                             onmouseout="this.style.background='#ffffff';">
                             Tutup
                         </button>
-                        <a href="{{ route('customer.topup.history') }}"
+                        <a href="{{ route('customer.topup.history') }}" wire:navigate
                             style="flex: 2; height: 44px; border-radius: 12px; text-decoration: none; background: #d97706; color: #ffffff; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35); transition: opacity 0.2s;"
                             onmouseover="this.style.opacity='0.95';"
                             onmouseout="this.style.opacity='1';">
@@ -1417,7 +1435,7 @@
                                 <div class="flex justify-between items-center pt-2 border-t border-blue-100">
                                     <span class="text-sm text-gray-600">Batas Waktu Tunggu Mitra</span>
                                     <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">
-                                        â³ {{ $confirmAutoCancelMinutes ?? $auto_cancel_minutes }} Menit
+                                        ⏳ {{ $confirmAutoCancelMinutes ?? $auto_cancel_minutes }} Menit
                                     </span>
                                 </div>
                             @endif
@@ -1501,7 +1519,7 @@
                 </p>
 
                 <div class="flex flex-col gap-2.5">
-                    <a href="{{ route('customer.helps.index') }}" 
+                    <a href="{{ route('customer.helps.index') }}" wire:navigate 
                        class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs shadow-md hover:shadow-lg transition flex items-center justify-center gap-2"
                        style="background: linear-gradient(to right, #0066FF, #0052CC);">
                         <span>Lihat Permintaan Saya</span>
@@ -1509,7 +1527,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                     </a>
-                    <a href="{{ route('customer.dashboard') }}" 
+                    <a href="{{ route('customer.dashboard') }}" wire:navigate 
                        class="w-full py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition">
                         Kembali ke Beranda
                     </a>
@@ -1613,7 +1631,7 @@
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'Â© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19,
             }).addTo(leafletMapInstance);
 

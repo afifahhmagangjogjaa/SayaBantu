@@ -19,13 +19,13 @@
                     <p class="text-xs text-red-100 mt-1">Permintaan penarikan tidak dapat diproses</p>
                 </div>
 
-                <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+                <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                     <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
                 </svg>
             </div>
 
             <!-- Content -->
-            <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24 space-y-4">
+            <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6 space-y-4">
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
                     <div class="flex justify-between text-xs">
                         <span class="text-gray-500">Jumlah Penarikan:</span>
@@ -51,10 +51,10 @@
                 </div>
 
                 <div class="flex gap-2.5 pt-2">
-                    <a href="{{ route('mitra.withdraw.form', ['force' => 1]) }}" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm">
+                    <a href="{{ route('mitra.withdraw.form', ['force' => 1]) }}" wire:navigate class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm">
                         Ajukan Ulang
                     </a>
-                    <a href="{{ route('mitra.withdraw.history') }}" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
+                    <a href="{{ route('mitra.withdraw.history') }}" wire:navigate class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
                         Riwayat
                     </a>
                 </div>

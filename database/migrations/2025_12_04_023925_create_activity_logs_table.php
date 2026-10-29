@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('user_agent')->nullable();
             $table->json('properties')->nullable(); // Additional data
             $table->timestamps();
-            
+
             $table->index(['user_id', 'created_at']);
             $table->index('action');
         });

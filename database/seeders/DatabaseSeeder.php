@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -20,6 +19,7 @@ class DatabaseSeeder extends Seeder
             IndonesiaRegionsSeeder::class,
             // Fallback small seeders (will still run; IndonesiaRegionsSeeder will skip if files missing)
             CitySeeder::class,
+            AllIndonesianCitiesSeeder::class,
             // DistrictSeeder::class,
             CategorySeeder::class,
             UserSeeder::class,

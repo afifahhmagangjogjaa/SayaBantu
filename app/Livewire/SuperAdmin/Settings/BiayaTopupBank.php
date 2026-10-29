@@ -2,45 +2,55 @@
 
 namespace App\Livewire\SuperAdmin\Settings;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use App\Models\AppSetting;
-
 use App\Models\BalanceTransaction;
 use Carbon\Carbon;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('layouts.superadmin')]
 #[Title('Biaya Admin Top-Up & Bank - Super Admin')]
 class BiayaTopupBank extends Component
 {
     public $tier1_limit;
+
     public $tier1_fee;
+
     public $tier2_limit;
+
     public $tier2_fee;
+
     public $tier3_percentage;
+
     public $tier3_max;
-    
+
     public $payment_banks = [];
 
     // Modal state for Bank Management
     public bool $showBankModal = false;
+
     public $editingBankIndex = null;
+
     public string $bank_code = '';
+
     public string $bank_name = '';
+
     public string $bank_account_number = '';
+
     public string $bank_account_name = '';
+
     public bool $bank_enabled = true;
 
     protected function rules()
     {
         return [
-            'tier1_limit'      => 'required|numeric|min:0',
-            'tier1_fee'        => 'required|numeric|min:0',
-            'tier2_limit'      => 'required|numeric|min:0',
-            'tier2_fee'        => 'required|numeric|min:0',
+            'tier1_limit' => 'required|numeric|min:0',
+            'tier1_fee' => 'required|numeric|min:0',
+            'tier2_limit' => 'required|numeric|min:0',
+            'tier2_fee' => 'required|numeric|min:0',
             'tier3_percentage' => 'required|numeric|min:0|max:100',
-            'tier3_max'        => 'required|numeric|min:0',
+            'tier3_max' => 'required|numeric|min:0',
         ];
     }
 
@@ -73,7 +83,7 @@ class BiayaTopupBank extends Component
 
     public function openEditBankModal($index)
     {
-        if (!isset($this->payment_banks[$index])) {
+        if (! isset($this->payment_banks[$index])) {
             return;
         }
 
@@ -83,7 +93,7 @@ class BiayaTopupBank extends Component
         $this->bank_name = (string) ($bank['name'] ?? '');
         $this->bank_account_number = (string) ($bank['account_number'] ?? '');
         $this->bank_account_name = (string) ($bank['account_name'] ?? '');
-        $this->bank_enabled = !empty($bank['enabled']);
+        $this->bank_enabled = ! empty($bank['enabled']);
         $this->showBankModal = true;
     }
 
@@ -106,31 +116,31 @@ class BiayaTopupBank extends Component
     public function saveBankModal()
     {
         $this->validate([
-            'bank_code'           => 'required|string|max:30',
-            'bank_name'           => 'required|string|max:100',
+            'bank_code' => 'required|string|max:30',
+            'bank_name' => 'required|string|max:100',
             'bank_account_number' => 'required|string|max:50',
-            'bank_account_name'   => 'required|string|max:150',
+            'bank_account_name' => 'required|string|max:150',
         ], [
-            'bank_code.required'           => 'Kode bank wajib diisi (contoh: bca, mandiri).',
-            'bank_name.required'           => 'Nama bank wajib diisi.',
+            'bank_code.required' => 'Kode bank wajib diisi (contoh: bca, mandiri).',
+            'bank_name.required' => 'Nama bank wajib diisi.',
             'bank_account_number.required' => 'Nomor rekening wajib diisi.',
-            'bank_account_name.required'   => 'Nama pemilik rekening wajib diisi.',
+            'bank_account_name.required' => 'Nama pemilik rekening wajib diisi.',
         ]);
 
         $bankData = [
-            'code'           => strtolower(trim($this->bank_code)),
-            'name'           => trim($this->bank_name),
+            'code' => strtolower(trim($this->bank_code)),
+            'name' => trim($this->bank_name),
             'account_number' => trim($this->bank_account_number),
-            'account_name'   => trim($this->bank_account_name),
-            'enabled'        => (bool) $this->bank_enabled,
+            'account_name' => trim($this->bank_account_name),
+            'enabled' => (bool) $this->bank_enabled,
         ];
 
         if ($this->editingBankIndex !== null && isset($this->payment_banks[$this->editingBankIndex])) {
             $this->payment_banks[$this->editingBankIndex] = $bankData;
-            $msg = 'Rekening ' . $bankData['name'] . ' berhasil diperbarui.';
+            $msg = 'Rekening '.$bankData['name'].' berhasil diperbarui.';
         } else {
             $this->payment_banks[] = $bankData;
-            $msg = 'Rekening ' . $bankData['name'] . ' berhasil ditambahkan.';
+            $msg = 'Rekening '.$bankData['name'].' berhasil ditambahkan.';
         }
 
         $this->persistPaymentBanks();
@@ -145,10 +155,10 @@ class BiayaTopupBank extends Component
     public function toggleBankStatus($index)
     {
         if (isset($this->payment_banks[$index])) {
-            $this->payment_banks[$index]['enabled'] = !$this->payment_banks[$index]['enabled'];
+            $this->payment_banks[$index]['enabled'] = ! $this->payment_banks[$index]['enabled'];
             $this->persistPaymentBanks();
             $statusText = $this->payment_banks[$index]['enabled'] ? 'diaktifkan' : 'dinonaktifkan';
-            $msg = 'Rekening ' . ($this->payment_banks[$index]['name'] ?? 'Bank') . ' berhasil ' . $statusText . '.';
+            $msg = 'Rekening '.($this->payment_banks[$index]['name'] ?? 'Bank').' berhasil '.$statusText.'.';
             $this->dispatch('bankSaved', message: $msg);
             session()->flash('bank_message', $msg);
         }
@@ -161,7 +171,7 @@ class BiayaTopupBank extends Component
             unset($this->payment_banks[$index]);
             $this->payment_banks = array_values($this->payment_banks);
             $this->persistPaymentBanks();
-            $msg = 'Rekening ' . $deletedName . ' berhasil dihapus.';
+            $msg = 'Rekening '.$deletedName.' berhasil dihapus.';
             $this->dispatch('bankSaved', message: $msg);
             session()->flash('bank_message', $msg);
         }
@@ -170,13 +180,13 @@ class BiayaTopupBank extends Component
     private function persistPaymentBanks()
     {
         $paymentMethods = [
-            'banks' => array_values(array_map(function($b) {
+            'banks' => array_values(array_map(function ($b) {
                 return [
-                    'code'           => (string) ($b['code'] ?? ''),
-                    'name'           => (string) ($b['name'] ?? ''),
+                    'code' => (string) ($b['code'] ?? ''),
+                    'name' => (string) ($b['name'] ?? ''),
                     'account_number' => isset($b['account_number']) ? (string) $b['account_number'] : null,
-                    'account_name'   => isset($b['account_name']) ? (string) $b['account_name'] : null,
-                    'enabled'        => !empty($b['enabled']),
+                    'account_name' => isset($b['account_name']) ? (string) $b['account_name'] : null,
+                    'enabled' => ! empty($b['enabled']),
                 ];
             }, $this->payment_banks ?? [])),
         ];
@@ -295,20 +305,20 @@ class BiayaTopupBank extends Component
             'bank' => [
                 'total' => $bankTopupAdmin,
                 'count' => $bankTopupCount,
-                'avg'   => $bankTopupCount ? ($bankTopupAdmin / $bankTopupCount) : 0,
+                'avg' => $bankTopupCount ? ($bankTopupAdmin / $bankTopupCount) : 0,
                 'percent' => $totalTopupAdmin > 0 ? round(($bankTopupAdmin / $totalTopupAdmin) * 100, 1) : 0,
             ],
             'qris' => [
                 'total' => $qrisTopupAdmin,
                 'count' => $qrisTopupCount,
-                'avg'   => $qrisTopupCount ? ($qrisTopupAdmin / $qrisTopupCount) : 0,
+                'avg' => $qrisTopupCount ? ($qrisTopupAdmin / $qrisTopupCount) : 0,
                 'percent' => $totalTopupAdmin > 0 ? round(($qrisTopupAdmin / $totalTopupAdmin) * 100, 1) : 0,
             ],
             'volume' => [
                 'total_amount' => $totalTopupAmount,
-                'avg_amount'   => $avgTopupAmount,
-                'fee_ratio'    => $feeRatio,
-                'count'        => $countTopupAdmin,
+                'avg_amount' => $avgTopupAmount,
+                'fee_ratio' => $feeRatio,
+                'count' => $countTopupAdmin,
             ],
         ];
 

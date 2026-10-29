@@ -13,6 +13,7 @@ trait HasRatingStats
     public function getCustomerAverageRatingAttribute()
     {
         $avg = Rating::forCustomer($this->id)->avg('rating');
+
         return $avg ? round((float) $avg, 1) : 0;
     }
 
@@ -24,30 +25,30 @@ trait HasRatingStats
     public function getCustomerRatingBadgeAttribute()
     {
         $rating = $this->customer_average_rating;
-        
+
         if ($rating >= 4.5) {
             return [
                 'text' => 'Customer Terpercaya',
                 'color' => 'green',
-                'emoji' => '🌟'
+                'emoji' => '🌟',
             ];
         } elseif ($rating >= 4.0) {
             return [
                 'text' => 'Customer Baik',
                 'color' => 'blue',
-                'emoji' => '⭐'
+                'emoji' => '⭐',
             ];
         } elseif ($rating >= 3.0) {
             return [
                 'text' => 'Standar',
                 'color' => 'yellow',
-                'emoji' => '✓'
+                'emoji' => '✓',
             ];
         } else {
             return [
                 'text' => 'Perlu Perbaikan',
                 'color' => 'red',
-                'emoji' => '⚠️'
+                'emoji' => '⚠️',
             ];
         }
     }
@@ -55,6 +56,7 @@ trait HasRatingStats
     public function getMitraAverageRatingAttribute()
     {
         $avg = \App\Models\Rating::forMitra($this->id)->avg('rating');
+
         return $avg ? round((float) $avg, 1) : 0;
     }
 

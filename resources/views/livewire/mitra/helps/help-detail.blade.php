@@ -84,7 +84,7 @@
     </div>
 
     <!-- Content -->
-    <div class="bg-gray-50 -mt-6 px-5 pt-6 pb-28 max-w-md mx-auto">
+    <div class="bg-gray-50 -mt-6 px-5 pt-6 pb-8 max-w-md mx-auto">
         {{-- GPS Tracker - Auto tracking untuk status aktif --}}
         @if (in_array($help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived']))
             {{-- <div class="mb-3">
@@ -367,8 +367,10 @@
         @if(in_array($help->status, ['komplain', 'disputed']))
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-3 mb-3">
                 <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 shrink-0 text-base">
-                        ⚠️ï¸
+                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
                     </div>
                     <div class="flex-1 text-xs space-y-1.5">
                         <div class="flex items-center justify-between">
@@ -487,15 +489,8 @@
                 <h3 class="font-semibold text-sm text-gray-900">Informasi Customer</h3>
             </div>
             <div class="flex items-center gap-3 mb-3">
-                @if ($help->user->profile_photo)
-                    <img src="{{ asset('storage/' . $help->user->profile_photo) }}" alt="{{ $help->user->name }}"
-                        class="w-12 h-12 rounded-full object-cover border-2 border-blue-100">
-                @else
-                    <div
-                        class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
-                        {{ strtoupper(substr($help->user->name ?? 'C', 0, 1)) }}
-                    </div>
-                @endif
+                <x-user-avatar :user="$help->user"
+                    class="w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-lg border-2 border-blue-100" />
                 <div class="flex-1">
                     <h4 class="font-semibold text-sm text-gray-900">{{ $help->user->name }}</h4>
                     <p class="text-sm text-gray-600 mt-0.5">{{ $help->city->name ?? '-' }}</p>
@@ -518,7 +513,7 @@
                         <span>WhatsApp</span>
                     </a>
                 @endif
-                <a href="{{ route('mitra.chat', ['help' => $help->id]) }}"
+                <a href="{{ route('mitra.chat', ['help' => $help->id]) }}" wire:navigate
                     class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition overflow-hidden shadow-2xs">
                     <div class="relative flex items-center justify-center">
                         <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1225,7 +1220,7 @@
                     </p>
                     <div class="mb-4 p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-center">
                         <p class="text-xs text-amber-800 font-medium">
-                            ⚠️ï¸ <strong>Perhatian:</strong> Pembatalan akan dicatat ke rekam jejak performa akun Anda dan dapat dikenakan sanksi jika terlalu sering.
+                            <strong>Perhatian:</strong> Pembatalan akan dicatat ke rekam jejak performa akun Anda dan dapat dikenakan sanksi jika terlalu sering.
                         </p>
                     </div>
 
@@ -1236,7 +1231,7 @@
                                   rows="4" 
                                   class="w-full p-3 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
                                   placeholder="Contoh: kendaraan rusak, ban bocor, kendala darurat..."></textarea>
-                        <p class="text-xs text-gray-500 mt-1">*Wajib/disarankan mengisi alasan yang jelas</p>
+                        <p class="text-xs text-gray-500 mt-1">Wajib/disarankan mengisi alasan yang jelas</p>
                     </div>
 
                     {{-- Buttons --}}
@@ -1392,7 +1387,7 @@
                         <label class="block text-xs font-bold text-emerald-900 mb-1 flex items-center justify-between">
                             <span class="flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-                                2. Foto Setelah Selesai (After) <span class="text-red-500">*</span>
+                                2. Foto Setelah Selesai (After)
                             </span>
                             <span class="text-[10px] text-emerald-700 font-semibold bg-emerald-100 px-2 py-0.5 rounded-full">Wajib</span>
                         </label>
@@ -1503,7 +1498,7 @@
                 <p class="text-xs text-gray-600 leading-relaxed mb-6">
                     Pesanan ini telah dialihkan oleh customer ke Rekan Jasa lain karena belum ada tanda pergerakan menuju lokasi dalam waktu 30 menit.
                 </p>
-                <a href="{{ route('mitra.dashboard') }}"
+                <a href="{{ route('mitra.dashboard') }}" wire:navigate
                    class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition">
                     Kembali ke Beranda
                 </a>

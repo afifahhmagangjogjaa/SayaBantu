@@ -646,13 +646,13 @@
                 <form wire:submit.prevent="saveBankModal" class="mt-4 space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="sm:col-span-1">
-                            <label class="block text-[11px] font-medium text-gray-600 mb-1 uppercase tracking-wider">Kode <span class="text-red-500">*</span></label>
+                            <label class="block text-[11px] font-medium text-gray-600 mb-1 uppercase tracking-wider">Kode</label>
                             <input type="text" wire:model="bank_code" placeholder="bca"
                                 class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-900 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition" />
                             @error('bank_code') <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p> @enderror
                         </div>
                         <div class="sm:col-span-2">
-                            <label class="block text-[11px] font-medium text-gray-600 mb-1 uppercase tracking-wider">Nama Bank <span class="text-red-500">*</span></label>
+                            <label class="block text-[11px] font-medium text-gray-600 mb-1 uppercase tracking-wider">Nama Bank</label>
                             <input type="text" wire:model="bank_name" placeholder="Bank Central Asia (BCA)"
                                 class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-900 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition" />
                             @error('bank_name') <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p> @enderror
@@ -660,14 +660,14 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-medium text-gray-600 mb-1 uppercase tracking-wider">No. Rekening <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-medium text-gray-600 mb-1 uppercase tracking-wider">No. Rekening</label>
                         <input type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '')" wire:model="bank_account_number" placeholder="1234567890"
                             class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-900 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition" />
                         @error('bank_account_number') <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-medium text-gray-600 mb-1 uppercase tracking-wider">Nama Pemilik Rekening (a.n.) <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-medium text-gray-600 mb-1 uppercase tracking-wider">Nama Pemilik Rekening (a.n.)</label>
                         <input type="text" wire:model="bank_account_name" placeholder="PT Saya Bantu Indonesia"
                             class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-900 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition" />
                         @error('bank_account_name') <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p> @enderror

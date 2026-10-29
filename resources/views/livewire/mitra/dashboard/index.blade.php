@@ -51,20 +51,17 @@
         }
     </style>
 
-    <!-- Top Profile Bar matching Gambar 1 (Mitra) -->
-    <div class="px-5 pt-4 pb-3 bg-white border-b border-gray-100 flex items-center justify-between">
+    <!-- Top Profile Bar (Blue Header matching Design) -->
+    <div class="px-5 pt-8 pb-20 bg-[#0066FF] text-white flex items-center justify-between shadow-xs relative">
         <div class="flex items-center gap-3">
-            @php
-                $__avatar = optional(auth()->user())->profile_photo ?? optional(auth()->user())->photo ?? optional(auth()->user())->profile_photo_path ?? null;
-            @endphp
-            <div class="w-11 h-11 rounded-full bg-blue-50 border-2 border-[#0066FF]/20 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-2xs">
-                <img src="{{ $__avatar ? asset('storage/' . $__avatar) : asset('images/avatar-placeholder.svg') }}" alt="Avatar" class="w-full h-full object-cover">
+            <div class="w-12 h-12 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-xs">
+                <x-user-avatar :user="auth()->user()" class="h-full w-full text-white font-bold text-sm" />
             </div>
             <div>
-                <h1 class="text-sm font-extrabold text-gray-900 leading-tight">{{ optional(auth()->user())->name ?? 'Budi Santoso' }}</h1>
-                <div class="mt-0.5">
-                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h1 class="text-base font-extrabold text-white leading-tight">{{ trim(preg_replace('/\s*\((?:Mitra|Customer)[^)]*\)|\s*(?:Mitra|Customer)\b/i', '', optional(auth()->user())->name ?? 'Budi Santoso')) }}</h1>
+                <div class="mt-1">
+                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-400/30">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                         Mitra Aktif
                     </span>
                 </div>
@@ -72,36 +69,37 @@
         </div>
 
         <div class="flex items-center gap-2">
-            @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition relative'])
+            @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
         </div>
+
+        <!-- Wave Separator (SVG) bergelombang di bagian bawah header -->
+        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
+            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f3f4f6"></path>
+        </svg>
     </div>
 
-    <!-- Saldo Mitra Card (Gambar 1) -->
-    <div class="px-5 pt-4">
-        <div class="bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-2xl p-4 text-white shadow-md relative overflow-hidden">
+    <!-- Saldo Mitra Card (Overlapping Header) -->
+    <div class="px-5 -mt-12 relative z-10">
+        <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-2xl p-5 text-white shadow-xl relative overflow-hidden border border-white/10 flex items-center justify-between">
             <!-- Decorative circle overlay -->
             <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full pointer-events-none"></div>
 
-            <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-1.5 text-blue-100 text-xs font-semibold">
+            <div class="min-w-0">
+                <div class="flex items-center gap-1.5 text-blue-100 text-xs font-semibold mb-1.5">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
                     <span>Saldo Mitra</span>
                 </div>
-
-                <a href="{{ route('mitra.withdraw.form') }}"
-                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-3.5 py-1.5 rounded-xl transition shadow-xs">
-                    Tarik Saldo
-                </a>
-            </div>
-
-            <div class="flex items-baseline justify-between mt-1">
                 <h2 class="text-2xl font-black tracking-tight text-white">
                     Rp {{ number_format($balance ?? 0, 0, ',', '.') }}
                 </h2>
-                <a href="{{ route('mitra.withdraw.history') }}" class="text-[11px] text-blue-100 hover:text-white underline font-medium">
-                    Riwayat Transaksi →
+            </div>
+
+            <div class="flex-shrink-0 ml-4">
+                <a href="{{ route('mitra.withdraw.form') }}" wire:navigate
+                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-4 py-3 rounded-xl transition shadow-md block whitespace-nowrap">
+                    Penarikan Saldo
                 </a>
             </div>
         </div>
@@ -111,22 +109,24 @@
     <div class="px-5 pt-3">
         <div class="grid grid-cols-2 min-[380px]:grid-cols-4 gap-2">
             <!-- 1. Order Selesai -->
-            <div class="bg-white border border-gray-200/90 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs">
+            <a href="{{ route('mitra.helps.all', ['tab' => 'selesai']) }}" wire:navigate
+               class="bg-white border border-gray-200/90 hover:border-blue-400 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs hover:shadow-xs transition cursor-pointer">
                 <div class="w-7 h-7 rounded-xl bg-blue-50 text-[#0066FF] flex items-center justify-center mb-1 text-xs">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
                 <span class="text-sm font-black text-gray-900 leading-none">{{ $completedCount ?? 0 }}</span>
                 <span class="text-[10px] text-gray-500 font-semibold mt-1 leading-tight">Order Selesai</span>
-            </div>
+            </a>
 
             <!-- 2. Order Aktif -->
-            <div class="bg-white border border-gray-200/90 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs">
+            <a href="{{ route('mitra.helps.all', ['tab' => 'proses']) }}" wire:navigate
+               class="bg-white border border-gray-200/90 hover:border-amber-400 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs hover:shadow-xs transition cursor-pointer">
                 <div class="w-7 h-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-1 text-xs">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
                 <span class="text-sm font-black text-gray-900 leading-none">{{ $inProgressCount ?? 0 }}</span>
                 <span class="text-[10px] text-gray-500 font-semibold mt-1 leading-tight">Order Aktif</span>
-            </div>
+            </a>
 
             <!-- 3. Rating -->
             <div class="bg-white border border-gray-200/90 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs">
@@ -159,7 +159,7 @@
 
         <!-- GPS Tracker Component - Tampil untuk bantuan aktif -->
 
-        @foreach($helps as $help)
+        @foreach($activeHelps ?? [] as $help)
             @if(in_array($help->status, ['taken', 'partner_on_the_way', 'partner_arrived']) && $help->mitra_id === auth()->id())
                 <div class="mb-3">
                     <livewire:mitra.gps-tracker :helpId="$help->id" :key="'gps-'.$help->id" />
@@ -216,7 +216,7 @@
                         <p class="text-[11px] text-gray-600 truncate mt-0.5">Lengkapi profil Anda untuk mengambil order bantuan</p>
                     </div>
                 </div>
-                <a href="{{ route('mitra.profile.edit') }}" 
+                <a href="{{ route('mitra.profile.edit') }}" wire:navigate 
                    class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 cursor-pointer shadow-xs"
                    style="background: linear-gradient(to right, #0066FF, #0052cc); box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);">
                     Lengkapi
@@ -247,7 +247,7 @@
                         </p>
                     </div>
                 </div>
-                <a href="{{ route('profile.settings.verification') }}" 
+                <a href="{{ route('profile.settings.verification') }}" wire:navigate 
                    class="flex-shrink-0 font-bold px-3.5 py-1.5 rounded-xl transition text-[11px] hover:opacity-95 active:scale-95 cursor-pointer shadow-xs {{ $hasKtpUploaded ? 'text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100' : 'text-white' }}"
                    @if(!$hasKtpUploaded) style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%); box-shadow: 0 2px 6px rgba(0, 102, 255, 0.35);" @endif>
                     {{ $hasKtpUploaded ? 'Cek Status' : 'Upload' }}
@@ -267,9 +267,9 @@
                     <div class="min-w-0">
                         <div class="font-bold text-gray-900 text-xs flex items-center gap-1.5 flex-wrap">
                             <span>Verifikasi Email</span>
-                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">Maks. 2 Order & Belum Bisa Tarik Saldo</span>
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">Maks. 2 Order & Belum Bisa Penarikan Saldo</span>
                         </div>
-                        <p class="text-[11px] text-gray-600 truncate mt-0.5">Verifikasi untuk ambil order tanpa batas & tarik saldo</p>
+                        <p class="text-[11px] text-gray-600 truncate mt-0.5">Verifikasi untuk ambil order tanpa batas & penarikan saldo</p>
                     </div>
                 </div>
                 <form method="POST" action="{{ route('verification.send') }}" class="flex-shrink-0" onsubmit="event.preventDefault(); window.sendEmailVerification(this.querySelector('button'), '{{ route('verification.send') }}');">
@@ -282,81 +282,78 @@
             </div>
         @endif
 
-        <!-- Banner Section -->
-        @php
-            $mitraBanners = json_decode((string) \App\Models\AppSetting::get('banner_mitra', '[]'), true) ?: [];
-        @endphp
-
-        @if(!empty($mitraBanners) && count($mitraBanners))
+        {{-- Section: Pesanan yang Sedang Anda Kerjakan (Active Orders) --}}
+        @if(isset($activeHelps) && $activeHelps->count() > 0)
             <div class="mb-5">
-                <div x-data="bannerSlider({{ count($mitraBanners) }})"
-                    @touchstart="touchStart($event)"
-                    @touchmove="touchMove($event)"
-                    @touchend="touchEnd($event)"
-                    @mousedown="mouseDown($event)"
-                    @mousemove="mouseMove($event)"
-                    @mouseup="mouseUp($event)"
-                    @mouseleave="mouseLeave($event)"
-                    @mouseenter="stopAutoPlay()"
-                    class="relative rounded-2xl overflow-hidden shadow-md select-none group touch-pan-y {{ count($mitraBanners) > 1 ? 'cursor-grab active:cursor-grabbing' : '' }} bg-gray-100">
-
-                    <!-- Slides Track -->
-                    <div class="relative h-36 sm:h-40 overflow-hidden">
-                        <div class="flex h-full will-change-transform"
-                            :style="'transform: translateX(calc(-' + (current * 100) + '% + ' + dragOffset + 'px)); transition: ' + (isDragging ? 'none' : 'transform 500ms cubic-bezier(0.25, 1, 0.5, 1)')">
-                            @foreach($mitraBanners as $b)
-                                <div class="flex-shrink-0 w-full h-full select-none">
-                                    <img src="{{ asset('storage/' . $b) }}"
-                                        alt="Banner Mitra"
-                                        draggable="false"
-                                        class="w-full h-full object-cover pointer-events-none select-none" />
-                                </div>
-                            @endforeach
-                        </div>
+                <div class="flex items-center justify-between mb-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <h2 class="text-sm font-black text-gray-900">Pesanan Sedang Berjalan ({{ $activeHelps->count() }})</h2>
                     </div>
+                    <a href="{{ route('mitra.helps.all', ['tab' => 'proses']) }}" wire:navigate class="text-xs font-bold text-[#0066FF] hover:underline">
+                        Semua Order Aktif &gt;
+                    </a>
+                </div>
 
-                    @if(count($mitraBanners) > 1)
-                        <!-- Tombol Panah Kiri (Prev) -->
-                        <button type="button"
-                            @click.stop="prev()"
-                            @mousedown.stop
-                            @touchstart.stop
-                            class="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-90 text-white flex items-center justify-center shadow-lg backdrop-blur-sm transition-all duration-200 cursor-pointer select-none"
-                            title="Banner Sebelumnya"
-                            aria-label="Banner Sebelumnya">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5 -translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
+                <div class="space-y-3">
+                    @foreach($activeHelps as $activeHelp)
+                        @php
+                            $catName = $activeHelp->category ? $activeHelp->category->name : 'Jasa Serabutan';
+                            $statusLabel = match($activeHelp->status) {
+                                'memperoleh_mitra' => 'Mitra Ditemukan',
+                                'partner_on_the_way' => 'Menuju Lokasi',
+                                'partner_arrived' => 'Tiba di Lokasi',
+                                'in_progress', 'sedang_diproses' => 'Sedang Dikerjakan',
+                                'waiting_customer_confirmation' => 'Menunggu Konfirmasi',
+                                default => 'Sedang Berjalan'
+                            };
+                            $badgeColor = match($activeHelp->status) {
+                                'memperoleh_mitra' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                'partner_on_the_way' => 'bg-cyan-100 text-cyan-800 border-cyan-200',
+                                'partner_arrived' => 'bg-amber-100 text-amber-800 border-amber-200',
+                                'in_progress', 'sedang_diproses' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                                default => 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                            };
+                        @endphp
+                        <div class="bg-white border-2 border-[#0066FF]/40 rounded-2xl p-4 shadow-sm relative overflow-hidden">
+                            <div class="flex items-start justify-between gap-3 mb-2.5">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#0066FF] flex items-center justify-center text-lg flex-shrink-0">
+                                        {{ $activeHelp->category?->icon ?? '🛠️' }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h3 class="font-black text-xs text-gray-900 truncate">{{ $activeHelp->title }}</h3>
+                                        <p class="text-[11px] text-gray-500 truncate mt-0.5">Pemesan: <span class="font-bold text-gray-700">{{ $activeHelp->user?->name ?? 'Pelanggan' }}</span></p>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border {{ $badgeColor }} flex-shrink-0">
+                                    {{ $statusLabel }}
+                                </span>
+                            </div>
 
-                        <!-- Tombol Panah Kanan (Next) -->
-                        <button type="button"
-                            @click.stop="next()"
-                            @mousedown.stop
-                            @touchstart.stop
-                            class="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-black/70 active:scale-90 text-white flex items-center justify-center shadow-lg backdrop-blur-sm transition-all duration-200 cursor-pointer select-none"
-                            title="Banner Selanjutnya"
-                            aria-label="Banner Selanjutnya">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5 translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
+                            <div class="bg-gray-50 rounded-xl p-2.5 mb-3 text-[11px] text-gray-600 flex items-center justify-between">
+                                <div class="flex items-center gap-1.5 truncate">
+                                    <span>📍</span>
+                                    <span class="truncate">{{ $activeHelp->location ?? $activeHelp->full_address ?? 'Lokasi customer' }}</span>
+                                </div>
+                                <span class="font-extrabold text-gray-900 flex-shrink-0 ml-2">Rp {{ number_format($activeHelp->amount, 0, ',', '.') }}</span>
+                            </div>
 
-                        <!-- Indikator Dots -->
-                        <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20 select-none">
-                            @foreach($mitraBanners as $i => $b)
-                                <button type="button"
-                                    @click.stop="goTo({{ $i }})"
-                                    @mousedown.stop
-                                    @touchstart.stop
-                                    :class="current === {{ $i }} ? 'w-5 bg-white shadow-md' : 'w-2 bg-white/60 hover:bg-white/90'"
-                                    class="h-2 rounded-full transition-all duration-300 cursor-pointer"
-                                    title="Slide {{ $i + 1 }}"
-                                    aria-label="Slide {{ $i + 1 }}">
-                                </button>
-                            @endforeach
+                            <div class="grid grid-cols-2 gap-2">
+                                <a href="{{ route('mitra.chat', ['help' => $activeHelp->id]) }}" wire:navigate
+                                   class="flex items-center justify-center gap-1.5 py-2 px-3 bg-blue-50 hover:bg-blue-100 text-[#0066FF] font-bold text-xs rounded-xl transition border border-blue-200 active:scale-95 text-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                    <span>Chat Pelanggan</span>
+                                </a>
+
+                                <a href="{{ route('mitra.helps.detail', ['id' => $activeHelp->id]) }}" wire:navigate
+                                   class="flex items-center justify-center gap-1.5 py-2 px-3 bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold text-xs rounded-xl transition shadow-xs active:scale-95 text-center">
+                                    <span>Buka Detail & Peta</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </a>
+                            </div>
                         </div>
-                    @endif
+                    @endforeach
                 </div>
             </div>
         @endif
@@ -411,6 +408,8 @@
                         <div class="flex-shrink-0" onclick="event.stopPropagation()">
                             @if($isCancelledByMe)
                                 <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">Dibatalkan</span>
+                            @elseif(auth()->check() && auth()->user()->hasActiveOngoingOrder())
+                                <span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">Sedang Bertugas</span>
                             @else
                                 <button type="button"
                                     onclick="event.stopPropagation()"
@@ -693,12 +692,16 @@
                         Tidak Dapat Diambil
                     </button>
                     @if(auth()->check() && !auth()->user()->isProfileComplete())
-                        <a href="{{ route('mitra.profile.edit') }}" class="flex-1 bg-red-600 text-white py-2.5 px-4 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
+                        <a href="{{ route('mitra.profile.edit') }}" wire:navigate class="flex-1 bg-red-600 text-white py-2.5 px-4 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
                             Lengkapi Biodata
                         </a>
                     @elseif(auth()->check() && !auth()->user()->verified)
                         <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
                             Menunggu Verifikasi KTP
+                        </button>
+                    @elseif(auth()->check() && auth()->user()->hasActiveOngoingOrder())
+                        <button type="button" disabled class="flex-1 bg-amber-50 text-amber-800 border border-amber-200 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
+                            Selesaikan Order Aktif Dahulu
                         </button>
                     @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
                         <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">

@@ -3,29 +3,41 @@
 namespace App\Livewire\Customer\Helps;
 
 use App\Models\Help;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\Log;
 
 class Detail extends Component
 {
     use WithFileUploads;
 
     public $help;
+
     public $helpId;
+
     public $showCancelConfirm = false;
+
     public $showReassignConfirm = false;
+
     public $selectedCancelReason = '';
+
     public $customCancelReason = '';
+
     public $showMapModal = false;
+
     public $showRatingForm = false;
+
     public $rating = 0;
+
     public $review = '';
+
     public $is_anonymous = false;
 
     // Complaint / Dispute modal state
     public $showComplaintModal = false;
+
     public $complaint_reason = '';
+
     public $complaint_photo;
 
     protected $listeners = [
@@ -51,7 +63,7 @@ class Detail extends Component
             'mitra',
             'city',
             'category',
-            'ratings'
+            'ratings',
         ])->findOrFail($this->helpId);
 
         // Check authorization
@@ -61,11 +73,11 @@ class Detail extends Component
 
         // Tandai peringatan rekan jasa belum berangkat sebagai sudah dilihat sehingga tidak muncul lagi di halaman mana pun
         if ($this->help && $this->help->mitra_id) {
-            session()->put('idle_alert_ack_' . $this->help->id . '_' . $this->help->mitra_id, true);
+            session()->put('idle_alert_ack_'.$this->help->id.'_'.$this->help->mitra_id, true);
         }
 
         // Auto-cancel if urgent help is expired
-        if ($this->help->help_type === 'urgent' && $this->help->status === 'menunggu_mitra' && !$this->help->mitra_id && $this->help->auto_cancel_at && now()->gte($this->help->auto_cancel_at)) {
+        if ($this->help->help_type === 'urgent' && $this->help->status === 'menunggu_mitra' && ! $this->help->mitra_id && $this->help->auto_cancel_at && now()->gte($this->help->auto_cancel_at)) {
             $this->help->update([
                 'status' => 'dibatalkan',
                 'cancelled_by' => 'system',
@@ -83,10 +95,10 @@ class Detail extends Component
 
         // Dispatch event untuk update tracking data
         if ($this->showMapModal && in_array($this->help->status, ['taken', 'partner_on_the_way', 'partner_arrived'])) {
-            $customerLat = !empty($this->help->latitude) ? (float)$this->help->latitude : -6.2088;
-            $customerLng = !empty($this->help->longitude) ? (float)$this->help->longitude : 106.8456;
-            $partnerLat = !empty($this->help->partner_current_lat) ? (float)$this->help->partner_current_lat : (!empty($this->help->mitra?->latitude) ? (float)$this->help->mitra->latitude : $customerLat);
-            $partnerLng = !empty($this->help->partner_current_lng) ? (float)$this->help->partner_current_lng : (!empty($this->help->mitra?->longitude) ? (float)$this->help->mitra->longitude : $customerLng);
+            $customerLat = ! empty($this->help->latitude) ? (float) $this->help->latitude : -6.2088;
+            $customerLng = ! empty($this->help->longitude) ? (float) $this->help->longitude : 106.8456;
+            $partnerLat = ! empty($this->help->partner_current_lat) ? (float) $this->help->partner_current_lat : (! empty($this->help->mitra?->latitude) ? (float) $this->help->mitra->latitude : $customerLat);
+            $partnerLng = ! empty($this->help->partner_current_lng) ? (float) $this->help->partner_current_lng : (! empty($this->help->mitra?->longitude) ? (float) $this->help->mitra->longitude : $customerLng);
 
             $this->dispatch('tracking-data-updated', [
                 'partnerLat' => $partnerLat,
@@ -104,7 +116,7 @@ class Detail extends Component
             'partner_current_lng' => $this->help->partner_current_lng,
             'partner_on_the_way' => $this->help->status === 'partner_on_the_way',
             'partner_started_moving_at' => $this->help->partner_started_moving_at,
-            'partner_arrived_at' => $this->help->partner_arrived_at
+            'partner_arrived_at' => $this->help->partner_arrived_at,
         ]);
     }
 
@@ -125,6 +137,7 @@ class Detail extends Component
     {
         if ($this->help->status !== 'partner_cancel_requested') {
             session()->flash('error', 'Tidak ada permintaan pembatalan dari mitra.');
+
             return;
         }
 
@@ -158,6 +171,7 @@ class Detail extends Component
     {
         if ($this->help->status !== 'partner_cancel_requested') {
             session()->flash('error', 'Tidak ada permintaan pembatalan dari mitra.');
+
             return;
         }
 
@@ -207,15 +221,17 @@ class Detail extends Component
     {
         try {
             // Proteksi pembatalan (wajib memenuhi syarat canCustomerCancel)
-            if (!$this->canCustomerCancel) {
+            if (! $this->canCustomerCancel) {
                 session()->flash('error', 'Pesanan sedang ditangani oleh Rekan Jasa dan belum dapat dibatalkan.');
                 $this->showCancelConfirm = false;
+
                 return;
             }
 
             // Validasi alasan pembatalan
             if (empty($this->selectedCancelReason)) {
                 $this->addError('selectedCancelReason', 'Silakan pilih salah satu alasan pembatalan.');
+
                 return;
             }
 
@@ -224,6 +240,7 @@ class Detail extends Component
                 $customText = trim($this->customCancelReason);
                 if (empty($customText)) {
                     $this->addError('customCancelReason', 'Silakan tuliskan alasan pembatalan Anda.');
+
                     return;
                 }
                 $finalReason = $customText;
@@ -231,17 +248,18 @@ class Detail extends Component
 
             // Allow cancel if status is before completion/in-progress
             $cancellableStatuses = [
-                'menunggu_pembayaran', 
-                'menunggu_mitra', 
-                'mencari_mitra', 
-                'memperoleh_mitra', 
-                'taken', 
-                'partner_on_the_way', 
-                'partner_arrived'
+                'menunggu_pembayaran',
+                'menunggu_mitra',
+                'mencari_mitra',
+                'memperoleh_mitra',
+                'taken',
+                'partner_on_the_way',
+                'partner_arrived',
             ];
 
-            if (!in_array($this->help->status, $cancellableStatuses)) {
+            if (! in_array($this->help->status, $cancellableStatuses)) {
                 session()->flash('error', 'Bantuan tidak dapat dibatalkan pada status ini.');
+
                 return;
             }
 
@@ -266,11 +284,11 @@ class Detail extends Component
 
             session()->flash('success', 'Permintaan bantuan berhasil dibatalkan. Saldo pembayaran telah dikembalikan ke dompet Anda.');
             $this->showCancelConfirm = false;
-            
+
             // Redirect to helps index
             return redirect()->route('customer.helps.index');
         } catch (\Exception $e) {
-            Log::error('Error cancelling help: ' . $e->getMessage());
+            Log::error('Error cancelling help: '.$e->getMessage());
             session()->flash('error', 'Terjadi kesalahan saat membatalkan bantuan.');
         }
     }
@@ -297,15 +315,17 @@ class Detail extends Component
     public function reassignPartner()
     {
         try {
-            if (!$this->canCustomerCancel) {
+            if (! $this->canCustomerCancel) {
                 session()->flash('error', 'Pesanan sedang ditangani dan belum dapat dialihkan.');
                 $this->showReassignConfirm = false;
+
                 return;
             }
 
-            if (!$this->help->mitra_id) {
+            if (! $this->help->mitra_id) {
                 session()->flash('error', 'Pesanan belum memiliki rekan jasa.');
                 $this->showReassignConfirm = false;
+
                 return;
             }
 
@@ -323,7 +343,7 @@ class Detail extends Component
                 session()->flash('error', 'Gagal mengalihkan rekan jasa.');
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error reassigning partner: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error reassigning partner: '.$e->getMessage());
             session()->flash('error', 'Terjadi kesalahan saat mengalihkan rekan jasa.');
         }
     }
@@ -333,20 +353,20 @@ class Detail extends Component
     {
         // 1. Jika pesanan sudah selesai, dibatalkan, sedang aktif dikerjakan, atau rekan jasa sudah tiba di lokasi: TIDAK BISA dibatalkan
         if (in_array($this->help->status, [
-            'selesai', 
-            'completed', 
-            'dibatalkan', 
-            'cancelled', 
-            'in_progress', 
-            'sedang_diproses', 
-            'partner_arrived', 
-            'waiting_customer_confirmation'
-        ]) || !empty($this->help->partner_arrived_at)) {
+            'selesai',
+            'completed',
+            'dibatalkan',
+            'cancelled',
+            'in_progress',
+            'sedang_diproses',
+            'partner_arrived',
+            'waiting_customer_confirmation',
+        ]) || ! empty($this->help->partner_arrived_at)) {
             return false;
         }
 
         // 2. Jika belum ada mitra / status masih mencari / menunggu mitra / menunggu pembayaran: BISA dibatalkan kapan saja
-        if (!$this->help->mitra_id && in_array($this->help->status, ['menunggu_mitra', 'mencari_mitra', 'menunggu_pembayaran'])) {
+        if (! $this->help->mitra_id && in_array($this->help->status, ['menunggu_mitra', 'mencari_mitra', 'menunggu_pembayaran'])) {
             return true;
         }
 
@@ -366,7 +386,7 @@ class Detail extends Component
         }
 
         // Jika mitra sudah tiba di lokasi
-        if (in_array($this->help->status, ['partner_arrived']) || !empty($this->help->partner_arrived_at)) {
+        if (in_array($this->help->status, ['partner_arrived']) || ! empty($this->help->partner_arrived_at)) {
             return 'Rekan Jasa sudah tiba di lokasi Anda. Pesanan tidak dapat dialihkan atau dibatalkan.';
         }
 
@@ -387,13 +407,14 @@ class Detail extends Component
 
                 // Jika belum masuk jam persiapan/keberangkatan (H-1 jam sebelum jadwal)
                 if (now()->lt($journeyAvailableAt)) {
-                    return "Pesanan dijadwalkan pada " . $scheduledAt->format('d M Y, H:i') . ". Rekan Jasa akan mulai bersiap dan berangkat menjelang waktu jadwal (mulai pukul " . $journeyAvailableAt->format('H:i') . ").";
+                    return 'Pesanan dijadwalkan pada '.$scheduledAt->format('d M Y, H:i').'. Rekan Jasa akan mulai bersiap dan berangkat menjelang waktu jadwal (mulai pukul '.$journeyAvailableAt->format('H:i').').';
                 }
 
                 // Jika tombol sudah nyala, hitung sisa menit dari toleransi 30 menit
                 $effectiveStartTime = $this->help->getExpectedJourneyStartTime() ?? $journeyAvailableAt;
                 $diffMinutes = (int) $effectiveStartTime->diffInMinutes(now());
                 $remaining = max(1, 30 - $diffMinutes);
+
                 return "Tombol pengalihan/pembatalan akan muncul jika Rekan Jasa belum berangkat setelah 30 menit (tersisa {$remaining} menit lagi).";
             }
 
@@ -407,26 +428,27 @@ class Detail extends Component
 
         return 'Pesanan sedang ditangani oleh Rekan Jasa.';
     }
-    
+
     public function showTrackingMap()
     {
         // Reload help data to get latest coordinates
         $this->loadHelp();
 
         // Check if partner is on the way or at nearby statuses
-        if (!in_array($this->help->status, ['taken', 'partner_on_the_way', 'partner_arrived']) || ($this->help->status === 'taken' && !$this->help->canPartnerStartJourney())) {
+        if (! in_array($this->help->status, ['taken', 'partner_on_the_way', 'partner_arrived']) || ($this->help->status === 'taken' && ! $this->help->canPartnerStartJourney())) {
             session()->flash('error', 'Tracking tersedia saat mitra mulai menuju lokasi (mulai 1 jam sebelum jadwal pelaksanaan).');
+
             return;
         }
 
         // Fallback coordinates if customer latitude/longitude is missing
-        if (!$this->help->latitude || !$this->help->longitude) {
+        if (! $this->help->latitude || ! $this->help->longitude) {
             $this->help->latitude = $this->help->latitude ?: -6.2088;
             $this->help->longitude = $this->help->longitude ?: 106.8456;
         }
 
         $this->showMapModal = true;
-        
+
         // Dispatch event to frontend to initialize map
         $this->dispatch('mapModalOpened');
     }
@@ -451,12 +473,14 @@ class Detail extends Component
         // Check if this user already rated this help (prevent duplicate from same user)
         if (\App\Models\Rating::hasRated($this->help->id, auth()->id(), 'customer_to_mitra')) {
             session()->flash('error', 'Anda sudah memberikan rating untuk pesanan ini.');
+
             return;
         }
 
         // Check if order is completed
-        if (!in_array($this->help->status, ['selesai', 'completed'])) {
+        if (! in_array($this->help->status, ['selesai', 'completed'])) {
             session()->flash('error', 'Rating hanya bisa diberikan untuk pesanan yang sudah selesai.');
+
             return;
         }
 
@@ -510,6 +534,7 @@ class Detail extends Component
     {
         if ($this->help->status !== 'waiting_customer_confirmation') {
             session()->flash('error', 'Komplain hanya dapat diajukan saat pesanan menunggu konfirmasi penyelesaian.');
+
             return;
         }
 
@@ -543,7 +568,8 @@ class Detail extends Component
             if ($mitra) {
                 try {
                     $mitra->notify(new \App\Notifications\HelpStatusNotification($this->help, 'waiting_customer_confirmation', 'komplain', $mitra));
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
             }
         }
 
@@ -562,10 +588,11 @@ class Detail extends Component
             foreach ($allAdminsToNotify as $adminUser) {
                 try {
                     $adminUser->notify(new \App\Notifications\HelpStatusNotification($this->help, 'waiting_customer_confirmation', 'komplain', $this->help->mitra));
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
             }
         } catch (\Exception $e) {
-            Log::warning('Failed sending complaint notification to admins: ' . $e->getMessage());
+            Log::warning('Failed sending complaint notification to admins: '.$e->getMessage());
         }
 
         session()->flash('message', 'Komplain berhasil diajukan! Pesanan Anda sedang ditinjau oleh Admin.');
@@ -577,6 +604,7 @@ class Detail extends Component
         // Only allow confirmation if status is waiting_customer_confirmation
         if ($this->help->status !== 'waiting_customer_confirmation') {
             session()->flash('error', 'Status pesanan tidak valid untuk konfirmasi.');
+
             return;
         }
 
@@ -593,17 +621,17 @@ class Detail extends Component
                 $already = \App\Models\BalanceTransaction::where('user_id', $this->help->mitra_id)
                     ->where(function ($q) {
                         $q->where('reference_id', $this->help->id)
-                          ->orWhere(function ($sq) {
-                              if (!empty($this->help->order_id)) {
-                                  $sq->where('order_id', $this->help->order_id);
-                              }
-                          })
-                          ->orWhere('description', 'like', 'Pendapatan Bantuan #' . $this->help->id . '%')
-                          ->orWhere('description', 'like', 'Auto-confirm Bantuan #' . $this->help->id . '%');
+                            ->orWhere(function ($sq) {
+                                if (! empty($this->help->order_id)) {
+                                    $sq->where('order_id', $this->help->order_id);
+                                }
+                            })
+                            ->orWhere('description', 'like', 'Pendapatan Bantuan #'.$this->help->id.'%')
+                            ->orWhere('description', 'like', 'Auto-confirm Bantuan #'.$this->help->id.'%');
                     })
                     ->exists();
 
-                if (!$already) {
+                if (! $already) {
                     $payoutAmount = $this->help->getMitraPayoutAmount();
 
                     if ($payoutAmount > 0) {
@@ -613,10 +641,10 @@ class Detail extends Component
                         );
 
                         $feeText = ($this->help->mitra_fee_amount > 0)
-                            ? " (Potongan Platform {$this->help->mitra_fee_percent}%: Rp " . number_format($this->help->mitra_fee_amount, 0, ',', '.') . ")"
-                            : "";
+                            ? " (Potongan Platform {$this->help->mitra_fee_percent}%: Rp ".number_format($this->help->mitra_fee_amount, 0, ',', '.').')'
+                            : '';
 
-                        $mitraBalance->addBalance($payoutAmount, "Pendapatan Bantuan #{$this->help->id}" . $feeText, $this->help->id);
+                        $mitraBalance->addBalance($payoutAmount, "Pendapatan Bantuan #{$this->help->id}".$feeText, $this->help->id);
                     }
                 }
 
@@ -626,7 +654,7 @@ class Detail extends Component
                     try {
                         $mitra->notify(new \App\Notifications\HelpStatusNotification($this->help, 'waiting_customer_confirmation', 'selesai', $mitra));
                     } catch (\Exception $e) {
-                        Log::warning('Gagal kirim notifikasi selesai ke mitra: ' . $e->getMessage());
+                        Log::warning('Gagal kirim notifikasi selesai ke mitra: '.$e->getMessage());
                     }
                 }
             }
@@ -642,17 +670,17 @@ class Detail extends Component
         // Reload help data saat status berubah dari GPS tracking
         if (isset($data['helpId']) && $data['helpId'] == $this->helpId) {
             $this->loadHelp();
-            
+
             // Dispatch notification ke frontend
             $this->dispatch('show-status-notification', [
-                'message' => $this->getStatusNotificationMessage($data['newStatus'])
+                'message' => $this->getStatusNotificationMessage($data['newStatus']),
             ]);
         }
     }
 
     private function getStatusNotificationMessage($status)
     {
-        return match($status) {
+        return match ($status) {
             'partner_on_the_way' => '🚗 Rekan jasa sedang menuju lokasi Anda',
             'partner_arrived' => '📍 Rekan jasa telah tiba di lokasi',
             'in_progress' => '⚙️ Pekerjaan sedang dikerjakan',
@@ -665,7 +693,7 @@ class Detail extends Component
 
     public function getStatusColorProperty()
     {
-        return match($this->help->status) {
+        return match ($this->help->status) {
             'menunggu_pembayaran' => 'bg-yellow-100 text-yellow-700',
             'mencari_mitra', 'menunggu_mitra' => 'bg-blue-100 text-blue-700',
             'taken' => 'bg-blue-100 text-blue-700',
@@ -682,7 +710,7 @@ class Detail extends Component
 
     public function getStatusTextProperty()
     {
-        return match($this->help->status) {
+        return match ($this->help->status) {
             'menunggu_pembayaran' => 'Menunggu Pembayaran',
             'mencari_mitra' => 'Mencari Rekan Jasa terdekat',
             'menunggu_mitra', 'memperoleh_mitra' => 'Menunggu Rekan Jasa berangkat',

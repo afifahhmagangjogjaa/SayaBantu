@@ -123,4 +123,37 @@ class PartnerReportTest extends TestCase
         $this->assertSame('in_progress', $report->status);
         $this->assertNull($report->resolved_at);
     }
+
+    public function test_halaman_detail_laporan_customer_dan_mitra_memakai_partial_bersama(): void
+    {
+        $customer = $this->user('customer');
+        $mitra = $this->user('mitra');
+        $help = $this->makeHelp($customer, $mitra);
+
+        $report = PartnerReport::create([
+            'user_id' => $customer->id,
+            'reporter_id' => $customer->id,
+            'reported_user_id' => $mitra->id,
+            'reported_help_id' => $help->id,
+            'title' => 'Mitra tidak sesuai kesepakatan',
+            'message' => 'Pesan laporan untuk pengujian halaman detail.',
+            'status' => 'pending',
+            'report_type' => 'pelayanan_tidak_sesuai',
+            'category' => 'dari_customer',
+        ]);
+
+        $this->actingAs($customer)
+            ->get(route('customer.reports.show', $report->id))
+            ->assertOk()
+            ->assertSee('Mitra yang Dilaporkan')
+            ->assertSee(route('customer.chat', ['help' => $help->id]))
+            ->assertSee(route('customer.reports.status-check', $report->id));
+
+        $this->actingAs($mitra)
+            ->get(route('mitra.reports.show', $report->id))
+            ->assertOk()
+            ->assertSee('Customer yang Dilaporkan')
+            ->assertSee(route('mitra.chat', ['help' => $help->id]))
+            ->assertSee(route('mitra.reports.status-check', $report->id));
+    }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Notifications;
 
+use App\Models\WithdrawRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use App\Models\WithdrawRequest;
 
 class WithdrawStatusNotification extends Notification
 {
@@ -20,9 +20,10 @@ class WithdrawStatusNotification extends Notification
     public function via(object $notifiable): array
     {
         $settings = $notifiable->notification_settings ?? [];
-        if (isset($settings['transactionUpdate']) && !$settings['transactionUpdate']) {
+        if (isset($settings['transactionUpdate']) && ! $settings['transactionUpdate']) {
             return [];
         }
+
         return ['database'];
     }
 

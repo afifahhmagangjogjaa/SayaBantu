@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('cities', function (Blueprint $table) {
-            if (!Schema::hasColumn('cities', 'province_id')) {
+            if (! Schema::hasColumn('cities', 'province_id')) {
                 $table->unsignedBigInteger('province_id')->nullable()->after('province')->index();
                 $table->foreign('province_id')->references('id')->on('provinces')->onDelete('set null');
             }

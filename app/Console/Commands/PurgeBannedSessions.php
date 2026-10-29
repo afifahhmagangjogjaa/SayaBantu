@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\User;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -37,14 +37,15 @@ class PurgeBannedSessions extends Command
         // Cari seluruh user yang dibanned / diblokir / dinonaktifkan
         $bannedUserIds = User::where(function ($q) {
             $q->whereIn('status', ['blocked', 'inactive'])
-              ->orWhere('is_banned', true);
+                ->orWhere('is_banned', true);
         })->pluck('id')->toArray();
 
         $countUsers = count($bannedUserIds);
         $this->info("Ditemukan {$countUsers} pengguna dengan status diblokir/banned/nonaktif.");
 
         if ($countUsers === 0) {
-            $this->info("Tidak ada pengguna yang diblokir saat ini.");
+            $this->info('Tidak ada pengguna yang diblokir saat ini.');
+
             return 0;
         }
 
@@ -69,7 +70,7 @@ class PurgeBannedSessions extends Command
         $deletedFileSessions = 0;
         $sessionPath = storage_path('framework/sessions');
         if (is_dir($sessionPath)) {
-            $files = @glob($sessionPath . '/*');
+            $files = @glob($sessionPath.'/*');
             if (is_array($files)) {
                 foreach ($files as $file) {
                     if (is_file($file) && basename($file) !== '.gitignore') {
@@ -77,7 +78,7 @@ class PurgeBannedSessions extends Command
                         if ($content !== false) {
                             foreach ($bannedUserIds as $uid) {
                                 if (strpos($content, (string) $uid) !== false) {
-                                    if (preg_match('/login_[a-z0-9_]+[^\d]+' . $uid . '([^\d]|$)/', $content)) {
+                                    if (preg_match('/login_[a-z0-9_]+[^\d]+'.$uid.'([^\d]|$)/', $content)) {
                                         @unlink($file);
                                         $deletedFileSessions++;
                                         break;
@@ -92,8 +93,8 @@ class PurgeBannedSessions extends Command
         }
 
         $this->newLine();
-        $this->line("<bg=green;fg=black;options=bold> SUKSES: Seluruh sesi pengguna yang dibanned telah dimusnahkan total! </>");
-        $this->line("Pengguna yang diblokir tidak akan bisa masuk kembali meskipun mengandalkan cookie/riwayat login di browser.");
+        $this->line('<bg=green;fg=black;options=bold> SUKSES: Seluruh sesi pengguna yang dibanned telah dimusnahkan total! </>');
+        $this->line('Pengguna yang diblokir tidak akan bisa masuk kembali meskipun mengandalkan cookie/riwayat login di browser.');
         $this->newLine();
 
         return 0;

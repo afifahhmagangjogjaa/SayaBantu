@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white">
+<div class="min-h-full bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style Standar Bawaan -->
         <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
@@ -7,7 +7,7 @@
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
-                    <a href="{{ route('mitra.dashboard') }}" aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
+                    <a href="{{ route('mitra.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -23,13 +23,13 @@
             </div>
 
             <!-- Curved separator (Garis Lengkung Bawaan Asli) -->
-            <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                 <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
         <!-- Content -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24">
+        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6">
             @if (session()->has('message'))
                 <div class="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-xs font-medium text-green-700 flex items-center justify-between">
                     <span>{{ session('message') }}</span>
@@ -108,9 +108,9 @@
                                     $bodyText = $data['message'] ?? 'Surat Peringatan pada akun Anda telah resmi dicabut oleh Admin. Status akun Anda kini kembali normal. Ketuk Lihat Detail Surat untuk membaca surat pencabutan selengkapnya.';
                                 } else {
                                     $titleText = match ($warningLevel) {
-                                        1 => '⚠️ï¸ Surat Peringatan 1',
-                                        2 => '⚠️ï¸ Surat Peringatan 2',
-                                        3 => 'â›” Surat Peringatan 3 - Akun Dinonaktifkan',
+                                        1 => '⚠️ Surat Peringatan 1',
+                                        2 => '⚠️ Surat Peringatan 2',
+                                        3 => '⛔ Surat Peringatan 3 - Akun Dinonaktifkan',
                                         default => 'Surat Peringatan Resmi',
                                     };
                                     $bodyText = 'Anda menerima sanksi Surat Peringatan ' . $warningLevel . ' resmi dari SayaBantu. Ketuk Lihat Detail Surat untuk membaca surat selengkapnya.';

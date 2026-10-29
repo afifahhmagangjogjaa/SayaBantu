@@ -33,21 +33,50 @@ new #[Layout('layouts.guest')] class extends Component {
 
         Session::regenerate();
 
-        $user = auth()->user();
+        $this->redirectForUser(auth()->user());
+    }
 
+    /**
+     * Validasi intended URL berdasarkan role pengguna sebelum redirect.
+     */
+    private function redirectForUser($user): void
+    {
         if ($user->role === 'mitra') {
-            $redirect = route('mitra.dashboard', absolute: false);
-        } elseif ($user->role === 'kustomer' || $user->role === 'customer') {
-            $redirect = route('customer.dashboard', absolute: false);
+            $default = route('mitra.dashboard', absolute: false);
+        } elseif (in_array($user->role, ['customer', 'kustomer'])) {
+            $default = route('customer.dashboard', absolute: false);
         } elseif ($user->role === 'admin') {
-            $redirect = route('admin.dashboard', absolute: false);
+            $default = route('admin.dashboard', absolute: false);
         } elseif ($user->role === 'super_admin') {
-            $redirect = route('superadmin.dashboard', absolute: false);
+            $default = route('superadmin.dashboard', absolute: false);
         } else {
-            $redirect = route('dashboard', absolute: false);
+            $default = route('dashboard', absolute: false);
         }
 
-        $this->redirectIntended(default: $redirect, navigate: false);
+        $intended = session()->get('url.intended');
+        $validIntended = false;
+
+        if ($intended) {
+            $path = parse_url($intended, PHP_URL_PATH) ?? '';
+            if ($user->role === 'super_admin') {
+                $validIntended = str_starts_with($path, '/superadmin');
+            } elseif ($user->role === 'admin') {
+                $validIntended = str_starts_with($path, '/admin') && !str_starts_with($path, '/admin/superadmin');
+            } elseif ($user->role === 'mitra') {
+                $validIntended = str_starts_with($path, '/mitra');
+            } elseif (in_array($user->role, ['customer', 'kustomer'])) {
+                $validIntended = !str_starts_with($path, '/superadmin') 
+                              && !str_starts_with($path, '/admin') 
+                              && !str_starts_with($path, '/mitra');
+            }
+        }
+
+        if (! $validIntended) {
+            session()->forget('url.intended');
+            $this->redirect($default, navigate: false);
+        } else {
+            $this->redirectIntended(default: $default, navigate: false);
+        }
     }
 
     /**
@@ -76,33 +105,21 @@ new #[Layout('layouts.guest')] class extends Component {
         Auth::login($user, false);
         Session::regenerate();
 
-        if ($user->role === 'mitra') {
-            $redirect = route('mitra.dashboard', absolute: false);
-        } elseif (in_array($user->role, ['customer', 'kustomer'])) {
-            $redirect = route('customer.dashboard', absolute: false);
-        } elseif ($user->role === 'admin') {
-            $redirect = route('admin.dashboard', absolute: false);
-        } elseif ($user->role === 'super_admin') {
-            $redirect = route('superadmin.dashboard', absolute: false);
-        } else {
-            $redirect = route('dashboard', absolute: false);
-        }
-
-        $this->redirectIntended(default: $redirect, navigate: false);
+        $this->redirectForUser($user);
     }
 }; ?>
 
 <div class="w-full flex-1 flex flex-col justify-between" x-data="{ testOpen: false, demoRole: 'customer' }">
     <div>
         <!-- Top Logo sayabantu.com -->
-        <div class="pt-1 pb-3 text-center">
+        <div class="pt-1 pb-4 mb-2 text-center">
             <x-sayabantu-logo size="lg" />
             
             <h2 class="text-xl font-extrabold text-gray-900 mt-4 tracking-tight">
                 Masuk ke Akun Anda
             </h2>
-            <p class="text-xs text-gray-500 mt-1">
-                Jasa Serabutan, Mudah, Cepat, Terpercaya
+            <p class="text-xs text-gray-500 mt-1.5">
+                Platform Jasa & Bantuan Terpercaya untuk Customer & Mitra
             </p>
         </div>
 
@@ -118,7 +135,7 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         @endif
 
-        <form wire:submit="login" class="space-y-4 mt-1">
+        <form wire:submit="login" class="space-y-4 mt-5">
             <!-- Nomor HP / Email -->
             <div>
                 <label for="email" class="block text-xs font-bold text-gray-700 mb-1.5">
@@ -131,7 +148,7 @@ new #[Layout('layouts.guest')] class extends Component {
                         </svg>
                     </div>
                     <input wire:model="form.email" id="email" type="text" name="email" required
-                        autocomplete="username" placeholder="Contoh: 08123456789 atau email"
+                        autocomplete="username" placeholder="Masukkan nomor HP atau email"
                         class="w-full pl-10 pr-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-4 focus:ring-blue-100 transition shadow-2xs font-medium">
                 </div>
                 <x-input-error :messages="$errors->get('form.email')" class="mt-1.5" />
@@ -139,17 +156,9 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <!-- Password -->
             <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label for="password" class="block text-xs font-bold text-gray-700">
-                        Password
-                    </label>
-                    @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}"
-                            class="text-[11px] font-semibold text-[#0066FF] hover:underline">
-                            Lupa password?
-                        </a>
-                    @endif
-                </div>
+                <label for="password" class="block text-xs font-bold text-gray-700 mb-1.5">
+                    Password
+                </label>
                 <div class="relative" x-data="{ show: false }">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,6 +181,15 @@ new #[Layout('layouts.guest')] class extends Component {
                     </button>
                 </div>
                 <x-input-error :messages="$errors->get('form.password')" class="mt-1.5" />
+
+                @if (Route::has('password.request'))
+                    <div class="flex justify-end mt-2">
+                        <a href="{{ route('password.request') }}" wire:navigate
+                            class="text-xs font-semibold text-[#0066FF] hover:underline">
+                            Lupa password?
+                        </a>
+                    </div>
+                @endif
             </div>
 
             <!-- Login Button -->
@@ -213,7 +231,7 @@ new #[Layout('layouts.guest')] class extends Component {
         <div class="mt-4 text-center">
             <p class="text-xs sm:text-sm text-gray-500 font-medium">
                 Belum punya akun?
-                <a href="{{ route('register.choose-role') }}" class="font-bold text-[#0066FF] hover:underline ml-1">
+                <a href="{{ route('register.choose-role') }}" wire:navigate class="font-bold text-[#0066FF] hover:underline ml-1">
                     Daftar
                 </a>
             </p>

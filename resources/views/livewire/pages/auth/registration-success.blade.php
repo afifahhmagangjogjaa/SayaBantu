@@ -103,7 +103,7 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
 
             <!-- Action Button -->
-            <a href="{{ route('login') }}"
+            <a href="{{ route('login') }}" wire:navigate
                 class="block w-full max-w-md bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 rounded-full shadow-lg hover:shadow-xl transition text-center">
                 Kembali ke Halaman Login
             </a>

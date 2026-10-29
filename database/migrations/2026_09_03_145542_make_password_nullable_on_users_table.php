@@ -10,18 +10,18 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('password')->nullable()->change();
-            
+
             // Tambahkan kolom penanda jika belum ada
-            if (!Schema::hasColumn('users', 'is_completed')) {
+            if (! Schema::hasColumn('users', 'is_completed')) {
                 $table->boolean('is_completed')->default(false)->after('email_verified_at');
             }
-            if (!Schema::hasColumn('users', 'nik')) {
+            if (! Schema::hasColumn('users', 'nik')) {
                 $table->string('nik', 16)->nullable()->after('email');
             }
-            if (!Schema::hasColumn('users', 'ktp_photo')) {
+            if (! Schema::hasColumn('users', 'ktp_photo')) {
                 $table->string('ktp_photo')->nullable()->after('nik');
             }
-            if (!Schema::hasColumn('users', 'selfie_photo')) {
+            if (! Schema::hasColumn('users', 'selfie_photo')) {
                 $table->string('selfie_photo')->nullable()->after('ktp_photo');
             }
         });

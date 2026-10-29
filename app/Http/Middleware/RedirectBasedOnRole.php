@@ -11,8 +11,6 @@ class RedirectBasedOnRole
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -100,20 +98,25 @@ class RedirectBasedOnRole
                 return $next($request);
             }
 
-            // Redirect mitra to mitra dashboard
-            if ($user->role === 'mitra' && !$request->routeIs(['mitra.*', 'profile.*', 'profile', 'chat.*', 'ajax.*', 'notifications.*', 'logout', 'account.status.check'])) {
+            // Redirect customer away from admin, superadmin, or mitra routes
+            if ($user->role === 'customer' || $user->role === 'kustomer') {
+                if ($request->is('admin*', 'superadmin*', 'mitra*') || $request->routeIs(['admin.*', 'superadmin.*', 'mitra.*'])) {
+                    return redirect(route('customer.dashboard', absolute: false));
+                }
+
+                return $next($request);
+            }
+
+            // Redirect mitra away from admin, superadmin, or customer-only routes
+            if ($user->role === 'mitra' && ! $request->routeIs(['mitra.*', 'profile.*', 'profile', 'chat.*', 'ajax.*', 'notifications.*', 'logout', 'account.status.check'])) {
                 return redirect(route('mitra.dashboard', absolute: false));
             }
 
             // Redirect admin/super_admin based on their role
-            if (in_array($user->role, ['admin', 'super_admin']) && !$request->routeIs(['admin.*', 'superadmin.*', 'profile.*', 'profile', 'chat.*', 'ajax.*', 'notifications.*', 'logout', 'account.status.check'])) {
+            if (in_array($user->role, ['admin', 'super_admin']) && ! $request->routeIs(['admin.*', 'superadmin.*', 'profile.*', 'profile', 'chat.*', 'ajax.*', 'notifications.*', 'logout', 'account.status.check'])) {
                 $dashboardRoute = $user->role === 'super_admin' ? 'superadmin.dashboard' : 'admin.dashboard';
-                return redirect(route($dashboardRoute, absolute: false));
-            }
 
-            // Allow customer to access dashboard and other authenticated routes
-            if ($user->role === 'customer' || $user->role === 'kustomer') {
-                return $next($request);
+                return redirect(route($dashboardRoute, absolute: false));
             }
         }
 

@@ -2,26 +2,29 @@
 
 namespace App\Livewire\Profile;
 
+use App\Models\City;
+use App\Models\Registration;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use App\Models\Registration;
-use App\Models\City;
-use App\Models\User;
 
 class Verification extends Component
 {
     use WithFileUploads;
 
     public $ktp_photo;
+
     public $selfie_photo;
-    
+
     public $existing_ktp;
+
     public $existing_selfie;
 
     public $rejection_reason = null;
+
     public $is_rejected = false;
 
     public function mount()
@@ -85,8 +88,8 @@ class Verification extends Component
             // Kirim notifikasi ke Admin Kota terkait
             try {
                 $cityId = $user->city_id;
-                if (!$cityId && !empty($user->city)) {
-                    $cityId = City::where('name', 'like', '%' . trim($user->city) . '%')->value('id');
+                if (! $cityId && ! empty($user->city)) {
+                    $cityId = City::where('name', 'like', '%'.trim($user->city).'%')->value('id');
                     if ($cityId) {
                         $user->city_id = $cityId;
                         $user->save();
@@ -99,21 +102,22 @@ class Verification extends Component
                     }
                 }
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP baru ke admin kota: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::warning('Gagal kirim notif KTP baru ke admin kota: '.$e->getMessage());
             }
 
             // Kirim notifikasi ke user bahwa KTP sedang ditinjau
             try {
-                $user->notify(new \App\Notifications\KtpVerificationPromptNotification());
+                $user->notify(new \App\Notifications\KtpVerificationPromptNotification);
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Gagal kirim notif status KTP ke user: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::warning('Gagal kirim notif status KTP ke user: '.$e->getMessage());
             }
 
             session()->flash('message', 'Data verifikasi berhasil diperbarui dan dikirim ke Admin.');
-            
+
             if (Auth::user()->role === 'mitra') {
                 return $this->redirectRoute('mitra.profile', navigate: true);
             }
+
             return $this->redirectRoute('profile', navigate: true);
         } else {
             session()->flash('error', 'Pilih minimal satu file (KTP atau Selfie) yang ingin diunggah sebelum menyimpan.');
@@ -130,7 +134,7 @@ class Verification extends Component
 
         // Cari nama kota jika user->city kosong tapi city_id terisi
         $cityName = $user->city;
-        if (empty($cityName) && !empty($user->city_id)) {
+        if (empty($cityName) && ! empty($user->city_id)) {
             $cityObj = City::find($user->city_id);
             $cityName = $cityObj ? $cityObj->name : null;
         }
@@ -144,38 +148,38 @@ class Verification extends Component
 
         if ($existing) {
             $existing->update([
-                'role'             => $role,
-                'ktp_photo_path'   => $user->ktp_photo   ?? $existing->ktp_photo_path,
+                'role' => $role,
+                'ktp_photo_path' => $user->ktp_photo ?? $existing->ktp_photo_path,
                 'selfie_photo_path' => $user->selfie_photo ?? $existing->selfie_photo_path,
-                'city_id'          => $user->city_id     ?? $existing->city_id,
-                'city'             => $cityName          ?? $existing->city,
-                'status'           => 'pending_verification',
+                'city_id' => $user->city_id ?? $existing->city_id,
+                'city' => $cityName ?? $existing->city,
+                'status' => 'pending_verification',
                 'rejection_reason' => null,
             ]);
         } else {
             Registration::create([
-                'uuid'              => (string) Str::uuid(),
-                'role'              => $role,
-                'full_name'         => $user->name,
-                'email'             => $user->email,
-                'nik'               => $user->nik,
-                'place_of_birth'    => $user->place_of_birth,
-                'date_of_birth'     => $user->date_of_birth,
-                'gender'            => $user->gender,
-                'address'           => $user->address,
-                'rt'                => $user->rt,
-                'rw'                => $user->rw,
-                'kelurahan'         => $user->kelurahan,
-                'kecamatan'         => $user->kecamatan,
-                'city'              => $cityName,
-                'city_id'           => $user->city_id,
-                'province'          => $user->province,
-                'religion'          => $user->religion,
-                'marital_status'    => $user->marital_status,
-                'occupation'        => $user->occupation,
-                'ktp_photo_path'    => $user->ktp_photo,
+                'uuid' => (string) Str::uuid(),
+                'role' => $role,
+                'full_name' => $user->name,
+                'email' => $user->email,
+                'nik' => $user->nik,
+                'place_of_birth' => $user->place_of_birth,
+                'date_of_birth' => $user->date_of_birth,
+                'gender' => $user->gender,
+                'address' => $user->address,
+                'rt' => $user->rt,
+                'rw' => $user->rw,
+                'kelurahan' => $user->kelurahan,
+                'kecamatan' => $user->kecamatan,
+                'city' => $cityName,
+                'city_id' => $user->city_id,
+                'province' => $user->province,
+                'religion' => $user->religion,
+                'marital_status' => $user->marital_status,
+                'occupation' => $user->occupation,
+                'ktp_photo_path' => $user->ktp_photo,
                 'selfie_photo_path' => $user->selfie_photo,
-                'status'            => 'pending_verification',
+                'status' => 'pending_verification',
             ]);
         }
     }

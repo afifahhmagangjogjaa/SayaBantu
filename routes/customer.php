@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 
 // Rute customer (prefix, nama, dan middleware milik role ini).
+// Catatan: jangan panggil ->middleware() lagi setelah ini — pemanggilan kedua
+// akan menimpa daftar middleware, sehingga 'auth' dan 'onboarded' hilang.
 Route::middleware(['auth', 'onboarded', 'customer'])
     ->prefix('customer')
     ->name('customer.')
-    ->middleware('customer')
     ->group(function () {
         // Dashboard
         Route::get('/dashboard', \App\Livewire\Customer\Dashboard::class)->name('dashboard');
@@ -35,8 +36,6 @@ Route::middleware(['auth', 'onboarded', 'customer'])
         // Chat
         Route::get('/chat/{help?}', \App\Livewire\Customer\Chat::class)->name('chat');
 
-
-
         // Help & Support
         Route::view('/help-support', 'customer.help-support')->name('help-support');
 
@@ -53,4 +52,3 @@ Route::middleware(['auth', 'onboarded', 'customer'])
         Route::get('/reports/{report}/status-check', [\App\Http\Controllers\PartnerReportController::class, 'statusCheck'])->name('reports.status-check');
         Route::get('/reports/{report}', [\App\Http\Controllers\PartnerReportController::class, 'show'])->name('reports.show');
     });
-

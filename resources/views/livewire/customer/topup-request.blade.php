@@ -1,23 +1,32 @@
-<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-24">
+<div class="bg-gradient-to-b from-gray-50 to-white pb-6">
     @if($hasActivePending)
-        <!-- Header Sederhana saat Pending -->
-        <div class="px-5 pt-6 pb-6 rounded-b-3xl shadow-lg mb-6" style="background: linear-gradient(135deg, #0066FF, #0052cc);">
-            <div class="flex items-center justify-between">
+        <!-- Header Sederhana saat Pending dengan Wave Bergelombang -->
+        <div class="px-5 pt-6 pb-12 relative overflow-hidden text-white shadow-lg mb-6" style="background: linear-gradient(135deg, #0066FF, #0052cc);">
+            <!-- Decorative circle overlays -->
+            <div class="absolute top-0 right-0 w-44 h-44 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-36 h-36 bg-white/10 rounded-full -ml-14 -mb-14 pointer-events-none"></div>
+
+            <div class="relative z-10 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('customer.dashboard') }}" class="text-white hover:opacity-80 transition">
+                    <a href="{{ route('customer.dashboard') }}" wire:navigate class="text-white hover:opacity-80 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
                     </a>
                     <h1 class="text-xl font-bold text-white">Top-Up Saldo</h1>
                 </div>
-                <a href="{{ route('customer.topup.history') }}" class="flex items-center gap-1 px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg transition">
+                <a href="{{ route('customer.topup.history') }}" wire:navigate class="flex items-center gap-1 px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <span>Riwayat</span>
                 </a>
             </div>
+
+            <!-- Wave Separator (SVG) bergelombang -->
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
+                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f9fafb"></path>
+            </svg>
         </div>
 
         <!-- Kotak Peringatan -->
@@ -51,28 +60,32 @@
                 @endif
 
                 <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
-                    <a href="{{ route('customer.topup.history') }}" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
+                    <a href="{{ route('customer.topup.history') }}" wire:navigate class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
                         Lihat Riwayat & Status
                     </a>
-                    <a href="{{ route('customer.dashboard') }}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition">
+                    <a href="{{ route('customer.dashboard') }}" wire:navigate class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition">
                         Kembali ke Dashboard
                     </a>
                 </div>
             </div>
         </div>
     @else
-    <!-- Header -->
-    <div class="bg-gradient-to-br from-primary-500 to-primary-600 px-5 pt-6 pb-8 rounded-b-3xl shadow-lg">
-        <div class="flex items-center justify-between mb-4">
+    <!-- Header dengan Wave Bergelombang -->
+    <div class="px-5 pt-6 pb-12 relative overflow-hidden shadow-lg text-white" style="background: linear-gradient(135deg, #0066FF, #0052cc);">
+        <!-- Decorative circles -->
+        <div class="absolute top-0 right-0 w-44 h-44 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-36 h-36 bg-white/10 rounded-full -ml-14 -mb-14 pointer-events-none"></div>
+
+        <div class="relative z-10 flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
-                <a href="{{ route('customer.dashboard') }}" class="text-white">
+                <a href="{{ route('customer.dashboard') }}" wire:navigate class="text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
                 <h1 class="text-xl font-bold text-white">Top-Up Saldo</h1>
             </div>
-            <a href="{{ route('customer.topup.history') }}" class="flex items-center gap-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold rounded-lg transition">
+            <a href="{{ route('customer.topup.history') }}" wire:navigate class="flex items-center gap-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold rounded-lg transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
@@ -81,7 +94,7 @@
         </div>
         
         <!-- Progress Indicator -->
-        <div class="flex items-center justify-between max-w-md mx-auto mt-6">
+        <div class="relative z-10 flex items-center justify-between max-w-md mx-auto mt-6 mb-2">
             <div class="flex items-center">
                 <div class="w-10 h-10 rounded-full {{ $currentStep >= 1 ? 'bg-white text-primary-600' : 'bg-white/30 text-white' }} flex items-center justify-center font-bold">
                     1
@@ -103,6 +116,11 @@
                 <span class="text-xs text-white ml-2">Bayar</span>
             </div>
         </div>
+
+        <!-- Wave Separator (SVG) bergelombang -->
+        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
+            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f9fafb"></path>
+        </svg>
     </div>
 
     <!-- Content -->
@@ -134,13 +152,13 @@
 
         <!-- Step 1: Form Pengisian Data -->
         @if ($currentStep === 1)
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-4">Langkah 1: Isi Data Pengisian</h2>
+            <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+                <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-4">Langkah 1: Isi Data Pengisian</h2>
                 
                 <form wire:submit.prevent="nextStep">
                     <!-- Nominal -->
                     <div class="mb-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nominal Top-Up *</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nominal Top-Up</label>
                         <div class="relative flex items-center">
                             <span class="absolute left-4 text-gray-500 font-semibold text-sm select-none pointer-events-none">Rp</span>
                             <input type="text"
@@ -169,25 +187,25 @@
                     <!-- Quick Amount Buttons -->
                     <div class="mb-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nominal Cepat:</label>
-                        <div class="grid grid-cols-5 gap-2">
+                        <div class="grid grid-cols-5 gap-1.5 sm:gap-2">
                             <button type="button" wire:click="setQuickAmount(20000)"
-                                class="px-3 py-2 text-sm font-semibold rounded-lg border-2 {{ $amount == 20000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
+                                class="px-1.5 sm:px-3 py-2 text-xs sm:text-sm font-bold text-center rounded-lg border-2 {{ $amount == 20000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
                                 20K
                             </button>
                             <button type="button" wire:click="setQuickAmount(50000)"
-                                class="px-3 py-2 text-sm font-semibold rounded-lg border-2 {{ $amount == 50000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
+                                class="px-1.5 sm:px-3 py-2 text-xs sm:text-sm font-bold text-center rounded-lg border-2 {{ $amount == 50000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
                                 50K
                             </button>
                             <button type="button" wire:click="setQuickAmount(100000)"
-                                class="px-3 py-2 text-sm font-semibold rounded-lg border-2 {{ $amount == 100000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
+                                class="px-1.5 sm:px-3 py-2 text-xs sm:text-sm font-bold text-center rounded-lg border-2 {{ $amount == 100000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
                                 100K
                             </button>
                             <button type="button" wire:click="setQuickAmount(200000)"
-                                class="px-3 py-2 text-sm font-semibold rounded-lg border-2 {{ $amount == 200000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
+                                class="px-1.5 sm:px-3 py-2 text-xs sm:text-sm font-bold text-center rounded-lg border-2 {{ $amount == 200000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
                                 200K
                             </button>
                             <button type="button" wire:click="setQuickAmount(500000)"
-                                class="px-3 py-2 text-sm font-semibold rounded-lg border-2 {{ $amount == 500000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
+                                class="px-1.5 sm:px-3 py-2 text-xs sm:text-sm font-bold text-center rounded-lg border-2 {{ $amount == 500000 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-700 hover:border-primary-300' }}">
                                 500K
                             </button>
                         </div>
@@ -195,7 +213,7 @@
 
                     <!-- Nama Lengkap -->
                     <div class="mb-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap *</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap</label>
                         <input type="text" wire:model="customerName"
                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
                             readonly>
@@ -204,7 +222,7 @@
 
                     <!-- Nomor Telepon -->
                     <div class="mb-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nomor Telepon *</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nomor Telepon</label>
                         <input type="tel" wire:model="customerPhone" maxlength="13" inputmode="numeric"
                             oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)"
                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -233,7 +251,7 @@
                     <!-- Buttons -->
                     <div class="space-y-2">
                         <div class="flex gap-3">
-                            <a href="{{ route('customer.dashboard') }}"
+                            <a href="{{ route('customer.dashboard') }}" wire:navigate
                                 class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold text-center hover:bg-gray-200">
                                 Batal
                             </a>
@@ -243,9 +261,9 @@
                             </button>
                         </div>
                         @if(session('topup_form_data'))
-                            <button type="button" wire:click="resetFormData"
-                                onclick="return confirm('Yakin ingin reset semua data form?')"
-                                class="w-full px-4 py-2 text-xs text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition border border-gray-200">
+                            <button type="button"
+                                onclick="window.sbConfirm({ title: 'Reset Form?', text: 'Yakin ingin mereset semua data yang telah diisi?', isDanger: true, confirmButtonText: 'Ya, Reset' }).then(r => { if(r.isConfirmed) @this.call('resetFormData'); })"
+                                class="w-full px-4 py-2 text-xs text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition border border-gray-200 cursor-pointer">
                                 Reset Data
                             </button>
                         @endif
@@ -256,8 +274,8 @@
 
         <!-- Step 2: Detail Pembayaran -->
         @if ($currentStep === 2)
-            <div class="bg-white rounded-2xl shadow-lg p-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-4">Langkah 2: Detail Pembayaran</h2>
+            <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+                <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-4">Langkah 2: Detail Pembayaran</h2>
                 
                 <!-- Rincian Pembayaran -->
                 <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-6 mb-6">
@@ -331,9 +349,9 @@
                         </button>
                     </div>
                     @if(session('topup_form_data'))
-                        <button type="button" wire:click="resetFormData"
-                            onclick="return confirm('Yakin ingin reset semua data form?')"
-                            class="w-full px-4 py-2 text-xs text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition border border-gray-200">
+                        <button type="button"
+                            onclick="window.sbConfirm({ title: 'Reset Form?', text: 'Yakin ingin mereset semua data yang telah diisi?', isDanger: true, confirmButtonText: 'Ya, Reset' }).then(r => { if(r.isConfirmed) @this.call('resetFormData'); })"
+                            class="w-full px-4 py-2 text-xs text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition border border-gray-200 cursor-pointer">
                             Reset Data
                         </button>
                     @endif
@@ -384,15 +402,15 @@
                                             @if(file_exists(public_path('images/payment/qris.png')))
                                                 <img src="{{ asset('images/payment/qris.png') }}" 
                                                     alt="QRIS QR Code" 
-                                                    class="w-64 h-64 mx-auto border-2 border-gray-200 rounded-xl shadow-lg">
+                                                    class="w-full max-w-[220px] aspect-square mx-auto border-2 border-gray-200 rounded-xl shadow-lg object-contain">
                                             @else
-                                                <div class="w-64 h-64 mx-auto border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center">
+                                                <div class="w-full max-w-[220px] aspect-square mx-auto border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center p-4">
                                                     <div class="text-center">
-                                                        <svg class="w-16 h-16 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                                                         </svg>
-                                                        <p class="text-sm text-gray-500">QR Code belum tersedia</p>
-                                                        <p class="text-xs text-gray-400 mt-1">Upload file: public/images/payment/qris.png</p>
+                                                        <p class="text-xs font-semibold text-gray-500">QR Code belum tersedia</p>
+                                                        <p class="text-[10px] text-gray-400 mt-0.5">Upload file: public/images/payment/qris.png</p>
                                                     </div>
                                                 </div>
                                             @endif
@@ -426,8 +444,8 @@
                                             <p class="text-xs text-gray-500">a.n. {{ $bank['account_name'] }}</p>
                                         </div>
                                         <button type="button" 
-                                            onclick="navigator.clipboard.writeText('{{ $bank['account_number'] }}'); alert('Nomor rekening disalin!')"
-                                            class="px-3 py-1.5 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                                            onclick="navigator.clipboard.writeText('{{ $bank['account_number'] }}'); (window.sbToast ? window.sbToast('Nomor rekening {{ $bank['name'] }} disalin!', 'success') : alert('Nomor rekening disalin!'))"
+                                            class="px-3 py-1.5 text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition active:scale-95 cursor-pointer">
                                             📋 Salin
                                         </button>
                                         @if($paymentMethod === 'bank_'.strtolower($bank['code']))
@@ -446,7 +464,7 @@
                     <!-- Upload Bukti Transfer -->
                     <div class="mb-6">
                         <label class="block text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                            <span>📤</span> Upload Bukti Transfer *
+                            <span>📤</span> Upload Bukti Transfer
                         </label>
                         <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
                             <input type="file" wire:model="proofOfPayment" accept="image/*" class="hidden" id="proofUpload">
@@ -486,9 +504,9 @@
                             </button>
                         </div>
                         @if(session('topup_form_data'))
-                            <button type="button" wire:click="resetFormData"
-                                onclick="return confirm('Yakin ingin reset semua data form?')"
-                                class="w-full px-4 py-2 text-xs text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition border border-gray-200">
+                            <button type="button"
+                                onclick="window.sbConfirm({ title: 'Reset Form?', text: 'Yakin ingin mereset semua data yang telah diisi?', isDanger: true, confirmButtonText: 'Ya, Reset' }).then(r => { if(r.isConfirmed) @this.call('resetFormData'); })"
+                                class="w-full px-4 py-2 text-xs text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition border border-gray-200 cursor-pointer">
                                 Reset Data
                             </button>
                         @endif

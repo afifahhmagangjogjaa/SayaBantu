@@ -53,7 +53,7 @@
                 <!-- Kata Sandi Baru -->
                 <div>
                     <label for="password" class="block text-xs font-semibold text-gray-700 mb-1.5">
-                        Kata Sandi Baru <span class="text-red-500">*</span>
+                        Kata Sandi Baru
                     </label>
                     <div class="relative">
                         <input id="password" type="password" name="password" required autofocus
@@ -102,7 +102,7 @@
                 <!-- Konfirmasi Kata Sandi -->
                 <div>
                     <label for="password_confirmation" class="block text-xs font-semibold text-gray-700 mb-1.5">
-                        Konfirmasi Kata Sandi <span class="text-red-500">*</span>
+                        Konfirmasi Kata Sandi
                     </label>
                     <div class="relative">
                         <input id="password_confirmation" type="password" name="password_confirmation" required

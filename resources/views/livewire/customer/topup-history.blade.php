@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white">
+<div class="min-h-full bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - SayaBantu Style -->
         <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
@@ -7,7 +7,7 @@
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
-                    <a href="{{ route('customer.dashboard') }}" aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
+                    <a href="{{ route('customer.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -23,13 +23,13 @@
             </div>
 
             <!-- Curved separator -->
-            <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                 <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
         <!-- Content -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24">
+        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6">
             @if (session()->has('success'))
                 <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-xl text-sm text-green-700 flex items-center gap-3 shadow-sm">
                     <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
@@ -134,7 +134,7 @@
                         </div>
                         <h3 class="text-lg font-bold text-gray-800 mb-2">Belum Ada Riwayat</h3>
                         <p class="text-sm text-gray-500 mb-6">Mulai top-up saldo Anda sekarang</p>
-                        <a href="{{ route('customer.topup') }}"
+                        <a href="{{ route('customer.topup') }}" wire:navigate
                             class="inline-block px-6 py-3 text-white rounded-xl font-semibold hover:shadow-lg transition"
                             style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
                             Top-Up Saldo

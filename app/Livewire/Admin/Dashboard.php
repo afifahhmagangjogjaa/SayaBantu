@@ -2,12 +2,12 @@
 
 namespace App\Livewire\Admin;
 
+use App\Enums\HelpStatus;
 use App\Models\Help;
 use App\Models\User;
-use App\Enums\HelpStatus;
-use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Livewire\Component;
 
 class Dashboard extends Component
 {
@@ -17,29 +17,29 @@ class Dashboard extends Component
         // If current user is an admin, scope metrics to their assigned city
         if (auth()->user() && auth()->user()->role === 'admin') {
             $cityIds = auth()->user()->getAdminCityIds();
-            $cityHelpFilter = function($q) use ($cityIds) {
-                $q->where(function($sub) use ($cityIds) {
+            $cityHelpFilter = function ($q) use ($cityIds) {
+                $q->where(function ($sub) use ($cityIds) {
                     $sub->whereIn('city_id', $cityIds)
-                        ->orWhereHas('customer', function($c) use ($cityIds) {
+                        ->orWhereHas('customer', function ($c) use ($cityIds) {
                             $c->whereIn('city_id', $cityIds);
                         });
                 });
             };
 
-            $totalHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->count() : Help::count();
-            $pendingHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->withStatus(HelpStatus::MENUNGGU_MITRA)->count() : Help::withStatus(HelpStatus::MENUNGGU_MITRA)->count();
-            $activeHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->active()->count() : Help::active()->count();
-            $completedHelps = !empty($cityIds) ? Help::where($cityHelpFilter)->completed()->count() : Help::completed()->count();
-            $pendingVerifications = !empty($cityIds) ? \App\Models\Registration::whereIn('city_id', $cityIds)->where('status', 'pending_verification')->count() : \App\Models\Registration::where('status', 'pending_verification')->count();
-            $verifiedMitras = !empty($cityIds) ? User::where('role', 'mitra')
-                                ->whereIn('city_id', $cityIds)
-                                ->where('verified', true)
-                                ->count() : User::where('role', 'mitra')->where('verified', true)->count();
-            
+            $totalHelps = ! empty($cityIds) ? Help::where($cityHelpFilter)->count() : Help::count();
+            $pendingHelps = ! empty($cityIds) ? Help::where($cityHelpFilter)->withStatus(HelpStatus::MENUNGGU_MITRA)->count() : Help::withStatus(HelpStatus::MENUNGGU_MITRA)->count();
+            $activeHelps = ! empty($cityIds) ? Help::where($cityHelpFilter)->active()->count() : Help::active()->count();
+            $completedHelps = ! empty($cityIds) ? Help::where($cityHelpFilter)->completed()->count() : Help::completed()->count();
+            $pendingVerifications = ! empty($cityIds) ? \App\Models\Registration::whereIn('city_id', $cityIds)->where('status', 'pending_verification')->count() : \App\Models\Registration::where('status', 'pending_verification')->count();
+            $verifiedMitras = ! empty($cityIds) ? User::where('role', 'mitra')
+                ->whereIn('city_id', $cityIds)
+                ->where('verified', true)
+                ->count() : User::where('role', 'mitra')->where('verified', true)->count();
+
             // Pending topup approvals (filtered by city)
             $pendingTopups = \App\Models\BalanceTransaction::topupRequests()
                 ->where('status', 'waiting_approval')
-                ->when(!empty($cityIds), function ($q) use ($cityIds) {
+                ->when(! empty($cityIds), function ($q) use ($cityIds) {
                     $q->whereHas('user', function ($sq) use ($cityIds) {
                         $sq->whereIn('city_id', $cityIds);
                     });
@@ -52,7 +52,7 @@ class Dashboard extends Component
             $completedHelps = Help::completed()->count();
             $pendingVerifications = 0;
             $verifiedMitras = User::where('role', 'mitra')->where('verified', true)->count();
-            
+
             // Pending topup approvals (all cities for super admin)
             $pendingTopups = \App\Models\BalanceTransaction::topupRequests()
                 ->where('status', 'waiting_approval')

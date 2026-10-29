@@ -2,17 +2,18 @@
 
 namespace App\Livewire\Home;
 
+use App\Enums\HelpStatus;
 use App\Models\City;
 use App\Models\Help;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Enums\HelpStatus;
 
 class Index extends Component
 {
     use WithPagination;
 
     public $selectedCity = null;
+
     public $search = '';
 
     public function render()
@@ -24,8 +25,8 @@ class Index extends Component
             })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%');
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%');
                 });
             })
             ->latest()
@@ -51,32 +52,36 @@ class Index extends Component
 
     public function takeHelp($helpId)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
-        if (!auth()->user()->isMitra()) {
+        if (! auth()->user()->isMitra()) {
             session()->flash('error', 'Hanya mitra yang dapat mengambil bantuan.');
+
             return;
         }
 
-        if (!auth()->user()->isProfileComplete()) {
+        if (! auth()->user()->isProfileComplete()) {
             $missing = implode(', ', auth()->user()->getMissingProfileFields());
             session()->flash('error', "Harap lengkapi biodata profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.");
+
             return redirect()->route('mitra.profile.edit');
         }
 
-        if (!auth()->user()->verified) {
+        if (! auth()->user()->verified) {
             session()->flash('error', 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi disetujui sebelum dapat mengambil bantuan.');
+
             return;
         }
 
-        if (!auth()->user()->canTakeMoreOrders()) {
-            if (!auth()->user()->hasVerifiedEmail()) {
+        if (! auth()->user()->canTakeMoreOrders()) {
+            if (! auth()->user()->hasVerifiedEmail()) {
                 session()->flash('error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.');
             } else {
                 session()->flash('error', 'Anda telah mencapai batas maksimal order bantuan.');
             }
+
             return;
         }
 
@@ -84,6 +89,7 @@ class Index extends Component
 
         if ($help->mitra_id) {
             session()->flash('error', 'Bantuan ini sudah diambil oleh mitra lain.');
+
             return;
         }
 
@@ -94,6 +100,7 @@ class Index extends Component
         ]);
 
         session()->flash('message', 'Bantuan berhasil diambil! Segera hubungi yang membutuhkan.');
+
         return redirect()->route('helps.index');
     }
 }

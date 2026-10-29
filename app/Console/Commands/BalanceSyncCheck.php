@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\BalanceTransaction;
 use App\Models\UserBalance;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 class BalanceSyncCheck extends Command
@@ -75,11 +75,12 @@ class BalanceSyncCheck extends Command
                 }
             } catch (\Throwable $e) {
                 Log::error('balances:sync-check error processing user', ['user_id' => $uid, 'error' => $e->getMessage()]);
-                $this->error("Error processing user {$uid}: " . $e->getMessage());
+                $this->error("Error processing user {$uid}: ".$e->getMessage());
             }
         }
 
         $this->info("Done. Fixed={$fixed} issues={$issues}");
+
         return 0;
     }
 }

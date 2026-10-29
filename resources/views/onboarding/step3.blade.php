@@ -110,7 +110,7 @@
 
                     <!-- Action Buttons -->
                     <div class="pt-5 pb-2 flex items-center gap-3">
-                        <a href="{{ route('onboarding.step2') }}"
+                        <a href="{{ route('onboarding.step2') }}" wire:navigate
                             class="w-28 py-3.5 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full inline-flex items-center justify-center text-sm font-bold text-gray-700 transition cursor-pointer flex-shrink-0">
                             ← Kembali
                         </a>

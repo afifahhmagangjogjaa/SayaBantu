@@ -2,11 +2,11 @@
 
 namespace App\Observers;
 
-use App\Models\Help;
 use App\Models\BalanceTransaction;
+use App\Models\Help;
+use App\Models\PartnerActivity;
 use App\Models\UserBalance;
 use App\Notifications\HelpTakenNotification;
-use App\Models\PartnerActivity;
 
 class HelpObserver
 {
@@ -20,12 +20,12 @@ class HelpObserver
             PartnerActivity::create([
                 'user_id' => $help->user_id,
                 'activity_type' => 'help_created',
-                'description' => 'Customer membuat bantuan #' . $help->id,
+                'description' => 'Customer membuat bantuan #'.$help->id,
                 'ip_address' => request()?->ip(),
                 'user_agent' => request()?->header('User-Agent'),
             ]);
         } catch (\Throwable $e) {
-            \Log::warning('Failed to record PartnerActivity on help created: ' . $e->getMessage());
+            \Log::warning('Failed to record PartnerActivity on help created: '.$e->getMessage());
         }
     }
 
@@ -42,7 +42,7 @@ class HelpObserver
 
             // Send notification to the help requester (if not already notified recently)
             if ($help->user && $mitra) {
-                if (!$this->isAlreadyNotified($help->user, HelpTakenNotification::class, ['help_id' => $help->id])) {
+                if (! $this->isAlreadyNotified($help->user, HelpTakenNotification::class, ['help_id' => $help->id])) {
                     $help->user->notify(new HelpTakenNotification($help, $mitra));
                 }
             }
@@ -52,12 +52,12 @@ class HelpObserver
                 PartnerActivity::create([
                     'user_id' => $mitra?->id,
                     'activity_type' => 'take_help',
-                    'description' => 'Mengambil Bantuan #' . $help->id,
+                    'description' => 'Mengambil Bantuan #'.$help->id,
                     'ip_address' => request()?->ip(),
                     'user_agent' => request()?->header('User-Agent'),
                 ]);
             } catch (\Throwable $e) {
-                \Log::warning('Failed to record PartnerActivity on help taken: ' . $e->getMessage());
+                \Log::warning('Failed to record PartnerActivity on help taken: '.$e->getMessage());
             }
         }
 
@@ -70,12 +70,12 @@ class HelpObserver
             if ($newStatus === 'rejected' && $prevStatus !== 'rejected') {
                 $customer = $help->customer ?? ($help->user ?? \App\Models\User::find($help->user_id));
                 if ($customer) {
-                    if (!$this->isAlreadyNotified($customer, \App\Notifications\HelpStatusNotification::class, ['help_id' => $help->id, 'new_status' => 'rejected'])) {
+                    if (! $this->isAlreadyNotified($customer, \App\Notifications\HelpStatusNotification::class, ['help_id' => $help->id, 'new_status' => 'rejected'])) {
                         try {
                             $customer->notify(new \App\Notifications\HelpStatusNotification($help, $prevStatus, 'rejected'));
-                            \Log::info('Sent HelpStatusNotification (rejected) to customer id=' . $customer->id . ' for help_id=' . $help->id);
+                            \Log::info('Sent HelpStatusNotification (rejected) to customer id='.$customer->id.' for help_id='.$help->id);
                         } catch (\Throwable $e) {
-                            \Log::warning('Failed to send rejection notification via HelpObserver: ' . $e->getMessage());
+                            \Log::warning('Failed to send rejection notification via HelpObserver: '.$e->getMessage());
                         }
                     }
                 }
@@ -83,7 +83,7 @@ class HelpObserver
 
             // Automatic refund to customer when help is rejected or cancelled
             $rejectedOrCancelledStates = ['rejected', 'dibatalkan', 'cancelled'];
-            if (in_array($newStatus, $rejectedOrCancelledStates) && !in_array($prevStatus, $rejectedOrCancelledStates)) {
+            if (in_array($newStatus, $rejectedOrCancelledStates) && ! in_array($prevStatus, $rejectedOrCancelledStates)) {
                 $customerId = $help->user_id;
                 $refundAmount = (float) ($help->total_customer_paid ?: ($help->total_amount ?? ($help->amount + ($help->admin_fee ?? 0))));
 
@@ -93,11 +93,11 @@ class HelpObserver
                         ->where('description', 'like', '%Refund%')
                         ->exists();
 
-                    if (!$alreadyRefunded) {
+                    if (! $alreadyRefunded) {
                         $description = ($help->complaint_resolution === 'refunded')
-                            ? 'Pengembalian dana (Refund) Bantuan #' . $help->id . ' disetujui Admin'
-                            : 'Pengembalian saldo (Refund) Bantuan #' . $help->id . ' (' . ucfirst($newStatus) . ')';
-                        
+                            ? 'Pengembalian dana (Refund) Bantuan #'.$help->id.' disetujui Admin'
+                            : 'Pengembalian saldo (Refund) Bantuan #'.$help->id.' ('.ucfirst($newStatus).')';
+
                         BalanceTransaction::create([
                             'user_id' => $customerId,
                             'amount' => $refundAmount,
@@ -114,12 +114,12 @@ class HelpObserver
                 // Notify mitra if help had an assigned partner (avoid double notification)
                 $mitra = $help->mitra ?? ($help->mitra_id ? \App\Models\User::find($help->mitra_id) : null);
                 if ($mitra) {
-                    if (!$this->isAlreadyNotified($mitra, \App\Notifications\HelpStatusNotification::class, ['help_id' => $help->id, 'new_status' => $newStatus])) {
+                    if (! $this->isAlreadyNotified($mitra, \App\Notifications\HelpStatusNotification::class, ['help_id' => $help->id, 'new_status' => $newStatus])) {
                         try {
                             $mitra->notify(new \App\Notifications\HelpStatusNotification($help, $prevStatus, $newStatus, $mitra));
                             \Log::info("Sent cancellation notification to mitra id={$mitra->id} for help_id={$help->id}");
                         } catch (\Throwable $e) {
-                            \Log::warning('Failed to notify mitra of cancellation via HelpObserver: ' . $e->getMessage());
+                            \Log::warning('Failed to notify mitra of cancellation via HelpObserver: '.$e->getMessage());
                         }
                     }
                 }
@@ -127,11 +127,11 @@ class HelpObserver
                 // Notify customer on cancellation (if not already handled)
                 $customer = $help->customer ?? ($help->user ?? \App\Models\User::find($help->user_id));
                 if ($customer && $newStatus !== 'rejected') {
-                    if (!$this->isAlreadyNotified($customer, \App\Notifications\HelpStatusNotification::class, ['help_id' => $help->id, 'new_status' => $newStatus])) {
+                    if (! $this->isAlreadyNotified($customer, \App\Notifications\HelpStatusNotification::class, ['help_id' => $help->id, 'new_status' => $newStatus])) {
                         try {
                             $customer->notify(new \App\Notifications\HelpStatusNotification($help, $prevStatus, $newStatus, $mitra));
                         } catch (\Throwable $e) {
-                            \Log::warning('Failed to notify customer of cancellation via HelpObserver: ' . $e->getMessage());
+                            \Log::warning('Failed to notify customer of cancellation via HelpObserver: '.$e->getMessage());
                         }
                     }
                 }
@@ -139,7 +139,7 @@ class HelpObserver
 
             $completedStates = ['completed', 'selesai'];
 
-            if (in_array($newStatus, $completedStates) && !in_array($prevStatus, $completedStates)) {
+            if (in_array($newStatus, $completedStates) && ! in_array($prevStatus, $completedStates)) {
                 $payoutAmount = $help->getMitraPayoutAmount();
 
                 // Only credit if a mitra was assigned and amount is positive
@@ -150,17 +150,17 @@ class HelpObserver
                     $already = BalanceTransaction::where('user_id', $mitraId)
                         ->where(function ($q) use ($help) {
                             $q->where('reference_id', $help->id)
-                              ->orWhere(function ($sq) use ($help) {
-                                  if (!empty($help->order_id)) {
-                                      $sq->where('order_id', $help->order_id);
-                                  }
-                              })
-                              ->orWhere('description', 'like', 'Pendapatan Bantuan #' . $help->id . '%')
-                              ->orWhere('description', 'like', 'Auto-confirm Bantuan #' . $help->id . '%');
+                                ->orWhere(function ($sq) use ($help) {
+                                    if (! empty($help->order_id)) {
+                                        $sq->where('order_id', $help->order_id);
+                                    }
+                                })
+                                ->orWhere('description', 'like', 'Pendapatan Bantuan #'.$help->id.'%')
+                                ->orWhere('description', 'like', 'Auto-confirm Bantuan #'.$help->id.'%');
                         })
                         ->exists();
 
-                    if (!$already) {
+                    if (! $already) {
                         // Ensure the mitra has a UserBalance row
                         $userBalance = UserBalance::firstOrCreate([
                             'user_id' => $mitraId,
@@ -170,13 +170,13 @@ class HelpObserver
 
                         // Credit the mitra with a descriptive transaction
                         $feeText = ($help->mitra_fee_amount > 0)
-                            ? " (Potongan Platform {$help->mitra_fee_percent}%: Rp " . number_format($help->mitra_fee_amount, 0, ',', '.') . ")"
-                            : "";
-                        
+                            ? " (Potongan Platform {$help->mitra_fee_percent}%: Rp ".number_format($help->mitra_fee_amount, 0, ',', '.').')'
+                            : '';
+
                         $isAuto = ($help->admin_notes && str_contains(strtolower($help->admin_notes), 'auto-confirm'));
                         $description = $isAuto
-                            ? 'Auto-confirm Bantuan #' . $help->id . $feeText
-                            : 'Pendapatan Bantuan #' . $help->id . $feeText;
+                            ? 'Auto-confirm Bantuan #'.$help->id.$feeText
+                            : 'Pendapatan Bantuan #'.$help->id.$feeText;
 
                         $userBalance->addBalance($payoutAmount, $description, $help->id);
                         \Log::info("HelpObserver credited Rp {$payoutAmount} to mitra id={$mitraId} for completed help_id={$help->id}");
@@ -191,7 +191,7 @@ class HelpObserver
      */
     protected function isAlreadyNotified($user, string $notificationClass, array $criteria, int $withinSeconds = 10): bool
     {
-        if (!$user) {
+        if (! $user) {
             return true;
         }
 
@@ -205,6 +205,7 @@ class HelpObserver
                         return false;
                     }
                 }
+
                 return true;
             });
     }

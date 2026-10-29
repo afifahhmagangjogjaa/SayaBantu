@@ -15,7 +15,7 @@ class ChatController
         $help = Help::findOrFail($helpId);
 
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
@@ -43,7 +43,7 @@ class ChatController
     public function start(Request $request)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
@@ -54,7 +54,7 @@ class ChatController
             return redirect()->route('chat.show', ['help' => $helpId]);
         }
 
-        if (!$targetUserId) {
+        if (! $targetUserId) {
             return redirect()->back();
         }
 

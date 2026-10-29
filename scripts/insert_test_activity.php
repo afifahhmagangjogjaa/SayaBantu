@@ -1,14 +1,13 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
-$app = require __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-$kernel->bootstrap();
 
-use App\Models\User;
+$app = require_once __DIR__.'/bootstrap.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
 use App\Models\PartnerActivity;
+use App\Models\User;
 
 $mitra = User::where('role', 'mitra')->first();
-if (!$mitra) {
+if (! $mitra) {
     echo "No mitra user found. Create a user with role=mitra first.\n";
     exit(1);
 }

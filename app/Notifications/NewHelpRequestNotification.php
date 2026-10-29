@@ -2,9 +2,9 @@
 
 namespace App\Notifications;
 
+use App\Models\Help;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use App\Models\Help;
 
 class NewHelpRequestNotification extends Notification
 {
@@ -20,9 +20,10 @@ class NewHelpRequestNotification extends Notification
     public function via($notifiable)
     {
         $settings = $notifiable->notification_settings ?? [];
-        if (isset($settings['generalNotification']) && !$settings['generalNotification']) {
+        if (isset($settings['generalNotification']) && ! $settings['generalNotification']) {
             return [];
         }
+
         return ['database'];
     }
 

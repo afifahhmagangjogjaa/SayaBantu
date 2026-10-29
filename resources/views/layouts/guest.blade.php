@@ -10,9 +10,19 @@
 
     <!-- PWA & Favicon Settings -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    @php
+        $dynamicAppIcon = \App\Models\AppSetting::get('app_icon');
+        $dynamicAppIconUrl = $dynamicAppIcon && \Illuminate\Support\Facades\Storage::disk('public')->exists($dynamicAppIcon) ? asset('storage/' . $dynamicAppIcon) : null;
+    @endphp
+    @if($dynamicAppIconUrl)
+        <link rel="icon" href="{{ $dynamicAppIconUrl }}">
+        <link rel="apple-touch-icon" href="{{ $dynamicAppIconUrl }}">
+    @else
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    @endif
     <meta name="theme-color" content="#0284c7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -48,9 +58,9 @@
     </style>
 </head>
 
-<body class="min-h-screen min-h-[100dvh] bg-slate-100 font-sans text-slate-900 antialiased flex flex-col items-center justify-center sm:py-6 sm:px-4">
+<body class="min-h-screen min-h-[100dvh] bg-slate-100 font-sans text-slate-900 antialiased flex flex-col items-center sm:justify-start sm:pt-2 sm:pb-6 sm:px-4">
     <!-- Centered Mobile Frame container matching modern mockup and landing page -->
-    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-auto sm:min-h-[780px] sm:max-h-[92vh] bg-white sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-y-auto overflow-x-hidden">
+    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-auto sm:min-h-[780px] sm:max-h-[calc(100dvh-1rem)] bg-white sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-y-auto overflow-x-hidden">
         @php
             $currentRoute = request()->route() ? request()->route()->getName() : '';
             $isModernAuth = in_array($currentRoute, [
@@ -105,16 +115,15 @@
                             </a>
                         </div>
 
-                        <div class="text-center flex-1">
-                            <h1 class="text-lg font-bold">sayabantu</h1>
-                            <p class="text-xs text-white/90 mt-0.5">Jasa Serabutan Terpercaya</p>
+                        <div class="text-center flex-1 flex flex-col items-center justify-center">
+                            <x-sayabantu-logo size="sm" light="true" showTagline="true" tagline="Jasa Serabutan Terpercaya" />
                         </div>
 
                         <div class="w-8"></div>
                     </div>
                 </div>
 
-                <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+                <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                     <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
                 </svg>
             </div>

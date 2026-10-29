@@ -179,7 +179,7 @@
             <!-- Pending Topup Approval Alert (if any) -->
             @if(isset($pendingTopups) && $pendingTopups > 0)
                 <div class="mb-6">
-                    <a href="{{ route('admin.topup.approvals') }}" class="block">
+                    <a href="{{ route('admin.topup.approvals') }}" wire:navigate class="block">
                         <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500 rounded-xl p-5 shadow-sm hover:shadow-md transition">
                             <div class="flex items-center gap-4">
                                 <div class="w-14 h-14 bg-yellow-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -231,7 +231,7 @@
                 <div class="lg:col-span-3 bg-white rounded-2xl shadow p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-medium text-gray-800">Permintaan Bantuan Terbaru</h3>
-                        <a href="{{ route('admin.helps') }}" class="text-sm text-primary-600">Lihat semua</a>
+                        <a href="{{ route('admin.helps') }}" wire:navigate class="text-sm text-primary-600">Lihat semua</a>
                     </div>
 
                     @if(isset($latestHelps) && $latestHelps->count())

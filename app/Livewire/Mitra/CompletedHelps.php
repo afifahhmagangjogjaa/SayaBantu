@@ -2,11 +2,11 @@
 
 namespace App\Livewire\Mitra;
 
+use App\Enums\HelpStatus;
 use App\Models\Help;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use App\Enums\HelpStatus;
 
 #[Layout('layouts.mitra')]
 class CompletedHelps extends Component
@@ -14,12 +14,18 @@ class CompletedHelps extends Component
     use WithPagination;
 
     public $search = '';
+
     public $sortBy = 'latest';
+
     public $openRatingHelpId = null;
+
     // Modal / detail state
     public $showDetailModal = false;
+
     public $selectedHelpId = null;
+
     public $selectedHelp = null;
+
     protected $listeners = [
         'ratingSubmitted' => 'onRatingSubmitted',
     ];
@@ -40,10 +46,10 @@ class CompletedHelps extends Component
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('title', 'like', '%' . $this->search . '%')
-                    ->orWhere('description', 'like', '%' . $this->search . '%')
+                $q->where('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('description', 'like', '%'.$this->search.'%')
                     ->orWhereHas('user', function ($u) {
-                        $u->where('name', 'like', '%' . $this->search . '%');
+                        $u->where('name', 'like', '%'.$this->search.'%');
                     });
             });
         }
@@ -60,8 +66,8 @@ class CompletedHelps extends Component
         $completedCount = Help::where('mitra_id', $user->id)->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI))->count();
 
         return view('livewire.mitra.helps.completed-helps', [
-            'helps'          => $helps,
-            'rejectedCount'  => $rejectedCount,
+            'helps' => $helps,
+            'rejectedCount' => $rejectedCount,
             'completedCount' => $completedCount,
         ]);
     }
@@ -88,6 +94,7 @@ class CompletedHelps extends Component
         $this->selectedHelp = Help::with(['user', 'city', 'rating', 'category'])->find($helpId);
         if (! $this->selectedHelp) {
             $this->dispatch('notification', type: 'error', message: 'Data bantuan tidak ditemukan.');
+
             return;
         }
         $this->selectedHelpId = $helpId;

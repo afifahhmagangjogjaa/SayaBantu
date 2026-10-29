@@ -10,7 +10,9 @@ class SanctionNotification extends Notification
     use Queueable;
 
     public int $warningLevel;
+
     public ?string $reason;
+
     public ?int $reportId;
 
     public function __construct(int $warningLevel, ?string $reason = null, ?int $reportId = null)
@@ -34,12 +36,12 @@ class SanctionNotification extends Notification
             default => '✅ Surat Peringatan Dicabut',
         };
 
-        $reasonText = !empty($this->reason) ? ' Alasan: ' . $this->reason . '.' : '';
+        $reasonText = ! empty($this->reason) ? ' Alasan: '.$this->reason.'.' : '';
 
         $message = match ($this->warningLevel) {
-            1 => 'Anda menerima Surat Peringatan 1.' . $reasonText . ' Harap patuhi syarat & ketentuan layanan SayaBantu.',
-            2 => 'PERINGATAN KERAS: Anda menerima Surat Peringatan 2.' . $reasonText . ' Akun Anda terancam diblokir permanen jika mencapai Surat Peringatan 3.',
-            3 => 'Akun Anda telah dinonaktifkan/diblokir dari sistem karena menerima Surat Peringatan 3.' . $reasonText,
+            1 => 'Anda menerima Surat Peringatan 1.'.$reasonText.' Harap patuhi syarat & ketentuan layanan SayaBantu.',
+            2 => 'PERINGATAN KERAS: Anda menerima Surat Peringatan 2.'.$reasonText.' Akun Anda terancam diblokir permanen jika mencapai Surat Peringatan 3.',
+            3 => 'Akun Anda telah dinonaktifkan/diblokir dari sistem karena menerima Surat Peringatan 3.'.$reasonText,
             default => 'Surat Peringatan pada akun Anda telah resmi dicabut oleh Admin. Status akun Anda kini kembali normal.',
         };
 

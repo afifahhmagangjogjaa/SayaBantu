@@ -16,29 +16,29 @@ export default {
             },
             colors: {
                 primary: {
-                    50: "#f0f8ff",
-                    100: "#e0f2fe",
-                    200: "#bae6fd",
-                    300: "#7dd3fc",
-                    400: "#38bdf8",
-                    500: "#0098e7", // Core SayaBantu Brand Blue
-                    600: "#007acc", // Hover state
-                    700: "#0060b0", // Deep brand blue
-                    800: "#035286",
-                    900: "#07446e",
-                    950: "#042c49",
+                    50: "#eef6ff",
+                    100: "#d9ebff",
+                    200: "#bcdeff",
+                    300: "#8eccff",
+                    400: "#59b0ff",
+                    500: "#0066FF", // Core SayaBantu Brand Blue
+                    600: "#0052cc", // Active / Hover
+                    700: "#003da5", // Deep brand blue
+                    800: "#003285",
+                    900: "#002b6d",
+                    950: "#001a45",
                 },
                 brand: {
-                    50: "#f0f8ff",
-                    100: "#e0f2fe",
-                    200: "#bae6fd",
-                    300: "#7dd3fc",
-                    400: "#38bdf8",
-                    500: "#0098e7",
-                    600: "#007acc",
-                    700: "#0060b0",
-                    800: "#035286",
-                    900: "#07446e",
+                    50: "#eef6ff",
+                    100: "#d9ebff",
+                    200: "#bcdeff",
+                    300: "#8eccff",
+                    400: "#59b0ff",
+                    500: "#0066FF",
+                    600: "#0052cc",
+                    700: "#003da5",
+                    800: "#003285",
+                    900: "#002b6d",
                 },
                 emerald: {
                     50: "#ecfdf5",

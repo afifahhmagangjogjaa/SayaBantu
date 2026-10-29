@@ -10,9 +10,19 @@
 
     <!-- PWA & Favicon Settings -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    @php
+        $dynamicAppIcon = \App\Models\AppSetting::get('app_icon');
+        $dynamicAppIconUrl = $dynamicAppIcon && \Illuminate\Support\Facades\Storage::disk('public')->exists($dynamicAppIcon) ? asset('storage/' . $dynamicAppIcon) : null;
+    @endphp
+    @if($dynamicAppIconUrl)
+        <link rel="icon" href="{{ $dynamicAppIconUrl }}">
+        <link rel="apple-touch-icon" href="{{ $dynamicAppIconUrl }}">
+    @else
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    @endif
     <meta name="theme-color" content="#0284c7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -31,6 +41,17 @@
     @stack('styles')
     <style>
         [x-cloak] { display: none !important; }
+
+        /* Sembunyikan scrollbar di seluruh aplikasi untuk mobile-feel */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        html, body, * {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
 
         /* Saat banner install PWA tampil, beri ruang bawah ekstra agar tidak menutupi konten form */
         body.pwa-banner-open main {
@@ -179,11 +200,9 @@
     </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-50">
-    <!-- Centered Container: Full width on mobile, centered frame on tablet/desktop -->
-    <div class="min-h-screen min-h-[100dvh] w-full flex items-start justify-center bg-gray-100 selection:bg-primary-500 selection:text-white">
-        <!-- Mobile Frame: 100% fluid on mobile devices, max-w-md centered on larger screens -->
-        <div class="w-full max-w-md min-h-screen min-h-[100dvh] bg-gray-50 relative flex flex-col shadow-none sm:shadow-2xl sm:border-x sm:border-gray-200/80">
+<body class="font-sans antialiased bg-slate-100 flex flex-col items-center sm:justify-start sm:pt-2 sm:pb-6 sm:px-4 min-h-screen min-h-[100dvh]">
+    <!-- Centered Mobile Frame container matching login page -->
+    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-[840px] sm:max-h-[calc(100dvh-1rem)] bg-gray-50 sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-hidden">
             <!-- Global notification (toast) for customer actions -->
             <div id="customer-global-notification" class="fixed left-1/2 -translate-x-1/2 pointer-events-none w-full max-w-md px-3 z-[99999]" style="top: calc(0.75rem + env(safe-area-inset-top, 0px));">
                 <div id="customer-global-notification-inner" class="w-full"></div>
@@ -237,7 +256,7 @@
                 </script>
             @endif
             <!-- Content: responsive bottom padding adapting to safe area -->
-            <main class="flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
+            <main class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
                 @if($__env->hasSection('content'))
                     @yield('content')
                 @else
@@ -254,7 +273,7 @@
 
             <!-- Bottom Navigation Bar: Fluid full width on mobile, max-w-md centered on desktop -->
             @auth
-                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40"
+                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40 sm:rounded-b-[36px]"
                     style="background-color: #ffffff !important; padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));">
                     <div class="w-full flex items-center justify-around px-2 py-2">
                         <!-- Beranda -->
@@ -1010,7 +1029,7 @@
     <!-- PWA Service Worker & Install Banner -->
     <div id="pwa-install-banner" class="hidden fixed bottom-20 left-4 right-4 max-w-sm mx-auto bg-gray-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-gray-700/80 z-[99999] flex items-center justify-between gap-3 animate-slide-up">
         <div class="flex items-center gap-2.5 min-w-0">
-            <img src="/icons/icon-192x192.png" alt="SayaBantu" class="w-9 h-9 rounded-xl shadow-xs shrink-0">
+            <img src="{{ $dynamicAppIconUrl ?: '/icons/icon-192x192.png' }}" alt="SayaBantu" class="w-9 h-9 rounded-xl shadow-xs shrink-0 object-contain bg-white">
             <div class="min-w-0">
                 <h4 class="text-xs font-bold text-white leading-tight line-clamp-2">Pasang Aplikasi SayaBantu</h4>
                 <p class="text-[11px] text-gray-300 leading-tight mt-0.5 hidden min-[360px]:block">Akses cepat & instan di HP Anda</p>

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('helps') && !Schema::hasColumn('helps', 'help_type')) {
+        if (Schema::hasTable('helps') && ! Schema::hasColumn('helps', 'help_type')) {
             Schema::table('helps', function (Blueprint $table) {
                 if (Schema::hasColumn('helps', 'category_id')) {
                     $table->string('help_type', 20)->default('scheduled')->after('category_id');

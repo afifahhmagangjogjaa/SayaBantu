@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Livewire\Auth\AdminLogin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -35,10 +34,19 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     // Google OAuth Routes
+    // Dibatasi supaya tidak bisa dipakai brute force / spam pembuatan sesi.
     Route::get('auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirectToGoogle'])
+        ->middleware('throttle:20,1')
         ->name('auth.google');
     Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])
+        ->middleware('throttle:20,1')
         ->name('auth.google.callback');
+
+    // Selesaikan pendaftaran Google setelah user memilih jenis akun.
+    // Profil Google sudah ada di session, jadi tidak perlu consent ulang.
+    Route::post('register/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'completeGoogleRegistration'])
+        ->middleware('throttle:10,1')
+        ->name('register.google.complete');
 
     Volt::route('forgot-password', 'pages.auth.forgot-password')
         ->name('password.request');
@@ -54,6 +62,7 @@ Route::get('admin/login', function () {
             return redirect()->route('admin.dashboard');
         }
     }
+
     return redirect()->route('login');
 })->name('admin.login');
 
@@ -72,7 +81,6 @@ Route::middleware('auth')->group(function () {
     // Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
     //     ->middleware(['signed', 'throttle:6,1'])
     //     ->name('verification.verify');
-
 
     Volt::route('confirm-password', 'pages.auth.confirm-password')
         ->name('password.confirm');
@@ -101,13 +109,16 @@ Route::match(['get', 'post'], 'logout', function (\Illuminate\Http\Request $requ
     if (Auth::check()) {
         Auth::logout();
     }
+    $request->session()->forget(['url.intended', 'oauth_intended_role']);
+    $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
     if ($isAdmin) {
-        $msg = $status === 'inactive' 
-            ? 'Akun Admin Anda telah dinonaktifkan oleh Super Admin.' 
+        $msg = $status === 'inactive'
+            ? 'Akun Admin Anda telah dinonaktifkan oleh Super Admin.'
             : ($status === 'blocked' ? 'Akun Admin Anda telah diblokir oleh Super Admin.' : null);
+
         return $msg ? redirect(route('admin.login', absolute: false))->withErrors(['email' => $msg]) : redirect(route('admin.login', absolute: false));
     }
 
@@ -127,6 +138,8 @@ Route::match(['get', 'post'], 'admin/logout', function (\Illuminate\Http\Request
     if (Auth::check()) {
         Auth::logout();
     }
+    $request->session()->forget(['url.intended', 'oauth_intended_role']);
+    $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
@@ -138,4 +151,3 @@ Route::match(['get', 'post'], 'admin/logout', function (\Illuminate\Http\Request
 
     return redirect(route('admin.login', absolute: false));
 })->name('admin.logout');
-

@@ -10,7 +10,7 @@ trait HasJourneyTimeline
 {
     public function canPartnerStartJourney(): bool
     {
-        if ($this->isUrgent() || !$this->isScheduled() || empty($this->scheduled_at)) {
+        if ($this->isUrgent() || ! $this->isScheduled() || empty($this->scheduled_at)) {
             return true;
         }
 
@@ -19,7 +19,7 @@ trait HasJourneyTimeline
 
     public function partnerJourneyAvailableAt(): ?\Carbon\Carbon
     {
-        if (!$this->isScheduled() || empty($this->scheduled_at)) {
+        if (! $this->isScheduled() || empty($this->scheduled_at)) {
             return null;
         }
 
@@ -28,7 +28,7 @@ trait HasJourneyTimeline
 
     public function isPartnerIdleOver30Minutes(): bool
     {
-        if (!$this->mitra_id) {
+        if (! $this->mitra_id) {
             return false;
         }
 
@@ -38,25 +38,25 @@ trait HasJourneyTimeline
         }
 
         // Jika mitra sudah mulai jalan atau mulai bekerja, maka tidak idle
-        if (!empty($this->partner_started_moving_at) || !empty($this->partner_started_at)) {
+        if (! empty($this->partner_started_moving_at) || ! empty($this->partner_started_at)) {
             return false;
         }
 
         // 1. Pesanan Terjadwal (Scheduled)
-        if ($this->isScheduled() || (!empty($this->scheduled_at) && $this->help_type !== 'urgent')) {
+        if ($this->isScheduled() || (! empty($this->scheduled_at) && $this->help_type !== 'urgent')) {
             if (empty($this->scheduled_at)) {
                 return false;
             }
 
             // Jika belum masuk waktu berangkat (tombol berangkat pada mitra belum nyala/aktif), mitra belum terlambat
-            if (!$this->canPartnerStartJourney()) {
+            if (! $this->canPartnerStartJourney()) {
                 return false;
             }
 
             $scheduledAt = \Carbon\Carbon::parse($this->scheduled_at);
             $buttonAvailableAt = $this->partnerJourneyAvailableAt() ?? $scheduledAt->copy()->subHour();
-            $takenAt = $this->taken_at 
-                ? \Carbon\Carbon::parse($this->taken_at) 
+            $takenAt = $this->taken_at
+                ? \Carbon\Carbon::parse($this->taken_at)
                 : ($this->mitra_assigned_at ? \Carbon\Carbon::parse($this->mitra_assigned_at) : $this->created_at);
 
             // Waktu awal di mana tombol berangkat sudah menyala DAN mitra sudah memegang pesanan
@@ -70,13 +70,13 @@ trait HasJourneyTimeline
         }
 
         // 2. Pesanan Urgent / Langsung
-        $takenTime = $this->taken_at 
-            ? \Carbon\Carbon::parse($this->taken_at) 
-            : ($this->mitra_assigned_at 
-                ? \Carbon\Carbon::parse($this->mitra_assigned_at) 
+        $takenTime = $this->taken_at
+            ? \Carbon\Carbon::parse($this->taken_at)
+            : ($this->mitra_assigned_at
+                ? \Carbon\Carbon::parse($this->mitra_assigned_at)
                 : null);
 
-        if (!$takenTime) {
+        if (! $takenTime) {
             return false;
         }
 
@@ -89,29 +89,29 @@ trait HasJourneyTimeline
 
     public function getExpectedJourneyStartTime(): ?\Carbon\Carbon
     {
-        if ($this->isScheduled() || (!empty($this->scheduled_at) && $this->help_type !== 'urgent')) {
+        if ($this->isScheduled() || (! empty($this->scheduled_at) && $this->help_type !== 'urgent')) {
             if (empty($this->scheduled_at)) {
                 return null;
             }
             $scheduledAt = \Carbon\Carbon::parse($this->scheduled_at);
             $buttonAvailableAt = $this->partnerJourneyAvailableAt() ?? $scheduledAt->copy()->subHour();
-            $takenAt = $this->taken_at 
-                ? \Carbon\Carbon::parse($this->taken_at) 
+            $takenAt = $this->taken_at
+                ? \Carbon\Carbon::parse($this->taken_at)
                 : ($this->mitra_assigned_at ? \Carbon\Carbon::parse($this->mitra_assigned_at) : $this->created_at);
 
             return ($takenAt && $takenAt->gt($buttonAvailableAt)) ? $takenAt : $buttonAvailableAt;
         }
 
-        return $this->taken_at 
-            ? \Carbon\Carbon::parse($this->taken_at) 
-            : ($this->mitra_assigned_at 
-                ? \Carbon\Carbon::parse($this->mitra_assigned_at) 
+        return $this->taken_at
+            ? \Carbon\Carbon::parse($this->taken_at)
+            : ($this->mitra_assigned_at
+                ? \Carbon\Carbon::parse($this->mitra_assigned_at)
                 : ($this->created_at ? \Carbon\Carbon::parse($this->created_at) : null));
     }
 
     public function wasPartnerLateDeparting(): bool
     {
-        if (!$this->mitra_id) {
+        if (! $this->mitra_id) {
             return false;
         }
 
@@ -121,36 +121,37 @@ trait HasJourneyTimeline
         }
 
         // Jika mitra SUDAH mulai berangkat:
-        $departureTime = $this->partner_started_moving_at 
-            ? \Carbon\Carbon::parse($this->partner_started_moving_at) 
+        $departureTime = $this->partner_started_moving_at
+            ? \Carbon\Carbon::parse($this->partner_started_moving_at)
             : \Carbon\Carbon::parse($this->partner_started_at);
 
         $expectedStartTime = $this->getExpectedJourneyStartTime();
-        if (!$expectedStartTime) {
+        if (! $expectedStartTime) {
             return false;
         }
 
         // Apakah waktu berangkat mitra >= 30 menit setelah waktu acuan?
         $diffMinutes = $expectedStartTime->diffInMinutes($departureTime, false);
+
         return $diffMinutes >= 30;
     }
 
     public function canCustomerCancelDueToDelay(): bool
     {
-        if (!$this->mitra_id) {
+        if (! $this->mitra_id) {
             return false;
         }
 
         // Jika mitra sudah tiba di lokasi atau sudah dalam tahap pengerjaan/selesai/batal, hak batal tertutup
-        if (!empty($this->partner_arrived_at) || in_array($this->status, [
-            'partner_arrived', 
-            'in_progress', 
-            'sedang_diproses', 
-            'waiting_customer_confirmation', 
-            'selesai', 
-            'completed', 
-            'dibatalkan', 
-            'cancelled'
+        if (! empty($this->partner_arrived_at) || in_array($this->status, [
+            'partner_arrived',
+            'in_progress',
+            'sedang_diproses',
+            'waiting_customer_confirmation',
+            'selesai',
+            'completed',
+            'dibatalkan',
+            'cancelled',
         ])) {
             return false;
         }
@@ -176,7 +177,7 @@ trait HasJourneyTimeline
     {
         return $query->where(function ($q) {
             $q->whereNull('auto_cancel_at')
-            ->orWhere('auto_cancel_at', '>', now());
+                ->orWhere('auto_cancel_at', '>', now());
         });
     }
 }

@@ -16,9 +16,9 @@
                 <!-- Nama Lengkap -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        Nama Lengkap (Sesuai KTP) <span class="text-red-500">*</span>
+                        Nama Lengkap (Sesuai KTP)
                     </label>
-                    <input type="text" name="name" value="{{ old('name') }}" required placeholder="Nama lengkap Anda"
+                    <input type="text" name="name" autocomplete="name" value="{{ old('name') }}" required placeholder="Nama lengkap Anda"
                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('name') border-red-500 @enderror">
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -26,7 +26,7 @@
                 <!-- NIK -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        NIK (16 Digit) <span class="text-red-500">*</span>
+                        NIK (16 Digit)
                     </label>
                     <input type="text" name="nik" maxlength="16" value="{{ old('nik') }}" placeholder="16 digit nomor NIK" required 
                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('nik') border-red-500 @enderror">
@@ -36,9 +36,9 @@
                 <!-- No WhatsApp -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        No. WhatsApp / HP <span class="text-red-500">*</span>
+                        No. WhatsApp / HP
                     </label>
-                    <input type="text" name="phone" value="{{ old('phone') }}" placeholder="08xxxxxxxxxx" required 
+                    <input type="tel" name="phone" autocomplete="tel" value="{{ old('phone') }}" placeholder="08xxxxxxxxxx" required
                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('phone') border-red-500 @enderror">
                     @error('phone') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -46,7 +46,7 @@
                 <!-- Kota Domisili -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        Kota Domisili <span class="text-red-500">*</span>
+                        Kota Domisili
                     </label>
                     <select name="city_id" id="city_id" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('city_id') border-red-500 @enderror">
                         <option value="">Pilih Kota Domisili</option>
@@ -60,7 +60,7 @@
                 <!-- Alamat Lengkap Domisili -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) <span class="text-red-500">*</span>
+                        Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah)
                     </label>
                     <x-smart-address-input 
                         name="address" 
@@ -80,7 +80,7 @@
                 <div class="pt-3 border-t border-gray-100 space-y-3.5">
                     <div class="flex items-center justify-between">
                         <label class="block text-xs font-bold uppercase tracking-wider text-gray-900">
-                            1. Foto Fisik KTP Asli <span class="text-red-500">*</span>
+                            1. Foto Fisik KTP Asli
                         </label>
                         <span class="text-[11px] text-gray-400 font-medium">Maksimal 2MB (JPG/PNG)</span>
                     </div>
@@ -159,7 +159,7 @@
                 <div class="pt-4 border-t border-gray-100 space-y-3.5">
                     <div class="flex items-center justify-between">
                         <label class="block text-xs font-bold uppercase tracking-wider text-gray-900">
-                            2. Foto Selfie Memegang KTP <span class="text-red-500">*</span>
+                            2. Foto Selfie Memegang KTP
                         </label>
                         <span class="text-[11px] text-gray-400 font-medium">Maksimal 2MB (JPG/PNG)</span>
                     </div>

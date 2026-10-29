@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 
 // Rute mitra (prefix, nama, dan middleware milik role ini).
+// Catatan: jangan panggil ->middleware() lagi setelah ini — pemanggilan kedua
+// akan menimpa daftar middleware, sehingga 'auth' dan 'onboarded' hilang.
 Route::middleware(['auth', 'onboarded', 'mitra'])
     ->prefix('mitra')
     ->name('mitra.')
-    ->middleware('mitra')
     ->group(function () {
         Route::get('/dashboard', \App\Livewire\Mitra\Dashboard\Index::class)->name('dashboard');
         Route::get('/helps', \App\Livewire\Mitra\Helps\AllHelps::class)->name('helps.all');
@@ -37,4 +38,3 @@ Route::middleware(['auth', 'onboarded', 'mitra'])
         Route::get('/withdraw/success/{withdraw}', [\App\Http\Controllers\WithdrawController::class, 'showSuccess'])->name('withdraw.success');
         Route::get('/withdraw/rejected/{withdraw}', [\App\Http\Controllers\WithdrawController::class, 'showRejected'])->name('withdraw.rejected');
     });
-

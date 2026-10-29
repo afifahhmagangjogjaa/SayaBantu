@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Help;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class FastForwardSchedule extends Command
 {
@@ -56,8 +56,9 @@ class FastForwardSchedule extends Command
                 ->orWhere('order_id', $helpId)
                 ->first();
 
-            if (!$help) {
+            if (! $help) {
                 $this->error("Pesanan dengan ID atau Order ID '{$helpId}' tidak ditemukan!");
+
                 return 1;
             }
         } else {
@@ -88,6 +89,7 @@ class FastForwardSchedule extends Command
 
             if ($activeHelps->isEmpty()) {
                 $this->warn('Belum ada data pesanan bantuan di database.');
+
                 return 0;
             }
 
@@ -117,12 +119,14 @@ class FastForwardSchedule extends Command
                     $help = $first;
                 } else {
                     $this->info('Dibatalkan.');
+
                     return 0;
                 }
             } else {
-                $selectedNo = $this->ask('Masukkan Nomor (1-' . $activeHelps->count() . ') atau ID pesanan yang ingin dipercepat');
-                if (!$selectedNo) {
+                $selectedNo = $this->ask('Masukkan Nomor (1-'.$activeHelps->count().') atau ID pesanan yang ingin dipercepat');
+                if (! $selectedNo) {
                     $this->info('Dibatalkan.');
+
                     return 0;
                 }
 
@@ -134,8 +138,9 @@ class FastForwardSchedule extends Command
                     $help = Help::with(['user', 'mitra'])->find($selectedNo);
                 }
 
-                if (!$help) {
+                if (! $help) {
                     $this->error('Pesanan tidak valid.');
+
                     return 1;
                 }
             }
@@ -144,13 +149,13 @@ class FastForwardSchedule extends Command
         // Tampilkan info sebelum update
         $oldScheduled = $help->scheduled_at ? Carbon::parse($help->scheduled_at) : null;
         $this->newLine();
-        $this->info("Target Pesanan:");
+        $this->info('Target Pesanan:');
         $this->line(" - ID Pesanan      : #{$help->id} ({$help->order_id})");
         $this->line(" - Judul           : {$help->title}");
-        $this->line(" - Customer        : " . ($help->user?->name ?? 'User #' . $help->user_id));
-        $this->line(" - Mitra           : " . ($help->mitra?->name ?? '<fg=yellow>Belum diambil mitra</>'));
+        $this->line(' - Customer        : '.($help->user?->name ?? 'User #'.$help->user_id));
+        $this->line(' - Mitra           : '.($help->mitra?->name ?? '<fg=yellow>Belum diambil mitra</>'));
         $this->line(" - Status Saat Ini : {$help->status}");
-        $this->line(" - Jadwal Semula   : " . ($oldScheduled ? $oldScheduled->translatedFormat('l, d F Y H:i') . ' WIB' : 'Belum diatur'));
+        $this->line(' - Jadwal Semula   : '.($oldScheduled ? $oldScheduled->translatedFormat('l, d F Y H:i').' WIB' : 'Belum diatur'));
 
         // Hitung jadwal baru
         if ($isLock) {
@@ -168,30 +173,30 @@ class FastForwardSchedule extends Command
         // Simpan perubahan ke database
         $help->update([
             'scheduled_at' => $newScheduled->format('Y-m-d H:i:s'),
-            'help_type'    => 'scheduled', // Pastikan bertipe scheduled agar sesuai skenario pengujian
+            'help_type' => 'scheduled', // Pastikan bertipe scheduled agar sesuai skenario pengujian
         ]);
 
         $help->refresh();
         $canStart = $help->canPartnerStartJourney();
 
         $this->newLine();
-        $this->line("<fg=green;options=bold>BERHASIL DIPERBARUI!</>");
-        $this->line(" - Jadwal Baru     : <fg=cyan;options=bold>" . $newScheduled->translatedFormat('l, d F Y H:i:s') . " WIB</> ({$actionDesc})");
-        $this->line(" - Waktu Buka Akses: " . $newScheduled->copy()->subHour()->format('H:i') . ' WIB (H-1 jam sebelum jadwal)');
-        $this->line(" - Waktu Sekarang  : " . Carbon::now()->format('H:i:s') . ' WIB');
-        
+        $this->line('<fg=green;options=bold>BERHASIL DIPERBARUI!</>');
+        $this->line(' - Jadwal Baru     : <fg=cyan;options=bold>'.$newScheduled->translatedFormat('l, d F Y H:i:s')." WIB</> ({$actionDesc})");
+        $this->line(' - Waktu Buka Akses: '.$newScheduled->copy()->subHour()->format('H:i').' WIB (H-1 jam sebelum jadwal)');
+        $this->line(' - Waktu Sekarang  : '.Carbon::now()->format('H:i:s').' WIB');
+
         if ($canStart) {
             $this->newLine();
-            $this->line("<bg=green;fg=black;options=bold> STATUS TOMBOL MITRA: [ AKTIF / BISA DIKLIK ] </>");
+            $this->line('<bg=green;fg=black;options=bold> STATUS TOMBOL MITRA: [ AKTIF / BISA DIKLIK ] </>');
             $this->line("Sekarang tombol <fg=cyan;options=bold>'Menuju ke Lokasi Customer'</> sudah muncul dan siap diklik di akun Mitra.");
         } else {
             $this->newLine();
-            $this->line("<bg=yellow;fg=black;options=bold> STATUS TOMBOL MITRA: [ TERKUNCI / MENUNGGU JADWAL ] </>");
-            $this->line("Tombol masih terkunci karena jadwal masih lebih dari 1 jam ke depan.");
+            $this->line('<bg=yellow;fg=black;options=bold> STATUS TOMBOL MITRA: [ TERKUNCI / MENUNGGU JADWAL ] </>');
+            $this->line('Tombol masih terkunci karena jadwal masih lebih dari 1 jam ke depan.');
         }
 
         $this->newLine();
-        $this->line("<fg=gray>Tips: Silakan refresh (F5) halaman detail pesanan di browser Mitra untuk melihat perubahannya.</>");
+        $this->line('<fg=gray>Tips: Silakan refresh (F5) halaman detail pesanan di browser Mitra untuk melihat perubahannya.</>');
         $this->newLine();
 
         return 0;

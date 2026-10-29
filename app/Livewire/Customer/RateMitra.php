@@ -2,16 +2,20 @@
 
 namespace App\Livewire\Customer;
 
-use Livewire\Component;
 use App\Models\Help;
 use App\Models\Rating;
+use Livewire\Component;
 
 class RateMitra extends Component
 {
     public $help;
+
     public $rating = 0;
+
     public $review = '';
+
     public $is_anonymous = false;
+
     public $alreadyRated = false;
 
     protected $rules = [
@@ -40,18 +44,21 @@ class RateMitra extends Component
     {
         $this->validate();
 
-        if (!in_array($this->help->status, ['completed', 'selesai'])) {
+        if (! in_array($this->help->status, ['completed', 'selesai'])) {
             $this->dispatch('notify', type: 'error', message: 'Hanya bisa memberi rating untuk bantuan yang sudah selesai.');
+
             return;
         }
 
         if ($this->alreadyRated) {
             $this->dispatch('notify', type: 'error', message: 'Anda sudah memberikan rating untuk mitra ini.');
+
             return;
         }
 
         if ($this->help->user_id !== auth()->id()) {
             $this->dispatch('notify', type: 'error', message: 'Anda tidak berhak memberikan rating untuk bantuan ini.');
+
             return;
         }
 
@@ -73,7 +80,7 @@ class RateMitra extends Component
 
         // notify browser so parent can close modal
         $this->dispatch('rating-submitted', helpId: $this->help->id);
-        
+
         // notify parent components if needed
         $this->dispatch('ratingSubmitted');
     }

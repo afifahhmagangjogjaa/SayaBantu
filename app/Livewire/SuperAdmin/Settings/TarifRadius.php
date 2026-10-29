@@ -2,27 +2,30 @@
 
 namespace App\Livewire\SuperAdmin\Settings;
 
-use Livewire\Component;
+use App\Models\AppSetting;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use App\Models\AppSetting;
+use Livewire\Component;
 
 #[Layout('layouts.superadmin')]
 #[Title('Tarif & Radius Bantuan - Super Admin')]
 class TarifRadius extends Component
 {
     public $min_help_nominal;
+
     public $admin_fee;
+
     public $default_urgent_nominal;
+
     public $mitra_max_distance_km;
 
     protected function rules()
     {
         return [
-            'min_help_nominal'             => 'required|numeric|min:0',
-            'admin_fee'                    => 'nullable|numeric|min:0',
-            'default_urgent_nominal'       => 'required|numeric|min:0',
-            'mitra_max_distance_km'        => 'required|numeric|min:1|max:100',
+            'min_help_nominal' => 'required|numeric|min:0',
+            'admin_fee' => 'nullable|numeric|min:0',
+            'default_urgent_nominal' => 'required|numeric|min:0',
+            'mitra_max_distance_km' => 'required|numeric|min:1|max:100',
         ];
     }
 

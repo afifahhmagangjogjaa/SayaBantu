@@ -5,22 +5,31 @@ namespace App\Livewire\Customer\Reports;
 use App\Models\Help;
 use App\Models\PartnerReport;
 use App\Models\User;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 class Create extends Component
 {
     public $title = '';
+
     public $message = '';
+
     public $report_type = '';
+
     public $reported_user_id = null;
+
     public $reported_help_id = null;
+
     public $help_id = null; // For selecting help from dropdown
+
     // free-text fields
     public $reported_help_text = null;
+
     public $reported_user_text = null;
+
     public $selected_help_type = '';
+
     public $custom_help_type = '';
 
     public $helpTypes = [
@@ -78,7 +87,7 @@ class Create extends Component
             $this->help_id = $targetHelpId;
             $help = Help::find($targetHelpId);
             if ($help) {
-                if ($help->mitra_id && !$this->reported_user_id) {
+                if ($help->mitra_id && ! $this->reported_user_id) {
                     $this->reported_user_id = $help->mitra_id;
                 }
                 if ($help->mitra && empty($this->reported_user_text)) {
@@ -93,7 +102,7 @@ class Create extends Component
         // Cek apakah chat / bantuan / mitra ini sudah pernah dilaporkan dan masih aktif
         if (auth()->check() && request()->query('new') !== '1') {
             $existingQuery = PartnerReport::where('reporter_id', auth()->id());
-            
+
             if ($targetHelpId) {
                 $existingQuery->where('reported_help_id', $targetHelpId);
             } elseif ($targetUserId) {
@@ -102,7 +111,7 @@ class Create extends Component
 
             $existing = $existingQuery->latest()->first();
             // Hanya redirect ke status jika laporan untuk target ini masih pending / in_progress (belum selesai)
-            if ($existing && !in_array($existing->status, ['resolved', 'closed', 'rejected', 'dismissed'])) {
+            if ($existing && ! in_array($existing->status, ['resolved', 'closed', 'rejected', 'dismissed'])) {
                 return redirect()->route('customer.reports.show', ['report' => $existing->id]);
             }
         }
@@ -127,10 +136,10 @@ class Create extends Component
             $help = Help::find($this->help_id);
             if ($help) {
                 $this->reported_help_id = $help->id;
-                if ($help->mitra_id && !$this->reported_user_id) {
+                if ($help->mitra_id && ! $this->reported_user_id) {
                     $this->reported_user_id = $help->mitra_id;
                 }
-                if (!$this->reported_help_text) {
+                if (! $this->reported_help_text) {
                     $this->reported_help_text = $help->title;
                 }
             }
@@ -138,10 +147,11 @@ class Create extends Component
 
         // If report_type == 'lainnya', accept custom_help_type as the help description
         if ($this->report_type === 'lainnya') {
-            if (!empty(trim($this->custom_help_type))) {
+            if (! empty(trim($this->custom_help_type))) {
                 $this->reported_help_text = $this->custom_help_type;
             } elseif (empty(trim($this->reported_help_text))) {
                 $this->addError('custom_help_type', 'Silakan isi jenis bantuan yang tidak tersedia pada pilihan.');
+
                 return;
             }
         }
@@ -177,10 +187,11 @@ class Create extends Component
                 $adminUser->notify(new \App\Notifications\NewReportNotification($report));
             }
         } catch (\Throwable $e) {
-            \Log::warning('Failed sending report notification to admins: ' . $e->getMessage());
+            \Log::warning('Failed sending report notification to admins: '.$e->getMessage());
         }
 
         session()->flash('message', 'Laporan aduan berhasil dikirim. Admin akan meninjau laporan Anda.');
+
         return redirect()->route('customer.reports.show', ['report' => $report->id]);
     }
 

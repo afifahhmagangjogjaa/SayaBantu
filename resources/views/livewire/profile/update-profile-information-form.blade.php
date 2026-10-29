@@ -28,8 +28,7 @@ x-on:profile-saved.window="
             <p class="text-sm text-gray-600 mb-6">Perubahan profil Anda telah berhasil disimpan.</p>
             
             <button @click="window.location.href = redirectUrl" 
-                    class="w-full text-white font-bold py-3.5 rounded-xl transition shadow-lg active:scale-95"
-                    style="background: linear-gradient(to bottom right, #0066FF, #003EA8);">
+                    class="w-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold py-3.5 rounded-xl transition shadow-md active:scale-95 text-sm">
                 Oke
             </button>
         </div>
@@ -43,7 +42,7 @@ x-on:profile-saved.window="
             <p class="text-xs text-amber-800 mb-2">
                 Untuk mengajukan atau mengambil bantuan, Anda juga wajib mengunggah Foto KTP dan Foto Selfie (Wajah &amp; KTP).
             </p>
-            <a href="{{ route('profile.settings.verification') }}" class="inline-block px-3 py-1.5 bg-amber-200 text-amber-900 font-bold rounded-lg text-xs hover:bg-amber-300 transition">
+            <a href="{{ route('profile.settings.verification') }}" wire:navigate class="inline-block px-3 py-1.5 bg-amber-200 text-amber-900 font-bold rounded-lg text-xs hover:bg-amber-300 transition">
                 Ke Halaman Upload &rarr;
             </a>
         </div>
@@ -57,7 +56,7 @@ x-on:profile-saved.window="
                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                     </svg>
                     Nama Lengkap
-                    <span class="text-red-500 font-bold">*</span>
+
                 </span>
             </label>
             <input type="text" wire:model="name" required
@@ -74,30 +73,35 @@ x-on:profile-saved.window="
             @enderror
         </div>
 
-        <!-- NIK (16 digit angka) -->
+        <!-- NIK (Nomor Induk Kependudukan - Terkunci / Dinonaktifkan) -->
         <div>
-            <label class="block text-sm font-semibold text-gray-900 mb-2">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+            <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-semibold text-gray-900">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                        </svg>
+                        NIK (Nomor Induk Kependudukan)
+                    </span>
+                </label>
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200">
+                    <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
-                    NIK (Nomor Induk Kependudukan)
-                    <span class="text-red-500 font-bold">*</span>
+                    Terkunci
                 </span>
-            </label>
-            <input type="text" wire:model="nik" required maxlength="16" inputmode="numeric"
-                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16)"
-                class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white font-mono tracking-wider"
-                placeholder="16 digit NIK sesuai KTP">
-            <p class="mt-1 text-[11px] text-gray-400">Harus tepat 16 digit angka.</p>
-            @error('nik')
-                <p class="mt-2 text-xs text-red-600 flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </div>
+            <div class="relative">
+                <input type="text" wire:model="nik" disabled readonly
+                    class="w-full px-4 py-3.5 pr-10 text-sm rounded-xl border border-gray-200 bg-gray-100/90 text-gray-500 font-mono tracking-wider cursor-not-allowed select-none"
+                    placeholder="16 digit NIK sesuai KTP">
+                <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
-                    {{ $message }}
-                </p>
-            @enderror
+                </div>
+            </div>
+            <p class="mt-1 text-[11px] text-gray-400">NIK terikat dengan identitas KTP akun dan tidak dapat diubah.</p>
         </div>
 
         <!-- Gender (Jenis Kelamin) -->
@@ -108,7 +112,7 @@ x-on:profile-saved.window="
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                     Jenis Kelamin
-                    <span class="text-red-500 font-bold">*</span>
+
                 </span>
             </label>
             <select wire:model="gender" required
@@ -131,7 +135,7 @@ x-on:profile-saved.window="
                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                     </svg>
                     Email
-                    <span class="text-red-500 font-bold">*</span>
+
                 </span>
             </label>
             <input type="email" wire:model="email" required
@@ -155,7 +159,7 @@ x-on:profile-saved.window="
                         <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
                     </svg>
                     No. HP / WhatsApp
-                    <span class="text-red-500 font-bold">*</span>
+
                 </span>
             </label>
             <input type="tel" wire:model="phone" required maxlength="13" inputmode="numeric"
@@ -181,12 +185,12 @@ x-on:profile-saved.window="
                         <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                     </svg>
                     Kota
-                    <span class="text-red-500 font-bold">*</span>
+
                 </span>
             </label>
             <select wire:model="city_id" id="profile_city_id" required
                 class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white">
-                <option value="">-- Pilih Kota --</option>
+                <option value="">Pilih Kota</option>
                 @foreach($cities as $city)
                     <option value="{{ $city->id }}">{{ $city->name }}</option>
                 @endforeach
@@ -209,7 +213,7 @@ x-on:profile-saved.window="
                         <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
                     </svg>
                     Alamat Lengkap
-                    <span class="text-red-500 font-bold">*</span>
+
                 </span>
             </label>
             <x-smart-address-input 
@@ -233,8 +237,7 @@ x-on:profile-saved.window="
         <!-- Submit Button -->
         <div class="pt-2">
             <button type="submit" wire:loading.attr="disabled"
-                class="w-full text-white font-semibold text-sm py-4 rounded-xl hover:shadow-lg transition active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
+                class="w-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-sm py-3.5 rounded-xl hover:shadow-lg transition active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
                 <span wire:loading.remove wire:target="updateProfileInformation" class="flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>

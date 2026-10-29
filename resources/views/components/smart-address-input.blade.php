@@ -65,17 +65,6 @@
         </div>
     </div>
 
-    <!-- Micro Hint: Pencarian Alamat Cerdas -->
-    <div class="flex items-center justify-between text-[11px] text-gray-400 mt-1 px-1">
-        <span class="flex items-center gap-1 text-blue-600/80 font-medium">
-            <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-            </svg>
-            Pencarian Cerdas Aktif
-        </span>
-        <span class="text-gray-400">Ketik min. 3 huruf untuk rekomendasi</span>
-    </div>
-
     <!-- Autocomplete Dropdown List -->
     <div 
         x-show="isOpen && suggestions.length > 0" 

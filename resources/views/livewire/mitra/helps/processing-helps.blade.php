@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white" wire:poll.20s.visible>
+<div class="min-h-full bg-white" wire:poll.20s.visible>
     <style>
         .header-pattern {
             position: relative;
@@ -73,13 +73,13 @@
             </div>
 
             <!-- Curved separator (SVG) -->
-            <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                 <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
         <!-- Content -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24 min-h-[60vh]">
+        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6 min-h-[60vh]">
             @if(session('success'))
                 <div class="mb-4 p-3 bg-green-50 border border-green-100 rounded-lg text-green-700 text-sm flex items-center gap-2">
                     <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -184,7 +184,7 @@
                                         @if($tab === 'diproses')
                                             @if($help->status === 'waiting_customer_confirmation')
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                                    â³ Menunggu Konfirmasi Customer
+                                                    ⏳ Menunggu Konfirmasi Customer
                                                 </span>
                                                 @php
                                                     $mDeadline = $help->getCustomerConfirmationDeadline();
@@ -196,14 +196,14 @@
                                                 @endif
                                             @elseif($help->status === 'partner_cancel_requested')
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                                                    ⚠️ï¸ Permintaan Batal Diajukan
+                                                    Permintaan Batal Diajukan
                                                 </span>
                                             @elseif($help->isScheduled() && !$help->canPartnerStartJourney())
                                                 @php
                                                     $schedDays = (int) now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($help->scheduled_at)->startOfDay(), false);
                                                 @endphp
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                                    â³ Terjadwal {{ $schedDays > 0 ? "(H-{$schedDays})" : '(Hari Ini)' }}
+                                                    ⏳ Terjadwal {{ $schedDays > 0 ? "(H-{$schedDays})" : '(Hari Ini)' }}
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
@@ -278,7 +278,7 @@
                                         <span class="text-xs text-gray-500 truncate max-w-[150px]">👤 {{ optional($help->user)->name ?? 'Customer' }}</span>
                                         <div class="flex items-center gap-1.5">
                                             @if($tab === 'diproses')
-                                                <a href="{{ route('mitra.chat', ['help' => $help->id]) }}" 
+                                                <a href="{{ route('mitra.chat', ['help' => $help->id]) }}" wire:navigate 
                                                     class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] hover:bg-blue-100 border border-blue-100 transition active:scale-95 shadow-xs" 
                                                     title="Chat Customer" aria-label="Chat Customer">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +287,7 @@
                                                     </svg>
                                                 </a>
                                             @endif
-                                            <a href="{{ route('mitra.helps.detail', $help->id) }}" class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">
+                                            <a href="{{ route('mitra.helps.detail', $help->id) }}" wire:navigate class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition active:scale-95">
                                                 Detail
                                             </a>
                                         </div>

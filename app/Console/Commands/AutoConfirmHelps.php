@@ -2,25 +2,27 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Help;
-use App\Models\UserBalance;
 use App\Models\BalanceTransaction;
+use App\Models\Help;
 use App\Models\PartnerActivity;
+use App\Models\UserBalance;
 use App\Notifications\HelpStatusNotification;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class AutoConfirmHelps extends Command
 {
     protected $signature = 'helps:auto-confirm';
+
     protected $description = 'Auto-confirm helps that waited for customer confirmation for more than 24 hours.';
 
     public function handle()
     {
         $count = self::autoConfirmExpired($this);
         $this->info("Successfully processed {$count} helps.");
+
         return 0;
     }
 
@@ -52,7 +54,7 @@ class AutoConfirmHelps extends Command
         $helps = $query->get();
 
         if ($console) {
-            $console->info('Found ' . $helps->count() . ' helps to auto-confirm.');
+            $console->info('Found '.$helps->count().' helps to auto-confirm.');
         }
 
         $confirmed = 0;
@@ -78,7 +80,7 @@ class AutoConfirmHelps extends Command
             DB::transaction(function () use ($help) {
                 // 1. Update status bantuan menjadi 'selesai'
                 // HelpObserver otomatis mencairkan saldo bersih ke akun mitra
-                $adminNotes = trim(($help->admin_notes ? $help->admin_notes . '. ' : '') . 'Auto-confirm oleh sistem setelah 24 jam tanpa respon customer.');
+                $adminNotes = trim(($help->admin_notes ? $help->admin_notes.'. ' : '').'Auto-confirm oleh sistem setelah 24 jam tanpa respon customer.');
 
                 $help->update([
                     'status' => 'selesai',
@@ -94,27 +96,27 @@ class AutoConfirmHelps extends Command
                         $already = BalanceTransaction::where('user_id', $help->mitra_id)
                             ->where(function ($q) use ($help) {
                                 $q->where('reference_id', $help->id)
-                                  ->orWhere(function ($sq) use ($help) {
-                                      if (!empty($help->order_id)) {
-                                          $sq->where('order_id', $help->order_id);
-                                      }
-                                  })
-                                  ->orWhere('description', 'like', 'Pendapatan Bantuan #' . $help->id . '%')
-                                  ->orWhere('description', 'like', 'Auto-confirm Bantuan #' . $help->id . '%');
+                                    ->orWhere(function ($sq) use ($help) {
+                                        if (! empty($help->order_id)) {
+                                            $sq->where('order_id', $help->order_id);
+                                        }
+                                    })
+                                    ->orWhere('description', 'like', 'Pendapatan Bantuan #'.$help->id.'%')
+                                    ->orWhere('description', 'like', 'Auto-confirm Bantuan #'.$help->id.'%');
                             })
                             ->exists();
 
-                        if (!$already) {
+                        if (! $already) {
                             $userBalance = UserBalance::firstOrCreate(
                                 ['user_id' => $help->mitra_id],
                                 ['balance' => 0]
                             );
 
                             $feeText = ($help->mitra_fee_amount > 0)
-                                ? " (Potongan Platform {$help->mitra_fee_percent}%: Rp " . number_format($help->mitra_fee_amount, 0, ',', '.') . ")"
-                                : "";
+                                ? " (Potongan Platform {$help->mitra_fee_percent}%: Rp ".number_format($help->mitra_fee_amount, 0, ',', '.').')'
+                                : '';
 
-                            $userBalance->addBalance($payoutAmount, "Auto-confirm Bantuan #{$help->id}" . $feeText, $help->id);
+                            $userBalance->addBalance($payoutAmount, "Auto-confirm Bantuan #{$help->id}".$feeText, $help->id);
                         }
                     }
                 }
@@ -127,7 +129,7 @@ class AutoConfirmHelps extends Command
                     $mitra->notify(new HelpStatusNotification($help, $oldStatus, 'selesai_auto_24h', $mitra));
                 }
             } catch (\Throwable $e) {
-                Log::warning('Gagal kirim notifikasi auto-confirm ke mitra: ' . $e->getMessage());
+                Log::warning('Gagal kirim notifikasi auto-confirm ke mitra: '.$e->getMessage());
             }
 
             // Notifikasi ke Customer
@@ -137,7 +139,7 @@ class AutoConfirmHelps extends Command
                     $customer->notify(new HelpStatusNotification($help, $oldStatus, 'selesai_auto_24h', $customer));
                 }
             } catch (\Throwable $e) {
-                Log::warning('Gagal kirim notifikasi auto-confirm ke customer: ' . $e->getMessage());
+                Log::warning('Gagal kirim notifikasi auto-confirm ke customer: '.$e->getMessage());
             }
 
             // Catat riwayat aktivitas PartnerActivity
@@ -146,23 +148,25 @@ class AutoConfirmHelps extends Command
                     PartnerActivity::create([
                         'user_id' => $help->mitra_id,
                         'activity_type' => 'help_auto_confirmed_24h',
-                        'description' => 'Bantuan #' . $help->id . ' otomatis selesai dan saldo dicairkan setelah 24 jam tanpa respon customer',
+                        'description' => 'Bantuan #'.$help->id.' otomatis selesai dan saldo dicairkan setelah 24 jam tanpa respon customer',
                         'ip_address' => request()?->ip() ?? '127.0.0.1',
                         'user_agent' => request()?->header('User-Agent') ?? 'System/AutoConfirm',
                     ]);
                 }
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
 
             if ($console) {
-                $console->info('Auto-confirmed and credited help #' . $help->id);
+                $console->info('Auto-confirmed and credited help #'.$help->id);
             }
 
             return true;
         } catch (\Throwable $e) {
-            Log::error('Failed to auto-confirm help #' . $help->id . ': ' . $e->getMessage());
+            Log::error('Failed to auto-confirm help #'.$help->id.': '.$e->getMessage());
             if ($console) {
-                $console->error('Failed to auto-confirm help #' . $help->id . ': ' . $e->getMessage());
+                $console->error('Failed to auto-confirm help #'.$help->id.': '.$e->getMessage());
             }
+
             return false;
         }
     }

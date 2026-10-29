@@ -81,7 +81,7 @@
 
         <div class="relative z-10 max-w-md mx-auto">
             <div class="flex items-center justify-between text-white mb-6">
-                <button onclick="window.history.back()" aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition">
+                <button onclick="window.history.back()" aria-label="Kembali" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-lg transition shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -92,24 +92,18 @@
                     <p class="text-xs text-white/90 mt-0.5">Detail permintaan bantuan Anda</p>
                 </div>
 
-                {{-- <div class="w-9">
-                    <button class="p-2 hover:bg-white/20 rounded-lg transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01" />
-                        </svg>
-                    </button>
-                </div> --}}
+                <div class="w-9 h-9 shrink-0"></div>
             </div>
         </div>        
 
             <!-- Curved separator (SVG) to create non-flat divider into content -->
-            <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                 <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
             </svg>
     </div>
 
     <!-- Content -->
-    <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-28 max-w-md mx-auto">
+    <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-8 max-w-md mx-auto">
         {{-- Order ID --}}
         <div class="bg-white px-4 py-3 flex items-center justify-between rounded-xl shadow-sm border border-gray-100">
             <span class="text-sm text-gray-600">ID Pesanan: <span class="font-semibold text-gray-900">{{ $help->order_id }}</span></span>
@@ -155,7 +149,7 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <span class="text-lg font-black text-red-600 font-mono tracking-wider" x-text="timeLeft">--:--</span>
+                        <span class="text-lg font-black text-red-600 font-mono tracking-wider" x-text="timeLeft">00:00</span>
                         <span class="text-[10px] text-gray-500 block">menit : detik</span>
                     </div>
                 </div>
@@ -308,7 +302,7 @@
                         @elseif($isRejected)
                             ✕ Komplain Ditolak
                         @else
-                            ⚠️ Mediasi Admin
+                            Mediasi Admin
                         @endif
                     </span>
                 </div>
@@ -401,13 +395,8 @@
             @if($help->mitra)
                 <div class="mt-4 p-3 bg-white rounded-xl flex items-center justify-between shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3">
-                        @if($help->mitra->selfie_photo)
-                            <img src="{{ asset('storage/' . $help->mitra->selfie_photo) }}" alt="{{ $help->mitra->name }}" class="w-10 h-10 rounded-full object-cover border-2 border-blue-100">
-                        @else
-                            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
-                                {{ strtoupper(substr($help->mitra->name ?? 'M', 0, 1)) }}
-                            </div>
-                        @endif
+                        <x-user-avatar :user="$help->mitra"
+                            class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold border-2 border-blue-100" />
                         <div>
                             <div class="flex items-center gap-1.5 flex-wrap">
                                 <h3 class="font-semibold text-sm text-gray-900">{{ $help->mitra->name ?? 'Mitra' }}</h3>
@@ -454,7 +443,7 @@
                                 </svg>
                             </a>
                         @endif
-                        <a href="{{ route('customer.chat', $help->id) }}" class="relative w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition shadow-2xs" title="Chat di Aplikasi">
+                        <a href="{{ route('customer.chat', $help->id) }}" wire:navigate class="relative w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition shadow-2xs" title="Chat di Aplikasi">
                             <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                             </svg>
@@ -739,7 +728,7 @@
                             {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('l, d F Y') }} 
                             (Jam {{ \Carbon\Carbon::parse($help->scheduled_at)->format('H:i') }} WIB)
                         </p>
-                        <p class="text-xs text-gray-500 mt-1">*Jadwal tertera dalam WIB</p>
+                        <p class="text-xs text-gray-500 mt-1">Jadwal tertera dalam WIB</p>
                     </div>
                 </div>
             </div>
@@ -1050,7 +1039,9 @@
                     <div class="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between bg-red-50/90 shrink-0">
                         <div class="flex items-center gap-2.5">
                             <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                                ⚠️
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
                             </div>
                             <div>
                                 <h3 class="text-sm font-bold text-gray-900">Ajukan Komplain & Refund</h3>
@@ -1075,7 +1066,7 @@
                             {{-- Upload Bukti Foto (Wajib) --}}
                             <div>
                                 <label class="block text-xs font-bold text-gray-800 mb-1">
-                                    Foto Bukti Masalah / Hasil Tidak Sesuai <span class="text-red-500">*</span>
+                                    Foto Bukti Masalah / Hasil Tidak Sesuai
                                 </label>
                                 <p class="text-[11px] text-gray-500 mb-2">Unggah foto yang memperlihatkan kondisi hasil kerja yang belum selesai atau bermasalah.</p>
                                 
@@ -1113,7 +1104,7 @@
                             {{-- Alasan Komplain --}}
                             <div>
                                 <label class="block text-xs font-bold text-gray-800 mb-1">
-                                    Penjelasan Alasan Komplain <span class="text-red-500">*</span>
+                                    Penjelasan Alasan Komplain
                                 </label>
                                 <textarea wire:model="complaint_reason" rows="3" placeholder="Jelaskan secara detail bagian mana yang belum selesai atau tidak sesuai deskripsi bantuan..."
                                     class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-gray-50 focus:bg-white transition resize-none"></textarea>
@@ -1206,7 +1197,7 @@
 
                     {{-- Star Rating --}}
                     <div class="mb-4">
-                        <label class="block text-sm font-semibold text-gray-900 mb-2">Rating *</label>
+                        <label class="block text-sm font-semibold text-gray-900 mb-2">Rating</label>
                         <div class="flex items-center gap-2">
                             @for($i = 1; $i <= 5; $i++)
                                 <button 
@@ -1361,7 +1352,7 @@
         {{-- <div id="floating-help-card" class="md:hidden fixed left-1/2 transform -translate-x-1/2 w-full max-w-md px-4 z-50" style="bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);">
             <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-3 flex items-center justify-between gap-3">
                 <div class="flex-1 text-sm text-gray-700">Butuh bantuan atau ada keluhan atas Rekan Jasa?</div>
-                <a href="{{ route('customer.help-support') }}" class="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg font-semibold hover:bg-blue-100 transition">
+                <a href="{{ route('customer.help-support') }}" wire:navigate class="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg font-semibold hover:bg-blue-100 transition">
                     <span class="text-sm">Hubungi Kami</span>
                 </a>
             </div>
@@ -1481,7 +1472,7 @@
                 {{-- Radio Reason Selection --}}
                 <div class="mb-4 text-left">
                     <label class="text-xs font-bold text-gray-700 block mb-2">
-                        Pilih Alasan Pembatalan <span class="text-red-500">*</span>
+                        Pilih Alasan Pembatalan
                     </label>
                     <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
                         @foreach($this->availableCancelReasons as $reason)
@@ -1499,7 +1490,7 @@
                 {{-- Custom reason textarea when Lainnya selected --}}
                 @if($selectedCancelReason === 'Lainnya')
                     <div class="mb-4 text-left">
-                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda <span class="text-red-500">*</span></label>
+                        <label class="text-xs font-semibold text-gray-700 block mb-1">Tuliskan Alasan Anda</label>
                         <textarea wire:model="customCancelReason" rows="2" placeholder="Contoh: Perlu reschedule atau ada keperluan mendesak..." class="w-full text-xs p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
                         @error('customCancelReason')
                             <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p>
@@ -1629,13 +1620,8 @@
                 @if($help->mitra)
                     <div class="bg-gray-50 rounded-xl p-4 mb-5">
                         <div class="flex items-center gap-3 mb-3">
-                            @if($help->mitra->selfie_photo)
-                                <img src="{{ asset('storage/' . $help->mitra->selfie_photo) }}" alt="{{ $help->mitra->name }}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-100">
-                            @else
-                                <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
-                                    {{ strtoupper(substr($help->mitra->name ?? 'M', 0, 1)) }}
-                                </div>
-                            @endif
+                            <x-user-avatar :user="$help->mitra"
+                                class="w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-lg border-2 border-blue-100" />
                             <div class="flex-1">
                                 <p class="font-semibold text-sm text-gray-900">{{ $help->mitra->name ?? 'Rekan Jasa' }}</p>
                                 <p class="text-xs text-gray-500">Mengajukan pembatalan</p>

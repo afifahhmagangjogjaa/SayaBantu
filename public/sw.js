@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sayabantu-v2';
+const CACHE_NAME = 'sayabantu-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -43,6 +43,8 @@ self.addEventListener('fetch', (event) => {
   if (
     event.request.mode === 'navigate' ||
     event.request.headers.get('X-Livewire-Navigate') ||
+    url.pathname.startsWith('/login') ||
+    url.pathname.startsWith('/register') ||
     url.pathname.startsWith('/customer') ||
     url.pathname.startsWith('/mitra') ||
     url.pathname.startsWith('/admin') ||

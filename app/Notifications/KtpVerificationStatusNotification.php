@@ -10,6 +10,7 @@ class KtpVerificationStatusNotification extends Notification
     use Queueable;
 
     public string $status; // 'approved' or 'rejected'
+
     public ?string $reason;
 
     public function __construct(string $status, ?string $reason = null)

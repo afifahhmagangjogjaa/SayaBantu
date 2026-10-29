@@ -8,10 +8,19 @@
 
     <title>{{ config('app.name', 'Mastulongmas') }} - Mitra</title>
     <!-- Favicon & Icons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    @php
+        $dynamicAppIcon = \App\Models\AppSetting::get('app_icon');
+        $dynamicAppIconUrl = $dynamicAppIcon && \Illuminate\Support\Facades\Storage::disk('public')->exists($dynamicAppIcon) ? asset('storage/' . $dynamicAppIcon) : null;
+    @endphp
+    @if($dynamicAppIconUrl)
+        <link rel="icon" href="{{ $dynamicAppIconUrl }}">
+        <link rel="apple-touch-icon" href="{{ $dynamicAppIconUrl }}">
+    @else
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    @endif
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,6 +33,17 @@
     @livewireStyles
     <style>
         [x-cloak] { display: none !important; }
+
+        /* Sembunyikan scrollbar di seluruh aplikasi untuk mobile-feel */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        html, body, * {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
 
         html {
             -webkit-text-size-adjust: 100%;
@@ -164,11 +184,9 @@
     </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-50">
-    <!-- Centered Container: Full width on mobile, centered on larger screens -->
-    <div class="min-h-screen min-h-[100dvh] w-full flex items-start justify-center bg-gray-100">
-        <!-- Mobile Frame: fluid on mobile, max-w-md centered on tablet+ -->
-        <div class="w-full max-w-md min-h-screen min-h-[100dvh] bg-gray-50 relative flex flex-col shadow-none sm:shadow-2xl sm:border-x sm:border-gray-200/80">
+<body class="font-sans antialiased bg-slate-100 flex flex-col items-center sm:justify-start sm:pt-2 sm:pb-6 sm:px-4 min-h-screen min-h-[100dvh]">
+    <!-- Centered Mobile Frame container matching login page -->
+    <div class="w-full max-w-md h-screen h-[100dvh] sm:h-[840px] sm:max-h-[calc(100dvh-1rem)] bg-gray-50 sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col relative overflow-hidden">
             <!-- Floating Top Flash Notification Pop-Up (Instant Render) -->
             @if (session()->has('message') || session()->has('success') || session()->has('error') || session()->has('status'))
                 <div id="flash-toast"
@@ -222,9 +240,9 @@
                 <div id="mitra-global-notification-inner" class="w-full"></div>
             </div>
             <!-- Content -->
-            <div class="flex flex-col flex-1 min-h-screen min-h-[100dvh]">
+            <div class="flex flex-col flex-1 min-h-0">
                 <!-- Livewire slot -->
-                <div class="flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
+                <div class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
                     @isset($slot)
                         {{ $slot }}
                     @else
@@ -233,7 +251,7 @@
                 </div>
 
                 <!-- Bottom Navigation Bar matching Gambar 1 Mockup: Beranda, Order, Penghasilan, Profil -->
-                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40"
+                <nav id="bottom-nav" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200/90 shadow-2xl z-40 sm:rounded-b-[36px]"
                     style="background-color: #ffffff !important; padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));">
                     <div class="w-full flex items-center justify-around px-2 py-2">
                         <!-- 1. Beranda -->
@@ -280,10 +298,16 @@
                         <!-- 3. Penghasilan -->
                         <a href="{{ route('mitra.withdraw.history') }}" wire:navigate
                             class="nav-item flex-1 flex flex-col items-center justify-center py-1 min-w-0 {{ request()->routeIs('mitra.withdraw.*') ? 'text-[#0066FF] active' : 'text-gray-400 hover:text-[#0066FF]' }} transition">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                            </svg>
+                            @if(request()->routeIs('mitra.withdraw.*'))
+                                <svg class="w-5 h-5 shrink-0 text-[#0066FF]" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            @else
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                            @endif
                             <span class="text-[11px] font-bold tracking-tight truncate max-w-full text-center mt-1">Penghasilan</span>
                         </a>
 

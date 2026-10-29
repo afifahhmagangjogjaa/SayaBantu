@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white">
+<div class="min-h-screen bg-slate-50">
     <style>
         :root{
             --brand-500: #0ea5a4;
@@ -49,17 +49,33 @@
     </style>
 
     <div class="max-w-md mx-auto">
-        <!-- Header - Clean Mobile Header matching Gambar 1 (Daftar Order) -->
-        <div class="px-5 pt-4 pb-3 bg-white border-b border-gray-100 flex items-center justify-between">
-            <h1 class="text-base font-extrabold text-gray-900 tracking-tight">Daftar Order</h1>
+        <!-- Header - SayaBantu Brand Blue Gradient with Wave Separator -->
+        <div class="px-5 pt-6 pb-9 relative overflow-hidden header-pattern text-white" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+            <!-- Decorative circle overlays -->
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16 pointer-events-none"></div>
 
-            <div class="flex items-center gap-2">
-                @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-1.5 rounded-xl text-gray-600 hover:bg-gray-100 transition relative'])
+            <div class="relative z-10">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-xl font-black text-white tracking-tight leading-tight">Daftar Order</h1>
+                        <p class="text-xs text-blue-100 font-medium mt-0.5">Kelola & ambil pesanan bantuan yang tersedia</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
+                    </div>
+                </div>
             </div>
+
+            <!-- Wave Separator (SVG) bergelombang -->
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
+                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            </svg>
         </div>
 
-        <!-- Filter Tabs (Horizontal Pill Buttons matching Gambar 1) -->
-        <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar px-5 py-2.5 bg-white border-b border-gray-100 sticky top-0 z-20">
+        <!-- Filter Tabs (Horizontal Pill Buttons sticky) -->
+        <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar px-5 py-3 bg-white border-b border-gray-100 sticky top-0 z-20 shadow-xs -mt-[1px]">
             <button type="button" wire:click="setTab('semua')"
                 class="px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap {{ $tab === 'semua' ? 'bg-[#0066FF] text-white shadow-xs' : 'bg-slate-100 text-gray-600 hover:bg-slate-200' }}">
                 Semua
@@ -76,24 +92,6 @@
                 class="px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap {{ $tab === 'selesai' ? 'bg-[#0066FF] text-white shadow-xs' : 'bg-slate-100 text-gray-600 hover:bg-slate-200' }}">
                 Selesai
             </button>
-        </div>
-
-        <!-- Search Bar -->
-        <div class="px-5 pt-3 pb-1 bg-white">
-            <div class="relative">
-                <input type="text" wire:model.live.debounce.350ms="search" placeholder="Cari pesanan atau lokasi..."
-                    class="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-1 focus:ring-blue-100 outline-none transition text-xs font-medium">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                @if(!empty($search))
-                    <button type="button" wire:click="$set('search', '')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                @endif
-            </div>
         </div>
 
         <!-- Content List -->
@@ -147,7 +145,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <a href="{{ route('profile.settings.verification') }}"
+                            <a href="{{ route('profile.settings.verification') }}" wire:navigate
                                class="flex-shrink-0 font-bold px-3 py-1.5 rounded-xl transition text-[11px] text-white hover:opacity-95 active:scale-95 shadow-xs"
                                style="background: linear-gradient(135deg, #0066FF, #0052CC); box-shadow: 0 2px 6px rgba(0, 152, 231, 0.35);">
                                 {{ $hasKtpUploaded ? 'Cek Status' : 'Verifikasi' }}
@@ -161,7 +159,7 @@
                         <div class="font-semibold">Atur kota Anda terlebih dahulu</div>
                         <div class="mt-1">Untuk melihat bantuan yang tersedia di daerah Anda, silakan tentukan Kota/Kabupaten Anda di halaman profil.</div>
                         <div class="mt-3">
-                            <a href="{{ route('mitra.profile') }}" class="inline-block px-3 py-2 bg-yellow-600 text-white rounded-lg text-xs">Buka Profil</a>
+                            <a href="{{ route('mitra.profile') }}" wire:navigate class="inline-block px-3 py-2 bg-yellow-600 text-white rounded-lg text-xs">Buka Profil</a>
                         </div>
                     </div>
                 @endif
@@ -213,13 +211,13 @@
                                                             this.label = m > 1 ? `Sisa ${m} mnt` : 'Sisa < 1 mnt';
                                                         }
                                                     }" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200/80 flex-shrink-0">
-                                                        â³ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
+                                                        ⏳ <span class="ml-0.5" x-text="label">{{ $minsLeft > 1 ? 'Sisa ' . $minsLeft . ' mnt' : 'Sisa < 1 mnt' }}</span>
                                                     </span>
                                                 @endif
                                             @endif
                                         @endif
                                         @if($isCancelledByMe)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">⚠️ï¸ Pernah Dibatalkan</span>
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200/80 flex-shrink-0">Pernah Dibatalkan</span>
                                         @endif
                                     </div>
                                     <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -431,12 +429,16 @@
                         Tidak Dapat Diambil
                     </button>
                     @if(auth()->check() && !auth()->user()->isProfileComplete())
-                        <a href="{{ route('mitra.profile.edit') }}" class="flex-1 bg-red-600 text-white py-2.5 px-4 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
+                        <a href="{{ route('mitra.profile.edit') }}" wire:navigate class="flex-1 bg-red-600 text-white py-2.5 px-4 rounded-xl font-bold hover:bg-red-700 transition text-center text-xs flex items-center justify-center">
                             Lengkapi Biodata
                         </a>
                     @elseif(auth()->check() && !auth()->user()->verified)
                         <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
                             Menunggu Verifikasi KTP
+                        </button>
+                    @elseif(auth()->check() && auth()->user()->hasActiveOngoingOrder())
+                        <button type="button" disabled class="flex-1 bg-amber-50 text-amber-800 border border-amber-200 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
+                            Selesaikan Order Aktif Dahulu
                         </button>
                     @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
                         <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
@@ -532,7 +534,7 @@
                 btn.disabled = true;
             }
 
-            // Langsung ambil bantuan tanpa GPS â€” backend pakai koordinat kota mitra
+            // Langsung ambil bantuan tanpa GPS — backend pakai koordinat kota mitra
             // GPS browser bisa berbeda kota (misal desktop di Jakarta, kota mitra di Bantul)
             // Radius check di backend sudah pakai koordinat kota yg benar
             @this.takeHelp(currentHelpId);

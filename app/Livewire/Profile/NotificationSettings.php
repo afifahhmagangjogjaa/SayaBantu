@@ -7,12 +7,19 @@ use Livewire\Component;
 class NotificationSettings extends Component
 {
     public $generalNotification = true;
+
     public $sound = true;
+
     public $soundCall = false;
+
     public $vibrate = true;
+
     public $transactionUpdate = true;
+
     public $expenseReminder = false;
+
     public $budgetNotifications = false;
+
     public $lowBalanceAlerts = false;
 
     public function mount()
@@ -34,7 +41,7 @@ class NotificationSettings extends Component
     public function updateSetting($setting)
     {
         if (property_exists($this, $setting)) {
-            $this->$setting = !$this->$setting;
+            $this->$setting = ! $this->$setting;
 
             $user = auth()->user();
             if ($user) {
@@ -48,7 +55,7 @@ class NotificationSettings extends Component
                         'expenseReminder' => $this->expenseReminder,
                         'budgetNotifications' => $this->budgetNotifications,
                         'lowBalanceAlerts' => $this->lowBalanceAlerts,
-                    ]
+                    ],
                 ]);
             }
 

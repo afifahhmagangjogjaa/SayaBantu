@@ -19,7 +19,7 @@ class PaymentGatewayService
     public function createDisbursement(WithdrawRequest $withdraw): array
     {
         // Simulate creating disbursement at gateway
-        $externalId = 'gw_' . Str::random(16);
+        $externalId = 'gw_'.Str::random(16);
 
         // Mark as processing (immediate)
         $withdraw->update([
@@ -41,7 +41,7 @@ class PaymentGatewayService
             'external_id' => $externalId,
             'status' => $succeeds ? WithdrawRequest::STATUS_SUCCESS : WithdrawRequest::STATUS_FAILED,
             'amount' => $withdraw->amount,
-            'reference' => 'demo_ref_' . $withdraw->id,
+            'reference' => 'demo_ref_'.$withdraw->id,
         ];
 
         // Call handler directly (synchronous simulation)
@@ -58,8 +58,9 @@ class PaymentGatewayService
     {
         try {
             $withdraw = WithdrawRequest::where('external_id', $payload['external_id'])->first();
-            if (!$withdraw) {
+            if (! $withdraw) {
                 Log::warning('PaymentGatewayService: callback for unknown external_id', $payload);
+
                 return;
             }
 

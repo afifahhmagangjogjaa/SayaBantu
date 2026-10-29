@@ -306,7 +306,7 @@
 
         <!-- Footer -->
         <div class="px-3 py-2 bg-gray-50/80 border-t border-gray-100 text-center">
-            <a href="{{ route('superadmin.notifications.index') }}" 
+            <a href="{{ route('superadmin.notifications.index') }}" wire:navigate 
                 class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary-600 hover:text-primary-700 transition">
                 <span>Lihat Semua</span>
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

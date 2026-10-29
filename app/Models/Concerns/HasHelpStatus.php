@@ -134,4 +134,51 @@ trait HasHelpStatus
     {
         return $this->statusEnum() === HelpStatus::PARTNER_CANCEL_REQUESTED;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Aturan chat
+    |--------------------------------------------------------------------------
+    | Customer bisa chat begitu pesanan diterima mitra (status aktif, menunggu
+    | konfirmasi, atau pengajuan batal mitra). Setelah pekerjaan selesai masih
+    | bisa chat maksimal 1 hari (24 jam), setelah itu percakapan ditutup.
+    */
+
+    /**
+     * Alasan percakapan tidak bisa lagi digunakan untuk mengirim pesan,
+     * atau null jika chat masih terbuka.
+     */
+    public function chatClosedReason(): ?string
+    {
+        $status = $this->statusEnum();
+
+        // Belum ada mitra yang menerima pesanan.
+        if ($status === null || $status === HelpStatus::MENUNGGU_MITRA) {
+            return 'Chat tersedia setelah pesanan diterima oleh mitra.';
+        }
+
+        if ($status === HelpStatus::REJECTED) {
+            return 'Pesanan ditolak. Percakapan tidak tersedia.';
+        }
+
+        if ($this->isDibatalkan()) {
+            return 'Pesanan telah dibatalkan. Percakapan ini telah diarsipkan (hanya-baca).';
+        }
+
+        if ($this->isSelesai()) {
+            $finishedAt = $this->completed_at ?? $this->updated_at ?? $this->created_at;
+
+            if ($finishedAt !== null && $finishedAt->lt(now()->subDay())) {
+                return 'Pekerjaan sudah selesai lebih dari 1 hari. Percakapan ini telah ditutup.';
+            }
+        }
+
+        return null;
+    }
+
+    /** Boleh mengirim pesan baru pada percakapan ini? */
+    public function canChat(): bool
+    {
+        return $this->chatClosedReason() === null;
+    }
 }

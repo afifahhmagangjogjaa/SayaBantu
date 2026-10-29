@@ -19,7 +19,7 @@ class EnsureCustomer
             return $next($request);
         }
 
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
@@ -30,11 +30,12 @@ class EnsureCustomer
         // For Livewire requests when blocked or inactive: return 403 JSON so frontend catches it and displays modal
         if ($isBannedOrBlocked && $request->is('livewire*')) {
             $user->purgeSessions();
+
             return response()->json([
                 'status' => $user->status,
                 'is_blocked' => true,
                 'is_inactive' => ($user->status === 'inactive'),
-                'message' => $user->status === 'inactive' ? 'Akun Anda telah dinonaktifkan oleh administrator.' : 'Akun Anda telah diblokir. Silakan hubungi admin.'
+                'message' => $user->status === 'inactive' ? 'Akun Anda telah dinonaktifkan oleh administrator.' : 'Akun Anda telah diblokir. Silakan hubungi admin.',
             ], 403);
         }
 
@@ -44,12 +45,13 @@ class EnsureCustomer
             auth()->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
             return redirect()->route('login')->withErrors([
-                'email' => $user->status === 'inactive' ? 'Akun Anda telah dinonaktifkan oleh administrator.' : 'Akun Anda telah diblokir. Silakan hubungi administrator.'
+                'email' => $user->status === 'inactive' ? 'Akun Anda telah dinonaktifkan oleh administrator.' : 'Akun Anda telah diblokir. Silakan hubungi administrator.',
             ]);
         }
 
-        if (!$user->isCustomer()) {
+        if (! $user->isCustomer()) {
             abort(403, 'Unauthorized. Customer access only.');
         }
 

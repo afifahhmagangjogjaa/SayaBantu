@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('helps') && !Schema::hasColumn('helps', 'category_id')) {
+        if (Schema::hasTable('helps') && ! Schema::hasColumn('helps', 'category_id')) {
             Schema::table('helps', function (Blueprint $table) {
                 $table->foreignId('category_id')->nullable()->after('city_id')->constrained()->nullOnDelete();
             });

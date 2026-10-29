@@ -24,8 +24,8 @@ class CityController extends Controller
         $results = City::where('is_active', true)
             ->where(function ($builder) use ($q) {
                 $builder->where('name', 'like', "%{$q}%")
-                        ->orWhere('province', 'like', "%{$q}%")
-                        ->orWhere('code', 'like', "%{$q}%");
+                    ->orWhere('province', 'like', "%{$q}%")
+                    ->orWhere('code', 'like', "%{$q}%");
             })
             ->select('id', 'name', 'province', 'code')
             ->orderBy('name')
@@ -42,7 +42,7 @@ class CityController extends Controller
                 ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
                 ->where(function ($builder) use ($q) {
                     $builder->where('regencies.regency', 'like', "%{$q}%")
-                            ->orWhere('provinces.province', 'like', "%{$q}%");
+                        ->orWhere('provinces.province', 'like', "%{$q}%");
                 })
                 ->select('regencies.id as regency_id', 'regencies.regency', 'regencies.type', 'provinces.province')
                 ->orderBy('regencies.regency')

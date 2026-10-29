@@ -53,7 +53,7 @@ class NewWithdrawRequest extends Notification
             'amount' => $amount,
             'bank_code' => $this->withdraw->bank_code,
             'account_number' => $this->withdraw->account_number,
-            'message' => "Permintaan tarik saldo baru dari {$userName} sebesar Rp " . number_format($amount, 0, ',', '.'),
+            'message' => "Permintaan tarik saldo baru dari {$userName} sebesar Rp ".number_format($amount, 0, ',', '.'),
             'url' => $url,
         ];
     }

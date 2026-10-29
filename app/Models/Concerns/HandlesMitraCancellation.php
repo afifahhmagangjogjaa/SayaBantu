@@ -17,15 +17,15 @@ trait HandlesMitraCancellation
 
     public function recordMitraCancellation($mitraId): void
     {
-        if (!$mitraId) {
+        if (! $mitraId) {
             return;
         }
         $mitraIdInt = (int) $mitraId;
         $ids = $this->cancelled_mitra_ids ?? [];
-        if (!is_array($ids)) {
+        if (! is_array($ids)) {
             $ids = json_decode($ids, true) ?? [];
         }
-        if (!in_array($mitraIdInt, array_map('intval', $ids), true)) {
+        if (! in_array($mitraIdInt, array_map('intval', $ids), true)) {
             $ids[] = $mitraIdInt;
         }
 
@@ -43,7 +43,7 @@ trait HandlesMitraCancellation
         $oldMitra = $this->mitra;
         $oldMitraId = $this->mitra_id;
 
-        if (!$oldMitraId) {
+        if (! $oldMitraId) {
             return false;
         }
 
@@ -78,7 +78,7 @@ trait HandlesMitraCancellation
                 ]);
             }
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Failed to log PartnerActivity on reassign: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Failed to log PartnerActivity on reassign: '.$e->getMessage());
         }
 
         // Kirim notifikasi ke mitra lama
@@ -92,7 +92,7 @@ trait HandlesMitraCancellation
                 ));
             }
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Failed to notify old mitra on reassign: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Failed to notify old mitra on reassign: '.$e->getMessage());
         }
 
         return true;
@@ -100,7 +100,7 @@ trait HandlesMitraCancellation
 
     public function wasCancelledByMitra($mitraId): bool
     {
-        if (!$mitraId) {
+        if (! $mitraId) {
             return false;
         }
         $mitraIdInt = (int) $mitraId;
@@ -108,7 +108,7 @@ trait HandlesMitraCancellation
             return true;
         }
         $ids = $this->cancelled_mitra_ids ?? [];
-        if (!is_array($ids)) {
+        if (! is_array($ids)) {
             $ids = json_decode($ids, true) ?? [];
         }
         if (in_array($mitraIdInt, array_map('intval', $ids), true)) {
@@ -121,8 +121,8 @@ trait HandlesMitraCancellation
                 return \App\Models\PartnerActivity::where('activity_type', 'help_cancelled')
                     ->where('user_id', $mitraIdInt)
                     ->where(function ($q) {
-                        $q->where('description', 'like', '%#' . $this->id . ' %')
-                          ->orWhere('description', 'like', '%#' . $this->id . ' -%');
+                        $q->where('description', 'like', '%#'.$this->id.' %')
+                            ->orWhere('description', 'like', '%#'.$this->id.' -%');
                     })
                     ->exists();
             }
@@ -135,7 +135,7 @@ trait HandlesMitraCancellation
 
     public function scopeNotCancelledByMitra($query, $mitraId)
     {
-        if (!$mitraId) {
+        if (! $mitraId) {
             return $query;
         }
 
@@ -143,10 +143,10 @@ trait HandlesMitraCancellation
 
         return $query->where(function ($q) use ($mitraIdInt) {
             $q->whereNull('helps.last_cancelled_mitra_id')
-              ->orWhere('helps.last_cancelled_mitra_id', '!=', $mitraIdInt);
+                ->orWhere('helps.last_cancelled_mitra_id', '!=', $mitraIdInt);
         })->where(function ($q) use ($mitraIdInt) {
             $q->whereNull('helps.cancelled_mitra_ids')
-              ->orWhereJsonDoesntContain('helps.cancelled_mitra_ids', $mitraIdInt);
+                ->orWhereJsonDoesntContain('helps.cancelled_mitra_ids', $mitraIdInt);
         });
     }
 }

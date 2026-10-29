@@ -225,11 +225,10 @@
                     <form wire:submit.prevent="save" class="space-y-6">
                         <div class="grid grid-cols-1 gap-4">
                             <div>
-                                <label class="text-xs font-medium text-gray-700">Provinsi <span
-                                        class="text-red-500">*</span></label>
+                                <label class="text-xs font-medium text-gray-700">Provinsi</label>
                                 <select wire:model.live="selectedProvinceCode"
                                     class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                                    <option value="">-- Pilih Provinsi --</option>
+                                    <option value="">Pilih Provinsi</option>
                                     @foreach($apiProvinces as $p)
                                         <option value="{{ $p['code'] }}">{{ $p['name'] }}</option>
                                     @endforeach
@@ -238,12 +237,11 @@
                             </div>
 
                             <div>
-                                <label class="text-xs font-medium text-gray-700">Nama Kota / Kabupaten <span
-                                        class="text-red-500">*</span></label>
+                                <label class="text-xs font-medium text-gray-700">Nama Kota / Kabupaten</label>
                                 <select wire:model.live="selectedCityCode"
                                     class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                     {{ empty($apiCities) ? 'disabled' : '' }}>
-                                    <option value="">-- Pilih Kota --</option>
+                                    <option value="">Pilih Kota</option>
                                     @foreach($apiCities as $c)
                                         <option value="{{ $c['code'] }}">{{ $c['name'] }}</option>
                                     @endforeach
@@ -252,10 +250,10 @@
                             </div>
 
                             <div>
-                                <label class="text-xs font-medium text-gray-700">Admin Kota <span class="text-red-500">*</span></label>
+                                <label class="text-xs font-medium text-gray-700">Admin Kota</label>
                                 <select wire:model="admin_id"
                                     class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                    <option value="">-- Tidak ada --</option>
+                                    <option value="">Tidak ada</option>
                                     @foreach($admins as $admin)
                                         <option value="{{ $admin->id }}">{{ $admin->name }} ({{ $admin->email }})</option>
                                     @endforeach

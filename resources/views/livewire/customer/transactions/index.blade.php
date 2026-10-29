@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white">
+<div class="min-h-full bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - SayaBantu Style -->
         <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
@@ -7,7 +7,7 @@
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
-                    <a href="{{ route('customer.dashboard') }}" aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
+                    <a href="{{ route('customer.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -25,13 +25,13 @@
             </div>
 
             <!-- Curved separator (Garis Lengkung Bawaan Asli) -->
-            <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true">
+            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
                 <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
         <!-- Content Area -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24">
+        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6">
             
             <!-- Balance Card (Simpel & Elegan - Tanpa Total Akumulasi Uang) -->
             <div class="mb-5 bg-gradient-to-br from-blue-50 via-white to-sky-50 border border-blue-100 rounded-2xl p-4 shadow-xs">
@@ -40,7 +40,7 @@
                         <p class="text-[11px] text-gray-500 font-medium">Saldo Tersedia</p>
                         <p class="text-xl font-black text-gray-900 mt-0.5 tracking-tight">Rp {{ number_format($user->balance ?? 0, 0, ',', '.') }}</p>
                     </div>
-                    <a href="{{ route('customer.topup') }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5">
+                    <a href="{{ route('customer.topup') }}" wire:navigate class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
@@ -241,7 +241,7 @@
                                             {{ $t->description ?? 'Pembayaran jasa ke mitra' }}
                                         </div>
                                         @if($t->reference_id)
-                                            <a href="{{ route('customer.helps.detail', $t->reference_id) }}" wire:click.stop class="text-blue-600 font-semibold hover:underline flex-shrink-0 inline-flex items-center gap-0.5">
+                                            <a href="{{ route('customer.helps.detail', $t->reference_id) }}" wire:navigate wire:click.stop class="text-blue-600 font-semibold hover:underline flex-shrink-0 inline-flex items-center gap-0.5">
                                                 Lihat Bantuan &rarr;
                                             </a>
                                         @else
@@ -493,7 +493,7 @@
                 <!-- Sticky Modal Footer -->
                 <div class="bg-white border-t border-gray-100 p-4 shrink-0 space-y-2">
                     @if(!empty($selectedTransaction['reference_id']))
-                        <a href="{{ route('customer.helps.detail', $selectedTransaction['reference_id']) }}" class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-xs">
+                        <a href="{{ route('customer.helps.detail', $selectedTransaction['reference_id']) }}" wire:navigate class="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-xs">
                             Buka Halaman Bantuan #{{ $selectedTransaction['reference_id'] }}
                         </a>
                     @endif

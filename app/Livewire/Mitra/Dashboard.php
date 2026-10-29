@@ -2,17 +2,17 @@
 
 namespace App\Livewire\Mitra;
 
-use App\Models\Help;
-use App\Models\AppSetting;
-use App\Models\UserBalance;
-use App\Services\LocationTrackingService;
-use App\Notifications\HelpTakenNotification;
-use Illuminate\Support\Facades\Schema;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Layout;
-use Livewire\WithPagination;
 use App\Enums\HelpStatus;
+use App\Models\AppSetting;
+use App\Models\Help;
+use App\Models\UserBalance;
+use App\Notifications\HelpTakenNotification;
+use App\Services\LocationTrackingService;
+use Illuminate\Support\Facades\Schema;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.mitra')]
 class Dashboard extends Component
@@ -20,7 +20,9 @@ class Dashboard extends Component
     use WithPagination;
 
     public $activeTab = 'tersedia'; // tersedia, semua, diproses, selesai
+
     public $userLat = null;
+
     public $userLng = null;
 
     public function mount()
@@ -77,29 +79,40 @@ class Dashboard extends Component
         // Cek apakah mitra sedang terkena shadow ban
         if ($user && $user->isShadowBanned()) {
             session()->flash('error', 'Tidak dapat mengambil bantuan saat ini.');
+
+            return;
+        }
+
+        // Cek apakah mitra sedang memiliki order aktif yang belum selesai
+        if ($user && $user->hasActiveOngoingOrder()) {
+            session()->flash('error', 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.');
+
             return;
         }
 
         // Cek kuota order mitra (belum verifikasi email = maks 2 order, sudah verifikasi = unlimited)
-        if (!$user || !$user->canTakeMoreOrders()) {
-            if ($user && !$user->hasVerifiedEmail()) {
+        if (! $user || ! $user->canTakeMoreOrders()) {
+            if ($user && ! $user->hasVerifiedEmail()) {
                 session()->flash('error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.');
             } else {
                 session()->flash('error', 'Anda telah mencapai batas maksimal order yang dapat diambil.');
             }
+
             return;
         }
 
         // Cek kelengkapan biodata
-        if (!$user->isProfileComplete()) {
+        if (! $user->isProfileComplete()) {
             $missing = implode(', ', optional($user)->getMissingProfileFields() ?? []);
             session()->flash('error', "Harap lengkapi biodata profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.");
+
             return $this->redirectRoute('mitra.profile.edit', navigate: true);
         }
 
         // Cek verifikasi KTP oleh admin
-        if (!$user->verified) {
+        if (! $user->verified) {
             session()->flash('error', 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi disetujui sebelum dapat mengambil bantuan.');
+
             return;
         }
 
@@ -107,16 +120,19 @@ class Dashboard extends Component
 
         if ($help->isExpired() || $help->status !== 'menunggu_mitra') {
             session()->flash('error', 'Maaf, batas waktu pencarian mitra untuk bantuan ini sudah habis atau bantuan sudah tidak tersedia.');
+
             return;
         }
 
         if ($help->wasCancelledByMitra(auth()->id())) {
             session()->flash('error', 'Anda tidak bisa mengambil bantuan ini karena sudah pernah dibatalkan.');
+
             return;
         }
 
         if ($help->mitra_id) {
             session()->flash('error', 'Bantuan ini sudah diambil oleh mitra lain.');
+
             return;
         }
 
@@ -133,12 +149,12 @@ class Dashboard extends Component
         $checkLng = $longitude ? (float) $longitude : $cityLng;
 
         if ($checkLat && $checkLng && $help->latitude && $help->longitude) {
-            $dist = 6371 * acos(min(1.0, max(-1.0, cos(deg2rad((float)$checkLat)) * cos(deg2rad((float)$help->latitude)) * cos(deg2rad((float)$help->longitude) - deg2rad((float)$checkLng)) + sin(deg2rad((float)$checkLat)) * sin(deg2rad((float)$help->latitude)))));
+            $dist = 6371 * acos(min(1.0, max(-1.0, cos(deg2rad((float) $checkLat)) * cos(deg2rad((float) $help->latitude)) * cos(deg2rad((float) $help->longitude) - deg2rad((float) $checkLng)) + sin(deg2rad((float) $checkLat)) * sin(deg2rad((float) $help->latitude)))));
 
             // Jika GPS browser melebihi radius (misal testing di luar kota / browser IP beda lokasi),
             // lakukan fallback ke koordinat profil kota mitra
             if ($dist > $maxRadius && $cityLat && $cityLng) {
-                $cityDist = 6371 * acos(min(1.0, max(-1.0, cos(deg2rad((float)$cityLat)) * cos(deg2rad((float)$help->latitude)) * cos(deg2rad((float)$help->longitude) - deg2rad((float)$cityLng)) + sin(deg2rad((float)$cityLat)) * sin(deg2rad((float)$help->latitude)))));
+                $cityDist = 6371 * acos(min(1.0, max(-1.0, cos(deg2rad((float) $cityLat)) * cos(deg2rad((float) $help->latitude)) * cos(deg2rad((float) $help->longitude) - deg2rad((float) $cityLng)) + sin(deg2rad((float) $cityLat)) * sin(deg2rad((float) $help->latitude)))));
                 if ($cityDist <= $maxRadius || ($user && $user->city_id && $user->city_id == $help->city_id)) {
                     $dist = $cityDist;
                     $checkLat = $cityLat;
@@ -147,8 +163,9 @@ class Dashboard extends Component
             }
 
             // Jika masih melebihi radius, dan bukan di kota yang sama, tolak dengan pesan jelas
-            if ($dist > $maxRadius && (!$user || !$user->city_id || $user->city_id != $help->city_id)) {
-                session()->flash('error', "Jarak bantuan ini (" . number_format($dist, 1) . " km) melebihi batas maksimal radius {$maxRadius} km.");
+            if ($dist > $maxRadius && (! $user || ! $user->city_id || $user->city_id != $help->city_id)) {
+                session()->flash('error', 'Jarak bantuan ini ('.number_format($dist, 1)." km) melebihi batas maksimal radius {$maxRadius} km.");
+
                 return;
             }
         }
@@ -172,9 +189,9 @@ class Dashboard extends Component
                     ->where('type', HelpTakenNotification::class)
                     ->where('created_at', '>=', now()->subSeconds(10))
                     ->get()
-                    ->contains(fn($n) => ($n->data['help_id'] ?? null) == $help->id);
+                    ->contains(fn ($n) => ($n->data['help_id'] ?? null) == $help->id);
 
-                if (!$alreadyNotified) {
+                if (! $alreadyNotified) {
                     $help->user->notify(new HelpTakenNotification($help, auth()->user()));
                 }
             }
@@ -183,10 +200,10 @@ class Dashboard extends Component
         }
 
         session()->flash('message', 'Bantuan berhasil diambil! GPS tracking aktif. Segera menuju lokasi customer.');
-        
+
         // Emit event untuk mulai GPS tracking
         $this->dispatch('start-gps-tracking', helpId: $helpId);
-        
+
         $this->setTab('diproses');
 
         // Redirect mitra to the help detail page so they can see full info and navigation
@@ -217,6 +234,41 @@ class Dashboard extends Component
         $userBalance = UserBalance::where('user_id', $user->id)->first();
         $balance = $userBalance ? $userBalance->balance : 0;
 
+        // Lokasi efektif & radius mitra (mendukung jangkauan 10 km lintas batas kota/kabupaten)
+        $userCity = ($user && $user->city_id) ? \App\Models\City::find($user->city_id) : null;
+        $effectiveLat = $this->userLat ?: (($user && $user->latitude) ? (float) $user->latitude : ($userCity ? (float) $userCity->latitude : null));
+        $effectiveLng = $this->userLng ?: (($user && $user->longitude) ? (float) $user->longitude : ($userCity ? (float) $userCity->longitude : null));
+        $maxRadius = (float) AppSetting::get('mitra_max_distance_km', AppSetting::get('max_help_radius_km', 10));
+
+        $haversine = null;
+        if ($effectiveLat && $effectiveLng) {
+            $haversine = "(6371 * acos(least(1.0, greatest(-1.0, cos(radians($effectiveLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians($effectiveLng)) + sin(radians($effectiveLat)) * sin(radians(latitude))))))";
+        }
+
+        // Filter: Tampilkan bantuan dalam radius 10 km (meski beda kota/kabupaten) atau satu kota (jika tanpa koordinat)
+        $applyNearbyOrCityFilter = function ($query) use ($haversine, $maxRadius, $user) {
+            if ($haversine) {
+                $query->where(function ($q) use ($haversine, $maxRadius, $user) {
+                    $q->where(function ($sub) use ($haversine, $maxRadius) {
+                        $sub->whereNotNull('helps.latitude')
+                            ->whereNotNull('helps.longitude')
+                            ->whereRaw("$haversine <= ?", [$maxRadius]);
+                    });
+
+                    if ($user && ! empty($user->city_id)) {
+                        $q->orWhere(function ($sub) use ($user) {
+                            $sub->where(function ($noCoord) {
+                                $noCoord->whereNull('helps.latitude')
+                                    ->orWhereNull('helps.longitude');
+                            })->inMitraCity($user);
+                        });
+                    }
+                });
+            } elseif ($user && ! empty($user->city_id)) {
+                $query->inMitraCity($user);
+            }
+        };
+
         // Statistik bantuan
         $isMitraShadowBanned = $user ? $user->isShadowBanned() : false;
 
@@ -229,8 +281,8 @@ class Dashboard extends Component
 
         if ($isMitraShadowBanned) {
             $availableHelpsQuery->whereRaw('1 = 0');
-        } elseif ($user && !empty($user->city_id)) {
-            $availableHelpsQuery->inMitraCity($user);
+        } else {
+            $applyNearbyOrCityFilter($availableHelpsQuery);
         }
         $availableHelpsCount = $availableHelpsQuery->count();
 
@@ -243,7 +295,7 @@ class Dashboard extends Component
             'sedang_diproses',
             'partner_cancel_requested',
             'diproses_mitra',
-            'waiting_customer_confirmation'
+            'waiting_customer_confirmation',
         ];
 
         $inProgressCount = Help::where('mitra_id', $user->id)
@@ -264,10 +316,14 @@ class Dashboard extends Component
                 })
                 ->with(['user', 'city', 'category']);
 
+            if ($haversine) {
+                $helpsQuery->select('helps.*', \Illuminate\Support\Facades\DB::raw("$haversine AS distance"));
+            }
+
             if ($isMitraShadowBanned) {
                 $helpsQuery->whereRaw('1 = 0');
-            } elseif ($user && !empty($user->city_id)) {
-                $helpsQuery->inMitraCity($user);
+            } else {
+                $applyNearbyOrCityFilter($helpsQuery);
             }
 
             $helps = $helpsQuery->latest()->paginate(10);
@@ -281,11 +337,14 @@ class Dashboard extends Component
                 })
                 ->with(['user', 'city', 'category']);
 
+            if ($haversine) {
+                $helpsQuery->select('helps.*', \Illuminate\Support\Facades\DB::raw("$haversine AS distance"));
+            }
+
             if ($isMitraShadowBanned) {
                 $helpsQuery->whereRaw('1 = 0');
-            } elseif ($user && !empty($user->city_id)) {
-                // For the dashboard, prefer showing helps in the same city by default
-                $helpsQuery->inMitraCity($user);
+            } else {
+                $applyNearbyOrCityFilter($helpsQuery);
             }
 
             $helps = $helpsQuery->latest()->paginate(10);
@@ -302,10 +361,6 @@ class Dashboard extends Component
                 ->latest()
                 ->paginate(10);
         }
-
-        $userCity = ($user && $user->city_id) ? \App\Models\City::find($user->city_id) : null;
-        $effectiveLat = $this->userLat ?: (($user && $user->latitude) ? (float) $user->latitude : ($userCity ? (float) $userCity->latitude : null));
-        $effectiveLng = $this->userLng ?: (($user && $user->longitude) ? (float) $user->longitude : ($userCity ? (float) $userCity->longitude : null));
 
         // Additional curated lists for dashboard sections
         $relations = ['user', 'city'];
@@ -336,24 +391,10 @@ class Dashboard extends Component
             })
             ->with($relations);
 
-        $maxRadius = (float) \App\Models\AppSetting::get('mitra_max_distance_km', \App\Models\AppSetting::get('max_help_radius_km', 10));
-
-        if ($effectiveLat && $effectiveLng) {
-            $haversine = "(6371 * acos(least(1.0, greatest(-1.0, cos(radians($effectiveLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians($effectiveLng)) + sin(radians($effectiveLat)) * sin(radians(latitude))))))";
-            $recommendedQuery->select('helps.*', \Illuminate\Support\Facades\DB::raw("$haversine AS distance"))
-                ->whereNotNull('helps.latitude')
-                ->whereNotNull('helps.longitude')
-                ->whereRaw("$haversine <= ?", [$maxRadius]);
-
-            $latestQuery->select('helps.*', \Illuminate\Support\Facades\DB::raw("$haversine AS distance"))
-                ->whereNotNull('helps.latitude')
-                ->whereNotNull('helps.longitude')
-                ->whereRaw("$haversine <= ?", [$maxRadius]);
-
+        if ($haversine) {
+            $recommendedQuery->select('helps.*', \Illuminate\Support\Facades\DB::raw("$haversine AS distance"));
+            $latestQuery->select('helps.*', \Illuminate\Support\Facades\DB::raw("$haversine AS distance"));
             $nearbyQuery->select('helps.*', \Illuminate\Support\Facades\DB::raw("$haversine AS distance"))
-                ->whereNotNull('helps.latitude')
-                ->whereNotNull('helps.longitude')
-                ->whereRaw("$haversine <= ?", [$maxRadius])
                 ->orderByRaw("$haversine ASC");
         } else {
             $recommendedQuery->select('helps.*');
@@ -365,10 +406,10 @@ class Dashboard extends Component
             $recommendedQuery->whereRaw('1 = 0');
             $latestQuery->whereRaw('1 = 0');
             $nearbyQuery->whereRaw('1 = 0');
-        } elseif ($user && !empty($user->city_id)) {
-            $recommendedQuery->inMitraCity($user);
-            $latestQuery->inMitraCity($user);
-            $nearbyQuery->inMitraCity($user);
+        } else {
+            $applyNearbyOrCityFilter($recommendedQuery);
+            $applyNearbyOrCityFilter($latestQuery);
+            $applyNearbyOrCityFilter($nearbyQuery);
         }
 
         // Determine safe ordering depending on which columns exist
@@ -385,14 +426,6 @@ class Dashboard extends Component
         }
 
         $recommendedHelps = $recommendedQuery->take(6)->get();
-
-        if ($isMitraShadowBanned) {
-            $latestQuery->whereRaw('1 = 0');
-            $nearbyQuery->whereRaw('1 = 0');
-        } elseif ($user && !empty($user->city_id)) {
-            $latestQuery->inMitraCity($user);
-            $nearbyQuery->inMitraCity($user);
-        }
 
         $latestHelps = $latestQuery->orderByDesc('created_at')
             ->take(6)
@@ -417,7 +450,8 @@ class Dashboard extends Component
                 ->whereIn('type', ['order_income', 'earning', 'topup'])
                 ->where('status', 'completed')
                 ->sum('amount');
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
         if ($totalEarnings <= 0) {
             $totalEarnings = 1250000;
         }
@@ -425,11 +459,20 @@ class Dashboard extends Component
         $ratingAvg = 4.8;
         if (method_exists($user, 'averageRating')) {
             $calcRating = $user->averageRating();
-            if ($calcRating > 0) $ratingAvg = round($calcRating, 1);
+            if ($calcRating > 0) {
+                $ratingAvg = round($calcRating, 1);
+            }
         }
+
+        $activeHelps = Help::where('mitra_id', $user->id)
+            ->whereIn('status', $inProgressStatuses)
+            ->with(['user', 'city', 'category'])
+            ->latest()
+            ->get();
 
         return view('livewire.mitra.dashboard.index', [
             'helps' => $helps,
+            'activeHelps' => $activeHelps,
             'balance' => $balance,
             'availableHelpsCount' => $availableHelpsCount,
             'inProgressCount' => $inProgressCount,

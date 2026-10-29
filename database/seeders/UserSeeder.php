@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\City;
-use App\Models\UserBalance;
 use App\Models\Registration;
+use App\Models\User;
+use App\Models\UserBalance;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
@@ -341,7 +341,9 @@ class UserSeeder extends Seeder
             ],
 
             // =========================================================================
-            // 5. CUSTOMER PENDING (Belum verifikasi KTP / Untuk testing approval Admin)
+            // 5. CUSTOMER PENDING — data uji onboarding + antrean verifikasi admin
+            //    is_completed = false dan foto KTP/selfie kosong, jadi login akan
+            //    diarahkan ke onboarding/step2 (upload KTP). Password: Sayabantu123!
             // =========================================================================
             [
                 'email' => 'customer.pending@sayabantu.com',
@@ -363,7 +365,9 @@ class UserSeeder extends Seeder
             ],
 
             // =========================================================================
-            // 6. MITRA PENDING (Belum verifikasi KTP / Menunggu approval Admin)
+            // 6. MITRA PENDING — data uji onboarding/step2 + antrean verifikasi admin.
+            //    Status active supaya bisa login (dulu inactive sehingga login ditolak).
+            //    Password: Sayabantu123!
             // =========================================================================
             [
                 'email' => 'mitra.pending@sayabantu.com',
@@ -377,7 +381,7 @@ class UserSeeder extends Seeder
                 'kecamatan' => 'Kemayoran',
                 'kelurahan' => 'Gunung Sahari Selatan',
                 'verified' => false,
-                'status' => 'inactive',
+                'status' => 'active',
                 'phone' => '081200000007',
                 'nik' => '3171011804960006',
                 'address' => 'Jl. Garuda No. 15, Kemayoran, Jakarta Pusat',
@@ -397,12 +401,30 @@ class UserSeeder extends Seeder
                 'kecamatan' => 'Umbulharjo',
                 'kelurahan' => 'Sorosutan',
                 'verified' => false,
-                'status' => 'inactive',
+                'status' => 'active',
                 'phone' => '081234561005',
                 'nik' => '3471010101950001',
                 'address' => 'Jl. Umbulharjo No. 12, Sorosutan, Umbulharjo, Kota Yogyakarta',
                 'is_completed' => false,
                 'email_verified_at' => now(),
+                'initial_balance' => 0,
+            ],
+
+            // =========================================================================
+            // 7. CUSTOMER BELUM ISI DATA DIRI — data uji onboarding/step1.
+            //    Password sudah ada tetapi NIK kosong, jadi login diarahkan ke
+            //    onboarding/step1 untuk melengkapi data diri. Password: Sayabantu123!
+            // =========================================================================
+            [
+                'email' => 'customer.onboarding@sayabantu.com',
+                'name' => 'Bima Prakoso (Onboarding Step 1)',
+                'password' => $defaultPassword,
+                'role' => 'customer',
+                'gender' => 'Laki-laki',
+                'verified' => false,
+                'status' => 'active',
+                'email_verified_at' => now(),
+                'is_completed' => false,
                 'initial_balance' => 0,
             ],
         ];
@@ -411,7 +433,7 @@ class UserSeeder extends Seeder
             $initialBalance = $data['initial_balance'] ?? 0;
             unset($data['initial_balance']);
 
-            if ($hasOccupation && !isset($data['occupation'])) {
+            if ($hasOccupation && ! isset($data['occupation'])) {
                 $data['occupation'] = ($data['role'] === 'mitra') ? 'Teknisi / Rekan Jasa' : 'Karyawan Swasta';
             }
 
@@ -421,7 +443,7 @@ class UserSeeder extends Seeder
             );
 
             // Hubungkan Admin ke kota-kota kelolaannya
-            if ($user->role === 'admin' && !empty($user->city_id)) {
+            if ($user->role === 'admin' && ! empty($user->city_id)) {
                 if ($user->email === 'admin.jogja@test.com') {
                     // Admin Jogja mengelola seluruh 5 wilayah DIY
                     $diyCityIds = [$yogyaId, $slemanId, ($bantul ? $bantul->id : 33)];
@@ -456,7 +478,7 @@ class UserSeeder extends Seeder
             }
 
             // Buat entri Registration untuk akun pending agar muncul di antrean verifikasi admin
-            if (!$user->verified && in_array($user->email, ['mitra.pending@sayabantu.com', 'yusuf.mitra@test.com'])) {
+            if (! $user->verified && in_array($user->email, ['mitra.pending@sayabantu.com', 'yusuf.mitra@test.com'])) {
                 Registration::updateOrCreate(
                     ['email' => $user->email],
                     [

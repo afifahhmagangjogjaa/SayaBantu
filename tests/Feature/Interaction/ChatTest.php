@@ -4,6 +4,7 @@ namespace Tests\Feature\Interaction;
 
 use App\Enums\HelpStatus;
 use App\Livewire\Customer\Chat;
+use App\Livewire\Mitra\Chat as MitraChat;
 use App\Models\Category;
 use App\Models\Chat as ChatModel;
 use App\Models\City;
@@ -39,7 +40,7 @@ class ChatTest extends TestCase
         ]);
     }
 
-    private function makeHelp(User $customer, User $mitra, string $status = HelpStatus::IN_PROGRESS->value): Help
+    private function makeHelp(User $customer, User $mitra, string $status = HelpStatus::IN_PROGRESS->value, $completedAt = null): Help
     {
         $city = City::create(['name' => 'Kota Test', 'is_active' => true]);
         $category = Category::create(['name' => 'Kategori Test', 'is_active' => true]);
@@ -54,6 +55,7 @@ class ChatTest extends TestCase
             'amount' => 50000,
             'status' => $status,
             'mitra_id' => $mitra->id,
+            'completed_at' => $completedAt,
         ]);
     }
 
@@ -98,17 +100,129 @@ class ChatTest extends TestCase
         $this->assertSame(0, ChatModel::count());
     }
 
-    public function test_pesan_ditolak_untuk_order_yang_sudah_selesai(): void
+    public function test_pesan_ditolak_untuk_order_selesai_lebih_dari_sehari(): void
     {
         $customer = $this->customer();
         $mitra = $this->mitra();
-        $help = $this->makeHelp($customer, $mitra, HelpStatus::SELESAI->value);
+        $help = $this->makeHelp($customer, $mitra, HelpStatus::SELESAI->value, now()->subDays(2));
 
         $this->actingAs($customer);
 
         Livewire::test(Chat::class)
             ->set('selected_help_id', $help->id)
             ->set('message', 'Masih bisa kirim?')
+            ->call('sendMessage')
+            ->assertDispatched('error');
+
+        $this->assertSame(0, ChatModel::count());
+    }
+
+    public function test_pesan_masih_bisa_dikirim_hingga_sehari_setelah_selesai(): void
+    {
+        $customer = $this->customer();
+        $mitra = $this->mitra();
+        $help = $this->makeHelp($customer, $mitra, HelpStatus::SELESAI->value, now()->subHours(12));
+
+        $this->actingAs($customer);
+
+        Livewire::test(Chat::class)
+            ->set('selected_help_id', $help->id)
+            ->set('message', 'Terima kasih ya!')
+            ->call('sendMessage')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('chats', [
+            'help_id' => $help->id,
+            'sender_type' => 'customer',
+            'message' => 'Terima kasih ya!',
+        ]);
+    }
+
+    public function test_pesan_ditolak_sebelum_mitra_menerima_pesanan(): void
+    {
+        $customer = $this->customer();
+        $mitra = $this->mitra();
+        $help = $this->makeHelp($customer, $mitra, HelpStatus::MENUNGGU_MITRA->value);
+
+        $this->actingAs($customer);
+
+        Livewire::test(Chat::class)
+            ->set('selected_help_id', $help->id)
+            ->set('message', 'Halo?')
+            ->call('sendMessage')
+            ->assertDispatched('error');
+
+        $this->assertSame(0, ChatModel::count());
+    }
+
+    public function test_mitra_bisa_mengirim_pesan_hingga_sehari_setelah_selesai(): void
+    {
+        $customer = $this->customer();
+        $mitra = $this->mitra();
+        $help = $this->makeHelp($customer, $mitra, HelpStatus::SELESAI->value, now()->subHours(12));
+
+        $this->actingAs($mitra);
+
+        Livewire::test(MitraChat::class)
+            ->set('selected_help_id', $help->id)
+            ->set('message', 'Sip, terima kasih!')
+            ->call('sendMessage')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('chats', [
+            'help_id' => $help->id,
+            'sender_type' => 'mitra',
+            'message' => 'Sip, terima kasih!',
+        ]);
+    }
+
+    public function test_mitra_ditolak_mengirim_pesan_setelah_sehari_selesai(): void
+    {
+        $customer = $this->customer();
+        $mitra = $this->mitra();
+        $help = $this->makeHelp($customer, $mitra, HelpStatus::SELESAI->value, now()->subDays(2));
+
+        $this->actingAs($mitra);
+
+        Livewire::test(MitraChat::class)
+            ->set('selected_help_id', $help->id)
+            ->set('message', 'Masih ada?')
+            ->call('sendMessage')
+            ->assertDispatched('error');
+
+        $this->assertSame(0, ChatModel::count());
+    }
+
+    public function test_customer_tidak_bisa_membuka_atau_mengirim_chat_pesan_orang_lain(): void
+    {
+        $owner = $this->customer();
+        $intruder = $this->customer();
+        $mitra = $this->mitra();
+        $help = $this->makeHelp($owner, $mitra);
+
+        $this->actingAs($intruder);
+
+        Livewire::test(Chat::class)
+            ->set('selected_help_id', $help->id)
+            ->set('message', 'Pesan penembus')
+            ->call('sendMessage')
+            ->assertDispatched('error');
+
+        $this->assertSame(0, ChatModel::count());
+    }
+
+    public function test_mitra_lain_tidak_bisa_mengirim_pesan_di_chat_mitra_lain(): void
+    {
+        $customer = $this->customer();
+        $assignedMitra = $this->mitra();
+        $otherMitra = $this->mitra();
+        $help = $this->makeHelp($customer, $assignedMitra);
+
+        $this->actingAs($otherMitra);
+
+        Livewire::test(MitraChat::class)
+            ->set('selected_help_id', $help->id)
+            ->set('message', 'Pesan dari mitra asing')
             ->call('sendMessage')
             ->assertDispatched('error');
 

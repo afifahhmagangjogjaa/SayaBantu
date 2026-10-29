@@ -37,7 +37,7 @@
             <!-- Summary Cards (Clickable Quick Filters) -->
             <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                 <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                    <a href="{{ route('superadmin.withdraws.index') }}" 
+                    <a href="{{ route('superadmin.withdraws.index') }}" wire:navigate 
                         class="p-3.5 rounded-xl border transition-all duration-200 {{ !request('status') ? 'bg-primary-50 border-primary-300 ring-2 ring-primary-200' : 'bg-white border-gray-200 hover:border-gray-300' }}">
                         <div class="text-xs font-medium text-gray-500">Semua Request</div>
                         <div class="text-xl font-bold text-gray-900 mt-1">{{ $counts['all'] ?? 0 }}</div>
@@ -84,7 +84,7 @@
                                     class="w-full bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
                                     placeholder="Nama mitra, no. rek, email, ID (#12), nominal..." />
                                 @if(request('search') || request('user'))
-                                    <a href="{{ route('superadmin.withdraws.index', request()->except('search', 'user', 'page')) }}" 
+                                    <a href="{{ route('superadmin.withdraws.index', request()->except('search', 'user', 'page')) }}" wire:navigate 
                                        class="absolute inset-y-0 right-0 flex items-center text-gray-400 hover:text-gray-600 transition cursor-pointer" 
                                        style="padding-right: 12px;"
                                        title="Hapus pencarian">
@@ -143,7 +143,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             @if(request()->hasAny(['search', 'user', 'status', 'bank_code', 'date_from', 'date_to']))
-                                <a href="{{ route('superadmin.withdraws.index') }}"
+                                <a href="{{ route('superadmin.withdraws.index') }}" wire:navigate
                                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-xs font-semibold">
                                     Reset Filter
                                 </a>

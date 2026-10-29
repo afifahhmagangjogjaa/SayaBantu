@@ -45,7 +45,7 @@
                                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h4l3 8 4-16 3 8h4"/></svg>
                                             Filter
                                         </button>
-                                        <a href="{{ route('admin.partners.blocked') }}" class="inline-flex items-center px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 shadow-2xs">
+                                        <a href="{{ route('admin.partners.blocked') }}" wire:navigate class="inline-flex items-center px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 shadow-2xs">
                                             Reset
                                         </a>
                                     </div>
@@ -108,7 +108,7 @@
                                 @foreach ($blocked as $user)
                                     <tr class="hover:bg-gray-50/80 transition-colors">
                                         <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
-                                            <a href="{{ route('admin.users.show', $user) }}"
+                                            <a href="{{ route('admin.users.show', $user) }}" wire:navigate
                                                 class="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline">
                                                 {{ $user->name }}
                                             </a>
@@ -136,7 +136,7 @@
                                         </td>
                                         <td class="px-4 py-3 text-center whitespace-nowrap">
                                             <div class="inline-flex items-center justify-center gap-1.5 leading-none">
-                                                <a href="{{ route('admin.partners.activity', ['search' => $user->email]) }}"
+                                                <a href="{{ route('admin.partners.activity', ['search' => $user->email]) }}" wire:navigate
                                                     class="inline-flex items-center justify-center px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-100 transition shadow-2xs leading-none">
                                                     Aktivitas
                                                 </a>

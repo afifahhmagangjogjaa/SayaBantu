@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\BalanceTransaction;
 use Livewire\Livewire;
 
 class UserBalance extends Model
@@ -36,9 +35,6 @@ class UserBalance extends Model
     /**
      * Recalculate and persist the true net balance for a user.
      * Formula: (Completed Inflows: topup + income + refund) - (Completed Outflows: deduction + withdraw + fee)
-     *
-     * @param int $userId
-     * @return float
      */
     public static function recalculateForUser(int $userId): float
     {
@@ -108,4 +104,3 @@ class UserBalance extends Model
         return $this;
     }
 }
-

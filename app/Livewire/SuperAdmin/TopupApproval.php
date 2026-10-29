@@ -5,9 +5,9 @@ namespace App\Livewire\SuperAdmin;
 use App\Models\BalanceTransaction;
 use App\Notifications\TopupApproved;
 use App\Notifications\TopupRejected;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
 
 #[Layout('layouts.superadmin')]
 class TopupApproval extends Component
@@ -15,22 +15,32 @@ class TopupApproval extends Component
     use WithPagination;
 
     public $selectedTransaction = null;
+
     public $showDetailModal = false;
+
     public $showRejectModal = false;
+
     public $rejectionReason = '';
 
     // Search and filters for both tables
     public $searchPending = '';
+
     public $searchHistory = '';
+
     public $historyStatusFilter = '';
+
     public $perPagePending = 10;
+
     public $perPageHistory = 10;
 
     public $deleteYear;
+
     public $deleteMonth = 'all';
+
     public $deleteMode = 'monthly'; // 'monthly', 'yearly', 'all'
+
     public $showDeleteModal = false;
-    
+
     protected $listeners = [
         'topupRequestCreated' => '$refresh',
         'confirmApprove' => 'approve',
@@ -53,6 +63,7 @@ class TopupApproval extends Component
     {
         if ($this->deleteMode === 'all') {
             $this->deleteAllHistory();
+
             return;
         }
 
@@ -69,6 +80,7 @@ class TopupApproval extends Component
         if ($tx) {
             if ($tx->status === 'waiting_approval') {
                 session()->flash('error', 'Permintaan top-up yang masih menunggu persetujuan tidak boleh dihapus.');
+
                 return;
             }
             $tx->delete();
@@ -85,13 +97,13 @@ class TopupApproval extends Component
         $monthNames = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
             5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
         ];
 
         if ($this->deleteMonth && $this->deleteMonth !== 'all') {
             $monthNum = (int) $this->deleteMonth;
             $query->whereMonth('created_at', $monthNum);
-            $periodLabel = ($monthNames[$monthNum] ?? "Bulan $monthNum") . " {$this->deleteYear}";
+            $periodLabel = ($monthNames[$monthNum] ?? "Bulan $monthNum")." {$this->deleteYear}";
         } else {
             $periodLabel = "Tahun {$this->deleteYear}";
         }
@@ -100,6 +112,7 @@ class TopupApproval extends Component
         if ($count === 0) {
             session()->flash('error', "Tidak ada riwayat top-up pada periode {$periodLabel}.");
             $this->showDeleteModal = false;
+
             return;
         }
 
@@ -170,8 +183,9 @@ class TopupApproval extends Component
     {
         $transaction = BalanceTransaction::find($transactionId);
 
-        if (!$transaction || $transaction->status !== 'waiting_approval') {
+        if (! $transaction || $transaction->status !== 'waiting_approval') {
             session()->flash('error', 'Request tidak valid atau sudah diproses.');
+
             return;
         }
 
@@ -197,8 +211,8 @@ class TopupApproval extends Component
 
         } catch (\Exception $e) {
             \DB::rollBack();
-            \Log::error('Error approving topup: ' . $e->getMessage());
-            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            \Log::error('Error approving topup: '.$e->getMessage());
+            session()->flash('error', 'Terjadi kesalahan: '.$e->getMessage());
         }
     }
 
@@ -210,8 +224,9 @@ class TopupApproval extends Component
             'rejectionReason.required' => 'Alasan penolakan harus diisi',
         ]);
 
-        if (!$this->selectedTransaction || $this->selectedTransaction->status !== 'waiting_approval') {
+        if (! $this->selectedTransaction || $this->selectedTransaction->status !== 'waiting_approval') {
             session()->flash('error', 'Request tidak valid atau sudah diproses.');
+
             return;
         }
 
@@ -232,8 +247,8 @@ class TopupApproval extends Component
             $this->closeModal();
 
         } catch (\Exception $e) {
-            \Log::error('Error rejecting topup: ' . $e->getMessage());
-            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            \Log::error('Error rejecting topup: '.$e->getMessage());
+            session()->flash('error', 'Terjadi kesalahan: '.$e->getMessage());
         }
     }
 
@@ -248,13 +263,13 @@ class TopupApproval extends Component
             $sp = trim($this->searchPending);
             $pendingQuery->where(function ($q) use ($sp) {
                 $q->where('request_code', 'like', "%{$sp}%")
-                  ->orWhere('id', 'like', "%{$sp}%")
-                  ->orWhere('customer_phone', 'like', "%{$sp}%")
-                  ->orWhereHas('user', function ($uq) use ($sp) {
-                      $uq->where('name', 'like', "%{$sp}%")
-                         ->orWhere('email', 'like', "%{$sp}%")
-                         ->orWhere('phone', 'like', "%{$sp}%");
-                  });
+                    ->orWhere('id', 'like', "%{$sp}%")
+                    ->orWhere('customer_phone', 'like', "%{$sp}%")
+                    ->orWhereHas('user', function ($uq) use ($sp) {
+                        $uq->where('name', 'like', "%{$sp}%")
+                            ->orWhere('email', 'like', "%{$sp}%")
+                            ->orWhere('phone', 'like', "%{$sp}%");
+                    });
             });
         }
 
@@ -274,13 +289,13 @@ class TopupApproval extends Component
             $sh = trim($this->searchHistory);
             $historyQuery->where(function ($q) use ($sh) {
                 $q->where('request_code', 'like', "%{$sh}%")
-                  ->orWhere('id', 'like', "%{$sh}%")
-                  ->orWhere('customer_phone', 'like', "%{$sh}%")
-                  ->orWhereHas('user', function ($uq) use ($sh) {
-                      $uq->where('name', 'like', "%{$sh}%")
-                         ->orWhere('email', 'like', "%{$sh}%")
-                         ->orWhere('phone', 'like', "%{$sh}%");
-                  });
+                    ->orWhere('id', 'like', "%{$sh}%")
+                    ->orWhere('customer_phone', 'like', "%{$sh}%")
+                    ->orWhereHas('user', function ($uq) use ($sh) {
+                        $uq->where('name', 'like', "%{$sh}%")
+                            ->orWhere('email', 'like', "%{$sh}%")
+                            ->orWhere('phone', 'like', "%{$sh}%");
+                    });
             });
         }
 
@@ -303,17 +318,17 @@ class TopupApproval extends Component
         $totalHistoryCount = BalanceTransaction::topupRequests()
             ->whereIn('status', ['completed', 'rejected', 'failed'])
             ->count();
-            
+
         $approvedToday = BalanceTransaction::topupRequests()
             ->where('status', 'completed')
             ->whereNotNull('approved_by')
             ->whereDate('approved_at', now()->toDateString())
             ->count();
-            
+
         $totalPendingAmount = BalanceTransaction::topupRequests()
             ->where('status', 'waiting_approval')
             ->sum('amount');
-            
+
         $totalApprovedAmountToday = BalanceTransaction::topupRequests()
             ->where('status', 'completed')
             ->whereNotNull('approved_by')
@@ -331,7 +346,7 @@ class TopupApproval extends Component
         $curYear = (int) date('Y');
         if (empty($availableYears)) {
             $availableYears = [$curYear];
-        } elseif (!in_array($curYear, $availableYears)) {
+        } elseif (! in_array($curYear, $availableYears)) {
             array_unshift($availableYears, $curYear);
         }
 

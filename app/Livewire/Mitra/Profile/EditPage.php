@@ -1,18 +1,24 @@
 <?php
+
 namespace App\Livewire\Mitra\Profile;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
 use App\Models\City;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
-#[Layout('components.mitra-layout')]
+#[Layout('layouts.mitra')]
 class EditPage extends Component
 {
     public ?string $name = null;
+
     public ?string $email = null;
+
     public ?string $phone = null;
+
     public ?int $city_id = null;
+
     public ?string $address = null;
+
     public ?string $bio = null;
 
     protected function rules(): array
@@ -47,6 +53,7 @@ class EditPage extends Component
         // If email changed, ensure uniqueness
         if ($this->email !== $user->email && \App\Models\User::where('email', $this->email)->exists()) {
             $this->addError('email', 'Email sudah terdaftar.');
+
             return;
         }
 
@@ -68,6 +75,7 @@ class EditPage extends Component
     public function render()
     {
         $cities = City::where('is_active', true)->orderBy('name')->get();
+
         return view('livewire.mitra.profile.edit-page', compact('cities'));
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api;
 
-use App\Support\ExternalHttp;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 

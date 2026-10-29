@@ -207,7 +207,7 @@
                             @endif
                         </div>
 
-                        <a href="{{ route('admin.ratings.index', ['search' => $user->email ?? $user->name], false) }}"
+                        <a href="{{ route('admin.ratings.index', ['search' => $user->email ?? $user->name], false) }}" wire:navigate
                             class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black text-xs font-semibold rounded-xl shadow-2xs transition flex-shrink-0 cursor-pointer"
                             title="Buka ulasan lengkap di menu Rating & Ulasan">
                             <span>Lihat Ulasan di Menu Rating</span>
@@ -420,7 +420,7 @@
                         <div class="mt-3 pt-3 border-t border-gray-100">
                             <p class="text-[10px] text-gray-400 mb-1.5">Sumber laporan terkait:</p>
                             @foreach ($spLogs->unique('report_id') as $log)
-                                <a href="{{ route('admin.partners.reports.show', $log['report_id']) }}"
+                                <a href="{{ route('admin.partners.reports.show', $log['report_id']) }}" wire:navigate
                                    class="inline-flex items-center gap-1 text-[10px] text-primary-600 hover:text-primary-700 font-medium bg-primary-50 hover:bg-primary-100 px-2 py-1 rounded-lg transition mr-1 mb-1">
                                     <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                     Laporan #{{ $log['report_id'] }}{{ $log['report_title'] ? ': ' . \Illuminate\Support\Str::limit($log['report_title'], 25) : '' }}

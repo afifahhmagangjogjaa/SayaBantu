@@ -2,17 +2,23 @@
 
 namespace App\Livewire\Profile;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class UpdateProfileInformationForm extends Component
 {
     public $name;
+
     public $email;
+
     public $nik;
+
     public $phone;
+
     public $address;
+
     public $city_id;
+
     public $gender;
 
     protected function rules(): array
@@ -20,7 +26,7 @@ class UpdateProfileInformationForm extends Component
         return [
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'email' => ['required', 'email', 'max:255'],
-            'nik' => ['required', 'string', 'size:16', 'regex:/^[0-9]+$/'],
+            'nik' => ['nullable', 'string'],
             'phone' => ['required', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
             'city_id' => ['required', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
             'address' => ['required', 'string', 'max:500'],
@@ -58,13 +64,16 @@ class UpdateProfileInformationForm extends Component
 
     public function selectCityByName(?string $cityName): void
     {
-        if (empty($cityName)) return;
+        if (empty($cityName)) {
+            return;
+        }
 
         $cleanTarget = strtolower(trim(preg_replace('/\b(KOTA|KABUPATEN|KAB)\b/i', '', $cityName)));
         $cities = \App\Models\City::where('is_active', true)->get();
 
         $matched = $cities->first(function ($c) use ($cleanTarget) {
             $cleanName = strtolower(trim(preg_replace('/\b(KOTA|KABUPATEN|KAB)\b/i', '', $c->name)));
+
             return $cleanName === $cleanTarget || str_contains($cleanName, $cleanTarget) || str_contains($cleanTarget, $cleanName);
         });
 
@@ -75,13 +84,14 @@ class UpdateProfileInformationForm extends Component
 
     public function updateProfileInformation()
     {
+        $user = Auth::user();
+
         $this->name = preg_replace('/[^a-zA-Z\s]/', '', (string) $this->name);
-        $this->nik = preg_replace('/[^0-9]/', '', (string) $this->nik);
         $this->phone = preg_replace('/[^0-9]/', '', (string) $this->phone);
+        // NIK dikunci permanen sesuai identitas akun terdaftar
+        $this->nik = $user->nik;
 
         $this->validate();
-
-        $user = Auth::user();
 
         // Check if email changed and already exists
         if (
@@ -89,38 +99,31 @@ class UpdateProfileInformationForm extends Component
             \App\Models\User::where('email', $this->email)->where('id', '!=', $user->id)->exists()
         ) {
             $this->addError('email', 'Email sudah digunakan oleh akun lain.');
-            return;
-        }
 
-        // Check if NIK changed and already exists on other users
-        if (
-            $this->nik !== $user->nik &&
-            \App\Models\User::where('nik', $this->nik)->where('id', '!=', $user->id)->exists()
-        ) {
-            $this->addError('nik', 'NIK sudah terdaftar pada akun lain.');
             return;
         }
 
         $user->update([
             'name' => $this->name,
             'email' => $this->email,
-            'nik' => $this->nik,
+            'nik' => $user->nik,
             'phone' => $this->phone,
             'address' => $this->address,
             'city_id' => $this->city_id,
-            'gender' => !empty($this->gender) ? $this->gender : null,
+            'gender' => ! empty($this->gender) ? $this->gender : null,
         ]);
 
         session()->flash('message', 'Perubahan profil berhasil disimpan!');
-        
+
         $redirectUrl = Auth::user()->role === 'mitra' ? route('mitra.profile') : route('profile');
-        
+
         $this->dispatch('profile-saved', redirectUrl: $redirectUrl);
     }
 
     public function render()
     {
         $cities = \App\Models\City::where('is_active', true)->orderBy('name')->get();
+
         return view('livewire.profile.update-profile-information-form', compact('cities'));
     }
 }

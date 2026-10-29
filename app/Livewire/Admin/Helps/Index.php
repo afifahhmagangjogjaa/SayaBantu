@@ -2,17 +2,19 @@
 
 namespace App\Livewire\Admin\Helps;
 
+use App\Enums\HelpStatus;
+use App\Models\Help;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Help;
-use App\Enums\HelpStatus;
 
 class Index extends Component
 {
     use WithPagination;
 
     public $search = '';
+
     public $statusFilter = '';
+
     public $perPage = 10;
 
     public function updatedSearch()
@@ -55,8 +57,8 @@ class Index extends Component
             ->with(['customer', 'category', 'city'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%');
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->statusFilter !== '', function ($query) {
@@ -66,12 +68,12 @@ class Index extends Component
         // Filter by admin's managed cities (multi-city support)
         if (auth()->user() && auth()->user()->role === 'admin') {
             $adminCityIds = auth()->user()->getAdminCityIds();
-            if (!empty($adminCityIds)) {
+            if (! empty($adminCityIds)) {
                 $query->where(function ($q) use ($adminCityIds) {
                     $q->whereIn('city_id', $adminCityIds)
-                      ->orWhereHas('customer', function ($c) use ($adminCityIds) {
-                          $c->whereIn('city_id', $adminCityIds);
-                      });
+                        ->orWhereHas('customer', function ($c) use ($adminCityIds) {
+                            $c->whereIn('city_id', $adminCityIds);
+                        });
                 });
             }
         }
@@ -82,12 +84,12 @@ class Index extends Component
         $statsQuery = Help::query();
         if (auth()->user() && auth()->user()->role === 'admin') {
             $adminCityIds = auth()->user()->getAdminCityIds();
-            if (!empty($adminCityIds)) {
+            if (! empty($adminCityIds)) {
                 $statsQuery->where(function ($q) use ($adminCityIds) {
                     $q->whereIn('city_id', $adminCityIds)
-                      ->orWhereHas('customer', function ($c) use ($adminCityIds) {
-                          $c->whereIn('city_id', $adminCityIds);
-                      });
+                        ->orWhereHas('customer', function ($c) use ($adminCityIds) {
+                            $c->whereIn('city_id', $adminCityIds);
+                        });
                 });
             }
         }

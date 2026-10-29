@@ -197,7 +197,7 @@
                 {{-- 1. Kata Sandi Saat Ini --}}
                 <div>
                     <label for="sa_current_password" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                        Kata Sandi Saat Ini <span class="text-red-500">*</span>
+                        Kata Sandi Saat Ini
                     </label>
                     <div class="relative">
                         <input :type="showCurrent ? 'text' : 'password'" 
@@ -231,7 +231,7 @@
                 {{-- 2. Kata Sandi Baru --}}
                 <div>
                     <label for="sa_password" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                        Kata Sandi Baru <span class="text-red-500">*</span>
+                        Kata Sandi Baru
                     </label>
                     <div class="relative">
                         <input :type="showNew ? 'text' : 'password'" 
@@ -287,7 +287,7 @@
                 {{-- 3. Konfirmasi Kata Sandi Baru --}}
                 <div>
                     <label for="sa_password_confirmation" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                        Konfirmasi Kata Sandi Baru <span class="text-red-500">*</span>
+                        Konfirmasi Kata Sandi Baru
                     </label>
                     <div class="relative">
                         <input :type="showConfirm ? 'text' : 'password'" 

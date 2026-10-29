@@ -120,7 +120,7 @@ new #[Layout('layouts.guest')] class extends Component {
     <div class="mt-8 pt-4 text-center">
         <p class="text-xs sm:text-sm text-gray-500 font-medium">
             Ingat kata sandi Anda?
-            <a href="{{ route('login') }}" class="font-bold text-[#0066FF] hover:underline ml-1">
+            <a href="{{ route('login') }}" wire:navigate class="font-bold text-[#0066FF] hover:underline ml-1">
                 Kembali ke Login
             </a>
         </p>

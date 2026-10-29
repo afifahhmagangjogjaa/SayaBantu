@@ -64,6 +64,24 @@ Buka http://127.0.0.1:8000
 salah satu password tersebut. **Jangan pernah mengaktifkannya di production** —
 default di `.env.example` adalah `false`.
 
+### Akun uji onboarding
+
+Dibuat oleh `database/seeders/UserSeeder.php`, password semuanya
+`Sayabantu123!`. Semua berstatus `active` tetapi `is_completed = false`, jadi
+setelah login middleware `onboarded` mengarahkan ke langkah onboarding yang
+belum selesai:
+
+| Email | Role | Diarahkan ke |
+|---|---|---|
+| `customer.onboarding@sayabantu.com` | customer | `onboarding/step1` (NIK masih kosong) |
+| `customer.pending@sayabantu.com` | customer | `onboarding/step2` (upload KTP) |
+| `mitra.pending@sayabantu.com` | mitra | `onboarding/step2` (upload KTP) |
+| `yusuf.mitra@test.com` | mitra | `onboarding/step2` (upload KTP) |
+
+`mitra.pending@sayabantu.com` dan `yusuf.mitra@test.com` juga punya entri
+`registrations` berstatus `pending_verification`, sehingga sekaligus menjadi
+data uji antrean verifikasi KTP di panel admin.
+
 ---
 
 ## Yang wajib jalan di background

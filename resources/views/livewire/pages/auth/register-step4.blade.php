@@ -79,6 +79,16 @@ new #[Layout('layouts.guest')] class extends Component {
         }
 
         // Gabungkan semua data
+        $cityId = $registration->city_id;
+        $cityName = $registration->city;
+        if (empty($cityId) && !empty($cityName)) {
+            $matchedCity = City::whereRaw('LOWER(name) = ?', [strtolower(trim($cityName))])->first();
+            if ($matchedCity) {
+                $cityId = $matchedCity->id;
+                $cityName = $matchedCity->name;
+            }
+        }
+
         $userData = [
             'name' => $registration->full_name,
             'email' => $validated['email'],
@@ -89,7 +99,8 @@ new #[Layout('layouts.guest')] class extends Component {
             'address' => $registration->address,
             'kelurahan' => $registration->kelurahan,
             'kecamatan' => $registration->kecamatan,
-            'city' => $registration->city,
+            'city_id' => $cityId,
+            'city' => $cityName,
             'province' => $registration->province,
             'ktp_photo' => $registration->ktp_photo_path,
             'selfie_photo' => $registration->selfie_photo_path,
@@ -293,7 +304,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <div>
                 <label for="email" class="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                    Email <span class="text-red-500">*</span>
+                    Email
                 </label>
                 <input wire:model="email" id="email" type="email" placeholder="nama@email.com"
                     class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
@@ -302,7 +313,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <div>
                 <label for="password" class="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                    Password <span class="text-red-500">*</span>
+                    Password
                 </label>
                 <div class="relative">
                     <input wire:model="password" id="password" :type="showPass ? 'text' : 'password'" placeholder="Minimal 8 karakter"
@@ -337,7 +348,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
             <div>
                 <label for="password_confirmation" class="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                    Konfirmasi Password <span class="text-red-500">*</span>
+                    Konfirmasi Password
                 </label>
                 <div class="relative">
                     <input wire:model="password_confirmation" id="password_confirmation" :type="showConfirm ? 'text' : 'password'" placeholder="Ketik ulang password"

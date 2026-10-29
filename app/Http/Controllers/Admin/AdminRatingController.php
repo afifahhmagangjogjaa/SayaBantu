@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Rating;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class AdminRatingController extends Controller
 {
@@ -28,8 +28,8 @@ class AdminRatingController extends Controller
             $s = trim($search);
             $usersQuery->where(function ($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
-                  ->orWhere('email', 'like', "%{$s}%")
-                  ->orWhere('phone', 'like', "%{$s}%");
+                    ->orWhere('email', 'like', "%{$s}%")
+                    ->orWhere('phone', 'like', "%{$s}%");
             });
         }
 
@@ -47,18 +47,18 @@ class AdminRatingController extends Controller
         $statsQuery = Rating::query();
         if ($cityIds->isNotEmpty()) {
             $statsQuery->where(function ($q) use ($cityIds) {
-                $q->whereHas('help', fn($hq) => $hq->whereIn('city_id', $cityIds))
-                  ->orWhereHas('rater', fn($rq) => $rq->whereIn('city_id', $cityIds))
-                  ->orWhereHas('ratee', fn($rq) => $rq->whereIn('city_id', $cityIds));
+                $q->whereHas('help', fn ($hq) => $hq->whereIn('city_id', $cityIds))
+                    ->orWhereHas('rater', fn ($rq) => $rq->whereIn('city_id', $cityIds))
+                    ->orWhereHas('ratee', fn ($rq) => $rq->whereIn('city_id', $cityIds));
             });
         }
 
         $stats = [
             'total_reviews' => (clone $statsQuery)->count(),
-            'mitra_avg' => round((float)(clone $statsQuery)->where(function($q) {
+            'mitra_avg' => round((float) (clone $statsQuery)->where(function ($q) {
                 $q->where('type', 'customer_to_mitra')->orWhereNull('type');
             })->avg('rating'), 1) ?: 0,
-            'customer_avg' => round((float)(clone $statsQuery)->where('type', 'mitra_to_customer')->avg('rating'), 1) ?: 0,
+            'customer_avg' => round((float) (clone $statsQuery)->where('type', 'mitra_to_customer')->avg('rating'), 1) ?: 0,
             'low_count' => (clone $statsQuery)->whereIn('rating', [1, 2])->count(),
         ];
 
@@ -81,7 +81,7 @@ class AdminRatingController extends Controller
 
     public function toggleShadowBan(Request $request, User $user)
     {
-        $user->is_shadow_banned = !$user->is_shadow_banned;
+        $user->is_shadow_banned = ! $user->is_shadow_banned;
         $user->shadow_banned_at = $user->is_shadow_banned ? now() : null;
         $user->save();
 
