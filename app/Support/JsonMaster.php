@@ -82,8 +82,12 @@ class JsonMaster
 
         if (str_contains($key, '.')) {
             $variants[] = str_replace('.', '', $key);
-        } elseif (preg_match('/^\d{4,5}$/', $key)) {
-            $variants[] = substr($key, 0, 2).'.'.substr($key, 2);
+        } elseif (preg_match('/^\d{4}$/', $key)) {
+            $variants[] = substr($key, 0, 2).'.'.substr($key, 2, 2);
+        } elseif (preg_match('/^\d{6}$/', $key)) {
+            $variants[] = substr($key, 0, 2).'.'.substr($key, 2, 2).'.'.substr($key, 4, 2);
+        } elseif (preg_match('/^\d{10}$/', $key)) {
+            $variants[] = substr($key, 0, 2).'.'.substr($key, 2, 2).'.'.substr($key, 4, 2).'.'.substr($key, 6, 4);
         }
 
         return array_values(array_unique($variants));

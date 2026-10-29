@@ -10,9 +10,19 @@
 
     <!-- PWA & Favicon Settings -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    @php
+        $dynamicAppIcon = \App\Models\AppSetting::get('app_icon');
+        $dynamicAppIconUrl = $dynamicAppIcon && \Illuminate\Support\Facades\Storage::disk('public')->exists($dynamicAppIcon) ? asset('storage/' . $dynamicAppIcon) : null;
+    @endphp
+    @if($dynamicAppIconUrl)
+        <link rel="icon" href="{{ $dynamicAppIconUrl }}">
+        <link rel="apple-touch-icon" href="{{ $dynamicAppIconUrl }}">
+    @else
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    @endif
     <meta name="theme-color" content="#0284c7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -105,9 +115,8 @@
                             </a>
                         </div>
 
-                        <div class="text-center flex-1">
-                            <h1 class="text-lg font-bold">sayabantu</h1>
-                            <p class="text-xs text-white/90 mt-0.5">Jasa Serabutan Terpercaya</p>
+                        <div class="text-center flex-1 flex flex-col items-center justify-center">
+                            <x-sayabantu-logo size="sm" light="true" showTagline="true" tagline="Jasa Serabutan Terpercaya" />
                         </div>
 
                         <div class="w-8"></div>

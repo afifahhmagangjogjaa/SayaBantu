@@ -110,4 +110,33 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_customer_logging_in_ignores_superadmin_intended_url(): void
+    {
+        $user = $this->onboardedUser();
+
+        session(['url.intended' => 'http://localhost/superadmin/settings/banners']);
+
+        $component = Volt::test('pages.auth.login')
+            ->set('form.email', $user->email)
+            ->set('form.password', 'password');
+
+        $component->call('login');
+
+        $component
+            ->assertHasNoErrors()
+            ->assertRedirect(route('customer.dashboard', absolute: false));
+
+        $this->assertAuthenticated();
+        $this->assertNull(session('url.intended'));
+    }
+
+    public function test_customer_accessing_superadmin_routes_is_redirected_to_customer_dashboard(): void
+    {
+        $customer = $this->onboardedUser();
+
+        $response = $this->actingAs($customer)->get('/superadmin/settings/banners');
+
+        $response->assertRedirect(route('customer.dashboard'));
+    }
 }

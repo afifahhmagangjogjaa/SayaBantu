@@ -1,0 +1,147 @@
+================================================================================
+          PANDUAN & CHECKLIST DEPLOYMENT / HOSTING APLIKASI SAYABANTU
+================================================================================
+
+Dokumen ini berisi panduan lengkap langkah-langkah, konfigurasi .env, pengaturan
+Google OAuth Console, dan perintah penting yang WAJIB dijalankan saat memindahkan
+(hosting) aplikasi SayaBantu ke server produksi (cPanel / VPS / Cloud Server).
+
+--------------------------------------------------------------------------------
+1. PENGATURAN FILE .ENV DI SERVER PRODUKSI
+--------------------------------------------------------------------------------
+Ketika file diunggah ke hosting, buka dan sesuaikan file .env:
+
+a. Domain & Mode Produksi:
+   APP_NAME="SayaBantu"
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://domainanda.com
+   (PENTING: Gunakan https:// dan JANGAN pakai garis miring / di ujung domain)
+
+b. Matikan Fitur Demo / Testing:
+   DEMO_LOGIN=false
+   (PENTING: Wajib diset false agar akun-akun demo dan tombol bypass login tidak muncul di publik)
+
+   WILAYAH_VERIFY_TLS=true
+   (Ubah ke true karena server hosting sudah memiliki sertifikat SSL aktif)
+
+c. Koneksi Database Hosting:
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1 (atau localhost)
+   DB_PORT=3306
+   DB_DATABASE=nama_database_di_hosting
+   DB_USERNAME=user_database_di_hosting
+   DB_PASSWORD=password_database_di_hosting
+
+d. Konfigurasi Google OAuth (Login dengan Google):
+   GOOGLE_CLIENT_ID=isi_client_id_dari_google_console
+   GOOGLE_CLIENT_SECRET=isi_client_secret_dari_google_console
+   GOOGLE_REDIRECT_URI="https://domainanda.com/auth/google/callback"
+
+
+--------------------------------------------------------------------------------
+2. PENGATURAN GOOGLE CLOUD CONSOLE (OAUTH 2.0 LOGIN)
+--------------------------------------------------------------------------------
+Ketika domain resmi sudah aktif (misal: https://sayabantu.com), Anda WAJIB
+mendaftarkan URL domain tersebut di Google Cloud Console agar fitur "Login Google"
+tidak error:
+
+Langkah-langkah:
+a. Buka Google Cloud Console:
+   https://console.cloud.google.com/apis/credentials
+b. Pilih Project SayaBantu Anda.
+c. Pada bagian "OAuth 2.0 Client IDs", klik nama Client ID yang digunakan.
+d. Pada bagian "Authorized JavaScript origins" (Asal JavaScript resmi), tambahkan:
+   - https://domainanda.com
+   (Jika ada www, tambahkan juga: https://www.domainanda.com)
+e. Pada bagian "Authorized redirect URIs" (URI pengalihan yang diizinkan), tambahkan:
+   - https://domainanda.com/auth/google/callback
+   - https://www.domainanda.com/auth/google/callback
+f. Klik "Save" / "Simpan".
+   (Catatan: Google biasanya membutuhkan waktu 5-10 menit untuk propagasi perubahan).
+
+
+--------------------------------------------------------------------------------
+3. PERINTAH WAJIB DI SERVER (VIA TERMINAL / SSH / CRON CPANEL)
+--------------------------------------------------------------------------------
+
+a. Membuat Link Penyimpanan (Symlink Storage):
+   Jalankan:
+   php artisan storage:link
+
+   Tujuan:
+   Agar banner promosi/iklan, bukti transfer top-up, foto KTP verifikasi, dan
+   avatar profil yang diunggah pengguna dapat diakses secara publik oleh browser.
+
+b. Menjalankan Database Migration:
+   Jalankan:
+   php artisan migrate --force
+
+   (Jika menggunakan seeder data master kota/wilayah dan admin default):
+   php artisan db:seed --force
+
+c. Mengoptimalkan Kecepatan & Cache Laravel (Production Optimization):
+   Jalankan:
+   php artisan config:cache
+   php artisan route:cache
+   php artisan view:cache
+
+   (Catatan: Jika sewaktu-waktu Anda mengedit file .env di hosting, jalankan:
+   php artisan config:clear && php artisan config:cache)
+
+
+--------------------------------------------------------------------------------
+4. PERMISSION FOLDER (HAK AKSES DIREKTORI)
+--------------------------------------------------------------------------------
+Pastikan folder berikut memiliki izin tulis (writeable) oleh server web:
+- storage/ (beserta seluruh subfolder di dalamnya)
+- bootstrap/cache/
+
+Jika di VPS Linux / SSH:
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache (sesuaikan user web server)
+
+
+--------------------------------------------------------------------------------
+5. PENGATURAN CRON JOB (SCHEDULER OTOMATIS)
+--------------------------------------------------------------------------------
+Tambahkan cron job di cPanel (menu Cron Jobs) atau crontab VPS (crontab -e):
+
+Jalankan setiap 1 menit (* * * * *):
+* * * * * cd /home/username/public_html && php artisan schedule:run >> /dev/null 2>&1
+(Sesuaikan path folder instalasi proyek Anda di server)
+
+Tujuan:
+- Menjalankan tugas pembersihan otomatis pesanan kedaluwarsa.
+- Menjalankan rekap transaksi harian.
+- Mengirim antrean notifikasi terjadwal.
+
+
+--------------------------------------------------------------------------------
+6. PENGATURAN QUEUE WORKER (BACKGROUND JOBS)
+--------------------------------------------------------------------------------
+Di file .env:
+QUEUE_CONNECTION=database
+
+Di server VPS (menggunakan Supervisor) atau cPanel Terminal:
+php artisan queue:work --sleep=3 --tries=3 --daemon
+
+Tujuan:
+Agar pengiriman notifikasi, email, atau proses transaksi berat dijalankan di
+belakang layar (*background process*) tanpa membuat loading halaman pengguna terasa lambat.
+
+
+--------------------------------------------------------------------------------
+7. DOKUMEN CHECKLIST RINGKAS SEBELUM GO-LIVE
+--------------------------------------------------------------------------------
+[ ] 1. APP_DEBUG diubah menjadi false
+[ ] 2. DEMO_LOGIN diubah menjadi false
+[ ] 3. APP_URL sudah menggunakan https://domainresmi.com
+[ ] 4. php artisan storage:link sudah dijalankan
+[ ] 5. Redirect URI di Google Cloud Console sudah diisi:
+       https://domainresmi.com/auth/google/callback
+[ ] 6. SSL Certificate (HTTPS) domain sudah aktif & valid
+[ ] 7. Permission folder storage & bootstrap/cache sudah 775
+[ ] 8. Cache Laravel diaktifkan (config:cache, route:cache, view:cache)
+================================================================================
+

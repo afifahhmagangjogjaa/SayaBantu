@@ -254,12 +254,20 @@
                                 </div>
 
                                 <div class="bg-white rounded-lg p-5 border border-gray-100 shadow-sm">
-                                    <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center">
-                                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        Alamat Lengkap
+                                    <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center justify-between">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                            </svg>
+                                            Alamat &amp; Domisili Kerja
+                                        </span>
+                                        <span class="text-[11px] font-normal text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                                            Area Operasional
+                                        </span>
                                     </h4>
+                                    <div class="mb-3 text-[11px] text-gray-500 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                                        ℹ️ <em>Kota/Kabupaten di bawah adalah wilayah kerja aktif mitra saat ini (boleh berbeda dari kota asal di KTP jika mitra merantau).</em>
+                                    </div>
                                     <div class="grid grid-cols-1 gap-4">
                                         <div>
                                             <div class="text-xs text-gray-500 mb-1">Alamat</div>

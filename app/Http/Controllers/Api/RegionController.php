@@ -113,29 +113,41 @@ class RegionController extends Controller
     public function getVillages(Request $request): JsonResponse
     {
         $districtCode = $request->query('district_code');
+        $districtName = $request->query('district_name');
 
-        if (! $districtCode) {
+        if (! $districtCode && ! $districtName) {
             return response()->json(['success' => false, 'data' => []]);
         }
 
-        // 1. Master lokal
-        $found = JsonMaster::find(JsonMaster::villages(), $districtCode);
-        if ($found !== []) {
-            return response()->json(['success' => true, 'data' => $found]);
+        // 1. Master lokal (lookup via code atau nama kecamatan)
+        $master = JsonMaster::villages();
+        foreach (array_filter([$districtCode, $districtName ? strtoupper(trim($districtName)) : null]) as $lookupKey) {
+            $found = JsonMaster::find($master, $lookupKey);
+            if ($found !== []) {
+                return response()->json(['success' => true, 'data' => $found]);
+            }
         }
 
         // 2. Cadangan: API dengan cache 7 hari
-        try {
-            $villages = Cache::remember("wilayah_villages_{$districtCode}", now()->addDays(7), function () use ($districtCode) {
-                $villRes = $this->client()->timeout(6)->get($this->url("villages/{$districtCode}.json"));
+        if ($districtCode) {
+            try {
+                $dotted = strlen($districtCode) === 6 && ! str_contains($districtCode, '.')
+                    ? substr($districtCode, 0, 2).'.'.substr($districtCode, 2, 2).'.'.substr($districtCode, 4, 2)
+                    : $districtCode;
 
-                return $villRes->successful() ? ($villRes->json('data') ?? []) : [];
-            });
+                $villages = Cache::remember("wilayah_villages_{$dotted}", now()->addDays(7), function () use ($dotted, $districtCode) {
+                    $villRes = $this->client()->timeout(6)->get($this->url("villages/{$dotted}.json"));
+                    if (! $villRes->successful() && $dotted !== $districtCode) {
+                        $villRes = $this->client()->timeout(6)->get($this->url("villages/{$districtCode}.json"));
+                    }
+                    return $villRes->successful() ? ($villRes->json('data') ?? []) : [];
+                });
 
-            if (! empty($villages)) {
-                return response()->json(['success' => true, 'data' => $villages]);
+                if (! empty($villages)) {
+                    return response()->json(['success' => true, 'data' => $villages]);
+                }
+            } catch (\Exception $e) {
             }
-        } catch (\Exception $e) {
         }
 
         return response()->json(['success' => false, 'data' => []]);

@@ -23,6 +23,8 @@ class AdminWithdrawController extends Controller
                 $query->whereHas('user', function ($q) use ($managedCityIds) {
                     $q->whereIn('city_id', $managedCityIds);
                 });
+            } else {
+                $query->whereRaw('1 = 0');
             }
         }
 

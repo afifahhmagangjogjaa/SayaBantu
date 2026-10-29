@@ -8,10 +8,19 @@
 
     <title>{{ config('app.name', 'Mastulongmas') }} - Mitra</title>
     <!-- Favicon & Icons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    @php
+        $dynamicAppIcon = \App\Models\AppSetting::get('app_icon');
+        $dynamicAppIconUrl = $dynamicAppIcon && \Illuminate\Support\Facades\Storage::disk('public')->exists($dynamicAppIcon) ? asset('storage/' . $dynamicAppIcon) : null;
+    @endphp
+    @if($dynamicAppIconUrl)
+        <link rel="icon" href="{{ $dynamicAppIconUrl }}">
+        <link rel="apple-touch-icon" href="{{ $dynamicAppIconUrl }}">
+    @else
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    @endif
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

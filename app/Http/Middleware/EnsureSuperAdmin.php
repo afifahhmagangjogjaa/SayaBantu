@@ -15,7 +15,21 @@ class EnsureSuperAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! auth()->check() || ! auth()->user()->isSuperAdmin()) {
+        if (! auth()->check()) {
+            return redirect(route('login', absolute: false));
+        }
+
+        $user = auth()->user()->fresh() ?? auth()->user();
+
+        if (! $user->isSuperAdmin()) {
+            if ($user->role === 'mitra') {
+                return redirect()->route('mitra.dashboard');
+            } elseif (in_array($user->role, ['customer', 'kustomer'])) {
+                return redirect()->route('customer.dashboard');
+            } elseif ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
             abort(403, 'Unauthorized. Super Admin access only.');
         }
 

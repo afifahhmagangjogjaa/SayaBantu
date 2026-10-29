@@ -443,7 +443,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Return the display name for the city.
-     * Prefer the related City model (if eager-loaded), fallback to users.city attribute.
+     * Prefer the related City model (if eager-loaded), fallback to users.city attribute, or registration.
      */
     public function getCityNameAttribute()
     {
@@ -459,9 +459,32 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         }
 
-        return isset($this->attributes['city']) && $this->attributes['city'] !== null
-            ? $this->attributes['city']
-            : null;
+        if (isset($this->attributes['city']) && ! empty($this->attributes['city'])) {
+            return $this->attributes['city'];
+        }
+
+        // Fallback dari data pendaftaran jika profil belum lengkap
+        return optional($this->registration)->city;
+    }
+
+    public function getAddressAttribute($value)
+    {
+        return ! empty($value) ? $value : optional($this->registration)->address;
+    }
+
+    public function getKelurahanAttribute($value)
+    {
+        return ! empty($value) ? $value : optional($this->registration)->kelurahan;
+    }
+
+    public function getKecamatanAttribute($value)
+    {
+        return ! empty($value) ? $value : optional($this->registration)->kecamatan;
+    }
+
+    public function getProvinceAttribute($value)
+    {
+        return ! empty($value) ? $value : optional($this->registration)->province;
     }
 
     // Customer Rating Methods

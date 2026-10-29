@@ -149,7 +149,7 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <span class="text-lg font-black text-red-600 font-mono tracking-wider" x-text="timeLeft">--:--</span>
+                        <span class="text-lg font-black text-red-600 font-mono tracking-wider" x-text="timeLeft">00:00</span>
                         <span class="text-[10px] text-gray-500 block">menit : detik</span>
                     </div>
                 </div>
@@ -728,7 +728,7 @@
                             {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('l, d F Y') }} 
                             (Jam {{ \Carbon\Carbon::parse($help->scheduled_at)->format('H:i') }} WIB)
                         </p>
-                        <p class="text-xs text-gray-500 mt-1">*Jadwal tertera dalam WIB</p>
+                        <p class="text-xs text-gray-500 mt-1">Jadwal tertera dalam WIB</p>
                     </div>
                 </div>
             </div>

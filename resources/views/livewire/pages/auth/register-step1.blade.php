@@ -26,6 +26,8 @@ new #[Layout('layouts.guest')] class extends Component {
     public string $selectedCityCode = '';
     public string $selectedDistrictCode = '';
     public string $selectedVillageCode = '';
+    public bool $isManualKecamatan = false;
+    public bool $isManualKelurahan = false;
 
     // Auto-detect gender from NIK
     public function updatedNik($value)
@@ -88,12 +90,32 @@ new #[Layout('layouts.guest')] class extends Component {
     public function fetchVillages($districtCode)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get("https://wilayah.id/api/villages/{$districtCode}.json");
+            // 1. Cek dari master lokal terlebih dahulu (Instan 0ms & 100% Offline)
+            $master = \App\Support\JsonMaster::villages();
+            foreach (array_filter([$districtCode, $this->kecamatan ? strtoupper(trim($this->kecamatan)) : null]) as $lookupKey) {
+                $found = \App\Support\JsonMaster::find($master, $lookupKey);
+                if ($found !== []) {
+                    $this->apiVillages = $found;
+                    return;
+                }
+            }
+
+            // 2. Fallback via HTTP wilayah.id API dengan kode berformat titik (XX.YY.ZZ)
+            $cleanCode = (strlen($districtCode) === 6 && !str_contains($districtCode, '.'))
+                ? substr($districtCode, 0, 2) . '.' . substr($districtCode, 2, 2) . '.' . substr($districtCode, 4, 2)
+                : $districtCode;
+
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->withoutVerifying()->get("https://wilayah.id/api/villages/{$cleanCode}.json");
             if ($response->successful()) {
                 $this->apiVillages = $response->json('data') ?? [];
             }
         } catch (\Exception $e) {
             $this->apiVillages = [];
+        }
+
+        // Jika setelah dicari kelurahan tetap kosong, otomatis aktifkan input manual
+        if (empty($this->apiVillages)) {
+            $this->isManualKelurahan = true;
         }
     }
 
@@ -105,6 +127,8 @@ new #[Layout('layouts.guest')] class extends Component {
         $this->kelurahan = '';
         $this->selectedVillageCode = '';
         $this->apiVillages = [];
+        $this->isManualKecamatan = false;
+        $this->isManualKelurahan = false;
 
         if (!$id) {
             $this->city = '';
@@ -162,12 +186,24 @@ new #[Layout('layouts.guest')] class extends Component {
 
     public function updatedSelectedDistrictCode($code)
     {
+        if ($code === 'other') {
+            $this->isManualKecamatan = true;
+            $this->kecamatan = '';
+            $this->kelurahan = '';
+            $this->selectedVillageCode = '';
+            $this->apiVillages = [];
+            $this->isManualKelurahan = true;
+            return;
+        }
+
+        $this->isManualKecamatan = false;
         $dist = collect($this->apiDistricts)->firstWhere('code', $code);
         $this->kecamatan = $dist ? $dist['name'] : '';
 
         $this->kelurahan = '';
         $this->selectedVillageCode = '';
         $this->apiVillages = [];
+        $this->isManualKelurahan = false;
 
         if ($code) {
             $this->fetchVillages($code);
@@ -176,8 +212,40 @@ new #[Layout('layouts.guest')] class extends Component {
 
     public function updatedSelectedVillageCode($code)
     {
+        if ($code === 'other') {
+            $this->isManualKelurahan = true;
+            $this->kelurahan = '';
+            return;
+        }
+
+        $this->isManualKelurahan = false;
         $vill = collect($this->apiVillages)->firstWhere('code', $code);
         $this->kelurahan = $vill ? $vill['name'] : '';
+    }
+
+    public function toggleManualKecamatan(): void
+    {
+        $this->isManualKecamatan = !$this->isManualKecamatan;
+        if ($this->isManualKecamatan) {
+            $this->selectedDistrictCode = 'other';
+            $this->isManualKelurahan = true;
+            $this->selectedVillageCode = 'other';
+        } else {
+            $this->selectedDistrictCode = '';
+            $this->kecamatan = '';
+            $this->isManualKelurahan = false;
+        }
+    }
+
+    public function toggleManualKelurahan(): void
+    {
+        $this->isManualKelurahan = !$this->isManualKelurahan;
+        if ($this->isManualKelurahan) {
+            $this->selectedVillageCode = 'other';
+        } else {
+            $this->selectedVillageCode = '';
+            $this->kelurahan = '';
+        }
     }
 
     public function selectCityByName($cityName, $provinceName = '', $districtName = '')
@@ -268,9 +336,19 @@ new #[Layout('layouts.guest')] class extends Component {
                             }
                             if ($villApi) {
                                 $this->selectedVillageCode = $villApi['code'];
+                            } else {
+                                $this->isManualKelurahan = true;
                             }
+                        } elseif (!empty($this->kelurahan)) {
+                            $this->isManualKelurahan = true;
                         }
+                    } else {
+                        $this->isManualKecamatan = true;
+                        $this->isManualKelurahan = true;
                     }
+                } elseif (!empty($this->kecamatan)) {
+                    $this->isManualKecamatan = true;
+                    $this->isManualKelurahan = true;
                 }
             }
         }
@@ -416,64 +494,126 @@ new #[Layout('layouts.guest')] class extends Component {
             <x-input-error :messages="$errors->get('gender')" class="mt-1" />
         </div>
 
+        <!-- Info Khusus Wilayah Kerja / Mitra Perantau -->
+        <div class="p-3.5 bg-blue-50/90 border border-blue-200 rounded-2xl flex items-start gap-3 shadow-xs">
+            <div class="w-8 h-8 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+            <div class="text-xs text-blue-900 leading-relaxed">
+                <p class="font-bold text-blue-950 mb-0.5 flex items-center gap-1.5">
+                    <span>Penetapan Wilayah Kerja &amp; Domisili</span>
+                    <span class="text-[10px] bg-blue-200/70 text-blue-800 px-1.5 py-0.5 rounded-md font-semibold">Penting</span>
+                </p>
+                <p class="text-blue-800/90">
+                    Jika KTP Anda berasal dari luar kota (perantau), pilih <strong>Kota &amp; Alamat tempat Anda tinggal saat ini</strong> agar Anda dapat menerima dan mengerjakan pesanan bantuan di sekitar wilayah tempat tinggal Anda sekarang.
+                </p>
+            </div>
+        </div>
+
         <!-- Kota/Kabupaten Domisili (Dropdown Kota Aktif di DB) -->
         <div>
-            <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kota / Kabupaten Domisili</label>
+            <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kota / Kabupaten Wilayah Kerja</label>
             <select wire:model.live="city_id" id="city_id"
                 class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-                <option value="">Pilih Kota / Kabupaten Domisili</option>
+                <option value="">Pilih Kota / Kabupaten Wilayah Kerja</option>
                 @foreach ($cities as $c)
                     <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->province ?? 'Indonesia' }})</option>
                 @endforeach
             </select>
+            <p class="text-[11px] text-gray-400 mt-1">Pesanan bantuan yang masuk akan disesuaikan dengan kota yang Anda pilih di sini.</p>
             <x-input-error :messages="$errors->get('city_id')" class="mt-1" />
         </div>
 
         <!-- Provinsi Domisili (Otomatis) -->
         <div>
-            <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Provinsi Domisili</label>
+            <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Provinsi Wilayah Kerja</label>
             <input wire:model="province" id="province" type="text" readonly placeholder="Otomatis terisi dari kota yang dipilih"
                 class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-600 text-sm cursor-not-allowed focus:outline-none font-medium">
             <x-input-error :messages="$errors->get('province')" class="mt-1" />
         </div>
 
-        <!-- Kecamatan Domisili (Dropdown API) -->
+        <!-- Kecamatan Domisili -->
         <div>
-            <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kecamatan Domisili</label>
-            <select wire:model.live="selectedDistrictCode" id="kecamatan"
-                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"
-                {{ empty($apiDistricts) ? 'disabled' : '' }}>
-                <option value="">{{ empty($city_id) ? 'Pilih Kota Domisili Terlebih Dahulu' : (empty($apiDistricts) ? 'Memuat Kecamatan...' : 'Pilih Kecamatan Domisili') }}</option>
-                @foreach ($apiDistricts as $d)
-                    <option value="{{ $d['code'] }}">{{ $d['name'] }}</option>
-                @endforeach
-            </select>
+            <div class="flex items-center justify-between mb-1.5">
+                <label for="kecamatan" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Kecamatan Domisili</label>
+                @if(!$isManualKecamatan && !empty($apiDistricts))
+                    <button type="button" wire:click="toggleManualKecamatan" class="text-[11px] text-blue-600 hover:text-blue-700 hover:underline font-semibold cursor-pointer">
+                        Tidak ada di daftar? Ketik manual
+                    </button>
+                @elseif($isManualKecamatan && !empty($apiDistricts))
+                    <button type="button" wire:click="toggleManualKecamatan" class="text-[11px] text-blue-600 hover:text-blue-700 hover:underline font-semibold cursor-pointer">
+                        &larr; Pilih dari daftar
+                    </button>
+                @endif
+            </div>
+
+            @if($isManualKecamatan)
+                <input wire:model="kecamatan" id="kecamatan" type="text" placeholder="Ketik nama Kecamatan domisili"
+                    class="w-full px-4 py-3 bg-white border border-blue-400 rounded-xl text-gray-900 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
+                <p class="text-[11px] text-gray-500 mt-1">Masukkan nama kecamatan sesuai KTP.</p>
+            @else
+                <select wire:model.live="selectedDistrictCode" id="kecamatan"
+                    class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"
+                    {{ empty($apiDistricts) ? 'disabled' : '' }}>
+                    <option value="">{{ empty($city_id) ? 'Pilih Kota Domisili Terlebih Dahulu' : (empty($apiDistricts) ? 'Memuat Kecamatan...' : 'Pilih Kecamatan Domisili') }}</option>
+                    @foreach ($apiDistricts as $d)
+                        <option value="{{ $d['code'] }}">{{ $d['name'] }}</option>
+                    @endforeach
+                    @if(!empty($apiDistricts))
+                        <option value="other">Tidak ada di daftar? (Ketik Manual)</option>
+                    @endif
+                </select>
+            @endif
             <x-input-error :messages="$errors->get('kecamatan')" class="mt-1" />
         </div>
 
-        <!-- Kelurahan/Desa Domisili (Dropdown API) -->
+        <!-- Kelurahan/Desa Domisili -->
         <div>
-            <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kelurahan / Desa Domisili</label>
-            <select wire:model.live="selectedVillageCode" id="kelurahan"
-                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"
-                {{ empty($apiVillages) ? 'disabled' : '' }}>
-                <option value="">{{ empty($selectedDistrictCode) ? 'Pilih Kecamatan Domisili Terlebih Dahulu' : (empty($apiVillages) ? 'Memuat Kelurahan...' : 'Pilih Kelurahan / Desa Domisili') }}</option>
-                @foreach ($apiVillages as $v)
-                    <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
-                @endforeach
-            </select>
+            <div class="flex items-center justify-between mb-1.5">
+                <label for="kelurahan" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Kelurahan / Desa Domisili</label>
+                @if(!$isManualKelurahan && !empty($apiVillages))
+                    <button type="button" wire:click="toggleManualKelurahan" class="text-[11px] text-blue-600 hover:text-blue-700 hover:underline font-semibold cursor-pointer">
+                        Tidak ada di daftar? Ketik manual
+                    </button>
+                @elseif($isManualKelurahan && !empty($apiVillages))
+                    <button type="button" wire:click="toggleManualKelurahan" class="text-[11px] text-blue-600 hover:text-blue-700 hover:underline font-semibold cursor-pointer">
+                        &larr; Pilih dari daftar
+                    </button>
+                @endif
+            </div>
+
+            @if($isManualKelurahan)
+                <input wire:model="kelurahan" id="kelurahan" type="text" placeholder="Ketik nama Kelurahan / Desa domisili"
+                    class="w-full px-4 py-3 bg-white border border-blue-400 rounded-xl text-gray-900 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
+                <p class="text-[11px] text-gray-500 mt-1">Masukkan nama kelurahan atau desa sesuai KTP Anda.</p>
+            @else
+                <select wire:model.live="selectedVillageCode" id="kelurahan"
+                    class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium"
+                    {{ empty($apiVillages) ? 'disabled' : '' }}>
+                    <option value="">{{ empty($selectedDistrictCode) ? 'Pilih Kecamatan Domisili Terlebih Dahulu' : (empty($apiVillages) ? 'Memuat Kelurahan...' : 'Pilih Kelurahan / Desa Domisili') }}</option>
+                    @foreach ($apiVillages as $v)
+                        <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
+                    @endforeach
+                    @if(!empty($apiVillages))
+                        <option value="other">Tidak ada di daftar? (Ketik Manual)</option>
+                    @endif
+                </select>
+            @endif
             <x-input-error :messages="$errors->get('kelurahan')" class="mt-1" />
         </div>
 
         <!-- Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah) -->
         <div>
-            <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah)</label>
+            <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Alamat Lengkap Domisili Saat Ini (Kos, Kontrakan, atau Tempat Tinggal)</label>
             <x-smart-address-input 
                 wire:model="address" 
                 id="address" 
                 cityRef="#city_id"
                 rows="3" 
-                placeholder="Ketik nama jalan, nomor rumah, RT/RW, atau gunakan saran cerdas..."
+                placeholder="Ketik nama jalan, nomor kos/rumah, RT/RW tempat tinggal saat ini..."
             />
             <x-input-error :messages="$errors->get('address')" class="mt-1" />
         </div>

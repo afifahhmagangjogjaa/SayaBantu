@@ -97,14 +97,33 @@
                     }
                 @endphp
 
+                <!-- Info Khusus Wilayah Kerja / Mitra Perantau -->
+                <div class="p-3.5 bg-blue-50/90 border border-blue-200 rounded-2xl flex items-start gap-3 shadow-xs">
+                    <div class="w-8 h-8 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div class="text-xs text-blue-900 leading-relaxed">
+                        <p class="font-bold text-blue-950 mb-0.5 flex items-center gap-1.5">
+                            <span>Penetapan Wilayah Kerja &amp; Domisili</span>
+                            <span class="text-[10px] bg-blue-200/70 text-blue-800 px-1.5 py-0.5 rounded-md font-semibold">Penting</span>
+                        </p>
+                        <p class="text-blue-800/90">
+                            Jika KTP Anda berasal dari luar kota (perantau), pilih <strong>Kota &amp; Alamat tempat Anda tinggal saat ini</strong> agar Anda dapat menerima dan mengerjakan pesanan bantuan di sekitar wilayah tempat tinggal Anda sekarang.
+                        </p>
+                    </div>
+                </div>
+
                 <!-- 1. PROVINSI DOMISILI -->
                 <div>
                     <label for="province" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Provinsi Domisili
+                        Provinsi Domisili / Wilayah Kerja
                     </label>
                     <select name="province" id="province" required onchange="handleProvinceChange()"
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium @error('province') border-red-500 @enderror">
-                        <option value="">Pilih Provinsi Domisili</option>
+                        <option value="">Pilih Provinsi Domisili / Wilayah Kerja</option>
                         @foreach($provinces as $prov)
                             <option value="{{ $prov }}" {{ $savedProvince === $prov ? 'selected' : '' }}>
                                 {{ $prov }}
@@ -117,19 +136,20 @@
                 <!-- 2. KOTA DOMISILI -->
                 <div>
                     <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Kota Domisili
+                        Kota / Kabupaten Wilayah Kerja
                     </label>
                     <select name="city_id" id="city_id" required onchange="handleCityChange()" disabled
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('city_id') border-red-500 @enderror">
                         <option value="">Pilih Provinsi Domisili Terlebih Dahulu</option>
                     </select>
+                    <p class="text-[11px] text-gray-400 mt-1">Pesanan bantuan yang masuk akan disesuaikan dengan kota yang Anda pilih di sini.</p>
                     @error('city_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <!-- 3. KECAMATAN DOMISILI -->
                 <div>
                     <label for="kecamatan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Kecamatan Domisili
+                        Kecamatan Tempat Tinggal Saat Ini
                     </label>
                     <select name="kecamatan" id="kecamatan" required onchange="handleDistrictChange()" disabled
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('kecamatan') border-red-500 @enderror">
@@ -140,20 +160,29 @@
 
                 <!-- 4. KELURAHAN / DESA DOMISILI -->
                 <div>
-                    <label for="kelurahan" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Kelurahan / Desa Domisili
-                    </label>
-                    <select name="kelurahan" id="kelurahan" required disabled
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label for="kelurahan" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                            Kelurahan / Desa Domisili
+                        </label>
+                        <button type="button" id="btn_toggle_kelurahan_manual" onclick="toggleManualKelurahanOnboarding()"
+                            class="text-[11px] text-blue-600 hover:text-blue-700 hover:underline font-semibold cursor-pointer hidden">
+                            Tidak ada di daftar? Ketik manual
+                        </button>
+                    </div>
+                    <select name="kelurahan" id="kelurahan" required disabled onchange="checkKelurahanSelect(this)"
                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 font-medium disabled:bg-gray-100 disabled:cursor-not-allowed @error('kelurahan') border-red-500 @enderror">
                         <option value="">Pilih Kecamatan Domisili Terlebih Dahulu</option>
                     </select>
+                    <input type="text" name="kelurahan_manual" id="kelurahan_manual" placeholder="Ketik nama Kelurahan / Desa domisili"
+                        class="hidden w-full px-4 py-3 bg-white border border-blue-400 rounded-xl text-gray-900 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
+                    <p id="kelurahan_manual_hint" class="hidden text-[11px] text-gray-500 mt-1">Masukkan nama kelurahan atau desa sesuai KTP Anda.</p>
                     @error('kelurahan') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <!-- 5. ALAMAT LENGKAP DOMISILI -->
                 <div>
                     <label for="address" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Alamat Lengkap Domisili (Jalan, RT/RW, No. Rumah)
+                        Alamat Lengkap Domisili Saat Ini (Kos, Kontrakan, atau Tempat Tinggal)
                     </label>
                     <x-smart-address-input
                         name="address"
@@ -163,9 +192,9 @@
                         rows="2" 
                         required 
                         :value="old('address', $user->address ?? '')"
-                        placeholder="Ketik nama jalan, nomor rumah, RT/RW, atau gunakan saran cerdas..."
+                        placeholder="Ketik nama jalan, nomor kos/rumah, RT/RW tempat tinggal saat ini..."
                     />
-                    @error('address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    <x-input-error :messages="$errors->get('address')" class="mt-1" />
                 </div>
 
                 <!-- Submit Button -->
@@ -478,6 +507,10 @@
                     } catch (err) {}
                 }
 
+                const btnToggle = document.getElementById('btn_toggle_kelurahan_manual');
+                const manualInput = document.getElementById('kelurahan_manual');
+                const manualHint = document.getElementById('kelurahan_manual_hint');
+
                 if (villages.length > 0) {
                     kelSelect.innerHTML = '<option value="">Pilih Kelurahan / Desa</option>';
                     villages.forEach(v => {
@@ -487,26 +520,103 @@
                         opt.textContent = v.name;
                         kelSelect.appendChild(opt);
                     });
+                    const optOther = document.createElement('option');
+                    optOther.value = '__OTHER__';
+                    optOther.textContent = 'Tidak ada di daftar? (Ketik Manual)';
+                    kelSelect.appendChild(optOther);
+
                     kelSelect.disabled = false;
+                    kelSelect.classList.remove('hidden');
+                    if (manualInput) manualInput.classList.add('hidden');
+                    if (manualHint) manualHint.classList.add('hidden');
+                    if (btnToggle) {
+                        btnToggle.classList.remove('hidden');
+                        btnToggle.textContent = 'Tidak ada di daftar? Ketik manual';
+                    }
 
                     if (initialKelurahan) {
+                        let matched = false;
                         const cleanTargetKel = cleanGeoName(initialKelurahan);
                         for (let i = 0; i < kelSelect.options.length; i++) {
                             const opt = kelSelect.options[i];
                             const cleanOpt = cleanGeoName(opt.value);
                             if (cleanOpt === cleanTargetKel || cleanOpt.includes(cleanTargetKel) || cleanTargetKel.includes(cleanOpt)) {
                                 kelSelect.selectedIndex = i;
+                                matched = true;
                                 break;
                             }
                         }
+                        if (!matched) {
+                            activateManualKelurahan(initialKelurahan);
+                        }
                     }
                 } else {
-                    kelSelect.innerHTML = '<option value="">Tidak ada data kelurahan</option>';
+                    activateManualKelurahan(initialKelurahan || '');
                 }
             } catch (e) {
                 console.error('Error fetching villages:', e);
-                kelSelect.innerHTML = '<option value="">Gagal memuat kelurahan</option>';
+                activateManualKelurahan(initialKelurahan || '');
             }
+        }
+
+        function activateManualKelurahan(val = '') {
+            const kelSelect = document.getElementById('kelurahan');
+            const manualInput = document.getElementById('kelurahan_manual');
+            const manualHint = document.getElementById('kelurahan_manual_hint');
+            const btnToggle = document.getElementById('btn_toggle_kelurahan_manual');
+
+            if (kelSelect) kelSelect.classList.add('hidden');
+            if (manualInput) {
+                manualInput.classList.remove('hidden');
+                manualInput.value = val;
+                manualInput.focus();
+            }
+            if (manualHint) manualHint.classList.remove('hidden');
+            if (btnToggle) {
+                btnToggle.classList.remove('hidden');
+                btnToggle.textContent = '← Pilih dari daftar';
+            }
+        }
+
+        function checkKelurahanSelect(selectEl) {
+            if (selectEl.value === '__OTHER__') {
+                activateManualKelurahan('');
+            }
+        }
+
+        function toggleManualKelurahanOnboarding() {
+            const kelSelect = document.getElementById('kelurahan');
+            const manualInput = document.getElementById('kelurahan_manual');
+            const manualHint = document.getElementById('kelurahan_manual_hint');
+            const btnToggle = document.getElementById('btn_toggle_kelurahan_manual');
+
+            if (manualInput && !manualInput.classList.contains('hidden')) {
+                // Switch back to select
+                manualInput.classList.add('hidden');
+                manualHint.classList.add('hidden');
+                kelSelect.classList.remove('hidden');
+                kelSelect.value = '';
+                btnToggle.textContent = 'Tidak ada di daftar? Ketik manual';
+            } else {
+                activateManualKelurahan('');
+            }
+        }
+
+        // Before submitting onboarding form, if in manual mode, write manual value to select/input
+        const step1Form = document.getElementById('step1Form');
+        if (step1Form) {
+            step1Form.addEventListener('submit', function() {
+                const manualInput = document.getElementById('kelurahan_manual');
+                const kelSelect = document.getElementById('kelurahan');
+                if (manualInput && !manualInput.classList.contains('hidden')) {
+                    const opt = document.createElement('option');
+                    opt.value = manualInput.value;
+                    opt.textContent = manualInput.value;
+                    opt.selected = true;
+                    kelSelect.appendChild(opt);
+                    kelSelect.value = manualInput.value;
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
