@@ -73,30 +73,35 @@ x-on:profile-saved.window="
             @enderror
         </div>
 
-        <!-- NIK (16 digit angka) -->
+        <!-- NIK (Nomor Induk Kependudukan - Terkunci / Dinonaktifkan) -->
         <div>
-            <label class="block text-sm font-semibold text-gray-900 mb-2">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+            <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-semibold text-gray-900">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                        </svg>
+                        NIK (Nomor Induk Kependudukan)
+                    </span>
+                </label>
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200">
+                    <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
-                    NIK (Nomor Induk Kependudukan)
-
+                    Terkunci
                 </span>
-            </label>
-            <input type="text" wire:model="nik" required maxlength="16" inputmode="numeric"
-                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16)"
-                class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white font-mono tracking-wider"
-                placeholder="16 digit NIK sesuai KTP">
-            <p class="mt-1 text-[11px] text-gray-400">Harus tepat 16 digit angka.</p>
-            @error('nik')
-                <p class="mt-2 text-xs text-red-600 flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </div>
+            <div class="relative">
+                <input type="text" wire:model="nik" disabled readonly
+                    class="w-full px-4 py-3.5 pr-10 text-sm rounded-xl border border-gray-200 bg-gray-100/90 text-gray-500 font-mono tracking-wider cursor-not-allowed select-none"
+                    placeholder="16 digit NIK sesuai KTP">
+                <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
-                    {{ $message }}
-                </p>
-            @enderror
+                </div>
+            </div>
+            <p class="mt-1 text-[11px] text-gray-400">NIK terikat dengan identitas KTP akun dan tidak dapat diubah.</p>
         </div>
 
         <!-- Gender (Jenis Kelamin) -->

@@ -1,5 +1,5 @@
 {{-- Partial bersama: dipakai halaman customer/mitra. Variabel wajib: notificationsRoute --}}
-<div class="min-h-screen bg-slate-50/60 pb-24">
+<div class="bg-slate-50/60 pb-4">
     <!-- Header - Brand Blue with Wave Separator -->
     <div class="px-5 pt-6 pb-12 relative overflow-hidden text-white bg-[#0066FF]">
         <!-- Decorative circle overlays -->

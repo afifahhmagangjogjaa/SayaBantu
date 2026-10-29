@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white">
+<div class="min-h-full bg-white">
     <style>
         :root{
             --brand-500: #0ea5a4;
@@ -125,7 +125,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24">
+        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6">
 
                 {{-- List --}}
                 @if(isset($helps) && $helps->isEmpty())

@@ -436,6 +436,10 @@
                         <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
                             Menunggu Verifikasi KTP
                         </button>
+                    @elseif(auth()->check() && auth()->user()->hasActiveOngoingOrder())
+                        <button type="button" disabled class="flex-1 bg-amber-50 text-amber-800 border border-amber-200 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
+                            Selesaikan Order Aktif Dahulu
+                        </button>
                     @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
                         <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
                             Batas Order Tercapai

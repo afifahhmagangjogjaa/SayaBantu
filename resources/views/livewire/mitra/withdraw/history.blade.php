@@ -1,7 +1,7 @@
 @extends('layouts.mitra')
 
 @section('content')
-    <div class="min-h-screen bg-slate-50 pb-24">
+    <div class="bg-slate-50 pb-4">
         <!-- Header - SayaBantu Brand Blue matching Beranda with Wave Separator -->
         <div class="px-5 pt-6 pb-20 relative overflow-hidden text-white bg-[#0066FF]">
             <!-- Decorative circle overlays -->

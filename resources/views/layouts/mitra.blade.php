@@ -240,9 +240,9 @@
                 <div id="mitra-global-notification-inner" class="w-full"></div>
             </div>
             <!-- Content -->
-            <div class="flex flex-col flex-1 min-h-screen min-h-[100dvh]">
+            <div class="flex flex-col flex-1 min-h-0">
                 <!-- Livewire slot -->
-                <div class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
+                <div class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
                     @isset($slot)
                         {{ $slot }}
                     @else

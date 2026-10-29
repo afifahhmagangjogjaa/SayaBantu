@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white" wire:poll.20s.visible>
+<div class="min-h-full bg-white" wire:poll.20s.visible>
     <style>
         .header-pattern {
             position: relative;
@@ -79,7 +79,7 @@
         </div>
 
         <!-- Content -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24 min-h-[60vh]">
+        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6 min-h-[60vh]">
             @if(session('success'))
                 <div class="mb-4 p-3 bg-green-50 border border-green-100 rounded-lg text-green-700 text-sm flex items-center gap-2">
                     <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

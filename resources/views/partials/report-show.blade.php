@@ -6,7 +6,7 @@
         $isCompleted = $isResolved || $isRejected;
     @endphp
 
-    <div class="min-h-screen bg-slate-50 pb-28">
+    <div class="bg-slate-50 pb-6">
         <div class="max-w-md mx-auto">
             <!-- Header - SayaBantu Brand Blue with Wave Separator -->
             <div class="px-5 pt-6 pb-12 relative overflow-hidden text-white bg-[#0066FF]">

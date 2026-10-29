@@ -256,7 +256,7 @@
                 </script>
             @endif
             <!-- Content: responsive bottom padding adapting to safe area -->
-            <main class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
+            <main class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
                 @if($__env->hasSection('content'))
                     @yield('content')
                 @else

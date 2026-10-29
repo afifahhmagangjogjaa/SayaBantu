@@ -109,22 +109,24 @@
     <div class="px-5 pt-3">
         <div class="grid grid-cols-2 min-[380px]:grid-cols-4 gap-2">
             <!-- 1. Order Selesai -->
-            <div class="bg-white border border-gray-200/90 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs">
+            <a href="{{ route('mitra.helps.all', ['tab' => 'selesai']) }}" wire:navigate
+               class="bg-white border border-gray-200/90 hover:border-blue-400 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs hover:shadow-xs transition cursor-pointer">
                 <div class="w-7 h-7 rounded-xl bg-blue-50 text-[#0066FF] flex items-center justify-center mb-1 text-xs">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
                 <span class="text-sm font-black text-gray-900 leading-none">{{ $completedCount ?? 0 }}</span>
                 <span class="text-[10px] text-gray-500 font-semibold mt-1 leading-tight">Order Selesai</span>
-            </div>
+            </a>
 
             <!-- 2. Order Aktif -->
-            <div class="bg-white border border-gray-200/90 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs">
+            <a href="{{ route('mitra.helps.all', ['tab' => 'proses']) }}" wire:navigate
+               class="bg-white border border-gray-200/90 hover:border-amber-400 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs hover:shadow-xs transition cursor-pointer">
                 <div class="w-7 h-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-1 text-xs">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
                 <span class="text-sm font-black text-gray-900 leading-none">{{ $inProgressCount ?? 0 }}</span>
                 <span class="text-[10px] text-gray-500 font-semibold mt-1 leading-tight">Order Aktif</span>
-            </div>
+            </a>
 
             <!-- 3. Rating -->
             <div class="bg-white border border-gray-200/90 rounded-2xl p-2.5 flex flex-col items-center justify-center text-center shadow-2xs">
@@ -157,7 +159,7 @@
 
         <!-- GPS Tracker Component - Tampil untuk bantuan aktif -->
 
-        @foreach($helps as $help)
+        @foreach($activeHelps ?? [] as $help)
             @if(in_array($help->status, ['taken', 'partner_on_the_way', 'partner_arrived']) && $help->mitra_id === auth()->id())
                 <div class="mb-3">
                     <livewire:mitra.gps-tracker :helpId="$help->id" :key="'gps-'.$help->id" />
@@ -280,6 +282,82 @@
             </div>
         @endif
 
+        {{-- Section: Pesanan yang Sedang Anda Kerjakan (Active Orders) --}}
+        @if(isset($activeHelps) && $activeHelps->count() > 0)
+            <div class="mb-5">
+                <div class="flex items-center justify-between mb-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <h2 class="text-sm font-black text-gray-900">Pesanan Sedang Berjalan ({{ $activeHelps->count() }})</h2>
+                    </div>
+                    <a href="{{ route('mitra.helps.all', ['tab' => 'proses']) }}" wire:navigate class="text-xs font-bold text-[#0066FF] hover:underline">
+                        Semua Order Aktif &gt;
+                    </a>
+                </div>
+
+                <div class="space-y-3">
+                    @foreach($activeHelps as $activeHelp)
+                        @php
+                            $catName = $activeHelp->category ? $activeHelp->category->name : 'Jasa Serabutan';
+                            $statusLabel = match($activeHelp->status) {
+                                'memperoleh_mitra' => 'Mitra Ditemukan',
+                                'partner_on_the_way' => 'Menuju Lokasi',
+                                'partner_arrived' => 'Tiba di Lokasi',
+                                'in_progress', 'sedang_diproses' => 'Sedang Dikerjakan',
+                                'waiting_customer_confirmation' => 'Menunggu Konfirmasi',
+                                default => 'Sedang Berjalan'
+                            };
+                            $badgeColor = match($activeHelp->status) {
+                                'memperoleh_mitra' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                'partner_on_the_way' => 'bg-cyan-100 text-cyan-800 border-cyan-200',
+                                'partner_arrived' => 'bg-amber-100 text-amber-800 border-amber-200',
+                                'in_progress', 'sedang_diproses' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                                default => 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                            };
+                        @endphp
+                        <div class="bg-white border-2 border-[#0066FF]/40 rounded-2xl p-4 shadow-sm relative overflow-hidden">
+                            <div class="flex items-start justify-between gap-3 mb-2.5">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#0066FF] flex items-center justify-center text-lg flex-shrink-0">
+                                        {{ $activeHelp->category?->icon ?? '🛠️' }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h3 class="font-black text-xs text-gray-900 truncate">{{ $activeHelp->title }}</h3>
+                                        <p class="text-[11px] text-gray-500 truncate mt-0.5">Pemesan: <span class="font-bold text-gray-700">{{ $activeHelp->user?->name ?? 'Pelanggan' }}</span></p>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border {{ $badgeColor }} flex-shrink-0">
+                                    {{ $statusLabel }}
+                                </span>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-xl p-2.5 mb-3 text-[11px] text-gray-600 flex items-center justify-between">
+                                <div class="flex items-center gap-1.5 truncate">
+                                    <span>📍</span>
+                                    <span class="truncate">{{ $activeHelp->location ?? $activeHelp->full_address ?? 'Lokasi customer' }}</span>
+                                </div>
+                                <span class="font-extrabold text-gray-900 flex-shrink-0 ml-2">Rp {{ number_format($activeHelp->amount, 0, ',', '.') }}</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <a href="{{ route('mitra.chat', ['help' => $activeHelp->id]) }}" wire:navigate
+                                   class="flex items-center justify-center gap-1.5 py-2 px-3 bg-blue-50 hover:bg-blue-100 text-[#0066FF] font-bold text-xs rounded-xl transition border border-blue-200 active:scale-95 text-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                    <span>Chat Pelanggan</span>
+                                </a>
+
+                                <a href="{{ route('mitra.helps.detail', ['id' => $activeHelp->id]) }}" wire:navigate
+                                   class="flex items-center justify-center gap-1.5 py-2 px-3 bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold text-xs rounded-xl transition shadow-xs active:scale-95 text-center">
+                                    <span>Buka Detail & Peta</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         <!-- Order Terdekat Section (Gambar 1) -->
         <div class="mb-5">
             <div class="flex items-center justify-between mb-3">
@@ -330,6 +408,8 @@
                         <div class="flex-shrink-0" onclick="event.stopPropagation()">
                             @if($isCancelledByMe)
                                 <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">Dibatalkan</span>
+                            @elseif(auth()->check() && auth()->user()->hasActiveOngoingOrder())
+                                <span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">Sedang Bertugas</span>
                             @else
                                 <button type="button"
                                     onclick="event.stopPropagation()"
@@ -618,6 +698,10 @@
                     @elseif(auth()->check() && !auth()->user()->verified)
                         <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
                             Menunggu Verifikasi KTP
+                        </button>
+                    @elseif(auth()->check() && auth()->user()->hasActiveOngoingOrder())
+                        <button type="button" disabled class="flex-1 bg-amber-50 text-amber-800 border border-amber-200 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
+                            Selesaikan Order Aktif Dahulu
                         </button>
                     @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
                         <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">

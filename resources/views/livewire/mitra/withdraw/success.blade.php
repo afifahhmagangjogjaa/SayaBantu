@@ -25,7 +25,7 @@
             </div>
 
             <!-- Content -->
-            <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24 space-y-4">
+            <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6 space-y-4">
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
                     <div class="flex justify-between text-xs">
                         <span class="text-gray-500">Jumlah Penarikan:</span>

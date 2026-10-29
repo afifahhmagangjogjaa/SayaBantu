@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white">
+<div class="min-h-full bg-white">
 		<div class="max-w-md mx-auto">
 			<!-- Header - SayaBantu Style -->
 			<div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
@@ -47,7 +47,7 @@
 			</div>
 
 			<!-- Main Content -->
-			<div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24">
+			<div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6">
 
 					{{-- List --}}
 					@if(isset($completedHelps) && $completedHelps->isEmpty())

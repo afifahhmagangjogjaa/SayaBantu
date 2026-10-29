@@ -103,7 +103,7 @@
     </div>
 
     <!-- Content -->
-    <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-28 max-w-md mx-auto">
+    <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-8 max-w-md mx-auto">
         {{-- Order ID --}}
         <div class="bg-white px-4 py-3 flex items-center justify-between rounded-xl shadow-sm border border-gray-100">
             <span class="text-sm text-gray-600">ID Pesanan: <span class="font-semibold text-gray-900">{{ $help->order_id }}</span></span>

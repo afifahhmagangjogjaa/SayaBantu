@@ -71,7 +71,7 @@
         </div>
 
         <!-- Content container -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-4 {{ $selected_help_id ? 'flex-1 min-h-0 flex flex-col' : 'pb-28 min-h-[60vh]' }}">
+        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-4 {{ $selected_help_id ? 'flex-1 min-h-0 flex flex-col' : 'pb-6' }}">
             <div class="{{ $selected_help_id ? 'flex-1 min-h-0 flex flex-col' : 'space-y-4' }}">
                 @if(!$selected_help_id)
                     <!-- Search -->
