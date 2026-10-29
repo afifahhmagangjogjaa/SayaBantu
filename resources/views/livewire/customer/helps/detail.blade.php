@@ -103,7 +103,7 @@
     </div>
 
     <!-- Content -->
-    <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-28 max-w-md mx-auto">
+    <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-8 max-w-md mx-auto">
         {{-- Order ID --}}
         <div class="bg-white px-4 py-3 flex items-center justify-between rounded-xl shadow-sm border border-gray-100">
             <span class="text-sm text-gray-600">ID Pesanan: <span class="font-semibold text-gray-900">{{ $help->order_id }}</span></span>
@@ -149,7 +149,7 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <span class="text-lg font-black text-red-600 font-mono tracking-wider" x-text="timeLeft">--:--</span>
+                        <span class="text-lg font-black text-red-600 font-mono tracking-wider" x-text="timeLeft">00:00</span>
                         <span class="text-[10px] text-gray-500 block">menit : detik</span>
                     </div>
                 </div>
@@ -728,7 +728,7 @@
                             {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('l, d F Y') }} 
                             (Jam {{ \Carbon\Carbon::parse($help->scheduled_at)->format('H:i') }} WIB)
                         </p>
-                        <p class="text-xs text-gray-500 mt-1">*Jadwal tertera dalam WIB</p>
+                        <p class="text-xs text-gray-500 mt-1">Jadwal tertera dalam WIB</p>
                     </div>
                 </div>
             </div>

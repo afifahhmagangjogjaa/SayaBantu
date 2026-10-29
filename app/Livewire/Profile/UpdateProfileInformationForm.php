@@ -26,7 +26,7 @@ class UpdateProfileInformationForm extends Component
         return [
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'email' => ['required', 'email', 'max:255'],
-            'nik' => ['required', 'string', 'size:16', 'regex:/^[0-9]+$/'],
+            'nik' => ['nullable', 'string'],
             'phone' => ['required', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
             'city_id' => ['required', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
             'address' => ['required', 'string', 'max:500'],
@@ -84,13 +84,14 @@ class UpdateProfileInformationForm extends Component
 
     public function updateProfileInformation()
     {
+        $user = Auth::user();
+
         $this->name = preg_replace('/[^a-zA-Z\s]/', '', (string) $this->name);
-        $this->nik = preg_replace('/[^0-9]/', '', (string) $this->nik);
         $this->phone = preg_replace('/[^0-9]/', '', (string) $this->phone);
+        // NIK dikunci permanen sesuai identitas akun terdaftar
+        $this->nik = $user->nik;
 
         $this->validate();
-
-        $user = Auth::user();
 
         // Check if email changed and already exists
         if (
@@ -102,20 +103,10 @@ class UpdateProfileInformationForm extends Component
             return;
         }
 
-        // Check if NIK changed and already exists on other users
-        if (
-            $this->nik !== $user->nik &&
-            \App\Models\User::where('nik', $this->nik)->where('id', '!=', $user->id)->exists()
-        ) {
-            $this->addError('nik', 'NIK sudah terdaftar pada akun lain.');
-
-            return;
-        }
-
         $user->update([
             'name' => $this->name,
             'email' => $this->email,
-            'nik' => $this->nik,
+            'nik' => $user->nik,
             'phone' => $this->phone,
             'address' => $this->address,
             'city_id' => $this->city_id,

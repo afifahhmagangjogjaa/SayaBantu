@@ -136,8 +136,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $pageTitle }} - sayabantu</title>
     <!-- Favicon & Icons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+    @php
+        $dynamicAppIcon = \App\Models\AppSetting::get('app_icon');
+        $dynamicAppIconUrl = $dynamicAppIcon && \Illuminate\Support\Facades\Storage::disk('public')->exists($dynamicAppIcon) ? asset('storage/' . $dynamicAppIcon) : null;
+    @endphp
+    @if($dynamicAppIconUrl)
+        <link rel="icon" href="{{ $dynamicAppIconUrl }}">
+        <link rel="apple-touch-icon" href="{{ $dynamicAppIconUrl }}">
+    @else
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+    @endif
     <!-- Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -203,9 +212,12 @@
             class="w-64 bg-white shadow-2xl fixed inset-y-0 left-0 flex flex-col z-50 lg:translate-x-0 transition-transform duration-300 ease-in-out">
             <div id="superadmin-sidebar-header" class="h-[64px] lg:h-[96px] px-6 flex flex-col justify-center border-b border-gray-200 flex-shrink-0">
                 <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-xl lg:text-2xl font-bold text-primary-600">sayabantu</h1>
-                        <p class="text-xs text-gray-500 mt-0.5">Super Admin Panel</p>
+                    <div class="flex items-center gap-2.5">
+                        <x-app-icon class="w-8 h-8 shrink-0" />
+                        <div>
+                            <h1 class="text-xl lg:text-2xl font-bold text-primary-600 leading-none">sayabantu</h1>
+                            <p class="text-xs text-gray-500 mt-1">Super Admin Panel</p>
+                        </div>
                     </div>
                     <!-- Close button (mobile only) -->
                     <button @click="sidebarOpen = false" class="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition" title="Tutup menu">

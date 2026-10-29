@@ -8,10 +8,19 @@
 
     <title>{{ config('app.name', 'Mastulongmas') }} - Mitra</title>
     <!-- Favicon & Icons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    @php
+        $dynamicAppIcon = \App\Models\AppSetting::get('app_icon');
+        $dynamicAppIconUrl = $dynamicAppIcon && \Illuminate\Support\Facades\Storage::disk('public')->exists($dynamicAppIcon) ? asset('storage/' . $dynamicAppIcon) : null;
+    @endphp
+    @if($dynamicAppIconUrl)
+        <link rel="icon" href="{{ $dynamicAppIconUrl }}">
+        <link rel="apple-touch-icon" href="{{ $dynamicAppIconUrl }}">
+    @else
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    @endif
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -231,9 +240,9 @@
                 <div id="mitra-global-notification-inner" class="w-full"></div>
             </div>
             <!-- Content -->
-            <div class="flex flex-col flex-1 min-h-screen min-h-[100dvh]">
+            <div class="flex flex-col flex-1 min-h-0">
                 <!-- Livewire slot -->
-                <div class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
+                <div class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
                     @isset($slot)
                         {{ $slot }}
                     @else

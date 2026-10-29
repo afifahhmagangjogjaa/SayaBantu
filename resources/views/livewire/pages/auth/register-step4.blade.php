@@ -79,6 +79,16 @@ new #[Layout('layouts.guest')] class extends Component {
         }
 
         // Gabungkan semua data
+        $cityId = $registration->city_id;
+        $cityName = $registration->city;
+        if (empty($cityId) && !empty($cityName)) {
+            $matchedCity = City::whereRaw('LOWER(name) = ?', [strtolower(trim($cityName))])->first();
+            if ($matchedCity) {
+                $cityId = $matchedCity->id;
+                $cityName = $matchedCity->name;
+            }
+        }
+
         $userData = [
             'name' => $registration->full_name,
             'email' => $validated['email'],
@@ -89,7 +99,8 @@ new #[Layout('layouts.guest')] class extends Component {
             'address' => $registration->address,
             'kelurahan' => $registration->kelurahan,
             'kecamatan' => $registration->kecamatan,
-            'city' => $registration->city,
+            'city_id' => $cityId,
+            'city' => $cityName,
             'province' => $registration->province,
             'ktp_photo' => $registration->ktp_photo_path,
             'selfie_photo' => $registration->selfie_photo_path,

@@ -384,17 +384,85 @@
                             <div class="space-y-4">
                                 <!-- Kota Basis & Provinsi -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
+                                    <div x-data="{
+                                        open: false,
+                                        search: '',
+                                        selectedId: @entangle('city_id').live,
+                                        selectedName: '',
+                                        cities: {{ $cities->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'province' => $c->province ?? 'Indonesia'])->toJson() }},
+                                        init() {
+                                            this.updateName();
+                                            this.$watch('selectedId', () => this.updateName());
+                                        },
+                                        updateName() {
+                                            const found = this.cities.find(c => String(c.id) === String(this.selectedId));
+                                            this.selectedName = found ? `${found.name} (${found.province})` : '';
+                                        },
+                                        get filteredCities() {
+                                            if (!this.search.trim()) return this.cities;
+                                            const q = this.search.toLowerCase();
+                                            return this.cities.filter(c => c.name.toLowerCase().includes(q) || c.province.toLowerCase().includes(q));
+                                        },
+                                        selectCity(id) {
+                                            this.selectedId = id;
+                                            this.open = false;
+                                            this.search = '';
+                                        }
+                                    }" @click.outside="open = false" class="relative">
                                         <label class="block text-xs font-semibold text-gray-700 mb-1.5">
                                             Kota Basis Operasional
                                         </label>
-                                        <select wire:model.live="city_id"
-                                            class="w-full pl-3.5 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition cursor-pointer">
-                                            <option value="">Pilih Kota Basis Utama</option>
-                                            @foreach($cities as $c)
-                                                <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->province ?? 'Indonesia' }})</option>
-                                            @endforeach
-                                        </select>
+                                        
+                                        <!-- Trigger Button -->
+                                        <button type="button" @click="open = !open; if(open) $nextTick(() => $refs.baseCitySearch.focus())"
+                                            class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-left flex items-center justify-between focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition cursor-pointer shadow-2xs">
+                                            <span x-text="selectedName || 'Pilih Kota Basis Utama'" :class="selectedName ? 'text-gray-900 font-semibold' : 'text-gray-400'"></span>
+                                            <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform duration-150" :class="open ? 'rotate-180 text-primary-600' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+
+                                        <!-- Dropdown Panel with Search -->
+                                        <div x-show="open" x-cloak
+                                            x-transition:enter="transition ease-out duration-100"
+                                            x-transition:enter-start="transform opacity-0 scale-95"
+                                            x-transition:enter-end="transform opacity-100 scale-100"
+                                            x-transition:leave="transition ease-in duration-75"
+                                            x-transition:leave-start="transform opacity-100 scale-100"
+                                            x-transition:leave-end="transform opacity-0 scale-95"
+                                            class="absolute left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden p-2">
+                                            
+                                            <!-- Search Box -->
+                                            <div class="relative mb-2">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                    </svg>
+                                                </div>
+                                                <input x-ref="baseCitySearch" type="text" x-model="search" placeholder="Ketik nama kota atau provinsi..."
+                                                    class="w-full pl-8 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs placeholder-gray-400 focus:bg-white focus:ring-1 focus:ring-primary-500 transition outline-none">
+                                            </div>
+
+                                            <!-- City Options List -->
+                                            <div class="max-h-56 overflow-y-auto space-y-0.5 pr-1 divide-y divide-gray-50">
+                                                <template x-for="c in filteredCities" :key="c.id">
+                                                    <div @click="selectCity(c.id)"
+                                                        class="px-3 py-2 text-xs rounded-xl cursor-pointer flex items-center justify-between transition-colors"
+                                                        :class="String(selectedId) === String(c.id) ? 'bg-primary-50 text-primary-700 font-bold' : 'text-gray-700 hover:bg-gray-100'">
+                                                        <div class="min-w-0 pr-2">
+                                                            <span x-text="c.name" class="block font-semibold truncate"></span>
+                                                            <span x-text="c.province" class="block text-[10px] text-gray-400"></span>
+                                                        </div>
+                                                        <svg x-show="String(selectedId) === String(c.id)" class="w-4 h-4 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                    </div>
+                                                </template>
+                                                <div x-show="filteredCities.length === 0" class="py-4 text-center text-xs text-gray-400">
+                                                    Kota tidak ditemukan.
+                                                </div>
+                                            </div>
+                                        </div>
                                         @error('city_id') <span class="text-xs text-red-600 mt-1 block font-medium">{{ $message }}</span> @enderror
                                     </div>
 

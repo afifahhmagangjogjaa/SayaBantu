@@ -597,20 +597,20 @@
                             <div class="lg:col-span-2 space-y-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="text-xs font-medium text-gray-700">Nama Lengkap <span class="text-red-500">*</span></label>
+                                        <label class="text-xs font-medium text-gray-700">Nama Lengkap</label>
                                         <input type="text" wire:model="name" placeholder="Nama lengkap"
                                             oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                                             class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                                         @error('name') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                     </div>
                                     <div>
-                                        <label class="text-xs font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
+                                        <label class="text-xs font-medium text-gray-700">Email</label>
                                         <input type="email" wire:model="email" placeholder="email@contoh.com"
                                             class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                                         @error('email') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                     </div>
                                     <div>
-                                        <label class="text-xs font-medium text-gray-700">No. HP <span class="text-red-500">*</span></label>
+                                        <label class="text-xs font-medium text-gray-700">No. HP</label>
                                         <input type="text" wire:model="phone" placeholder="08xxxxxxxxxx" maxlength="13"
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)" inputmode="numeric"
                                             class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
@@ -620,8 +620,6 @@
                                         <label class="text-xs font-medium text-gray-700">Password
                                             @if($showEditModal)
                                                 <span class="text-gray-500 text-xs">(kosongkan jika tidak ingin mengubah)</span>
-                                            @else
-                                                <span class="text-red-500">*</span>
                                             @endif
                                         </label>
                                         <input type="password" wire:model="password"
@@ -630,7 +628,7 @@
                                         @error('password') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                     </div>
                                     <div>
-                                        <label class="text-xs font-medium text-gray-700">Verifikasi <span class="text-red-500">*</span></label>
+                                        <label class="text-xs font-medium text-gray-700">Verifikasi</label>
                                         <select wire:model="verified"
                                             class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
                                             <option value="1">Terverifikasi</option>
@@ -643,31 +641,31 @@
                                 <div class="space-y-3 border-t pt-4">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">NIK (16 digit) <span class="text-red-500">*</span></label>
+                                            <label class="text-xs font-medium text-gray-700">NIK (16 digit)</label>
                                             <input type="text" wire:model="nik" maxlength="16"
                                                 oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16)" inputmode="numeric"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono" />
                                             @error('nik') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Jenis Kelamin <span class="text-red-500">*</span></label>
+                                            <label class="text-xs font-medium text-gray-700">Jenis Kelamin</label>
                                             <select wire:model="gender"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                                <option value="">-- Pilih Jenis Kelamin --</option>
+                                                <option value="">Pilih Jenis Kelamin</option>
                                                 <option value="Laki-laki">Laki-laki</option>
                                                 <option value="Perempuan">Perempuan</option>
                                             </select>
                                             @error('gender') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Tempat Lahir <span class="text-red-500">*</span></label>
+                                            <label class="text-xs font-medium text-gray-700">Tempat Lahir</label>
                                             <input type="text" wire:model="place_of_birth"
                                                 oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                             @error('place_of_birth') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Tanggal Lahir <span class="text-red-500">*</span></label>
+                                            <label class="text-xs font-medium text-gray-700">Tanggal Lahir</label>
                                             <input type="date" wire:model="date_of_birth" max="{{ \Carbon\Carbon::now()->subYears(17)->format('Y-m-d') }}" onkeydown="return false" onclick="this.showPicker()"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                             @error('date_of_birth') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
@@ -676,7 +674,7 @@
                                             <label class="text-xs font-medium text-gray-700">Agama</label>
                                             <select wire:model="religion"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                                <option value="">-- Pilih Agama --</option>
+                                                <option value="">Pilih Agama</option>
                                                 <option value="Islam">Islam</option>
                                                 <option value="Kristen">Kristen</option>
                                                 <option value="Katolik">Katolik</option>
@@ -689,7 +687,7 @@
                                             <label class="text-xs font-medium text-gray-700">Status Perkawinan</label>
                                             <select wire:model="marital_status"
                                                 class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                                <option value="">-- Pilih Status --</option>
+                                                <option value="">Pilih Status</option>
                                                 <option value="Belum Kawin">Belum Kawin</option>
                                                 <option value="Kawin">Kawin</option>
                                                 <option value="Cerai Hidup">Cerai Hidup</option>
@@ -715,15 +713,83 @@
                                                     class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                             </div>
                                         </div>
-                                        <div>
-                                            <label class="text-xs font-medium text-gray-700">Kota / Kabupaten Domisili <span class="text-red-500">*</span></label>
-                                            <select wire:model.live="city_id"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                                <option value="">-- Pilih Kota / Kabupaten --</option>
-                                                @foreach($cities as $c)
-                                                    <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->province ?? 'Indonesia' }})</option>
-                                                @endforeach
-                                            </select>
+                                        <div x-data="{
+                                            open: false,
+                                            search: '',
+                                            selectedId: @entangle('city_id').live,
+                                            selectedName: '',
+                                            cities: {{ $cities->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'province' => $c->province ?? 'Indonesia'])->toJson() }},
+                                            init() {
+                                                this.updateName();
+                                                this.$watch('selectedId', () => this.updateName());
+                                            },
+                                            updateName() {
+                                                const found = this.cities.find(c => String(c.id) === String(this.selectedId));
+                                                this.selectedName = found ? `${found.name} (${found.province})` : '';
+                                            },
+                                            get filteredCities() {
+                                                if (!this.search.trim()) return this.cities;
+                                                const q = this.search.toLowerCase();
+                                                return this.cities.filter(c => c.name.toLowerCase().includes(q) || c.province.toLowerCase().includes(q));
+                                            },
+                                            selectCity(id) {
+                                                this.selectedId = id;
+                                                this.open = false;
+                                                this.search = '';
+                                            }
+                                        }" @click.outside="open = false" class="relative">
+                                            <label class="text-xs font-medium text-gray-700">Kota / Kabupaten Domisili</label>
+                                            
+                                            <!-- Trigger Button -->
+                                            <button type="button" @click="open = !open; if(open) $nextTick(() => $refs.userCitySearch.focus())"
+                                                class="w-full mt-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-primary-500 transition cursor-pointer">
+                                                <span x-text="selectedName || 'Pilih Kota / Kabupaten'" :class="selectedName ? 'text-gray-900 font-medium' : 'text-gray-400'"></span>
+                                                <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform duration-150" :class="open ? 'rotate-180 text-primary-600' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+
+                                            <!-- Dropdown Panel with Search -->
+                                            <div x-show="open" x-cloak
+                                                x-transition:enter="transition ease-out duration-100"
+                                                x-transition:enter-start="transform opacity-0 scale-95"
+                                                x-transition:enter-end="transform opacity-100 scale-100"
+                                                x-transition:leave="transition ease-in duration-75"
+                                                x-transition:leave-start="transform opacity-100 scale-100"
+                                                x-transition:leave-end="transform opacity-0 scale-95"
+                                                class="absolute left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden p-2">
+                                                
+                                                <!-- Search Box -->
+                                                <div class="relative mb-2">
+                                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <input x-ref="userCitySearch" type="text" x-model="search" placeholder="Ketik nama kota atau provinsi..."
+                                                        class="w-full pl-8 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs placeholder-gray-400 focus:bg-white focus:ring-1 focus:ring-primary-500 transition outline-none">
+                                                </div>
+
+                                                <!-- City Options List -->
+                                                <div class="max-h-56 overflow-y-auto space-y-0.5 pr-1 divide-y divide-gray-50">
+                                                    <template x-for="c in filteredCities" :key="c.id">
+                                                        <div @click="selectCity(c.id)"
+                                                            class="px-3 py-2 text-xs rounded-xl cursor-pointer flex items-center justify-between transition-colors"
+                                                            :class="String(selectedId) === String(c.id) ? 'bg-primary-50 text-primary-700 font-bold' : 'text-gray-700 hover:bg-gray-100'">
+                                                            <div class="min-w-0 pr-2">
+                                                                <span x-text="c.name" class="block font-medium truncate"></span>
+                                                                <span x-text="c.province" class="block text-[10px] text-gray-400"></span>
+                                                            </div>
+                                                            <svg x-show="String(selectedId) === String(c.id)" class="w-4 h-4 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </div>
+                                                    </template>
+                                                    <div x-show="filteredCities.length === 0" class="py-4 text-center text-xs text-gray-400">
+                                                        Kota tidak ditemukan.
+                                                    </div>
+                                                </div>
+                                            </div>
                                             @error('city_id') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
                                         <div>
@@ -733,31 +799,69 @@
                                             @error('province') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Kecamatan <span class="text-red-500">*</span></label>
-                                            <select wire:model.live="selectedDistrictCode"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                                {{ empty($apiDistricts) ? 'disabled' : '' }}>
-                                                <option value="">{{ empty($city_id) ? '-- Pilih Kota Terlebih Dahulu --' : (empty($apiDistricts) ? '-- Memuat Kecamatan... --' : '-- Pilih Kecamatan --') }}</option>
-                                                @foreach($apiDistricts as $d)
-                                                    <option value="{{ $d['code'] }}">{{ $d['name'] }}</option>
-                                                @endforeach
-                                            </select>
+                                            <div class="flex items-center justify-between mb-1">
+                                                <label class="text-xs font-medium text-gray-700">Kecamatan</label>
+                                                @if(!$isManualKecamatan && !empty($apiDistricts))
+                                                    <button type="button" wire:click="toggleManualKecamatan" class="text-[11px] text-primary-600 hover:underline font-semibold cursor-pointer">
+                                                        Ketik manual
+                                                    </button>
+                                                @elseif($isManualKecamatan && !empty($apiDistricts))
+                                                    <button type="button" wire:click="toggleManualKecamatan" class="text-[11px] text-primary-600 hover:underline font-semibold cursor-pointer">
+                                                        &larr; Dari daftar
+                                                    </button>
+                                                @endif
+                                            </div>
+                                            @if($isManualKecamatan)
+                                                <input type="text" wire:model="kecamatan" placeholder="Ketik nama Kecamatan"
+                                                    class="w-full mt-1 px-4 py-3 border border-blue-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" />
+                                            @else
+                                                <select wire:model.live="selectedDistrictCode"
+                                                    class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                    {{ empty($apiDistricts) ? 'disabled' : '' }}>
+                                                    <option value="">{{ empty($city_id) ? 'Pilih Kota Terlebih Dahulu' : (empty($apiDistricts) ? 'Memuat Kecamatan...' : 'Pilih Kecamatan') }}</option>
+                                                    @foreach($apiDistricts as $d)
+                                                        <option value="{{ $d['code'] }}">{{ $d['name'] }}</option>
+                                                    @endforeach
+                                                    @if(!empty($apiDistricts))
+                                                        <option value="other">Tidak ada di daftar? (Ketik Manual)</option>
+                                                    @endif
+                                                </select>
+                                            @endif
                                             @error('kecamatan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
                                         <div>
-                                            <label class="text-xs font-medium text-gray-700">Kelurahan / Desa <span class="text-red-500">*</span></label>
-                                            <select wire:model.live="selectedVillageCode"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                                {{ empty($apiVillages) ? 'disabled' : '' }}>
-                                                <option value="">{{ empty($selectedDistrictCode) ? '-- Pilih Kecamatan Terlebih Dahulu --' : (empty($apiVillages) ? '-- Memuat Kelurahan... --' : '-- Pilih Kelurahan / Desa --') }}</option>
-                                                @foreach($apiVillages as $v)
-                                                    <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
-                                                @endforeach
-                                            </select>
+                                            <div class="flex items-center justify-between mb-1">
+                                                <label class="text-xs font-medium text-gray-700">Kelurahan / Desa</label>
+                                                @if(!$isManualKelurahan && !empty($apiVillages))
+                                                    <button type="button" wire:click="toggleManualKelurahan" class="text-[11px] text-primary-600 hover:underline font-semibold cursor-pointer">
+                                                        Ketik manual
+                                                    </button>
+                                                @elseif($isManualKelurahan && !empty($apiVillages))
+                                                    <button type="button" wire:click="toggleManualKelurahan" class="text-[11px] text-primary-600 hover:underline font-semibold cursor-pointer">
+                                                        &larr; Dari daftar
+                                                    </button>
+                                                @endif
+                                            </div>
+                                            @if($isManualKelurahan)
+                                                <input type="text" wire:model="kelurahan" placeholder="Ketik nama Kelurahan / Desa"
+                                                    class="w-full mt-1 px-4 py-3 border border-blue-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" />
+                                            @else
+                                                <select wire:model.live="selectedVillageCode"
+                                                    class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                    {{ empty($apiVillages) ? 'disabled' : '' }}>
+                                                    <option value="">{{ empty($selectedDistrictCode) ? 'Pilih Kecamatan Terlebih Dahulu' : (empty($apiVillages) ? 'Memuat Kelurahan...' : 'Pilih Kelurahan / Desa') }}</option>
+                                                    @foreach($apiVillages as $v)
+                                                        <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
+                                                    @endforeach
+                                                    @if(!empty($apiVillages))
+                                                        <option value="other">Tidak ada di daftar? (Ketik Manual)</option>
+                                                    @endif
+                                                </select>
+                                            @endif
                                             @error('kelurahan') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
                                         </div>
                                         <div class="md:col-span-2">
-                                            <label class="text-xs font-medium text-gray-700">Alamat Lengkap <span class="text-red-500">*</span></label>
+                                            <label class="text-xs font-medium text-gray-700">Alamat Lengkap</label>
                                             <div class="mt-1">
                                                 <x-smart-address-input 
                                                     wire:model="address" 

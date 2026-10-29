@@ -78,15 +78,79 @@ class Index extends Component
 
             return;
         }
+
+        $admin = auth()->user();
+        if ($admin && $admin->role === 'admin') {
+            $cityIds = collect($admin->getAdminCityIds());
+            if ($cityIds->isNotEmpty()) {
+                $isAllowed = false;
+                if ($reg->city_id && $cityIds->contains($reg->city_id)) {
+                    $isAllowed = true;
+                } elseif (! empty($reg->city)) {
+                    $cityNames = \App\Models\City::whereIn('id', $cityIds)
+                        ->pluck('name')
+                        ->map(fn ($n) => strtolower(trim($n)))
+                        ->all();
+                    foreach ($cityNames as $cn) {
+                        if (str_contains(strtolower($reg->city), $cn)) {
+                            $isAllowed = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (! $isAllowed) {
+                    session()->flash('message', 'Anda tidak memiliki hak akses untuk memproses verifikasi di luar wilayah kelola.');
+
+                    return;
+                }
+            }
+        }
+
         $reg->update(['status' => 'approved']);
 
-        // Jika ada user terkait, update status dan verifikasi
+        // Jika ada user terkait, update status, verifikasi, dan sinkronkan data alamat
         try {
             if (! empty($reg->email)) {
                 $user = User::where('email', $reg->email)->first();
                 if ($user) {
                     $user->verified = true;
                     $user->status = 'active';
+
+                    // Sinkronkan data alamat & KTP jika di user masih kosong atau belum update
+                    $cityName = $user->city ?: $reg->city;
+                    $cityId = $user->city_id ?: $reg->city_id;
+                    if (empty($cityId) && ! empty($cityName)) {
+                        $matchedCity = \App\Models\City::whereRaw('LOWER(name) = ?', [strtolower(trim($cityName))])->first();
+                        if ($matchedCity) {
+                            $cityId = $matchedCity->id;
+                            $cityName = $matchedCity->name;
+                        }
+                    }
+
+                    $user->city_id = $cityId;
+                    $user->city = $cityName;
+                    $user->province = $user->province ?: $reg->province;
+                    $user->kecamatan = $user->kecamatan ?: $reg->kecamatan;
+                    $user->kelurahan = $user->kelurahan ?: $reg->kelurahan;
+                    $user->address = $user->address ?: $reg->address;
+                    $user->rt = $user->rt ?: $reg->rt;
+                    $user->rw = $user->rw ?: $reg->rw;
+                    $user->nik = $user->nik ?: $reg->nik;
+                    $user->place_of_birth = $user->place_of_birth ?: $reg->place_of_birth;
+                    $user->date_of_birth = $user->date_of_birth ?: $reg->date_of_birth;
+                    $user->gender = $user->gender ?: $reg->gender;
+                    $user->religion = $user->religion ?: $reg->religion;
+                    $user->marital_status = $user->marital_status ?: $reg->marital_status;
+                    $user->occupation = $user->occupation ?: $reg->occupation;
+
+                    if (empty($user->ktp_photo) && ! empty($reg->ktp_photo_path)) {
+                        $user->ktp_photo = $reg->ktp_photo_path;
+                    }
+                    if (empty($user->selfie_photo) && ! empty($reg->selfie_photo_path)) {
+                        $user->selfie_photo = $reg->selfie_photo_path;
+                    }
+
                     $user->save();
 
                     try {
@@ -124,6 +188,35 @@ class Index extends Component
             $this->closeModal();
 
             return;
+        }
+
+        $admin = auth()->user();
+        if ($admin && $admin->role === 'admin') {
+            $cityIds = collect($admin->getAdminCityIds());
+            if ($cityIds->isNotEmpty()) {
+                $isAllowed = false;
+                if ($reg->city_id && $cityIds->contains($reg->city_id)) {
+                    $isAllowed = true;
+                } elseif (! empty($reg->city)) {
+                    $cityNames = \App\Models\City::whereIn('id', $cityIds)
+                        ->pluck('name')
+                        ->map(fn ($n) => strtolower(trim($n)))
+                        ->all();
+                    foreach ($cityNames as $cn) {
+                        if (str_contains(strtolower($reg->city), $cn)) {
+                            $isAllowed = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (! $isAllowed) {
+                    session()->flash('message', 'Anda tidak memiliki hak akses untuk memproses verifikasi di luar wilayah kelola.');
+                    $this->closeModal();
+
+                    return;
+                }
+            }
         }
 
         $reason = trim($this->rejectReason) ?: 'Dokumen tidak memenuhi persyaratan verifikasi.';

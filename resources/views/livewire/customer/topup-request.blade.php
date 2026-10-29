@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-24">
+<div class="bg-gradient-to-b from-gray-50 to-white pb-6">
     @if($hasActivePending)
         <!-- Header Sederhana saat Pending dengan Wave Bergelombang -->
         <div class="px-5 pt-6 pb-12 relative overflow-hidden text-white shadow-lg mb-6" style="background: linear-gradient(135deg, #0066FF, #0052cc);">

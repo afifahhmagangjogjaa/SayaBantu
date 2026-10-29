@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white">
+<div class="min-h-full bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - SayaBantu Style -->
         <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
@@ -29,7 +29,7 @@
         </div>
 
         <!-- Content -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24">
+        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6">
             @if (session()->has('message'))
                 <div class="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-xs font-medium text-green-700 flex items-center justify-between">
                     <span>{{ session('message') }}</span>

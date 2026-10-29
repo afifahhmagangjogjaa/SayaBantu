@@ -84,7 +84,7 @@
     </div>
 
     <!-- Content -->
-    <div class="bg-gray-50 -mt-6 px-5 pt-6 pb-28 max-w-md mx-auto">
+    <div class="bg-gray-50 -mt-6 px-5 pt-6 pb-8 max-w-md mx-auto">
         {{-- GPS Tracker - Auto tracking untuk status aktif --}}
         @if (in_array($help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived']))
             {{-- <div class="mb-3">

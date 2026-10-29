@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white">
+<div class="min-h-full bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - SayaBantu Style -->
         <div class="px-4 pt-4 pb-12 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
@@ -48,7 +48,7 @@
         </div>
 
         <!-- Ratings List -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-24">
+        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6">
             @if($ratings->count() > 0)
                 <div class="space-y-3">
                     @foreach($ratings as $rating)

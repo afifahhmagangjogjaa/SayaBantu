@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-slate-50/60 pb-28">
+<div class="bg-slate-50/60 pb-2">
     @php
         $user = $user ?? auth()->user();
         $totalHelped = $totalHelped ?? \App\Models\Help::where('mitra_id', $user->id)->count();
@@ -18,7 +18,7 @@
 
     <div class="max-w-md mx-auto">
         <!-- Top Blue Header Backdrop (SayaBantu Brand Blue dengan wave bergelombang) -->
-        <div class="relative overflow-hidden pt-8 pb-20 px-5 bg-[#0066FF]">
+        <div class="relative overflow-hidden pt-6 pb-16 px-5 bg-[#0066FF]">
             <!-- Decorative circle overlays -->
             <div class="absolute top-0 right-0 w-44 h-44 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
             <div class="absolute bottom-0 left-0 w-36 h-36 bg-white/10 rounded-full -ml-14 -mb-14 pointer-events-none"></div>
@@ -30,7 +30,7 @@
         </div>
 
         <!-- Top Profile Card Berwarna (Gradasi Biru Royal Bergelombang & Glass Border) -->
-        <div class="px-5 -mt-16 relative z-10 mb-7">
+        <div class="px-5 -mt-14 relative z-10 mb-4">
             <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-3xl p-5 text-white shadow-2xl relative overflow-hidden border border-white/20">
                 <!-- Decorative circle overlay -->
                 <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full pointer-events-none"></div>
@@ -97,7 +97,7 @@
             <div class="divide-y divide-gray-100 bg-white rounded-3xl px-3 py-1 border border-gray-100 shadow-2xs">
                 
                 <!-- 1. Data Diri -->
-                <a href="{{ route('mitra.profile.edit') }}" wire:navigate class="py-4 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group">
+                <a href="{{ route('mitra.profile.edit') }}" wire:navigate class="py-3 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group">
                     <div class="flex items-center gap-4 min-w-0">
                         <svg class="w-5 h-5 text-slate-700 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -110,7 +110,7 @@
                 </a>
 
                 <!-- 2. Rekening Bank -->
-                <a href="{{ route('mitra.withdraw.form') }}" wire:navigate class="py-4 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group">
+                <a href="{{ route('mitra.withdraw.form') }}" wire:navigate class="py-3 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group">
                     <div class="flex items-center gap-4 min-w-0">
                         <svg class="w-5 h-5 text-slate-700 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
@@ -123,7 +123,7 @@
                 </a>
 
                 <!-- 3. Riwayat Order -->
-                <a href="{{ route('mitra.helps.completed') }}" wire:navigate class="py-4 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group">
+                <a href="{{ route('mitra.helps.completed') }}" wire:navigate class="py-3 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group">
                     <div class="flex items-center gap-4 min-w-0">
                         <svg class="w-5 h-5 text-slate-700 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -136,7 +136,7 @@
                 </a>
 
                 <!-- 4. Pusat Bantuan -->
-                <a href="{{ route('mitra.help-support') }}" wire:navigate class="py-4 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group">
+                <a href="{{ route('mitra.help-support') }}" wire:navigate class="py-3 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group">
                     <div class="flex items-center gap-4 min-w-0">
                         <svg class="w-5 h-5 text-slate-700 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -149,7 +149,7 @@
                 </a>
 
                 <!-- 5. Pengaturan -->
-                <a href="{{ route('mitra.settings') }}" wire:navigate class="py-4 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group">
+                <a href="{{ route('mitra.settings') }}" wire:navigate class="py-3 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group">
                     <div class="flex items-center gap-4 min-w-0">
                         <svg class="w-5 h-5 text-slate-700 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -163,7 +163,7 @@
             </div>
 
             <!-- Tombol Keluar (Outlined Pill Button Sesuai Mockup) -->
-            <div class="mt-8 mb-4">
+            <div class="mt-4 mb-2">
                 <button type="button" onclick="document.getElementById('logout-modal').classList.remove('hidden')"
                         class="w-full py-3.5 px-6 rounded-2xl border-1.5 border-[#0066FF] text-[#0066FF] font-bold text-sm text-center hover:bg-blue-50/80 active:scale-[0.99] transition cursor-pointer bg-white shadow-2xs">
                     Keluar

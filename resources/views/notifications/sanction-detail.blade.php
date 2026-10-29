@@ -7,7 +7,7 @@
 @extends($layout)
 
 @section('content')
-<div class="min-h-screen bg-gray-50 pb-28 pt-4">
+<div class="bg-gray-50 pb-6 pt-4">
     <div class="max-w-md mx-auto px-4">
         <!-- Top Back Bar -->
         <div class="flex items-center justify-between mb-4">

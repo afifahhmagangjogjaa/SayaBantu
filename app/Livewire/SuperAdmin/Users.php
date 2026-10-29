@@ -101,6 +101,10 @@ class Users extends Component
 
     public $selectedVillageCode = '';
 
+    public bool $isManualKecamatan = false;
+
+    public bool $isManualKelurahan = false;
+
     protected $queryString = [
         'roleFilter' => ['except' => '', 'as' => 'role'],
     ];
@@ -133,15 +137,16 @@ class Users extends Component
     {
         try {
             $master = \App\Support\JsonMaster::districts();
-            $found = \App\Support\JsonMaster::find($master, $cityCode);
-            if ($found !== []) {
-                $this->apiDistricts = $found;
-
-                return;
+            foreach ([$cityCode, $this->city_id] as $key) {
+                $found = \App\Support\JsonMaster::find($master, $key);
+                if ($found !== []) {
+                    $this->apiDistricts = $found;
+                    return;
+                }
             }
 
             $cleanCode = (strlen($cityCode) === 4 && ! str_contains($cityCode, '.')) ? substr($cityCode, 0, 2).'.'.substr($cityCode, 2, 2) : $cityCode;
-            $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/districts/{$cleanCode}.json");
+            $response = \App\Support\ExternalHttp::client()->timeout(5)->get("https://wilayah.id/api/districts/{$cleanCode}.json");
             if ($response->successful()) {
                 $this->apiDistricts = $response->json('data') ?? [];
             }
@@ -153,12 +158,29 @@ class Users extends Component
     public function fetchVillages($districtCode)
     {
         try {
-            $response = \App\Support\ExternalHttp::client()->get("https://wilayah.id/api/villages/{$districtCode}.json");
+            $master = \App\Support\JsonMaster::villages();
+            foreach (array_filter([$districtCode, $this->kecamatan ? strtoupper(trim($this->kecamatan)) : null]) as $key) {
+                $found = \App\Support\JsonMaster::find($master, $key);
+                if ($found !== []) {
+                    $this->apiVillages = $found;
+                    return;
+                }
+            }
+
+            $cleanCode = (strlen($districtCode) === 6 && ! str_contains($districtCode, '.'))
+                ? substr($districtCode, 0, 2).'.'.substr($districtCode, 2, 2).'.'.substr($districtCode, 4, 2)
+                : $districtCode;
+
+            $response = \App\Support\ExternalHttp::client()->timeout(5)->get("https://wilayah.id/api/villages/{$cleanCode}.json");
             if ($response->successful()) {
                 $this->apiVillages = $response->json('data') ?? [];
             }
         } catch (\Exception $e) {
             $this->apiVillages = [];
+        }
+
+        if (empty($this->apiVillages)) {
+            $this->isManualKelurahan = true;
         }
     }
 
@@ -170,6 +192,8 @@ class Users extends Component
         $this->kelurahan = '';
         $this->selectedVillageCode = '';
         $this->apiVillages = [];
+        $this->isManualKecamatan = false;
+        $this->isManualKelurahan = false;
 
         if (! $id) {
             $this->province = '';
@@ -229,12 +253,24 @@ class Users extends Component
 
     public function updatedSelectedDistrictCode($code)
     {
+        if ($code === 'other') {
+            $this->isManualKecamatan = true;
+            $this->kecamatan = '';
+            $this->kelurahan = '';
+            $this->selectedVillageCode = '';
+            $this->apiVillages = [];
+            $this->isManualKelurahan = true;
+            return;
+        }
+
+        $this->isManualKecamatan = false;
         $dist = collect($this->apiDistricts)->firstWhere('code', $code);
         $this->kecamatan = $dist ? $dist['name'] : '';
 
         $this->kelurahan = '';
         $this->selectedVillageCode = '';
         $this->apiVillages = [];
+        $this->isManualKelurahan = false;
 
         if ($code) {
             $this->fetchVillages($code);
@@ -243,8 +279,40 @@ class Users extends Component
 
     public function updatedSelectedVillageCode($code)
     {
+        if ($code === 'other') {
+            $this->isManualKelurahan = true;
+            $this->kelurahan = '';
+            return;
+        }
+
+        $this->isManualKelurahan = false;
         $vill = collect($this->apiVillages)->firstWhere('code', $code);
         $this->kelurahan = $vill ? $vill['name'] : '';
+    }
+
+    public function toggleManualKecamatan(): void
+    {
+        $this->isManualKecamatan = !$this->isManualKecamatan;
+        if ($this->isManualKecamatan) {
+            $this->selectedDistrictCode = 'other';
+            $this->isManualKelurahan = true;
+            $this->selectedVillageCode = 'other';
+        } else {
+            $this->selectedDistrictCode = '';
+            $this->kecamatan = '';
+            $this->isManualKelurahan = false;
+        }
+    }
+
+    public function toggleManualKelurahan(): void
+    {
+        $this->isManualKelurahan = !$this->isManualKelurahan;
+        if ($this->isManualKelurahan) {
+            $this->selectedVillageCode = 'other';
+        } else {
+            $this->selectedVillageCode = '';
+            $this->kelurahan = '';
+        }
     }
 
     public function mount()
@@ -349,12 +417,13 @@ class Users extends Component
 
     public function editUser($id)
     {
-        $user = User::find($id);
+        $user = User::with('registration')->find($id);
         if (! $user) {
             session()->flash('error', 'User not found');
 
             return;
         }
+        $reg = $user->registration;
         $this->selectedUser = $user;
         $this->name = $user->name;
         $this->email = $user->email;
@@ -362,21 +431,24 @@ class Users extends Component
         $this->role = $user->role;
         $this->status = $user->status ?? 'active';
         $this->verified = $user->verified ? '1' : '0';
-        $this->city_id = $user->city_id;
+        $this->city_id = $user->city_id ?: optional($reg)->city_id;
         $this->managed_city_ids = $user->managedCities->pluck('id')->toArray();
-        $this->address = $user->address;
-        $this->nik = $user->nik;
-        $this->place_of_birth = $user->place_of_birth;
-        $this->date_of_birth = optional($user->date_of_birth)?->format('Y-m-d');
-        $this->gender = $user->gender;
-        $this->rt = $user->rt;
-        $this->rw = $user->rw;
-        $this->kelurahan = $user->kelurahan;
-        $this->kecamatan = $user->kecamatan;
-        $this->province = $user->province;
-        $this->religion = $user->religion;
-        $this->marital_status = $user->marital_status;
-        $this->occupation = $user->occupation;
+        $this->address = $user->address ?: optional($reg)->address;
+        $this->nik = $user->nik ?: optional($reg)->nik;
+        $this->place_of_birth = $user->place_of_birth ?: optional($reg)->place_of_birth;
+        $this->date_of_birth = optional($user->date_of_birth ?? optional($reg)->date_of_birth)?->format('Y-m-d');
+        $this->gender = $user->gender ?: optional($reg)->gender;
+        $this->rt = $user->rt ?: optional($reg)->rt;
+        $this->rw = $user->rw ?: optional($reg)->rw;
+        $this->kelurahan = $user->kelurahan ?: optional($reg)->kelurahan;
+        $this->kecamatan = $user->kecamatan ?: optional($reg)->kecamatan;
+        $this->province = $user->province ?: optional($reg)->province;
+        $this->religion = $user->religion ?: optional($reg)->religion;
+        $this->marital_status = $user->marital_status ?: optional($reg)->marital_status;
+        $this->occupation = $user->occupation ?: optional($reg)->occupation;
+
+        $this->isManualKecamatan = false;
+        $this->isManualKelurahan = false;
 
         $this->syncCascadeData();
 
@@ -417,9 +489,19 @@ class Users extends Component
                             }
                             if ($villApi) {
                                 $this->selectedVillageCode = $villApi['code'];
+                            } else {
+                                $this->isManualKelurahan = true;
                             }
+                        } elseif (! empty($this->kelurahan)) {
+                            $this->isManualKelurahan = true;
                         }
+                    } else {
+                        $this->isManualKecamatan = true;
+                        $this->isManualKelurahan = true;
                     }
+                } elseif (! empty($this->kecamatan)) {
+                    $this->isManualKecamatan = true;
+                    $this->isManualKelurahan = true;
                 }
             }
         }
@@ -584,11 +666,11 @@ class Users extends Component
             'date_of_birth' => $isEdit ? "nullable|date|before_or_equal:{$minAgeDate}" : "required|date|before_or_equal:{$minAgeDate}",
             'gender' => $isEdit ? 'nullable|in:Laki-laki,Perempuan' : 'required|in:Laki-laki,Perempuan',
             'address' => $isEdit ? 'nullable|string|max:1000' : 'required|string|max:1000',
-            'kelurahan' => $isEdit ? 'nullable|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/' : 'required|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/',
-            'kecamatan' => $isEdit ? 'nullable|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/' : 'required|string|max:100|regex:/^[a-zA-Z\s\.\,\'\-]+$/',
+            'kelurahan' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
+            'kecamatan' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
             'province' => $isEdit ? 'nullable|string|max:100' : 'required|string|max:100',
-            'rt' => 'nullable|string|max:3|regex:/^[0-9]+$/',
-            'rw' => 'nullable|string|max:3|regex:/^[0-9]+$/',
+            'rt' => 'nullable|string|max:5|regex:/^[0-9]+$/',
+            'rw' => 'nullable|string|max:5|regex:/^[0-9]+$/',
             'religion' => 'nullable|string|max:50',
             'marital_status' => 'nullable|string|max:50',
             'occupation' => 'nullable|string|max:150',
@@ -611,7 +693,7 @@ class Users extends Component
             'phone.regex' => 'Nomor HP hanya boleh berisi angka.',
             'nik.required' => 'NIK wajib diisi.',
             'nik.size' => 'NIK harus 16 digit angka.',
-            'nik.regex' => 'NIK hanya boleh berisi angka.',
+            'nik.regex' => 'NIK hanya boleh berupa angka.',
             'nik.unique' => 'NIK sudah digunakan oleh pengguna lain.',
             'place_of_birth.required' => 'Tempat lahir wajib diisi.',
             'place_of_birth.regex' => 'Tempat lahir hanya boleh berisi huruf dan spasi.',
@@ -621,9 +703,7 @@ class Users extends Component
             'city_id.required' => 'Kota domisili wajib dipilih.',
             'address.required' => 'Alamat lengkap wajib diisi.',
             'kelurahan.required' => 'Kelurahan / Desa wajib diisi.',
-            'kelurahan.regex' => 'Kelurahan / Desa hanya boleh berisi huruf.',
             'kecamatan.required' => 'Kecamatan wajib diisi.',
-            'kecamatan.regex' => 'Kecamatan hanya boleh berisi huruf.',
             'province.required' => 'Provinsi wajib diisi.',
             'verified.required' => 'Status verifikasi wajib dipilih.',
             'verified.boolean' => 'Format status verifikasi tidak valid.',
@@ -633,6 +713,8 @@ class Users extends Component
 
         $this->validate($rules, $messages);
 
+        $selectedCityModel = City::find($this->city_id);
+
         $data = [
             'name' => $this->name,
             'email' => $this->email,
@@ -641,6 +723,7 @@ class Users extends Component
             'status' => $isEdit ? ($this->status ?: 'active') : 'active',
             'verified' => filter_var($this->verified, FILTER_VALIDATE_BOOLEAN),
             'city_id' => $this->city_id,
+            'city' => $selectedCityModel ? $selectedCityModel->name : null,
             'address' => $this->address,
             'nik' => $this->nik,
             'place_of_birth' => $this->place_of_birth,
@@ -650,7 +733,7 @@ class Users extends Component
             'rw' => $this->rw,
             'kelurahan' => $this->kelurahan,
             'kecamatan' => $this->kecamatan,
-            'province' => $this->province,
+            'province' => $this->province ?: ($selectedCityModel ? $selectedCityModel->province : null),
             'religion' => $this->religion,
             'marital_status' => $this->marital_status,
             'occupation' => $this->occupation,

@@ -29,6 +29,14 @@ class EnsureAdmin
 
         // Only for admin role (not super_admin)
         if ($user->role !== 'admin') {
+            if ($user->role === 'super_admin') {
+                return redirect()->route('superadmin.dashboard');
+            } elseif ($user->role === 'mitra') {
+                return redirect()->route('mitra.dashboard');
+            } elseif (in_array($user->role, ['customer', 'kustomer'])) {
+                return redirect()->route('customer.dashboard');
+            }
+
             abort(403, 'Unauthorized. Admin access only.');
         }
 

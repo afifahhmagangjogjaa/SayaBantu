@@ -20,6 +20,30 @@ trait HasOrderQuota
         return $this->getMitraHelpsCount();
     }
 
+    public function getOngoingOrdersCount(): int
+    {
+        $inProgressStatuses = [
+            'memperoleh_mitra',
+            'taken',
+            'partner_on_the_way',
+            'partner_arrived',
+            'in_progress',
+            'sedang_diproses',
+            'partner_cancel_requested',
+            'diproses_mitra',
+            'waiting_customer_confirmation',
+        ];
+
+        return $this->takenHelps()
+            ->whereIn('status', $inProgressStatuses)
+            ->count();
+    }
+
+    public function hasActiveOngoingOrder(): bool
+    {
+        return $this->getOngoingOrdersCount() >= 1;
+    }
+
     public function getMaxActiveOrdersLimit(): int
     {
         return $this->hasVerifiedEmail() ? 999 : 2;
@@ -27,6 +51,10 @@ trait HasOrderQuota
 
     public function canTakeMoreOrders(): bool
     {
+        if ($this->hasActiveOngoingOrder()) {
+            return false;
+        }
+
         return $this->getMitraHelpsCount() < $this->getMaxActiveOrdersLimit();
     }
 
@@ -45,6 +73,10 @@ trait HasOrderQuota
 
         if (! $this->verified) {
             return 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi selesai sebelum dapat mengambil bantuan.';
+        }
+
+        if ($this->hasActiveOngoingOrder()) {
+            return 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.';
         }
 
         if (! $this->canTakeMoreOrders()) {

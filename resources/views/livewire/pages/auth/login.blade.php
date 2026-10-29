@@ -33,21 +33,50 @@ new #[Layout('layouts.guest')] class extends Component {
 
         Session::regenerate();
 
-        $user = auth()->user();
+        $this->redirectForUser(auth()->user());
+    }
 
+    /**
+     * Validasi intended URL berdasarkan role pengguna sebelum redirect.
+     */
+    private function redirectForUser($user): void
+    {
         if ($user->role === 'mitra') {
-            $redirect = route('mitra.dashboard', absolute: false);
-        } elseif ($user->role === 'kustomer' || $user->role === 'customer') {
-            $redirect = route('customer.dashboard', absolute: false);
+            $default = route('mitra.dashboard', absolute: false);
+        } elseif (in_array($user->role, ['customer', 'kustomer'])) {
+            $default = route('customer.dashboard', absolute: false);
         } elseif ($user->role === 'admin') {
-            $redirect = route('admin.dashboard', absolute: false);
+            $default = route('admin.dashboard', absolute: false);
         } elseif ($user->role === 'super_admin') {
-            $redirect = route('superadmin.dashboard', absolute: false);
+            $default = route('superadmin.dashboard', absolute: false);
         } else {
-            $redirect = route('dashboard', absolute: false);
+            $default = route('dashboard', absolute: false);
         }
 
-        $this->redirectIntended(default: $redirect, navigate: false);
+        $intended = session()->get('url.intended');
+        $validIntended = false;
+
+        if ($intended) {
+            $path = parse_url($intended, PHP_URL_PATH) ?? '';
+            if ($user->role === 'super_admin') {
+                $validIntended = str_starts_with($path, '/superadmin');
+            } elseif ($user->role === 'admin') {
+                $validIntended = str_starts_with($path, '/admin') && !str_starts_with($path, '/admin/superadmin');
+            } elseif ($user->role === 'mitra') {
+                $validIntended = str_starts_with($path, '/mitra');
+            } elseif (in_array($user->role, ['customer', 'kustomer'])) {
+                $validIntended = !str_starts_with($path, '/superadmin') 
+                              && !str_starts_with($path, '/admin') 
+                              && !str_starts_with($path, '/mitra');
+            }
+        }
+
+        if (! $validIntended) {
+            session()->forget('url.intended');
+            $this->redirect($default, navigate: false);
+        } else {
+            $this->redirectIntended(default: $default, navigate: false);
+        }
     }
 
     /**
@@ -76,19 +105,7 @@ new #[Layout('layouts.guest')] class extends Component {
         Auth::login($user, false);
         Session::regenerate();
 
-        if ($user->role === 'mitra') {
-            $redirect = route('mitra.dashboard', absolute: false);
-        } elseif (in_array($user->role, ['customer', 'kustomer'])) {
-            $redirect = route('customer.dashboard', absolute: false);
-        } elseif ($user->role === 'admin') {
-            $redirect = route('admin.dashboard', absolute: false);
-        } elseif ($user->role === 'super_admin') {
-            $redirect = route('superadmin.dashboard', absolute: false);
-        } else {
-            $redirect = route('dashboard', absolute: false);
-        }
-
-        $this->redirectIntended(default: $redirect, navigate: false);
+        $this->redirectForUser($user);
     }
 }; ?>
 

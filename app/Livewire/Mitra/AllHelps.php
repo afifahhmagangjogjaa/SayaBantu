@@ -107,35 +107,58 @@ class AllHelps extends Component
 
         $maxRadius = (float) \App\Models\AppSetting::get('mitra_max_distance_km', \App\Models\AppSetting::get('max_help_radius_km', 10));
 
+        $needsCity = false;
         if ($effectiveLat && $effectiveLng) {
             $lat = (float) $effectiveLat;
             $lng = (float) $effectiveLng;
             $haversine = "(6371 * acos(least(1.0, greatest(-1.0, cos(radians($lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians($lng)) + sin(radians($lat)) * sin(radians(latitude))))))";
 
-            $query->select('helps.*', \Illuminate\Support\Facades\DB::raw("$haversine AS distance"))
-                ->whereNotNull('helps.latitude')
-                ->whereNotNull('helps.longitude')
-                ->whereRaw("$haversine <= ?", [$maxRadius]);
+            $query->select('helps.*', \Illuminate\Support\Facades\DB::raw("$haversine AS distance"));
+
+            if ($isMitraShadowBanned) {
+                $query->whereRaw('1 = 0');
+            } else {
+                $query->where(function ($q) use ($haversine, $maxRadius, $user) {
+                    $q->where(function ($sub) use ($haversine, $maxRadius) {
+                        $sub->whereNotNull('helps.latitude')
+                            ->whereNotNull('helps.longitude')
+                            ->whereRaw("$haversine <= ?", [$maxRadius]);
+                    });
+
+                    if ($user && ! empty($user->city_id)) {
+                        $q->orWhere(function ($sub) use ($user) {
+                            $sub->where(function ($noCoord) {
+                                $noCoord->whereNull('helps.latitude')
+                                    ->orWhereNull('helps.longitude');
+                            })->inMitraCity($user);
+                        });
+                    }
+                });
+            }
         } else {
             $query->select('helps.*');
-        }
-
-        $needsCity = false;
-        if ($isMitraShadowBanned) {
-            $query->whereRaw('1 = 0');
-        } elseif ($user) {
-            if (! empty($user->city_id)) {
-                $query->inMitraCity($user);
-            } else {
-                // Mitra belum memilih kota — return empty result set and notify view
-                $needsCity = true;
+            if ($isMitraShadowBanned) {
+                $query->whereRaw('1 = 0');
+            } elseif ($user) {
+                if (! empty($user->city_id)) {
+                    $query->inMitraCity($user);
+                } else {
+                    $needsCity = true;
+                }
             }
         }
 
         // Filter berdasarkan tab (Gambar 1: Semua, Tersedia, Dalam Proses, Selesai)
         $inProgressStatuses = [
-            'taken', 'partner_on_the_way', 'partner_arrived', 'in_progress',
-            'sedang_diproses', 'diproses_mitra', 'waiting_customer_confirmation',
+            'memperoleh_mitra',
+            'taken',
+            'partner_on_the_way',
+            'partner_arrived',
+            'in_progress',
+            'sedang_diproses',
+            'partner_cancel_requested',
+            'diproses_mitra',
+            'waiting_customer_confirmation',
         ];
 
         if ($this->tab === 'tersedia') {
@@ -234,6 +257,13 @@ class AllHelps extends Component
         // Cek apakah mitra sedang terkena shadow ban
         if ($user && $user->isShadowBanned()) {
             $this->dispatch('livewire-flash-error', 'Tidak dapat mengambil bantuan saat ini.');
+
+            return;
+        }
+
+        // Cek apakah mitra sedang memiliki order aktif yang belum selesai
+        if ($user && $user->hasActiveOngoingOrder()) {
+            $this->dispatch('livewire-flash-error', 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.');
 
             return;
         }

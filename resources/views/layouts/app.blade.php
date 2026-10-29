@@ -10,9 +10,19 @@
 
     <!-- PWA & Favicon Settings -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    @php
+        $dynamicAppIcon = \App\Models\AppSetting::get('app_icon');
+        $dynamicAppIconUrl = $dynamicAppIcon && \Illuminate\Support\Facades\Storage::disk('public')->exists($dynamicAppIcon) ? asset('storage/' . $dynamicAppIcon) : null;
+    @endphp
+    @if($dynamicAppIconUrl)
+        <link rel="icon" href="{{ $dynamicAppIconUrl }}">
+        <link rel="apple-touch-icon" href="{{ $dynamicAppIconUrl }}">
+    @else
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('icons/icon.svg') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    @endif
     <meta name="theme-color" content="#0284c7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -246,7 +256,7 @@
                 </script>
             @endif
             <!-- Content: responsive bottom padding adapting to safe area -->
-            <main class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
+            <main class="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
                 @if($__env->hasSection('content'))
                     @yield('content')
                 @else
@@ -1019,7 +1029,7 @@
     <!-- PWA Service Worker & Install Banner -->
     <div id="pwa-install-banner" class="hidden fixed bottom-20 left-4 right-4 max-w-sm mx-auto bg-gray-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-gray-700/80 z-[99999] flex items-center justify-between gap-3 animate-slide-up">
         <div class="flex items-center gap-2.5 min-w-0">
-            <img src="/icons/icon-192x192.png" alt="SayaBantu" class="w-9 h-9 rounded-xl shadow-xs shrink-0">
+            <img src="{{ $dynamicAppIconUrl ?: '/icons/icon-192x192.png' }}" alt="SayaBantu" class="w-9 h-9 rounded-xl shadow-xs shrink-0 object-contain bg-white">
             <div class="min-w-0">
                 <h4 class="text-xs font-bold text-white leading-tight line-clamp-2">Pasang Aplikasi SayaBantu</h4>
                 <p class="text-[11px] text-gray-300 leading-tight mt-0.5 hidden min-[360px]:block">Akses cepat & instan di HP Anda</p>

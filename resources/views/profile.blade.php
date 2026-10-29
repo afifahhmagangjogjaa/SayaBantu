@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="title">Profil</x-slot>
 
-    <div class="min-h-screen bg-slate-50/60 pb-28">
+    <div class="bg-slate-50/60 pb-2">
         @php
             $user = auth()->user() ? auth()->user()->fresh() : null;
             $userBalance = \App\Models\UserBalance::where('user_id', optional($user)->id)->first();
@@ -281,7 +281,7 @@
                 </div>
 
                 <!-- Tombol Keluar (Outlined Pill Button) -->
-                <div class="mt-8 mb-4">
+                <div class="mt-4 mb-2">
                     <button type="button" 
                             onclick="document.getElementById('logout-modal').classList.remove('hidden')" 
                             class="w-full py-3.5 px-6 rounded-2xl border-1.5 border-[#0066FF] text-[#0066FF] font-bold text-sm text-center hover:bg-blue-50/80 active:scale-[0.99] transition cursor-pointer bg-white shadow-2xs">

@@ -109,6 +109,8 @@ Route::match(['get', 'post'], 'logout', function (\Illuminate\Http\Request $requ
     if (Auth::check()) {
         Auth::logout();
     }
+    $request->session()->forget(['url.intended', 'oauth_intended_role']);
+    $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
@@ -136,6 +138,8 @@ Route::match(['get', 'post'], 'admin/logout', function (\Illuminate\Http\Request
     if (Auth::check()) {
         Auth::logout();
     }
+    $request->session()->forget(['url.intended', 'oauth_intended_role']);
+    $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
