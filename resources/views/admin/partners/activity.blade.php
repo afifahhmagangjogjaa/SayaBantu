@@ -170,7 +170,7 @@
                     @endif
                     <div class="flex items-center space-x-2">
                         @if (!$activities->isEmpty())
-                            <form action="{{ route('admin.partners.activity.destroy_all') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus SELURUH riwayat aktivitas? Tindakan ini tidak dapat dibatalkan.');" class="inline">
+                            <form action="{{ route('admin.partners.activity.destroy_all') }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus SELURUH riwayat aktivitas? Tindakan ini tidak dapat dibatalkan." data-confirm-danger="true" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
@@ -322,7 +322,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                                 </svg>
                                             </a>
-                                            <form action="{{ route('admin.partners.activity.destroy', $a->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus log aktivitas ini?');" class="inline">
+                                            <form action="{{ route('admin.partners.activity.destroy', $a->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus log aktivitas ini?" data-confirm-danger="true" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer" title="Hapus Log">

@@ -233,7 +233,7 @@
                                             Proses
                                         </button>
                                         @if($item->status !== 'pending')
-                                            <form action="{{ route('superadmin.withdraws.destroy', $item) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data riwayat withdraw ini?');" class="inline">
+                                            <form action="{{ route('superadmin.withdraws.destroy', $item) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data riwayat withdraw ini?" data-confirm-danger="true" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" title="Hapus Riwayat Ini"
@@ -318,7 +318,7 @@
 
                 <!-- Konten Mode Bulanan -->
                 <div x-show="deleteMode === 'monthly'" class="space-y-4">
-                    <form action="{{ route('superadmin.withdraws.destroy_period') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data riwayat withdraw pada bulan terpilih? Tindakan ini tidak dapat dibatalkan.');" class="space-y-4">
+                    <form action="{{ route('superadmin.withdraws.destroy_period') }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data riwayat withdraw pada bulan terpilih? Tindakan ini tidak dapat dibatalkan." data-confirm-danger="true" class="space-y-4">
                         @csrf
                         @method('DELETE')
 
@@ -370,7 +370,7 @@
 
                 <!-- Konten Mode Tahunan -->
                 <div x-show="deleteMode === 'yearly'" style="display: none;" class="space-y-4">
-                    <form action="{{ route('superadmin.withdraws.destroy_period') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus SELURUH riwayat withdraw pada tahun terpilih? Tindakan ini tidak dapat dibatalkan.');" class="space-y-4">
+                    <form action="{{ route('superadmin.withdraws.destroy_period') }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus SELURUH riwayat withdraw pada tahun terpilih? Tindakan ini tidak dapat dibatalkan." data-confirm-danger="true" class="space-y-4">
                         @csrf
                         @method('DELETE')
                         <input type="hidden" name="month" value="all">
@@ -405,7 +405,7 @@
 
                 <!-- Konten Mode Hapus Semua -->
                 <div x-show="deleteMode === 'all'" style="display: none;" class="space-y-4">
-                    <form action="{{ route('superadmin.withdraws.destroy_all') }}" method="POST" onsubmit="return confirm('PERINGATAN EKSTREM: Apakah Anda yakin ingin menghapus SEMUA riwayat withdraw selesai/gagal tanpa terkecuali?');" class="space-y-4">
+                    <form action="{{ route('superadmin.withdraws.destroy_all') }}" method="POST" data-confirm="PERINGATAN EKSTREM: Apakah Anda yakin ingin menghapus SEMUA riwayat withdraw selesai/gagal tanpa terkecuali?" data-confirm-danger="true" class="space-y-4">
                         @csrf
                         @method('DELETE')
 

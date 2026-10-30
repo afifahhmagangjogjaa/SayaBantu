@@ -104,7 +104,7 @@ document.addEventListener('click', function(e) {
 
     e.preventDefault();
     const msg = el.getAttribute('data-confirm') || 'Apakah Anda yakin?';
-    const isDanger = el.getAttribute('data-confirm-danger') === 'true' || el.classList.contains('text-red-600') || el.classList.contains('bg-red-600');
+    const isDanger = el.getAttribute('data-confirm-danger') === 'true' || el.classList.contains('text-red-600') || el.classList.contains('bg-red-600') || el.classList.contains('bg-rose-600');
 
     window.sbConfirm({
         title: 'Konfirmasi',
@@ -116,6 +116,7 @@ document.addEventListener('click', function(e) {
             if (el.tagName === 'A' && el.href) {
                 window.location.href = el.href;
             } else if (el.form) {
+                el.form.__sbConfirmed = true;
                 el.form.submit();
             } else {
                 el.removeAttribute('data-confirm');
@@ -124,4 +125,70 @@ document.addEventListener('click', function(e) {
         }
     });
 });
+
+// Global listener for forms with data-confirm
+document.addEventListener('submit', function(e) {
+    const form = e.target;
+    if (form.__sbConfirmed) {
+        delete form.__sbConfirmed;
+        return;
+    }
+
+    const confirmMsg = form.getAttribute('data-confirm');
+    if (confirmMsg) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const isDanger = form.getAttribute('data-confirm-danger') === 'true' ||
+            form.querySelector('.bg-red-600, .text-red-600, .bg-rose-600') !== null ||
+            /hapus|delete|sanksi|nonaktif|keluar/i.test(confirmMsg);
+
+        window.sbConfirm({
+            title: 'Konfirmasi',
+            text: confirmMsg,
+            isDanger: isDanger,
+            confirmButtonText: form.getAttribute('data-confirm-btn') || 'Ya, Lanjutkan'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.__sbConfirmed = true;
+                form.submit();
+            }
+        });
+    }
+}, true);
+
+// Otomatis ubah onsubmit/onclick confirm bawaan browser menjadi modal modern SayaBantu
+function convertLegacyBrowserAlerts() {
+    document.querySelectorAll('form[onsubmit*="confirm("]').forEach(function(form) {
+        const onsubmitStr = form.getAttribute('onsubmit') || '';
+        const match = onsubmitStr.match(/confirm\s*\(\s*['"`](.*?)['"`]\s*\)/);
+        if (match && match[1]) {
+            form.removeAttribute('onsubmit');
+            form.setAttribute('data-confirm', match[1]);
+            if (/hapus|delete|sanksi|nonaktif|keluar|ekstrem/i.test(match[1])) {
+                form.setAttribute('data-confirm-danger', 'true');
+            }
+        }
+    });
+
+    document.querySelectorAll('[onclick*="confirm("]').forEach(function(el) {
+        const onclickStr = el.getAttribute('onclick') || '';
+        const match = onclickStr.match(/confirm\s*\(\s*['"`](.*?)['"`]\s*\)/);
+        if (match && match[1]) {
+            el.removeAttribute('onclick');
+            el.setAttribute('data-confirm', match[1]);
+            if (/hapus|delete|sanksi|nonaktif|keluar|ekstrem/i.test(match[1])) {
+                el.setAttribute('data-confirm-danger', 'true');
+            }
+        }
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', convertLegacyBrowserAlerts);
+} else {
+    convertLegacyBrowserAlerts();
+}
+document.addEventListener('livewire:navigated', convertLegacyBrowserAlerts);
+document.addEventListener('livewire:init', convertLegacyBrowserAlerts);
 

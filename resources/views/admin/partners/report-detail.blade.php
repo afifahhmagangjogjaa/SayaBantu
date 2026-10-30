@@ -503,7 +503,7 @@
                         </div>
                         <p class="text-xs text-gray-500 mb-4">Berikan Surat Peringatan (SP 1 - 3). Akun dengan SP 3 akan otomatis diblokir/banned dari sistem.</p>
 
-                        <form method="POST" action="{{ route('admin.partners.reports.sanction', $report) }}" onsubmit="return confirm('Apakah Anda yakin ingin memproses sanksi ini?');">
+                        <form method="POST" action="{{ route('admin.partners.reports.sanction', $report) }}" data-confirm="Apakah Anda yakin ingin memproses sanksi ini?" data-confirm-danger="true">
                             @csrf
                             <div class="space-y-3">
                                 <div>

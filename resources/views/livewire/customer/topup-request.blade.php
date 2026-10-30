@@ -444,7 +444,7 @@
                                             <p class="text-xs text-gray-500">a.n. {{ $bank['account_name'] }}</p>
                                         </div>
                                         <button type="button" 
-                                            onclick="navigator.clipboard.writeText('{{ $bank['account_number'] }}'); (window.sbToast ? window.sbToast('Nomor rekening {{ $bank['name'] }} disalin!', 'success') : alert('Nomor rekening disalin!'))"
+                                            onclick="navigator.clipboard.writeText('{{ $bank['account_number'] }}'); if (window.sbToast) { window.sbToast('Nomor rekening {{ $bank['name'] }} berhasil disalin!', 'success'); }"
                                             class="px-3 py-1.5 text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition active:scale-95 cursor-pointer">
                                             📋 Salin
                                         </button>

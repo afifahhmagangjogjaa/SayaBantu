@@ -224,7 +224,8 @@
                                                     <button type="submit"
                                                         class="inline-flex items-center gap-1 cursor-pointer focus:outline-none transition group"
                                                         title="{{ $isUserActive ? 'Status: Aktif — Klik untuk nonaktifkan' : 'Status: Nonaktif — Klik untuk aktifkan' }}"
-                                                        onclick="return confirm('Apakah Anda yakin ingin {{ $isUserActive ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?');">
+                                                        data-confirm="Apakah Anda yakin ingin {{ $isUserActive ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?"
+                                                        data-confirm-danger="{{ $isUserActive ? 'true' : 'false' }}">
                                                         <span class="px-2 py-0.5 inline-flex items-center gap-1 text-xs font-semibold rounded-full border transition {{ $isUserActive ? 'bg-green-50 text-green-700 border-green-200 group-hover:bg-green-100' : 'bg-yellow-50 text-yellow-700 border-yellow-200 group-hover:bg-yellow-100' }}">
                                                             <span class="w-1.5 h-1.5 rounded-full {{ $isUserActive ? 'bg-green-600' : 'bg-yellow-500' }}"></span>
                                                             <span>{{ $isUserActive ? 'Aktif' : 'Nonaktif' }}</span>

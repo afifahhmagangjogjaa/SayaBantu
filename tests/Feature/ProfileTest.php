@@ -60,14 +60,13 @@ class ProfileTest extends TestCase
 
     public function test_profile_information_can_be_updated(): void
     {
-        $user = $this->user();
+        $user = $this->user(['nik' => '3402123456780001']);
         $city = City::create(['name' => 'Kota Test', 'is_active' => true]);
 
         $this->actingAs($user);
 
         Livewire::test(UpdateProfileInformationForm::class)
             ->set('name', 'Nama Baru')
-            ->set('nik', '3402123456780001')
             ->set('phone', '081234567890')
             ->set('city_id', $city->id)
             ->set('address', 'Jl. Contoh No. 1')
@@ -83,26 +82,25 @@ class ProfileTest extends TestCase
         $this->assertSame($city->id, $user->city_id);
     }
 
-    public function test_nik_used_by_another_account_is_rejected(): void
+    public function test_nik_cannot_be_changed_via_profile_update(): void
     {
         $city = City::create(['name' => 'Kota Test', 'is_active' => true]);
-        $other = $this->user(['email' => 'lain@example.test', 'nik' => '3402123456780009']);
-
-        $user = $this->user(['email' => 'saya@example.test']);
+        $originalNik = '3402123456780001';
+        $user = $this->user(['email' => 'saya@example.test', 'nik' => $originalNik]);
         $this->actingAs($user);
 
         Livewire::test(UpdateProfileInformationForm::class)
             ->set('name', 'Nama Baru')
-            ->set('nik', '3402123456780009')
+            ->set('nik', '3402999999999999')
             ->set('phone', '081234567890')
             ->set('city_id', $city->id)
             ->set('address', 'Jl. Contoh No. 1')
             ->set('gender', 'Laki-laki')
             ->call('updateProfileInformation')
-            ->assertHasErrors('nik');
+            ->assertHasNoErrors();
 
-        $this->assertSame('3402123456780009', $other->fresh()->nik);
-        $this->assertNotSame('3402123456780009', $user->fresh()->nik);
+        // NIK harus tetap sama dengan NIK awal pengguna (terkunci)
+        $this->assertSame($originalNik, $user->fresh()->nik);
     }
 
     public function test_user_can_delete_their_account(): void

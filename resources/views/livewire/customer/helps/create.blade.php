@@ -1277,7 +1277,7 @@
                                                     <div style="display: flex; align-items: center; justify-content: space-between;">
                                                         <span style="font-weight: 800; color: #0f172a; font-size: 12px;">{{ $bank['name'] }}</span>
                                                         <button type="button" 
-                                                            onclick="event.stopPropagation(); navigator.clipboard.writeText('{{ $bank['account_number'] }}'); (window.sbToast ? window.sbToast('Nomor rekening {{ $bank['name'] }} berhasil disalin!', 'success') : alert('Nomor rekening {{ $bank['name'] }} ({{ $bank['account_number'] }}) berhasil disalin!'));"
+                                                            onclick="event.stopPropagation(); navigator.clipboard.writeText('{{ $bank['account_number'] }}'); if (window.sbToast) { window.sbToast('Nomor rekening {{ $bank['name'] }} berhasil disalin!', 'success'); }"
                                                             style="padding: 2px 6px; font-size: 10px; font-weight: 700; background: #e2e8f0; color: #0369a1; border-radius: 4px; border: none; cursor: pointer;">
                                                             📋 Salin
                                                         </button>

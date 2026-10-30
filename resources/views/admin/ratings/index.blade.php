@@ -178,53 +178,71 @@
                     var confirmMsg = isBanned 
                         ? 'Apakah Anda yakin ingin melepaskan status Shadow Ban untuk ' + userName + '?' 
                         : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada ' + userName + '? Pengguna tidak akan menerima/melihat pesanan baru secara senyap.';
-                    if (!confirm(confirmMsg)) return;
+                    var doToggle = function() {
+                        var url = btn.getAttribute('data-url');
+                        var btnText = btn.querySelector('#shadow-ban-btn-text');
+                        btn.disabled = true;
+                        btn.classList.add('opacity-70');
 
-                    var url = btn.getAttribute('data-url');
-                    var btnText = btn.querySelector('#shadow-ban-btn-text');
-                    btn.disabled = true;
-                    btn.classList.add('opacity-70');
-
-                    fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '{{ csrf_token() }}'
-                        }
-                    })
-                    .then(function(res){ return res.json(); })
-                    .then(function(data){
-                        btn.disabled = false;
-                        btn.classList.remove('opacity-70');
-                        if (data && data.success) {
-                            btn.setAttribute('data-is-banned', data.is_shadow_banned ? '1' : '0');
-                            if (data.is_shadow_banned) {
-                                btn.style.backgroundColor = '#7e22ce';
-                                btn.style.color = '#ffffff';
-                                btn.style.borderColor = '#6b21a8';
-                                if (btnText) {
-                                    btnText.textContent = 'Shadow Banned (Aktif)';
-                                    btnText.style.color = '#ffffff';
-                                }
-                                btn.title = 'Klik untuk melepaskan Shadow Ban';
-                            } else {
-                                btn.style.backgroundColor = '#ffffff';
-                                btn.style.color = '#374151';
-                                btn.style.borderColor = '#d1d5db';
-                                if (btnText) {
-                                    btnText.textContent = 'Shadow Ban';
-                                    btnText.style.color = '#374151';
-                                }
-                                btn.title = 'Aktifkan Shadow Ban (order/bantuan tidak akan masuk/tampil)';
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '{{ csrf_token() }}'
                             }
-                        }
-                    })
-                    .catch(function(err){
-                        btn.disabled = false;
-                        btn.classList.remove('opacity-70');
-                        console.error('Shadow ban error:', err);
-                        alert('Gagal mengubah status shadow ban.');
-                    });
+                        })
+                        .then(function(res){ return res.json(); })
+                        .then(function(data){
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-70');
+                            if (data && data.success) {
+                                btn.setAttribute('data-is-banned', data.is_shadow_banned ? '1' : '0');
+                                if (data.is_shadow_banned) {
+                                    btn.style.backgroundColor = '#7e22ce';
+                                    btn.style.color = '#ffffff';
+                                    btn.style.borderColor = '#6b21a8';
+                                    if (btnText) {
+                                        btnText.textContent = 'Shadow Banned (Aktif)';
+                                        btnText.style.color = '#ffffff';
+                                    }
+                                    btn.title = 'Klik untuk melepaskan Shadow Ban';
+                                } else {
+                                    btn.style.backgroundColor = '#ffffff';
+                                    btn.style.color = '#374151';
+                                    btn.style.borderColor = '#d1d5db';
+                                    if (btnText) {
+                                        btnText.textContent = 'Shadow Ban';
+                                        btnText.style.color = '#374151';
+                                    }
+                                    btn.title = 'Aktifkan Shadow Ban (order/bantuan tidak akan masuk/tampil)';
+                                }
+                                if (window.sbToast) {
+                                    window.sbToast(data.message || 'Status shadow ban berhasil diubah.', 'success');
+                                }
+                            }
+                        })
+                        .catch(function(err){
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-70');
+                            console.error('Shadow ban error:', err);
+                            if (window.sbToast) {
+                                window.sbToast('Gagal mengubah status shadow ban.', 'error');
+                            }
+                        });
+                    };
+
+                    if (window.sbConfirm) {
+                        window.sbConfirm({
+                            title: 'Konfirmasi Shadow Ban',
+                            text: confirmMsg,
+                            isDanger: !isBanned,
+                            confirmButtonText: isBanned ? 'Ya, Lepaskan' : 'Ya, Aktifkan'
+                        }).then(function(res){
+                            if (res.isConfirmed) doToggle();
+                        });
+                    } else {
+                        doToggle();
+                    }
                 });
             }
 
@@ -303,7 +321,9 @@
                 })
                 .catch(function(err){
                     console.error('Failed to load modal:', err);
-                    alert('Gagal memuat detail ulasan. Coba lagi.');
+                    if (window.sbToast) {
+                        window.sbToast('Gagal memuat detail ulasan. Coba lagi.', 'error');
+                    }
                 });
         }
 
