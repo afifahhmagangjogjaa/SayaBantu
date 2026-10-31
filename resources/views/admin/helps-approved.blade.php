@@ -2,28 +2,63 @@
         @isset($totalHelps)
         <!-- Stats Cards for Index -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                <p class="text-xs font-medium text-gray-500">Total Bantuan</p>
-                <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format($totalHelps) }}</p>
-                <p class="text-[10px] text-gray-400 mt-0.5">Dari kota yang Anda kelola</p>
-            </div>
-            <div class="bg-amber-50 p-5 rounded-2xl shadow-sm border border-amber-200">
-                <p class="text-xs font-medium text-amber-700">Menunggu Mitra</p>
-                <p class="text-2xl font-bold text-amber-900 mt-1">{{ number_format($waitingMitraHelps) }}</p>
-                <p class="text-[10px] text-amber-500 mt-0.5">Belum ada mitra yang mengambil</p>
-            </div>
-            <div class="bg-red-50 p-5 rounded-2xl shadow-sm border border-red-200 cursor-pointer hover:border-red-300 transition" wire:click="$set('statusFilter', 'komplain')">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs font-medium text-red-700">Komplain / Mediasi</p>
-                    <span class="w-2 h-2 rounded-full {{ ($complaintHelps ?? 0) > 0 ? 'bg-red-500 animate-pulse' : 'bg-gray-300' }}"></span>
+            <!-- 1. Total Bantuan -->
+            <div class="bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 p-4 sm:p-5 rounded-2xl border border-blue-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-blue-900/70">Total Bantuan</span>
+                    <h3 class="text-2xl font-black text-gray-900 mt-1">{{ number_format($totalHelps) }}</h3>
+                    <p class="text-[11px] text-blue-600/80 mt-0.5">Dari kota yang Anda kelola</p>
                 </div>
-                <p class="text-2xl font-bold text-red-900 mt-1">{{ number_format($complaintHelps ?? 0) }}</p>
-                <p class="text-[10px] text-red-500 mt-0.5">Perlu keputusan / mediasi admin</p>
+                <div class="w-11 h-11 rounded-xl bg-blue-100 text-[#0066FF] border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
             </div>
-            <div class="bg-green-50 p-5 rounded-2xl shadow-sm border border-green-200">
-                <p class="text-xs font-medium text-green-700">Selesai</p>
-                <p class="text-2xl font-bold text-green-900 mt-1">{{ number_format($completedHelps) }}</p>
-                <p class="text-[10px] text-green-600 mt-0.5">Pekerjaan telah diselesaikan</p>
+
+            <!-- 2. Menunggu Mitra -->
+            <div class="bg-gradient-to-br from-amber-50/80 via-white to-amber-50/30 p-4 sm:p-5 rounded-2xl border border-amber-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-amber-900/70">Menunggu Mitra</span>
+                    <h3 class="text-2xl font-black text-amber-700 mt-1">{{ number_format($waitingMitraHelps) }}</h3>
+                    <p class="text-[11px] text-amber-600/80 mt-0.5">Belum ada mitra yang mengambil</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-600 border border-amber-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 3. Komplain / Mediasi -->
+            <div class="bg-gradient-to-br from-rose-50/80 via-white to-rose-50/30 p-4 sm:p-5 rounded-2xl border border-rose-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between cursor-pointer hover:border-rose-300" wire:click="$set('statusFilter', 'komplain')">
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-rose-900/70">Komplain / Mediasi</span>
+                        <span class="w-2 h-2 rounded-full {{ ($complaintHelps ?? 0) > 0 ? 'bg-rose-500 animate-pulse' : 'bg-gray-300' }}"></span>
+                    </div>
+                    <h3 class="text-2xl font-black text-rose-700 mt-1">{{ number_format($complaintHelps ?? 0) }}</h3>
+                    <p class="text-[11px] text-rose-600/80 mt-0.5">Perlu keputusan / mediasi admin</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-rose-100 text-rose-600 border border-rose-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 4. Selesai -->
+            <div class="bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 p-4 sm:p-5 rounded-2xl border border-emerald-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-emerald-900/70">Selesai</span>
+                    <h3 class="text-2xl font-black text-emerald-700 mt-1">{{ number_format($completedHelps) }}</h3>
+                    <p class="text-[11px] text-emerald-600/80 mt-0.5">Pekerjaan telah diselesaikan</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 border border-emerald-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
             </div>
         </div>
         @endisset

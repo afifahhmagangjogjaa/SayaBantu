@@ -10,11 +10,11 @@
 
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
-                    <button onclick="window.history.back()" aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-xl transition active:scale-95 cursor-pointer">
+                    <a href="{{ route('mitra.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-xl transition active:scale-95 cursor-pointer inline-flex items-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                         </svg>
-                    </button>
+                    </a>
 
                     <div class="text-center flex-1 px-2">
                         <h1 class="text-lg font-black text-white tracking-tight leading-tight">Penarikan Saldo</h1>

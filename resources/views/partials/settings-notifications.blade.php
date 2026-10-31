@@ -8,7 +8,7 @@
 
         <div class="relative z-10">
             <div class="flex items-center justify-between text-white mb-2">
-                <a href="javascript:history.back()" aria-label="Kembali" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-xl transition active:scale-95 text-white shrink-0 cursor-pointer">
+                <a href="{{ route($backRoute ?? (auth()->user()?->role === 'mitra' ? 'mitra.settings' : 'profile.settings')) }}" wire:navigate aria-label="Kembali ke Pengaturan" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-xl transition active:scale-95 text-white shrink-0 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                     </svg>

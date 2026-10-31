@@ -15,73 +15,73 @@
     <!-- Top Stat Cards (5 Cards) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5" style="gap: 20px;">
         <!-- 1. Total Pengguna -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-md transition-all duration-200 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center flex-shrink-0">
+        <div class="bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 rounded-2xl border border-blue-200/80 p-4 shadow-xs hover:shadow-md transition-all duration-200 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-blue-100 text-[#0066FF] border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                 </svg>
             </div>
             <div class="min-w-0 flex-1">
-                <div class="text-xs font-medium text-gray-500 truncate" title="Total Pengguna">Total Pengguna</div>
-                <div class="text-xl font-medium text-gray-900 leading-tight my-0.5">{{ number_format($stats['total_users'] ?? 0) }}</div>
-                <div class="text-xs text-gray-400 truncate">Semua akun</div>
+                <div class="text-xs font-semibold text-blue-900/70 truncate" title="Total Pengguna">Total Pengguna</div>
+                <div class="text-xl font-black text-gray-900 leading-tight my-0.5">{{ number_format($stats['total_users'] ?? 0) }}</div>
+                <div class="text-[11px] text-blue-600/70 font-medium truncate">Semua akun</div>
             </div>
         </div>
 
         <!-- 2. Customer -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-md transition-all duration-200 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center flex-shrink-0">
+        <div class="bg-gradient-to-br from-amber-50/80 via-white to-amber-50/30 rounded-2xl border border-amber-200/80 p-4 shadow-xs hover:shadow-md transition-all duration-200 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-600 border border-amber-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
             </div>
             <div class="min-w-0 flex-1">
-                <div class="text-xs font-medium text-gray-500 truncate" title="Customer">Customer</div>
-                <div class="text-xl font-medium text-gray-900 leading-tight my-0.5">{{ number_format($stats['total_customers'] ?? 0) }}</div>
-                <div class="text-xs text-gray-400 truncate">Total customer</div>
+                <div class="text-xs font-semibold text-amber-900/70 truncate" title="Customer">Customer</div>
+                <div class="text-xl font-black text-amber-700 leading-tight my-0.5">{{ number_format($stats['total_customers'] ?? 0) }}</div>
+                <div class="text-[11px] text-amber-600/70 font-medium truncate">Total customer</div>
             </div>
         </div>
 
         <!-- 3. Total Kota -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-md transition-all duration-200 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center flex-shrink-0">
+        <div class="bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 rounded-2xl border border-emerald-200/80 p-4 shadow-xs hover:shadow-md transition-all duration-200 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 border border-emerald-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </div>
             <div class="min-w-0 flex-1">
-                <div class="text-xs font-medium text-gray-500 truncate" title="Total Kota">Total Kota</div>
-                <div class="text-xl font-medium text-gray-900 leading-tight my-0.5">{{ number_format($stats['total_cities'] ?? 0) }}</div>
-                <div class="text-xs text-gray-400 truncate">Kota terdaftar</div>
+                <div class="text-xs font-semibold text-emerald-900/70 truncate" title="Total Kota">Total Kota</div>
+                <div class="text-xl font-black text-emerald-700 leading-tight my-0.5">{{ number_format($stats['total_cities'] ?? 0) }}</div>
+                <div class="text-[11px] text-emerald-600/70 font-medium truncate">Kota terdaftar</div>
             </div>
         </div>
 
         <!-- 4. Mitra -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-md transition-all duration-200 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center flex-shrink-0">
+        <div class="bg-gradient-to-br from-sky-50/80 via-white to-sky-50/30 rounded-2xl border border-sky-200/80 p-4 shadow-xs hover:shadow-md transition-all duration-200 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-sky-100 text-sky-600 border border-sky-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
             </div>
             <div class="min-w-0 flex-1">
-                <div class="text-xs font-medium text-gray-500 truncate" title="Mitra">Mitra</div>
-                <div class="text-xl font-medium text-gray-900 leading-tight my-0.5">{{ number_format($stats['total_mitras'] ?? 0) }}</div>
-                <div class="text-xs text-gray-400 truncate">Mitra aktif</div>
+                <div class="text-xs font-semibold text-sky-900/70 truncate" title="Mitra">Mitra</div>
+                <div class="text-xl font-black text-sky-700 leading-tight my-0.5">{{ number_format($stats['total_mitras'] ?? 0) }}</div>
+                <div class="text-[11px] text-sky-600/70 font-medium truncate">Mitra aktif</div>
             </div>
         </div>
 
         <!-- 5. Admin -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-md transition-all duration-200 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center flex-shrink-0">
+        <div class="bg-gradient-to-br from-purple-50/80 via-white to-purple-50/30 rounded-2xl border border-purple-200/80 p-4 shadow-xs hover:shadow-md transition-all duration-200 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-purple-100 text-purple-600 border border-purple-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                 </svg>
             </div>
             <div class="min-w-0 flex-1">
-                <div class="text-xs font-medium text-gray-500 truncate" title="Admin">Admin</div>
-                <div class="text-xl font-medium text-gray-900 leading-tight my-0.5">{{ number_format($stats['total_admins'] ?? 0) }}</div>
-                <div class="text-xs text-gray-400 truncate">Admin sistem</div>
+                <div class="text-xs font-semibold text-purple-900/70 truncate" title="Admin">Admin</div>
+                <div class="text-xl font-black text-purple-700 leading-tight my-0.5">{{ number_format($stats['total_admins'] ?? 0) }}</div>
+                <div class="text-[11px] text-purple-600/70 font-medium truncate">Admin sistem</div>
             </div>
         </div>
     </div>
@@ -277,17 +277,23 @@
 
 </div>
 
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const chartData = @json($userChart);
+    function initSuperAdminUsersChart() {
         const canvas = document.getElementById('usersChart');
         if (!canvas) return;
 
+        if (typeof Chart === 'undefined') {
+            setTimeout(initSuperAdminUsersChart, 50);
+            return;
+        }
+
+        const chartData = @json($userChart);
         const ctx = canvas.getContext('2d');
-        let usersChart = null;
+        let usersChart = Chart.getChart(canvas);
+        if (usersChart) {
+            usersChart.destroy();
+            usersChart = null;
+        }
 
         function renderRange(range) {
             const chartContainer = document.getElementById('chartContainer');
@@ -373,8 +379,9 @@
                     }
                 };
 
-                if (usersChart) {
-                    usersChart.destroy();
+                const existingInstance = Chart.getChart(canvas);
+                if (existingInstance) {
+                    existingInstance.destroy();
                 }
                 usersChart = new Chart(ctx, cfg);
                 
@@ -382,7 +389,7 @@
                     chartContainer.style.opacity = '1';
                     chartContainer.style.transform = 'translateY(0) scale(1)';
                 }
-            }, 100);
+            }, 60);
         }
 
         const tabs = document.querySelectorAll('.chart-range-tab');
@@ -404,18 +411,24 @@
 
         if (tabs.length) {
             tabs.forEach(tab => {
-                tab.addEventListener('click', function () {
+                tab.onclick = function () {
                     const r = tab.dataset.range;
                     if (!validRanges.includes(r)) return;
                     setActiveTab(r);
                     localStorage.setItem('superadmin.usersChart.range', r);
                     renderRange(r);
-                });
+                };
             });
             setActiveTab(initialRange);
             renderRange(initialRange);
         } else {
             renderRange('daily');
         }
-    });
+    }
+
+    document.addEventListener('DOMContentLoaded', initSuperAdminUsersChart);
+    document.addEventListener('livewire:navigated', initSuperAdminUsersChart);
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        initSuperAdminUsersChart();
+    }
 </script>

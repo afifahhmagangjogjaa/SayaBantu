@@ -404,4 +404,3 @@ class Banners extends Component
         return view('superadmin.banners');
     }
 }
-

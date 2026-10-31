@@ -229,64 +229,56 @@
     <!-- Summary Cards -->
     <div class="summary-cards-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <!-- Total Top Up Card -->
-        <div class="bg-white rounded-xl shadow-xs border border-gray-100 p-3.5">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">Total Top Up</p>
-                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 mt-0.5">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
-                </div>
-                <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
+        <div class="bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 rounded-2xl p-4 sm:p-5 border border-emerald-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
+            <div>
+                <p class="text-[11px] font-semibold text-emerald-900/70 uppercase tracking-wide">Total Top Up</p>
+                <h3 class="text-lg sm:text-xl font-black text-emerald-700 mt-0.5">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
+            </div>
+            <div class="w-11 h-11 bg-emerald-100 text-emerald-600 border border-emerald-200/80 rounded-xl flex items-center justify-center flex-shrink-0 shadow-2xs">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
             </div>
         </div>
 
         <!-- Total Withdraw Card -->
-        <div class="bg-white rounded-xl shadow-xs border border-gray-100 p-3.5">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">Total Withdraw</p>
-                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 mt-0.5">Rp {{ number_format($totalWithdraw, 0, ',', '.') }}</h3>
-                </div>
-                <div class="w-9 h-9 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                </div>
+        <div class="bg-gradient-to-br from-rose-50/80 via-white to-rose-50/30 rounded-2xl p-4 sm:p-5 border border-rose-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
+            <div>
+                <p class="text-[11px] font-semibold text-rose-900/70 uppercase tracking-wide">Total Withdraw</p>
+                <h3 class="text-lg sm:text-xl font-black text-rose-700 mt-0.5">Rp {{ number_format($totalWithdraw, 0, ',', '.') }}</h3>
+            </div>
+            <div class="w-11 h-11 bg-rose-100 text-rose-600 border border-rose-200/80 rounded-xl flex items-center justify-center flex-shrink-0 shadow-2xs">
+                <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
             </div>
         </div>
 
         <!-- Total Transactions Card -->
-        <div class="bg-white rounded-xl shadow-xs border border-gray-100 p-3.5">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">Total Transaksi</p>
-                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 mt-0.5">{{ number_format($totalTransactions) }}</h3>
-                </div>
-                <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                    </svg>
-                </div>
+        <div class="bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 rounded-2xl p-4 sm:p-5 border border-blue-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
+            <div>
+                <p class="text-[11px] font-semibold text-blue-900/70 uppercase tracking-wide">Total Transaksi</p>
+                <h3 class="text-lg sm:text-xl font-black text-gray-900 mt-0.5">{{ number_format($totalTransactions) }}</h3>
+            </div>
+            <div class="w-11 h-11 bg-blue-100 text-[#0066FF] border border-blue-200/80 rounded-xl flex items-center justify-center flex-shrink-0 shadow-2xs">
+                <svg class="w-5 h-5 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                </svg>
             </div>
         </div>
 
         <!-- Arus Kas Bersih Card -->
-        <div class="bg-white rounded-xl shadow-xs border border-gray-100 p-3.5">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">Arus Kas Bersih</p>
-                    <h3 class="text-lg sm:text-xl font-bold {{ $netCashflow >= 0 ? 'text-gray-900' : 'text-red-600' }} mt-0.5">
-                        Rp {{ number_format($netCashflow, 0, ',', '.') }}
-                    </h3>
-                </div>
-                <div class="w-9 h-9 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
+        <div class="bg-gradient-to-br from-purple-50/80 via-white to-purple-50/30 rounded-2xl p-4 sm:p-5 border border-purple-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
+            <div>
+                <p class="text-[11px] font-semibold text-purple-900/70 uppercase tracking-wide">Arus Kas Bersih</p>
+                <h3 class="text-lg sm:text-xl font-black {{ $netCashflow >= 0 ? 'text-purple-700' : 'text-rose-700' }} mt-0.5">
+                    Rp {{ number_format($netCashflow, 0, ',', '.') }}
+                </h3>
+            </div>
+            <div class="w-11 h-11 bg-purple-100 text-purple-600 border border-purple-200/80 rounded-xl flex items-center justify-center flex-shrink-0 shadow-2xs">
+                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
             </div>
         </div>
     </div>

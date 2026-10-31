@@ -179,43 +179,26 @@ x-on:profile-saved.window="
 
         <!-- City (Kota Domisili) -->
         <div>
-            <label class="block text-sm font-semibold text-gray-900 mb-2">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                    </svg>
-                    Kota
-
-                </span>
-            </label>
-            <select wire:model="city_id" id="profile_city_id" required
-                class="w-full px-4 py-3.5 text-sm rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition bg-white">
-                <option value="">Pilih Kota</option>
-                @foreach($cities as $city)
-                    <option value="{{ $city->id }}">{{ $city->name }}</option>
-                @endforeach
-            </select>
-            @error('city_id')
-                <p class="mt-2 text-xs text-red-600 flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                    </svg>
-                    {{ $message }}
-                </p>
-            @enderror
+            <x-searchable-city-select :cities="$cities" model="city_id" label="Kota Domisili" placeholder="Cari kota domisili..." />
         </div>
 
         <!-- Address (Alamat Lengkap) -->
         <div>
-            <label class="block text-sm font-semibold text-gray-900 mb-2">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
-                    </svg>
-                    Alamat Lengkap
-
-                </span>
-            </label>
+            <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-semibold text-gray-900">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                        </svg>
+                        Alamat Lengkap
+                    </span>
+                </label>
+                @if(auth()->check() && auth()->user()->role === 'customer')
+                    <a href="{{ route('customer.addresses') }}" wire:navigate class="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1">
+                        <span>Kelola Beberapa Alamat &rarr;</span>
+                    </a>
+                @endif
+            </div>
             <x-smart-address-input 
                 wire:model="address" 
                 id="profile_address"

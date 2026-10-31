@@ -21,53 +21,53 @@
                 <!-- Summary Cards (3 Cards) -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-6 sm:mb-8" style="gap: 16px;">
                     <!-- 1. Total Fee Platform Bantuan -->
-                    <div class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 hover:shadow-md transition-all duration-200 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center flex-shrink-0">
+                    <div class="bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 rounded-2xl border border-blue-200/80 p-4 sm:p-5 hover:shadow-md transition-all duration-200 flex items-center gap-4 shadow-xs">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-100 text-[#0066FF] border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                             </svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-xs font-medium text-gray-500 truncate" title="Total Fee Platform Bantuan">Total Fee Platform</div>
-                            <div class="text-lg sm:text-xl font-medium text-gray-900 leading-tight my-0.5 truncate" title="Rp {{ number_format($helpTotalFee ?? 0, 0, ',', '.') }}">
+                            <div class="text-xs font-semibold text-blue-900/70 truncate" title="Total Fee Platform Bantuan">Total Fee Platform</div>
+                            <div class="text-lg sm:text-xl font-black text-gray-900 leading-tight my-0.5 truncate" title="Rp {{ number_format($helpTotalFee ?? 0, 0, ',', '.') }}">
                                 Rp {{ number_format($helpTotalFee ?? 0, 0, ',', '.') }}
                             </div>
-                            <div class="text-xs text-blue-600 font-medium truncate">Customer + Mitra</div>
+                            <div class="text-xs text-blue-600 font-semibold truncate">Customer + Mitra</div>
                         </div>
                     </div>
 
                     <!-- 2. Pendapatan Bulan Ini -->
-                    <div class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 hover:shadow-md transition-all duration-200 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <div class="bg-gradient-to-br from-indigo-50/80 via-white to-indigo-50/30 rounded-2xl border border-indigo-200/80 p-4 sm:p-5 hover:shadow-md transition-all duration-200 flex items-center gap-4 shadow-xs">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 border border-indigo-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-xs font-medium text-gray-500 truncate" title="Fee Platform Bulan Ini">Fee Bulan Ini</div>
-                            <div class="text-lg sm:text-xl font-medium text-gray-900 leading-tight my-0.5 truncate" title="Rp {{ number_format($helpFeeMonth ?? 0, 0, ',', '.') }}">
+                            <div class="text-xs font-semibold text-indigo-900/70 truncate" title="Fee Platform Bulan Ini">Fee Bulan Ini</div>
+                            <div class="text-lg sm:text-xl font-black text-indigo-700 leading-tight my-0.5 truncate" title="Rp {{ number_format($helpFeeMonth ?? 0, 0, ',', '.') }}">
                                 Rp {{ number_format($helpFeeMonth ?? 0, 0, ',', '.') }}
                             </div>
-                            <div class="text-xs text-indigo-600 font-medium truncate">{{ now()->translatedFormat('F Y') }}</div>
+                            <div class="text-xs text-indigo-600 font-semibold truncate">{{ now()->translatedFormat('F Y') }}</div>
                         </div>
                     </div>
 
                     <!-- 3. Rata-rata Fee / Bantuan -->
-                    <div class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 hover:shadow-md transition-all duration-200 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center flex-shrink-0">
+                    <div class="bg-gradient-to-br from-amber-50/80 via-white to-amber-50/30 rounded-2xl border border-amber-200/80 p-4 sm:p-5 hover:shadow-md transition-all duration-200 flex items-center gap-4 shadow-xs">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 border border-amber-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                     d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-xs font-medium text-gray-500 truncate" title="Rata-rata Fee per Bantuan">Rata-rata Fee / Bantuan</div>
-                            <div class="text-lg sm:text-xl font-medium text-gray-900 leading-tight my-0.5 truncate" title="Rp {{ number_format($avgHelpFee ?? 0, 0, ',', '.') }}">
+                            <div class="text-xs font-semibold text-amber-900/70 truncate" title="Rata-rata Fee per Bantuan">Rata-rata Fee / Bantuan</div>
+                            <div class="text-lg sm:text-xl font-black text-amber-700 leading-tight my-0.5 truncate" title="Rp {{ number_format($avgHelpFee ?? 0, 0, ',', '.') }}">
                                 Rp {{ number_format($avgHelpFee ?? 0, 0, ',', '.') }}
                             </div>
-                            <div class="text-xs text-amber-600 font-medium truncate">Customer + Mitra</div>
+                            <div class="text-xs text-amber-600 font-semibold truncate">Customer + Mitra</div>
                         </div>
                     </div>
                 </div>
@@ -316,12 +316,23 @@
 @php
     $platformFeeChartJson = json_encode($platformFeeChart ?? ['daily' => ['labels' => [], 'data' => []], 'monthly' => ['labels' => [], 'data' => []], 'yearly' => ['labels' => [], 'data' => []]]);
 @endphp
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    function initPlatformFeeChart() {
+        const canvas = document.getElementById('platformFeeChart');
+        if (!canvas) return;
+
+        if (typeof Chart === 'undefined') {
+            setTimeout(initPlatformFeeChart, 50);
+            return;
+        }
+
         const platformData = {!! $platformFeeChartJson !!};
-        const platformCtx = document.getElementById('platformFeeChart')?.getContext('2d');
-        let platformChartInstance = null;
+        const platformCtx = canvas.getContext('2d');
+        let platformChartInstance = Chart.getChart(canvas);
+        if (platformChartInstance) {
+            platformChartInstance.destroy();
+            platformChartInstance = null;
+        }
 
         function renderPlatformChart(range) {
             if (!platformCtx) return;
@@ -401,7 +412,8 @@
                     }
                 };
 
-                if (platformChartInstance) platformChartInstance.destroy();
+                const existing = Chart.getChart(canvas);
+                if (existing) existing.destroy();
                 platformChartInstance = new Chart(platformCtx, cfg);
 
                 if (container) container.style.opacity = '1';
@@ -420,15 +432,23 @@
                 }
             });
         }
-        platformTabs.forEach(t => t.addEventListener('click', function () {
-            const r = t.dataset.range;
-            setPlatformActive(r);
-            renderPlatformChart(r);
-        }));
+        platformTabs.forEach(t => {
+            t.onclick = function () {
+                const r = t.dataset.range;
+                setPlatformActive(r);
+                renderPlatformChart(r);
+            };
+        });
 
         setPlatformActive('daily');
         renderPlatformChart('daily');
-    });
+    }
+
+    document.addEventListener('DOMContentLoaded', initPlatformFeeChart);
+    document.addEventListener('livewire:navigated', initPlatformFeeChart);
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        initPlatformFeeChart();
+    }
 </script>
 <script>
     let modalTimeout = null;

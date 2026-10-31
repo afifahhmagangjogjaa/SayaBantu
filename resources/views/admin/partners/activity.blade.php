@@ -108,27 +108,52 @@
         <!-- Filter Bar -->
         <div class="mb-6">
             <form method="GET" action="{{ route('admin.partners.activity') }}"
-                class="bg-white rounded-2xl shadow-md border border-gray-200 p-4">
-                <div class="flex items-center justify-between mb-3">
-                    <p class="text-xs font-semibold text-gray-700">Filter Aktivitas</p>
+                class="bg-white rounded-2xl shadow-xs border border-gray-200/80 p-4 sm:p-5">
+                
+                <!-- Header / Title -->
+                <div class="flex items-center justify-between pb-3 mb-3.5 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0066FF] flex-shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-sm font-bold text-gray-900">Filter Aktivitas</h3>
+                    </div>
+
                     @if (request()->hasAny(['search', 'type', 'start_date', 'end_date']))
                         <a href="{{ route('admin.partners.activity') }}" wire:navigate
-                            class="text-[11px] text-gray-400 hover:text-gray-600 underline">Reset filter</a>
+                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100/80 px-2.5 py-1 rounded-lg transition border border-rose-200/60">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Reset Filter
+                        </a>
                     @endif
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Cari Aktivitas</label>
-                        <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Nama/email mitra, deskripsi, atau IP"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                <!-- Filter Controls Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
+                    <!-- Search Input -->
+                    <div class="lg:col-span-4">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Cari Aktivitas</label>
+                        <div class="relative w-full">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Nama/email mitra, deskripsi, atau IP..."
+                                class="w-full pl-9 pr-3.5 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#0066FF] focus:border-[#0066FF] transition">
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Jenis Aktivitas</label>
-                        <select name="type"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <!-- Jenis Aktivitas -->
+                    <div class="lg:col-span-3">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Jenis Aktivitas</label>
+                        <select name="type" onchange="this.form.submit()"
+                            class="w-full px-3 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-sm text-gray-800 font-medium focus:ring-2 focus:ring-[#0066FF] focus:border-[#0066FF] cursor-pointer transition">
                             <option value="all">Semua Aktivitas</option>
                             @foreach ($activityTypes as $type)
                                 <option value="{{ $type }}" @selected(request('type') === $type)>{{ ucfirst(str_replace('_', ' ', $type)) }}</option>
@@ -136,24 +161,27 @@
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Periode</label>
-                        <div class="flex space-x-2">
+                    <!-- Periode Tanggal -->
+                    <div class="lg:col-span-3">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Periode Tanggal</label>
+                        <div class="grid grid-cols-2 gap-2">
                             <input type="date" id="start_date" name="start_date" value="{{ request('start_date') }}" max="{{ date('Y-m-d') }}" onkeydown="return false" onclick="this.showPicker()"
-                                class="w-1/2 px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                class="w-full px-2.5 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-[#0066FF] focus:border-[#0066FF] transition cursor-pointer">
                             <input type="date" id="end_date" name="end_date" value="{{ request('end_date') }}" max="{{ date('Y-m-d') }}" onkeydown="return false" onclick="this.showPicker()"
-                                class="w-1/2 px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                class="w-full px-2.5 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-[#0066FF] focus:border-[#0066FF] transition cursor-pointer">
                         </div>
                     </div>
-                </div>
 
-                <div class="mt-3 flex items-center justify-between">
-                    <p class="text-[11px] text-gray-400">Gunakan kombinasi pencarian, jenis aktivitas, dan periode tanggal
-                        untuk mempersempit log aktivitas.</p>
-                    <button type="submit"
-                        class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-xs font-semibold rounded-xl shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                        Terapkan Filter
-                    </button>
+                    <!-- Button Action -->
+                    <div class="lg:col-span-2 flex items-center">
+                        <button type="submit"
+                            class="w-full h-[42px] inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:from-[#0052CC] hover:to-[#0040A8] text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            <span>Terapkan</span>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -168,33 +196,33 @@
                     @if (!$activities->isEmpty())
                         <p class="text-xs text-gray-500 mr-1 hidden md:block">Total {{ $activities->total() }} aktivitas pada halaman ini.</p>
                     @endif
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center gap-2">
                         @if (!$activities->isEmpty())
-                            <form action="{{ route('admin.partners.activity.destroy_all') }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus SELURUH riwayat aktivitas? Tindakan ini tidak dapat dibatalkan." data-confirm-danger="true" class="inline">
+                            <form action="{{ route('admin.partners.activity.destroy_all') }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus SELURUH riwayat aktivitas? Tindakan ini tidak dapat dibatalkan." data-confirm-danger="true" class="inline-flex">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="inline-flex items-center px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer">
-                                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="h-9 inline-flex items-center justify-center gap-1.5 px-3.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold whitespace-nowrap transition-all shadow-xs cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                    Hapus Semua
+                                    <span>Hapus Semua</span>
                                 </button>
                             </form>
                         @endif
                         <a href="{{ route('admin.partners.activity.export.excel', request()->query()) }}"
-                            class="inline-flex items-center px-3.5 py-1.5 border border-gray-300 rounded-xl text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-xs">
-                            <svg class="w-3.5 h-3.5 mr-1.5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                            class="h-9 inline-flex items-center justify-center gap-1.5 px-3.5 bg-white hover:bg-gray-50 border border-gray-300 rounded-xl text-xs font-semibold text-gray-700 whitespace-nowrap transition-all shadow-xs">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
                             </svg>
-                            Excel
+                            <span>Excel</span>
                         </a>
                         <a href="{{ route('admin.partners.activity.export.print', request()->query()) }}" target="_blank"
-                            class="inline-flex items-center px-3.5 py-1.5 border border-gray-300 rounded-xl text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-xs">
-                            <svg class="w-3.5 h-3.5 mr-1.5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                            class="h-9 inline-flex items-center justify-center gap-1.5 px-3.5 bg-white hover:bg-gray-50 border border-gray-300 rounded-xl text-xs font-semibold text-gray-700 whitespace-nowrap transition-all shadow-xs">
+                            <svg class="w-3.5 h-3.5 text-rose-600" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
                             </svg>
-                            PDF / Print
+                            <span>PDF / Print</span>
                         </a>
                     </div>
                 </div>
@@ -224,19 +252,19 @@
                     <div class="flex flex-wrap gap-2 items-center text-xs">
                         <span class="text-gray-400 mr-2 text-[11px] font-semibold tracking-wider uppercase">FILTER ROLE CEPAT:</span>
                         <button type="button" data-role-filter-btn data-role-filter="all"
-                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-900 text-white border border-gray-900 shadow-xs transition-all">
+                            class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-900 text-white border border-gray-900 hover:bg-gray-800 hover:text-white shadow-xs transition-all cursor-pointer">
                             Semua ({{ $totalOnPage }})
                         </button>
                         <button type="button" data-role-filter-btn data-role-filter="mitra"
-                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 transition-all">
+                            class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 hover:text-gray-900 transition-all cursor-pointer">
                             Mitra ({{ $roleCounts['mitra'] }})
                         </button>
                         <button type="button" data-role-filter-btn data-role-filter="customer"
-                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 transition-all">
+                            class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 hover:text-gray-900 transition-all cursor-pointer">
                             Customer ({{ $roleCounts['customer'] }})
                         </button>
                         <button type="button" data-role-filter-btn data-role-filter="other"
-                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 transition-all">
+                            class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 hover:text-gray-900 transition-all cursor-pointer">
                             Lainnya ({{ $roleCounts['other'] }})
                         </button>
                     </div>
@@ -246,6 +274,7 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-50/80 border-b border-gray-200">
                             <tr>
+                                <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-10">No</th>
                                 <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">User</th>
                                 <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Role</th>
                                 <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Aktivitas</th>
@@ -266,6 +295,9 @@
                                 @endphp
                                 <tr class="hover:bg-gray-50/80 transition-colors" data-role-row data-role="{{ $roleKey }}"
                                     data-activity-type="{{ $a->activity_type }}">
+                                    <td class="px-2.5 py-2.5 text-center text-xs text-gray-500 font-medium whitespace-nowrap">
+                                        {{ $activities->firstItem() + $loop->index }}
+                                    </td>
                                     <td class="px-2.5 py-2.5 whitespace-nowrap">
                                         @if($a->user)
                                             <a href="{{ route('admin.users.show', $a->user) }}" wire:navigate
@@ -572,7 +604,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        function initRoleFilter() {
             const buttons = document.querySelectorAll('[data-role-filter-btn]');
             const rows = document.querySelectorAll('[data-role-row]');
 
@@ -580,14 +612,17 @@
                 return;
             }
 
+            const activeClasses = ['bg-gray-900', 'text-white', 'border-gray-900', 'hover:bg-gray-800', 'hover:text-white', 'shadow-xs'];
+            const inactiveClasses = ['bg-white', 'text-gray-700', 'border-gray-200', 'hover:bg-gray-100', 'hover:text-gray-900'];
+
             const setActiveButton = (current) => {
                 buttons.forEach((btn) => {
-                    btn.classList.remove('bg-gray-900', 'text-white', 'border-gray-900');
-                    btn.classList.add('bg-gray-50', 'text-gray-700', 'border-gray-200');
+                    activeClasses.forEach(cls => btn.classList.remove(cls));
+                    inactiveClasses.forEach(cls => btn.classList.add(cls));
                 });
 
-                current.classList.add('bg-gray-900', 'text-white', 'border-gray-900');
-                current.classList.remove('bg-gray-50', 'text-gray-700', 'border-gray-200');
+                inactiveClasses.forEach(cls => current.classList.remove(cls));
+                activeClasses.forEach(cls => current.classList.add(cls));
             };
 
             const applyRoleFilter = (role) => {
@@ -597,31 +632,29 @@
                 });
             };
 
-            if (buttons[0]) {
-                setActiveButton(buttons[0]);
-                applyRoleFilter(buttons[0].dataset.roleFilter || 'all');
-            }
-
             buttons.forEach((btn) => {
-                btn.addEventListener('click', () => {
+                btn.onclick = () => {
                     const role = btn.dataset.roleFilter || 'all';
                     setActiveButton(btn);
                     applyRoleFilter(role);
-                });
+                };
             });
+        }
 
-            // Close modal on Escape key
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    const closeLink = document.querySelector('a[href*="activity"][href*="activity_id"]');
-                    const modal = document.querySelector('.fixed.inset-0.z-50');
-                    if (modal) {
-                        const url = new URL(window.location.href);
-                        url.searchParams.delete('activity_id');
-                        window.location.href = url.toString();
-                    }
+        document.addEventListener('DOMContentLoaded', initRoleFilter);
+        document.addEventListener('livewire:navigated', initRoleFilter);
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                const closeLink = document.querySelector('a[href*="activity"][href*="activity_id"]');
+                const modal = document.querySelector('.fixed.inset-0.z-50');
+                if (modal) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('activity_id');
+                    window.location.href = url.toString();
                 }
-            });
+            }
         });
     </script>
 @endpush

@@ -14,57 +14,89 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Rumah Tangga',
-                'icon' => '🏠',
+                'name' => 'Full Home Cleaning',
+                'icon' => '🧹',
                 'color' => '#3B82F6',
-                'description' => 'Bantuan untuk kebutuhan rumah tangga sehari-hari',
+                'description' => 'Jasa bersih-bersih rumah, kos, kantor atau kontrakan secara menyeluruh',
             ],
             [
-                'name' => 'Bencana Alam',
-                'icon' => '🚨',
-                'color' => '#EF4444',
-                'description' => 'Bantuan untuk korban bencana alam',
+                'name' => 'Basic Daily Cleaning',
+                'icon' => '🧽',
+                'color' => '#06B6D4',
+                'description' => 'Bantuan bersih-bersih harian ringan, mencuci piring, dan merapikan ruangan',
             ],
             [
-                'name' => 'Kesehatan',
-                'icon' => '🏥',
+                'name' => 'Buang Sampah',
+                'icon' => '🗑️',
                 'color' => '#10B981',
-                'description' => 'Bantuan untuk kebutuhan kesehatan dan medis',
+                'description' => 'Bantu angkut dan buang sampah rumah tangga atau kos ke tempat pembuangan',
             ],
             [
-                'name' => 'Pendidikan',
-                'icon' => '📚',
+                'name' => 'Mengubur Bangkai Hewan',
+                'icon' => '🪦',
+                'color' => '#64748B',
+                'description' => 'Membantu mencari lokasi layak dan proses mengubur bangkai hewan dengan baik',
+            ],
+            [
+                'name' => 'Membersihkan Kandang / Kotoran Hewan',
+                'icon' => '🐾',
                 'color' => '#F59E0B',
-                'description' => 'Bantuan untuk pendidikan dan sekolah',
+                'description' => 'Membersihkan kotoran atau kandang hewan peliharaan (kucing, anjing, burung, dll)',
             ],
             [
-                'name' => 'Transportasi',
-                'icon' => '🚗',
+                'name' => 'Antar / Jemput',
+                'icon' => '🛵',
                 'color' => '#8B5CF6',
-                'description' => 'Bantuan transportasi dan kendaraan',
+                'description' => 'Antar jemput orang, barang, dokumen, makanan, hingga hewan kesayangan',
             ],
             [
-                'name' => 'Sosial',
-                'icon' => '🤝',
-                'color' => '#EC4899',
-                'description' => 'Bantuan sosial dan kemanusiaan',
-            ],
-            [
-                'name' => 'Pangan',
-                'icon' => '🍲',
-                'color' => '#14B8A6',
-                'description' => 'Bantuan makanan dan kebutuhan pangan',
-            ],
-            [
-                'name' => 'Lainnya',
+                'name' => 'Angkut Barang',
                 'icon' => '📦',
+                'color' => '#EC4899',
+                'description' => 'Bantuan tenaga angkut dan pindahkan barang berat, perabotan, atau logistik',
+            ],
+            [
+                'name' => 'Pindahan',
+                'icon' => '🚚',
+                'color' => '#F97316',
+                'description' => 'Bantu proses pindahan rumah/kos: angkat barang, packing, unpacking, dan beres-beres',
+            ],
+            [
+                'name' => 'SPY / Mata - Mata',
+                'icon' => '🕵️',
+                'color' => '#334155',
+                'description' => 'Layanan investigasi ringan, cek lokasi, dan pemantauan situasi secara rahasia dan aman',
+            ],
+            [
+                'name' => 'SaBa Food',
+                'icon' => '🍔',
+                'color' => '#EF4444',
+                'description' => 'Bantu beliin dan antarkan makanan atau minuman favorit langsung ke lokasimu',
+            ],
+            [
+                'name' => 'Nemenin Olahraga',
+                'icon' => '🏃',
+                'color' => '#14B8A6',
+                'description' => 'Teman olahraga lari, badminton, gym, atau gowes agar lebih semangat dan produktif',
+            ],
+            [
+                'name' => 'Jasa Lainnya',
+                'icon' => '✨',
                 'color' => '#6B7280',
-                'description' => 'Bantuan lainnya',
+                'description' => 'Melayani apa saja asalkan halal, tidak kriminal, tidak merugikan orang lain dan masuk akal',
             ],
         ];
 
         foreach ($categories as $category) {
-            Category::create($category);
+            Category::updateOrCreate(
+                ['name' => $category['name']],
+                [
+                    'icon' => $category['icon'],
+                    'color' => $category['color'],
+                    'description' => $category['description'],
+                    'is_active' => true,
+                ]
+            );
         }
     }
 }

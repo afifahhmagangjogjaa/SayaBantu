@@ -126,23 +126,20 @@
                             <p class="px-4 pt-3 pb-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Kategori Jasa</p>
                             @foreach($searchResults as $cat)
                                 @php
-                                    $catStyles = [
-                                        1 => 'bg-blue-50 text-blue-600',
-                                        2 => 'bg-rose-50 text-rose-600',
-                                        3 => 'bg-emerald-50 text-emerald-600',
-                                        4 => 'bg-amber-50 text-amber-600',
-                                        5 => 'bg-indigo-50 text-indigo-600',
-                                        6 => 'bg-purple-50 text-purple-600',
-                                        7 => 'bg-orange-50 text-orange-600',
-                                        8 => 'bg-sky-50 text-sky-600',
-                                    ];
-                                    $catStyle = $catStyles[$cat->id] ?? 'bg-gray-50 text-gray-600';
+                                    $style = $cat->badge_style;
+                                    $svgPath = $cat->svg_path ? public_path($cat->svg_path) : null;
                                 @endphp
                                 <a href="{{ route('customer.helps.create', ['category_id' => $cat->id]) }}" wire:navigate
                                    class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/60 transition group border-b border-gray-50 last:border-0"
                                    wire:click="clearSearch">
-                                    <div class="w-10 h-10 rounded-xl {{ $catStyle }} flex items-center justify-center text-lg shrink-0">
-                                        {{ $cat->icon ?? '📦' }}
+                                    <div class="w-10 h-10 rounded-xl {{ $style['bg'] }} flex items-center justify-center p-2 text-lg shrink-0">
+                                        @if($svgPath && file_exists($svgPath))
+                                            <span class="w-5 h-5 flex items-center justify-center shrink-0 [&>svg]:w-full [&>svg]:h-full [&>svg]:fill-current">
+                                                {!! file_get_contents($svgPath) !!}
+                                            </span>
+                                        @else
+                                            <span>{{ $cat->icon ?? '📦' }}</span>
+                                        @endif
                                     </div>
                                     <div class="min-w-0 flex-1">
                                         <p class="text-sm font-bold text-gray-800 group-hover:text-[#0066FF] transition">{{ $cat->name }}</p>
@@ -398,27 +395,21 @@
             </div>
 
             <div class="grid grid-cols-3 min-[380px]:grid-cols-4 gap-2 min-[380px]:gap-2.5">
-                @php
-                    $categoryStyles = [
-                        1 => ['bg' => 'bg-blue-50 text-blue-600 border-blue-100', 'label' => 'Rumah Tangga'],
-                        2 => ['bg' => 'bg-rose-50 text-rose-600 border-rose-100', 'label' => 'Bencana'],
-                        3 => ['bg' => 'bg-emerald-50 text-emerald-600 border-emerald-100', 'label' => 'Kesehatan'],
-                        4 => ['bg' => 'bg-amber-50 text-amber-600 border-amber-100', 'label' => 'Pendidikan'],
-                        5 => ['bg' => 'bg-indigo-50 text-indigo-600 border-indigo-100', 'label' => 'Transportasi'],
-                        6 => ['bg' => 'bg-purple-50 text-purple-600 border-purple-100', 'label' => 'Sosial'],
-                        7 => ['bg' => 'bg-orange-50 text-orange-600 border-orange-100', 'label' => 'Pangan'],
-                        8 => ['bg' => 'bg-sky-50 text-sky-600 border-sky-100', 'label' => 'Lainnya'],
-                    ];
-                @endphp
-
                 @foreach($categories as $cat)
                     @php
-                        $style = $categoryStyles[$cat->id] ?? ['bg' => 'bg-gray-50 text-gray-700 border-gray-100', 'label' => $cat->name];
+                        $style = $cat->badge_style;
+                        $svgPath = $cat->svg_path ? public_path($cat->svg_path) : null;
                     @endphp
                     <a href="{{ route('customer.helps.create', ['category_id' => $cat->id]) }}" wire:navigate
                        class="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white border border-gray-100 hover:border-[#0066FF]/30 hover:shadow-xs transition group cursor-pointer text-center">
-                        <div class="w-12 h-12 rounded-2xl {{ $style['bg'] }} border flex items-center justify-center text-xl shadow-2xs group-hover:scale-110 transition-transform">
-                            {{ $cat->icon ?? '📦' }}
+                        <div class="w-12 h-12 rounded-2xl {{ $style['bg'] }} border flex items-center justify-center p-2.5 shadow-2xs group-hover:scale-110 transition-transform">
+                            @if($svgPath && file_exists($svgPath))
+                                <span class="w-6 h-6 flex items-center justify-center shrink-0 [&>svg]:w-full [&>svg]:h-full [&>svg]:fill-current">
+                                    {!! file_get_contents($svgPath) !!}
+                                </span>
+                            @else
+                                <span class="text-xl">{{ $cat->icon ?? '📦' }}</span>
+                            @endif
                         </div>
                         <span class="text-[11px] font-semibold text-gray-800 mt-1.5 w-full text-center leading-tight line-clamp-2 group-hover:text-[#0066FF]">
                             {{ $cat->name }}

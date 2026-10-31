@@ -18,11 +18,11 @@ class Index extends Component
     use WithFileUploads, WithPagination;
 
     protected $queryString = [
-        'statusFilter' => ['except' => 'menunggu_mitra'],
+        'statusFilter' => ['except' => 'semua'],
         'search' => ['except' => ''],
     ];
 
-    public $statusFilter = 'menunggu_mitra';
+    public $statusFilter = 'semua';
 
     public $search = ''; // Variabel penampung teks pencarian
 
@@ -85,6 +85,12 @@ class Index extends Component
 
     // Reset pagination ketika user mengetik di kolom search
     public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    // Reset pagination ketika user mengganti tab filter status
+    public function updatingStatusFilter()
     {
         $this->resetPage();
     }
@@ -758,7 +764,7 @@ class Index extends Component
                     },
                 ])
                 ->withCount('chatMessages')
-                ->when($this->statusFilter !== '', function ($query) {
+                ->when(! in_array($this->statusFilter, ['', 'semua', 'all']), function ($query) {
                     if ($this->statusFilter === 'diproses') {
                         $query->whereIn('status', $this->diprosesStatuses);
                     } elseif (in_array($this->statusFilter, ['ditolak', 'dibatalkan'])) {
@@ -771,10 +777,6 @@ class Index extends Component
                     } else {
                         $query->where('status', $this->statusFilter);
                     }
-                })
-                ->when($this->statusFilter === '', function ($query) {
-                    // By default exclude completed/rejected/cancelled - those go to history
-                    $query->whereNotIn('status', ['selesai', 'rejected', 'ditolak', 'dibatalkan']);
                 })
                 // Logika Filter Pencarian (Search)
                 ->when($this->search !== '', function ($query) {

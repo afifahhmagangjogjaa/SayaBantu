@@ -138,6 +138,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @livewireStyles
     <style>
         [x-cloak] { display: none !important; }
@@ -169,9 +170,38 @@
             transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Pastikan elemen anak di dalam menu sidebar tidak memblokir event klik link */
-        #admin-sidebar-nav a * {
+        /* Custom scrollbar untuk sidebar nav agar tetap rapi */
+        #admin-sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        #admin-sidebar-nav::-webkit-scrollbar-thumb {
+            background: rgba(0, 102, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        /* Custom scrollbar untuk admin sidebar */
+        #admin-sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        #admin-sidebar-nav::-webkit-scrollbar-thumb {
+            background: rgba(0, 102, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        /* Pastikan elemen anak di dalam menu sidebar tidak memblokir event klik link atau tombol */
+        #admin-sidebar-nav a *,
+        #admin-sidebar-nav button * {
             pointer-events: none;
+        }
+
+        /* Ukuran icon menu sidebar agar selalu proporsional dan rapi */
+        #admin-sidebar-nav a > svg,
+        #admin-sidebar-nav button > svg:first-child {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            max-width: 1.25rem !important;
+            max-height: 1.25rem !important;
+            flex-shrink: 0 !important;
         }
     </style>
 </head>
@@ -196,18 +226,19 @@
         <!-- Sidebar -->
         <aside id="admin-sidebar"
             :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-            class="w-64 bg-white shadow-2xl fixed inset-y-0 left-0 flex flex-col z-50 lg:translate-x-0 transition-transform duration-300 ease-in-out">
-            <div id="admin-sidebar-header" class="h-[64px] lg:h-[96px] px-6 flex flex-col justify-center border-b border-gray-200 flex-shrink-0">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <x-app-icon class="w-8 h-8 shrink-0" />
-                        <div>
-                            <h1 class="text-xl lg:text-2xl font-bold text-primary-600 leading-none">sayabantu</h1>
-                            <p class="text-xs text-gray-500 mt-1">Admin Panel</p>
+            class="w-64 bg-[#F0F6FE] text-slate-700 border-r border-blue-100 shadow-lg fixed inset-y-0 left-0 flex flex-col z-50 lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            <div id="admin-sidebar-header" class="h-[64px] lg:h-[84px] px-5 flex items-center border-b border-blue-100 bg-[#E8F1FC]/70 flex-shrink-0">
+                <div class="flex items-center justify-between w-full">
+                    <a href="{{ route('admin.dashboard') }}" wire:navigate class="flex items-center gap-3 group focus:outline-none">
+                        <div class="w-9 h-9 rounded-xl bg-white text-[#0066FF] flex items-center justify-center p-1.5 shadow-xs ring-1 ring-blue-200/70 shrink-0 group-hover:scale-105 transition-transform">
+                            <x-app-icon class="w-full h-full text-[#0066FF]" />
                         </div>
-                    </div>
+                        <div class="min-w-0">
+                            <h1 class="text-lg lg:text-xl font-black text-gray-900 tracking-tight leading-none whitespace-nowrap">saya<span class="text-[#0066FF]">bantu</span><span class="text-amber-500 font-extrabold">.com</span></h1>
+                        </div>
+                    </a>
                     <!-- Close button (mobile only) -->
-                    <button @click="sidebarOpen = false" class="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition" title="Tutup menu">
+                    <button @click="sidebarOpen = false" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-white/80 transition" title="Tutup menu">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -215,51 +246,52 @@
                 </div>
             </div>
 
-            <nav class="p-4 flex-1 overflow-y-auto" id="admin-sidebar-nav">
+            <nav class="p-3 flex-1 overflow-y-auto" id="admin-sidebar-nav" @click="if ($event.target.closest('a')) sidebarOpen = false">
                 <a href="{{ route('admin.dashboard') }}" wire:navigate
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.dashboard') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                    Dashboard
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.dashboard') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.dashboard') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                    <span>Dashboard</span>
                 </a>
 
-                <div class="mt-6 mb-2">
-                    <p class="px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Moderasi</p>
+                <div class="mt-4 mb-2 px-3 flex items-center justify-between">
+                    <p class="text-[10px] font-bold text-blue-900/60 uppercase tracking-wider">Moderasi</p>
+                    <span class="h-px bg-blue-200/60 flex-1 ml-2"></span>
                 </div>
 
                 <a href="{{ route('admin.verifications') }}" wire:navigate
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.verifications*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.verifications*') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.verifications*') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
-                    Verifikasi KTP
+                    <span>Verifikasi KTP</span>
                 </a>
 
                 <a href="{{ route('admin.customers') }}" wire:navigate
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.customers*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.customers*') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.customers*') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    Manajemen Customer
+                    <span>Manajemen Customer</span>
                 </a>
 
                 <a href="{{ route('admin.mitra') }}" wire:navigate
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.mitra*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.mitra*') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.mitra*') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    Manajemen Mitra
+                    <span>Manajemen Mitra</span>
                 </a>
 
                 <a href="{{ route('admin.partners.activity') }}" wire:navigate
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.partners.activity') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.partners.activity') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.partners.activity') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
-                    Aktivitas Mitra
+                    <span>Aktivitas Mitra</span>
                 </a>
 
                 @php
@@ -282,65 +314,66 @@
                 @endphp
 
                 <a href="{{ route('admin.partners.report') }}" wire:navigate
-                    class="flex items-center justify-between mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.partners.report') || request()->routeIs('admin.partners.reports.*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center justify-between mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.partners.report') || request()->routeIs('admin.partners.reports.*') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <div class="flex items-center min-w-0">
+                        <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.partners.report') || request()->routeIs('admin.partners.reports.*') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <span>Manajemen Laporan Aduan</span>
+                        <span class="truncate">Laporan Aduan</span>
                     </div>
                     @if($pendingReportsCount > 0)
-                        <span class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full shadow-sm animate-pulse">
+                        <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold leading-none text-white bg-red-500 rounded-full shadow-xs animate-pulse shrink-0 ml-1.5">
                             {{ $pendingReportsCount > 99 ? '99+' : $pendingReportsCount }}
                         </span>
                     @endif
                 </a>
 
                 <a href="{{ route('admin.partners.blocked') }}" wire:navigate
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.partners.blocked') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.partners.blocked') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.partners.blocked') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                     </svg>
-                    Blokir Mitra
+                    <span>Blokir Mitra</span>
                 </a>
 
                 <a href="{{ route('admin.helps') }}" wire:navigate
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.helps') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.helps') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.helps') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
-                    Manajemen Bantuan
+                    <span>Manajemen Bantuan</span>
                 </a>
 
                 <a href="{{ route('admin.ratings.index') }}" wire:navigate
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.ratings*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.ratings*') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.ratings*') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                     </svg>
-                    Rating & Ulasan
+                    <span>Rating & Ulasan</span>
                 </a>
 
-                <div class="mt-6 mb-2">
-                    <p class="px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Keuangan</p>
+                <div class="mt-4 mb-2 px-3 flex items-center justify-between">
+                    <p class="text-[10px] font-bold text-blue-900/60 uppercase tracking-wider">Keuangan</p>
+                    <span class="h-px bg-blue-200/60 flex-1 ml-2"></span>
                 </div>
 
                 <a href="{{ route('admin.withdraws.index') }}" wire:navigate
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.withdraws.*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.withdraws.*') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.withdraws.*') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    Manajemen Withdraw
+                    <span>Manajemen Withdraw</span>
                 </a>
 
                 <a href="{{ route('admin.topup.approvals') }}" wire:navigate
-                    class="flex items-center mx-3 px-3 py-2.5 mb-2 text-sm font-medium leading-tight {{ request()->routeIs('admin.topup.approvals*') ? 'text-white bg-primary-600' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition cursor-pointer">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('admin.topup.approvals*') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('admin.topup.approvals*') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7 7h.01M7 11h.01M7 15h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Manajemen Approval
+                    <span>Manajemen Approval</span>
                 </a>
             </nav>
         </aside>
@@ -348,27 +381,27 @@
         <!-- Main Content -->
         <main class="flex-1 lg:ml-64 min-w-0 overflow-y-auto min-h-screen">
             <!-- Navbar -->
-            <nav class="bg-white shadow-md sticky top-0 z-30">
+            <nav class="bg-[#F0F6FE] border-b border-blue-200/80 shadow-xs sticky top-0 z-30">
                 <div class="px-4 sm:px-6 py-3 sm:py-4">
                     <div class="flex items-center justify-between gap-3">
                         <!-- Hamburger (mobile) + Page Title -->
                         <div class="flex items-center gap-3 min-w-0">
                             <!-- Hamburger button - mobile only -->
-                            <button @click="sidebarOpen = true" type="button" class="lg:hidden flex-shrink-0 p-2.5 -ml-1 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200 transition cursor-pointer touch-manipulation focus:outline-none" title="Buka menu" aria-label="Buka navigasi menu">
+                            <button @click="sidebarOpen = true" type="button" class="lg:hidden flex-shrink-0 p-2.5 -ml-1 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/80 active:bg-blue-100 transition cursor-pointer touch-manipulation focus:outline-none" title="Buka menu" aria-label="Buka navigasi menu">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                                 </svg>
                             </button>
                             <!-- Page Title & Subtitle -->
                             <div class="min-w-0">
-                                <h2 class="text-base sm:text-lg lg:text-xl font-medium text-gray-900 leading-snug line-clamp-2 lg:line-clamp-1">
+                                <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-900 leading-snug line-clamp-2 lg:line-clamp-1">
                                     @hasSection('page-title')
                                         @yield('page-title')
                                     @else
                                         {{ $pageTitle }}
                                     @endif
                                 </h2>
-                                <p class="text-xs sm:text-sm text-gray-500 mt-0.5 hidden sm:block truncate">
+                                <p class="text-xs sm:text-sm text-slate-500 mt-0.5 hidden sm:block truncate">
                                     @hasSection('page-description')
                                         @yield('page-description')
                                     @else
@@ -381,8 +414,8 @@
                         <!-- Right Side Actions -->
                         <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                             <!-- Hari dan Tanggal Badge: disembunyikan di layar sangat kecil agar judul tetap terbaca -->
-                            <div class="hidden min-[400px]:flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl border border-gray-200 shadow-2xs transition">
-                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="hidden min-[400px]:flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold text-[#0066FF] bg-white hover:bg-white/90 h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl border border-blue-200/80 shadow-2xs transition">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0066FF] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 <span class="whitespace-nowrap"><span class="hidden md:inline">{{ now()->locale('id')->translatedFormat('l, ') }}</span>{{ now()->locale('id')->translatedFormat('d M Y') }}</span>
@@ -392,19 +425,18 @@
                             <livewire:admin.notifications />
 
                             <!-- User Avatar Dropdown -->
-                            <div class="flex items-center border-l border-gray-200 pl-2 sm:pl-3" x-data="{ open: false }" @click.outside="open = false">
+                            <div class="flex items-center border-l border-blue-200/80 pl-2 sm:pl-3" x-data="{ open: false }" @click.outside="open = false">
                                 <button
                                     @click="open = !open"
                                     type="button"
                                     class="flex items-center gap-2 group cursor-pointer focus:outline-none"
                                     title="Menu Admin">
                                     <div class="text-right hidden sm:block">
-                                        <p class="text-sm font-medium text-gray-900 group-hover:text-primary-600 transition">{{ auth()->user()->name ?? 'Admin' }}</p>
-                                        <p class="text-xs text-gray-500">Admin {{ auth()->user()->city_name ?? auth()->user()->city ?? '' }}</p>
+                                        <p class="text-sm font-semibold text-gray-900 group-hover:text-[#0066FF] transition">{{ auth()->user()->name ?? 'Admin' }}</p>
+                                        <p class="text-xs text-slate-500 font-medium">Admin {{ auth()->user()->city_name ?? auth()->user()->city ?? '' }}</p>
                                     </div>
-                                    <div style="background-color: #0077cc; color: #ffffff;"
-                                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-xs transition"
-                                        :class="open ? 'ring-2 ring-primary-500' : 'group-hover:ring-2 group-hover:ring-primary-500'">
+                                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-sm text-white bg-gradient-to-br from-[#0066FF] to-[#0052CC] shadow-xs transition"
+                                        :class="open ? 'ring-2 ring-[#0066FF]' : 'group-hover:ring-2 group-hover:ring-[#0066FF]'">
                                         {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
                                     </div>
                                 </button>

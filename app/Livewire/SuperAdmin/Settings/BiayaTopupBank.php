@@ -5,14 +5,18 @@ namespace App\Livewire\SuperAdmin\Settings;
 use App\Models\AppSetting;
 use App\Models\BalanceTransaction;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.superadmin')]
 #[Title('Biaya Admin Top-Up & Bank - Super Admin')]
 class BiayaTopupBank extends Component
 {
+    use WithFileUploads;
+
     public $tier1_limit;
 
     public $tier1_fee;
@@ -26,6 +30,15 @@ class BiayaTopupBank extends Component
     public $tier3_max;
 
     public $payment_banks = [];
+
+    // QRIS Settings & Upload
+    public bool $qris_enabled = true;
+
+    public string $qris_merchant_name = '';
+
+    public $qris_image_upload = null;
+
+    public ?string $current_qris_image = null;
 
     // Modal state for Bank Management
     public bool $showBankModal = false;
@@ -72,6 +85,19 @@ class BiayaTopupBank extends Component
             ['code' => 'bni', 'name' => 'BNI', 'account_number' => '5555666677', 'account_name' => 'PT sayabantu', 'enabled' => true],
             ['code' => 'bri', 'name' => 'BRI', 'account_number' => '8888999900', 'account_name' => 'PT sayabantu', 'enabled' => true],
         ];
+
+        // Load QRIS config
+        $this->qris_enabled = ! isset($paymentMethods['qris']['enabled']) || ! empty($paymentMethods['qris']['enabled']);
+        $this->qris_merchant_name = (string) AppSetting::get('qris_merchant_name', 'SayaBantu');
+
+        $storedQris = AppSetting::get('qris_image');
+        if ($storedQris && Storage::disk('public')->exists($storedQris)) {
+            $this->current_qris_image = $storedQris;
+        } elseif (file_exists(public_path('images/payment/qris.png'))) {
+            $this->current_qris_image = 'images/payment/qris.png';
+        } else {
+            $this->current_qris_image = null;
+        }
     }
 
     public function openAddBankModal()
@@ -177,9 +203,84 @@ class BiayaTopupBank extends Component
         }
     }
 
+    public function saveQrisSettings()
+    {
+        $this->validate([
+            'qris_merchant_name' => 'nullable|string|max:100',
+            'qris_image_upload' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+        ]);
+
+        if ($this->qris_image_upload) {
+            // Store to public disk
+            $path = $this->qris_image_upload->store('payment', 'public');
+
+            // Also copy to public/images/payment/qris.png for backwards compatibility
+            $destinationDir = public_path('images/payment');
+            if (! file_exists($destinationDir)) {
+                mkdir($destinationDir, 0755, true);
+            }
+            @copy(storage_path('app/public/'.$path), public_path('images/payment/qris.png'));
+
+            // Delete previous custom image if exists in public disk
+            if ($this->current_qris_image && $this->current_qris_image !== 'images/payment/qris.png' && Storage::disk('public')->exists($this->current_qris_image)) {
+                Storage::disk('public')->delete($this->current_qris_image);
+            }
+
+            $this->current_qris_image = $path;
+            AppSetting::set('qris_image', $path);
+            $this->qris_image_upload = null;
+        }
+
+        AppSetting::set('qris_merchant_name', trim($this->qris_merchant_name));
+
+        $this->persistPaymentMethods();
+
+        $msg = 'Pengaturan QRIS berhasil diperbarui.';
+        session()->flash('qris_message', $msg);
+        $this->dispatch('qrisSaved', message: $msg);
+    }
+
+    public function toggleQrisStatus()
+    {
+        $this->qris_enabled = ! $this->qris_enabled;
+        $this->persistPaymentMethods();
+        $statusText = $this->qris_enabled ? 'diaktifkan' : 'dinonaktifkan';
+        $msg = 'Metode pembayaran QRIS berhasil '.$statusText.'.';
+        session()->flash('qris_message', $msg);
+        $this->dispatch('qrisSaved', message: $msg);
+    }
+
+    public function removeQrisImage()
+    {
+        if ($this->current_qris_image && $this->current_qris_image !== 'images/payment/qris.png' && Storage::disk('public')->exists($this->current_qris_image)) {
+            Storage::disk('public')->delete($this->current_qris_image);
+        }
+
+        if (file_exists(public_path('images/payment/qris.png'))) {
+            @unlink(public_path('images/payment/qris.png'));
+        }
+
+        $this->current_qris_image = null;
+        $this->qris_image_upload = null;
+        AppSetting::set('qris_image', '');
+
+        $msg = 'Gambar QR Code QRIS berhasil dihapus.';
+        session()->flash('qris_message', $msg);
+        $this->dispatch('qrisSaved', message: $msg);
+    }
+
     private function persistPaymentBanks()
     {
+        $this->persistPaymentMethods();
+    }
+
+    private function persistPaymentMethods()
+    {
         $paymentMethods = [
+            'qris' => [
+                'enabled' => (bool) $this->qris_enabled,
+                'merchant_name' => (string) ($this->qris_merchant_name ?: 'SayaBantu'),
+            ],
             'banks' => array_values(array_map(function ($b) {
                 return [
                     'code' => (string) ($b['code'] ?? ''),

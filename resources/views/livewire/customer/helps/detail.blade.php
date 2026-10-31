@@ -81,11 +81,11 @@
 
         <div class="relative z-10 max-w-md mx-auto">
             <div class="flex items-center justify-between text-white mb-6">
-                <button onclick="window.history.back()" aria-label="Kembali" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-lg transition shrink-0">
+                <a href="{{ route('customer.helps.index') }}" wire:navigate aria-label="Kembali ke Pesanan Saya" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-lg transition shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                </button>
+                </a>
 
                 <div class="text-center flex-1 px-2">
                     <h1 class="text-lg font-bold">Detail Pesanan</h1>

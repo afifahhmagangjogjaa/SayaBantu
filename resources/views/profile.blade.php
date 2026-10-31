@@ -221,20 +221,58 @@
                         </svg>
                     </a>
 
-                    <!-- 2. Alamat Saya / Data Diri -->
-                    <a href="{{ route('profile.edit') }}" wire:navigate 
-                       class="py-4 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group cursor-pointer">
-                        <div class="flex items-center gap-4 min-w-0">
-                            <svg class="w-5 h-5 text-slate-700 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    @if($user && $user->role === 'customer')
+                        <!-- 2. Alamat Saya (Multi-address Shopee style) -->
+                        <a href="{{ route('customer.addresses') }}" wire:navigate 
+                           class="py-4 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group cursor-pointer">
+                            <div class="flex items-center gap-4 min-w-0">
+                                <svg class="w-5 h-5 text-slate-700 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span class="text-sm font-semibold text-gray-800 group-hover:text-[#0066FF] transition">Alamat Saya</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                @php
+                                    $addressCount = $user->customerAddresses()->count();
+                                @endphp
+                                @if($addressCount > 0)
+                                    <span class="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">{{ $addressCount }} Alamat</span>
+                                @endif
+                                <svg class="w-4 h-4 text-gray-400 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                        </a>
+
+                        <!-- 3. Data Diri Akun -->
+                        <a href="{{ route('profile.edit') }}" wire:navigate 
+                           class="py-4 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group cursor-pointer">
+                            <div class="flex items-center gap-4 min-w-0">
+                                <svg class="w-5 h-5 text-slate-700 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span class="text-sm font-semibold text-gray-800 group-hover:text-[#0066FF] transition">Data Diri</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
-                            <span class="text-sm font-semibold text-gray-800 group-hover:text-[#0066FF] transition">Alamat & Data Diri</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
+                        </a>
+                    @else
+                        <!-- 2. Alamat & Data Diri -->
+                        <a href="{{ route('profile.edit') }}" wire:navigate 
+                           class="py-4 px-2 flex items-center justify-between hover:bg-slate-50/80 active:bg-slate-100/70 rounded-2xl transition group cursor-pointer">
+                            <div class="flex items-center gap-4 min-w-0">
+                                <svg class="w-5 h-5 text-slate-700 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span class="text-sm font-semibold text-gray-800 group-hover:text-[#0066FF] transition">Data Diri</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    @endif
 
                     <!-- 3. Metode Pembayaran -->
                     <a href="{{ route('customer.topup') }}" wire:navigate 

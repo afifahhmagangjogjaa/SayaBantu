@@ -20,13 +20,13 @@
         <!-- Metric Stat Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-5">
             <!-- Stat 1: Total Admin -->
-            <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200/80 shadow-xs flex items-center justify-between">
+            <div class="bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 rounded-2xl p-4 sm:p-5 border border-blue-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
                 <div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Admin</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-blue-900/70">Total Admin</span>
                     <h3 class="text-2xl font-black text-gray-900 mt-1">{{ $users->total() }}</h3>
-                    <p class="text-[11px] text-gray-400 mt-0.5">Staf pengelola terdaftar</p>
+                    <p class="text-[11px] text-blue-600/80 mt-0.5">Staf pengelola terdaftar</p>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-primary-50 text-primary-600 border border-primary-100 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-2xl bg-blue-100 text-[#0066FF] border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
@@ -34,15 +34,15 @@
             </div>
 
             <!-- Stat 2: Admin Aktif -->
-            <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200/80 shadow-xs flex items-center justify-between">
+            <div class="bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 rounded-2xl p-4 sm:p-5 border border-emerald-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
                 <div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Status Aktif</span>
-                    <h3 class="text-2xl font-black text-emerald-600 mt-1">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-emerald-900/70">Status Aktif</span>
+                    <h3 class="text-2xl font-black text-emerald-700 mt-1">
                         {{ \App\Models\User::where('role', 'admin')->where('status', 'active')->count() }}
                     </h3>
-                    <p class="text-[11px] text-gray-400 mt-0.5">Dapat login & bertugas</p>
+                    <p class="text-[11px] text-emerald-600/80 mt-0.5">Dapat login & bertugas</p>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 border border-emerald-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -50,15 +50,15 @@
             </div>
 
             <!-- Stat 3: Kota Terkelola -->
-            <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200/80 shadow-xs flex items-center justify-between">
+            <div class="bg-gradient-to-br from-indigo-50/80 via-white to-indigo-50/30 rounded-2xl p-4 sm:p-5 border border-indigo-200/80 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
                 <div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Cakupan Kota</span>
-                    <h3 class="text-2xl font-black text-indigo-600 mt-1">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-900/70">Cakupan Kota</span>
+                    <h3 class="text-2xl font-black text-indigo-700 mt-1">
                         {{ \Illuminate\Support\Facades\DB::table('admin_city')->distinct('city_id')->count('city_id') }}
                     </h3>
-                    <p class="text-[11px] text-gray-400 mt-0.5">Kota memiliki penanggung jawab</p>
+                    <p class="text-[11px] text-indigo-600/80 mt-0.5">Kota memiliki penanggung jawab</p>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 border border-indigo-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />

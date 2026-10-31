@@ -425,7 +425,16 @@ class AdminUsers extends Component
         $rules = [
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'email' => $emailRules,
-            'phone' => ['required', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
+            'phone' => [
+                'required',
+                'string',
+                'min:10',
+                'max:13',
+                'regex:/^[0-9]+$/',
+                ($this->selectedUser ? $this->selectedUser->id : null)
+                    ? \Illuminate\Validation\Rule::unique('users', 'phone')->ignore($this->selectedUser->id)
+                    : \Illuminate\Validation\Rule::unique('users', 'phone'),
+            ],
             'role' => 'required|string',
             'city_id' => 'required|exists:cities,id',
             'managed_city_ids' => 'required|array|min:1',
@@ -447,6 +456,7 @@ class AdminUsers extends Component
             'phone.min' => 'Nomor HP minimal 10 digit angka.',
             'phone.max' => 'Nomor HP maksimal 13 digit angka.',
             'phone.regex' => 'Nomor HP hanya boleh berisi angka.',
+            'phone.unique' => 'Nomor HP sudah digunakan oleh akun lain.',
             'city_id.required' => 'Kota basis operasional wajib dipilih.',
             'managed_city_ids.required' => 'Pilih minimal satu kota yang dikelola oleh admin.',
             'managed_city_ids.min' => 'Pilih minimal satu kota yang dikelola oleh admin.',

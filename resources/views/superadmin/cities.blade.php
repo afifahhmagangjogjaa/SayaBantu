@@ -5,15 +5,16 @@
 
 <div>
     <!-- Header Summary Card & Action -->
-    <div class="bg-white rounded-2xl border border-gray-200/80 p-3 sm:px-5 sm:py-3.5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+    <div class="bg-gradient-to-r from-blue-50/70 via-white to-blue-50/30 rounded-2xl border border-blue-200/80 p-3 sm:px-5 sm:py-3.5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-blue-50/80 border border-blue-100/80 flex items-center justify-center text-blue-600 flex-shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <div class="w-9 h-9 rounded-xl bg-blue-100 border border-blue-200/80 flex items-center justify-center text-[#0066FF] flex-shrink-0 shadow-2xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
             </div>
             <span class="text-base sm:text-lg font-bold text-gray-900">
-                Jumlah kota saat ini: <span class="text-blue-600 font-extrabold ml-1">{{ $cities->total() }}</span>
+                Jumlah kota saat ini: <span class="text-[#0066FF] font-black ml-1">{{ $cities->total() }}</span>
             </span>
         </div>
         <button wire:click="openCreateModal"
@@ -418,7 +419,7 @@
              x-data="{
                  initChart() {
                      if (typeof Chart === 'undefined') {
-                         console.error('Chart.js not loaded');
+                         setTimeout(() => this.initChart(), 50);
                          return;
                      }
                      
@@ -426,6 +427,11 @@
                      const customers = JSON.parse($refs.chartData.getAttribute('data-customers') || '[]');
                      const mitras = JSON.parse($refs.chartData.getAttribute('data-mitras') || '[]');
                      
+                     const existing = Chart.getChart($refs.canvas);
+                     if (existing) {
+                         existing.destroy();
+                     }
+
                      const ctx = $refs.canvas.getContext('2d');
                      new Chart(ctx, {
                          type: 'line',
@@ -474,10 +480,5 @@
             </div>
         </div>
     @endif
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-</div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </div>

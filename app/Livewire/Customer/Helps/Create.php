@@ -39,7 +39,10 @@ class Create extends Component
         }
         $cat = Category::find($this->category_id);
 
-        return $cat && strtolower(trim($cat->name)) === 'lainnya';
+        return $cat && (
+            strtolower(trim($cat->name)) === 'lainnya' ||
+            str_contains(strtolower($cat->name), 'lainnya')
+        );
     }
 
     public function updatedCategoryId($value)
@@ -162,13 +165,13 @@ class Create extends Component
     public function mount()
     {
         $requestedCat = request()->query('category_id') ?? request()->query('category');
-        if (!empty($requestedCat)) {
+        if (! empty($requestedCat)) {
             if (is_numeric($requestedCat)) {
                 if (Category::where('id', $requestedCat)->exists()) {
                     $this->category_id = (string) $requestedCat;
                 }
             } else {
-                $matchedCat = Category::where('name', 'like', '%' . trim($requestedCat) . '%')->first();
+                $matchedCat = Category::where('name', 'like', '%'.trim($requestedCat).'%')->first();
                 if ($matchedCat) {
                     $this->category_id = (string) $matchedCat->id;
                 }
@@ -212,6 +215,25 @@ class Create extends Component
                 if (! empty($city->latitude) && ! empty($city->longitude)) {
                     $this->latitude = (float) $city->latitude;
                     $this->longitude = (float) $city->longitude;
+                }
+            }
+        }
+
+        if ($user) {
+            $primaryAddr = $user->primaryAddress ?: $user->customerAddresses()->first();
+            if ($primaryAddr) {
+                if (empty($this->full_address)) {
+                    $this->full_address = $primaryAddr->formatted_address ?: $primaryAddr->address;
+                }
+                if (! empty($primaryAddr->benchmark) && empty($this->location)) {
+                    $this->location = $primaryAddr->benchmark;
+                }
+                if (! empty($primaryAddr->city_id)) {
+                    $this->city_id = (string) $primaryAddr->city_id;
+                }
+                if (! empty($primaryAddr->latitude) && ! empty($primaryAddr->longitude)) {
+                    $this->latitude = (float) $primaryAddr->latitude;
+                    $this->longitude = (float) $primaryAddr->longitude;
                 }
             }
         }
@@ -1193,6 +1215,25 @@ class Create extends Component
             $this->prepareConfirm();
         } else {
             session()->flash('topup_success', 'Top up berhasil! Saldo saat ini: Rp '.number_format($newBalance, 0, ',', '.'));
+        }
+    }
+
+    public function selectSavedAddress(int $id): void
+    {
+        $addr = \App\Models\CustomerAddress::where('user_id', auth()->id())->find($id);
+        if ($addr) {
+            $this->full_address = $addr->formatted_address ?: $addr->address;
+            if ($addr->city_id) {
+                $this->setCityId($addr->city_id);
+            }
+            if (! empty($addr->benchmark)) {
+                $this->location = $addr->benchmark;
+            }
+            if (! empty($addr->latitude) && ! empty($addr->longitude)) {
+                $this->latitude = (float) $addr->latitude;
+                $this->longitude = (float) $addr->longitude;
+                $this->dispatch('coordinatesUpdated', lat: $this->latitude, lng: $this->longitude);
+            }
         }
     }
 

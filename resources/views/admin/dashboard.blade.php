@@ -88,90 +88,84 @@
     <div class="space-y-6">
         <!-- Top Stat Cards (compact) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
-                <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm"
-                        style="background: linear-gradient(135deg,#eef2ff,#e0f2fe);">
-                        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="1.6"
-                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <!-- 1. Total Bantuan -->
+                <div class="bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 rounded-2xl border border-blue-200/80 shadow-xs hover:shadow-md p-4 flex items-center gap-3.5 transition-all duration-200">
+                    <div class="w-11 h-11 rounded-xl bg-blue-100 text-[#0066FF] border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             <path d="M21 16V8a2 2 0 0 0-2-2h-3l-2-2H10L8 6H5a2 2 0 0 0-2 2v8" />
                             <rect x="3" y="8" width="18" height="10" rx="2" ry="2" fill="none" />
                         </svg>
                     </div>
-                    <div>
-                        <div class="text-xs text-gray-500">Total Bantuan</div>
-                        <div class="text-lg font-medium text-gray-900">{{ number_format($totalHelps) }}</div>
+                    <div class="min-w-0">
+                        <div class="text-xs font-semibold text-blue-900/70 truncate">Total Bantuan</div>
+                        <div class="text-xl font-black text-gray-900 leading-tight mt-0.5">{{ number_format($totalHelps) }}</div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm"
-                        style="background: linear-gradient(135deg,#fff7ed,#ffedd5);">
-                        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="1.6"
-                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <!-- 2. Pending -->
+                <div class="bg-gradient-to-br from-amber-50/80 via-white to-amber-50/30 rounded-2xl border border-amber-200/80 shadow-xs hover:shadow-md p-4 flex items-center gap-3.5 transition-all duration-200">
+                    <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-600 border border-amber-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             <path d="M12 8v4l3 3" />
                             <circle cx="12" cy="12" r="9" fill="none" />
                         </svg>
                     </div>
-                    <div>
-                        <div class="text-xs text-gray-500">Pending</div>
-                        <div class="text-lg font-medium text-yellow-600">{{ number_format($pendingHelps) }}</div>
+                    <div class="min-w-0">
+                        <div class="text-xs font-semibold text-amber-900/70 truncate">Pending</div>
+                        <div class="text-xl font-black text-amber-600 leading-tight mt-0.5">{{ number_format($pendingHelps) }}</div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm"
-                        style="background: linear-gradient(135deg,#ecfdf5,#bbf7d0);">
-                        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="1.6"
-                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <!-- 3. Aktif -->
+                <div class="bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 rounded-2xl border border-emerald-200/80 shadow-xs hover:shadow-md p-4 flex items-center gap-3.5 transition-all duration-200">
+                    <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 border border-emerald-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             <path d="M20 6L9 17l-5-5" />
                         </svg>
                     </div>
-                    <div>
-                        <div class="text-xs text-gray-500">Aktif</div>
-                        <div class="text-lg font-medium text-green-600">{{ number_format($activeHelps) }}</div>
+                    <div class="min-w-0">
+                        <div class="text-xs font-semibold text-emerald-900/70 truncate">Aktif</div>
+                        <div class="text-xl font-black text-emerald-600 leading-tight mt-0.5">{{ number_format($activeHelps) }}</div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm"
-                        style="background: linear-gradient(135deg,#eff6ff,#dbeafe);">
-                        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="1.6"
-                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                            <path d="M20 6L9 17l-5-5" />
+                <!-- 4. Selesai -->
+                <div class="bg-gradient-to-br from-sky-50/80 via-white to-sky-50/30 rounded-2xl border border-sky-200/80 shadow-xs hover:shadow-md p-4 flex items-center gap-3.5 transition-all duration-200">
+                    <div class="w-11 h-11 rounded-xl bg-sky-100 text-sky-600 border border-sky-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
-                    <div>
-                        <div class="text-xs text-gray-500">Selesai</div>
-                        <div class="text-lg font-medium text-gray-900">{{ number_format($completedHelps) }}</div>
+                    <div class="min-w-0">
+                        <div class="text-xs font-semibold text-sky-900/70 truncate">Selesai</div>
+                        <div class="text-xl font-black text-sky-700 leading-tight mt-0.5">{{ number_format($completedHelps) }}</div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm"
-                        style="background: linear-gradient(135deg,#fff7ed,#ffedd5);">
-                        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="1.6"
-                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <!-- 5. KTP Pending -->
+                <div class="bg-gradient-to-br from-orange-50/80 via-white to-orange-50/30 rounded-2xl border border-orange-200/80 shadow-xs hover:shadow-md p-4 flex items-center gap-3.5 transition-all duration-200">
+                    <div class="w-11 h-11 rounded-xl bg-orange-100 text-orange-600 border border-orange-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             <path d="M12 8v4l3 3" />
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="none" />
                         </svg>
                     </div>
-                    <div>
-                        <div class="text-xs text-gray-500">KTP Pending</div>
-                        <div class="text-lg font-medium text-orange-600">{{ number_format($pendingVerifications) }}</div>
+                    <div class="min-w-0">
+                        <div class="text-xs font-semibold text-orange-900/70 truncate">KTP Pending</div>
+                        <div class="text-xl font-black text-orange-600 leading-tight mt-0.5">{{ number_format($pendingVerifications) }}</div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm"
-                        style="background: linear-gradient(135deg,#ecfeff,#bbf7d0);">
-                        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="1.6"
-                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                            <path d="M20 6L9 17l-5-5" />
+                <!-- 6. Mitra Terverifikasi -->
+                <div class="bg-gradient-to-br from-teal-50/80 via-white to-teal-50/30 rounded-2xl border border-teal-200/80 shadow-xs hover:shadow-md p-4 flex items-center gap-3.5 transition-all duration-200">
+                    <div class="w-11 h-11 rounded-xl bg-teal-100 text-teal-600 border border-teal-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
                     </div>
-                    <div>
-                        <div class="text-xs text-gray-500">Mitra Terverifikasi</div>
-                        <div class="text-lg font-medium text-teal-600">{{ number_format($verifiedMitras) }}</div>
+                    <div class="min-w-0">
+                        <div class="text-xs font-semibold text-teal-900/70 truncate">Mitra Terverifikasi</div>
+                        <div class="text-xl font-black text-teal-700 leading-tight mt-0.5">{{ number_format($verifiedMitras) }}</div>
                     </div>
                 </div>
             </div>
@@ -210,9 +204,8 @@
             <!-- Stats + Chart -->
             <div class="mb-6">
                 <div class="w-full bg-white rounded-2xl shadow p-6">
-                    <div class="flex items-center justify-between mb-4">
+                    <div class="mb-4">
                         <h2 class="text-lg font-medium text-gray-800">Aktivitas Terakhir</h2>
-                        <div class="text-xs text-gray-500">Update otomatis</div>
                     </div>
 
                     <div class="h-56 bg-gray-50 rounded-md border border-dashed border-gray-100 p-4">
@@ -278,11 +271,20 @@
             </div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-            (function () {
-                const ctx = document.getElementById('activityChart');
-                if (!ctx) return;
+            function initActivityChart() {
+                const canvas = document.getElementById('activityChart');
+                if (!canvas) return;
+
+                if (typeof Chart === 'undefined') {
+                    setTimeout(initActivityChart, 50);
+                    return;
+                }
+
+                const existingChart = Chart.getChart(canvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
 
                 const data = {
                     labels: @json($chartLabels),
@@ -297,7 +299,7 @@
                     }]
                 };
 
-                new Chart(ctx.getContext('2d'), {
+                new Chart(canvas.getContext('2d'), {
                     type: 'line',
                     data: data,
                     options: {
@@ -312,21 +314,25 @@
                         }
                     }
                 });
-            })();
+            }
 
-            // Carousel for banner
-            (function () {
+            function initDashboardCarousel() {
                 const carousel = document.getElementById('dashboardCarousel');
                 if (!carousel) return;
 
                 const track = carousel.querySelector('div.flex.transition-transform');
+                if (!track) return;
                 const slides = Array.from(track.children).filter(el => el.classList);
                 const indicators = Array.from(carousel.querySelectorAll('.carousel-indicator'));
                 const prevBtn = carousel.querySelector('#carouselPrev');
                 const nextBtn = carousel.querySelector('#carouselNext');
                 let current = 0;
                 const total = slides.length;
-                let interval = null;
+                if (total <= 1) return;
+
+                if (window.__dashboardCarouselInterval) {
+                    clearInterval(window.__dashboardCarouselInterval);
+                }
 
                 function updateIndicators() {
                     indicators.forEach((b, idx) => {
@@ -347,20 +353,33 @@
                 }
 
                 function resetInterval() {
-                    if (interval) clearInterval(interval);
-                    interval = setInterval(() => go(current + 1), 4200);
+                    if (window.__dashboardCarouselInterval) clearInterval(window.__dashboardCarouselInterval);
+                    window.__dashboardCarouselInterval = setInterval(() => go(current + 1), 4200);
                 }
 
-                prevBtn.addEventListener('click', () => { go(current - 1); resetInterval(); });
-                nextBtn.addEventListener('click', () => { go(current + 1); resetInterval(); });
+                if (prevBtn) prevBtn.onclick = () => { go(current - 1); resetInterval(); };
+                if (nextBtn) nextBtn.onclick = () => { go(current + 1); resetInterval(); };
 
                 indicators.forEach(btn => {
-                    btn.addEventListener('click', () => { go(parseInt(btn.dataset.index)); resetInterval(); });
+                    btn.onclick = () => { go(parseInt(btn.dataset.index)); resetInterval(); };
                 });
 
                 go(0);
                 resetInterval();
-            })();
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                initActivityChart();
+                initDashboardCarousel();
+            });
+            document.addEventListener('livewire:navigated', function () {
+                initActivityChart();
+                initDashboardCarousel();
+            });
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                initActivityChart();
+                initDashboardCarousel();
+            }
         </script>
     </div>
 @endsection

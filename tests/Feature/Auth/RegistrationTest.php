@@ -91,4 +91,33 @@ class RegistrationTest extends TestCase
 
         $response->assertSessionHasErrors('email');
     }
+
+    public function test_duplicate_phone_is_rejected_on_onboarding_step1(): void
+    {
+        $city = \App\Models\City::create(['name' => 'Kota Yogyakarta', 'is_active' => true]);
+        User::factory()->create([
+            'phone' => '081234567890',
+            'city_id' => $city->id,
+        ]);
+
+        $this->withSession([
+            'reg_account' => [
+                'name' => 'Budi Baru',
+                'email' => 'budibaru@example.com',
+                'password' => bcrypt('Password123!'),
+                'role' => 'customer',
+            ],
+        ]);
+
+        $response = $this->post(route('onboarding.step1.store'), [
+            'nik' => '3402090909930001',
+            'name' => 'Budi Baru',
+            'gender' => 'Laki-laki',
+            'phone' => '081234567890',
+            'city_id' => $city->id,
+            'address' => 'Jl. Malioboro No. 1',
+        ]);
+
+        $response->assertSessionHasErrors('phone');
+    }
 }

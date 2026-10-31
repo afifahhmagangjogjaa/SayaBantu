@@ -213,15 +213,16 @@ class WithdrawController extends Controller
             ->get()
             ->map(function ($item) {
                 $help = $item->help;
-                $orderCode = $help ? ($help->order_id ?: ('SRB' . str_pad($help->id, 4, '0', STR_PAD_LEFT))) : ($item->order_id ?: ('SRB' . str_pad($item->id, 4, '0', STR_PAD_LEFT)));
+                $orderCode = $help ? ($help->order_id ?: ('SRB'.str_pad($help->id, 4, '0', STR_PAD_LEFT))) : ($item->order_id ?: ('SRB'.str_pad($item->id, 4, '0', STR_PAD_LEFT)));
                 if (str_starts_with($orderCode, 'HELP-')) {
-                    $orderCode = 'SRB' . str_pad(substr($orderCode, 5), 4, '0', STR_PAD_LEFT);
+                    $orderCode = 'SRB'.str_pad(substr($orderCode, 5), 4, '0', STR_PAD_LEFT);
                 }
                 $catName = $help ? (optional($help->category)->name ?? $help->title) : ($item->description ?? 'Pekerjaan Jasa');
+
                 return (object) [
                     'id' => $item->id,
                     'type' => 'income',
-                    'title' => 'Order #' . $orderCode,
+                    'title' => 'Order #'.$orderCode,
                     'subtitle' => $catName,
                     'amount' => (float) $item->amount,
                     'created_at' => $item->created_at,
@@ -236,12 +237,13 @@ class WithdrawController extends Controller
             ->get()
             ->map(function ($item) {
                 $bankCode = strtoupper($item->bank_code ?? 'BCA');
-                $accMasked = strlen($item->account_number) >= 4 ? '****' . substr($item->account_number, -4) : '****1234';
+                $accMasked = strlen($item->account_number) >= 4 ? '****'.substr($item->account_number, -4) : '****1234';
+
                 return (object) [
                     'id' => $item->id,
                     'type' => 'withdraw',
                     'title' => 'Penarikan Saldo',
-                    'subtitle' => 'Ke ' . $bankCode . ' ' . $accMasked,
+                    'subtitle' => 'Ke '.$bankCode.' '.$accMasked,
                     'amount' => (float) $item->amount,
                     'created_at' => $item->created_at,
                     'status' => $item->status,

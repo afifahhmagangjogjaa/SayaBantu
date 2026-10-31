@@ -45,16 +45,7 @@
 
                 <!-- Kota Domisili -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        Kota Domisili
-                    </label>
-                    <select name="city_id" id="city_id" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('city_id') border-red-500 @enderror">
-                        <option value="">Pilih Kota Domisili</option>
-                        @foreach($cities as $city)
-                            <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('city_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    <x-searchable-city-select :cities="$cities" name="city_id" id="city_id" label="Kota Domisili" placeholder="Cari kota domisili..." :value="old('city_id', $user->city_id ?? null)" />
                 </div>
 
                 <!-- Alamat Lengkap Domisili -->

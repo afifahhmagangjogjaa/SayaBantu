@@ -245,7 +245,7 @@
                                 class="w-full px-4 py-3 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition bg-white">
                                 <option value="">Pilih Kategori</option>
                                 @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}" @selected((string)$category_id === (string)$category->id)>{{ $category->name }}</option>
+                                    <option value="{{ $category->id }}" @selected((string)$category_id === (string)$category->id)>{{ $category->icon ? $category->icon . ' ' : '' }}{{ $category->name }}</option>
                                 @endforeach
                             </select>
                             @error('category_id')
@@ -259,7 +259,10 @@
 
                             @php
                                 $selectedCategory = $categories->firstWhere('id', $category_id);
-                                $isOtherSelected = $selectedCategory && strtolower(trim($selectedCategory->name)) === 'lainnya';
+                                $isOtherSelected = $selectedCategory && (
+                                    strtolower(trim($selectedCategory->name)) === 'lainnya' ||
+                                    str_contains(strtolower($selectedCategory->name), 'lainnya')
+                                );
                             @endphp
 
                             @if($isOtherSelected)
@@ -546,8 +549,9 @@
                                     Kota / Wilayah Layanan
                                 </span>
                             </label>
-                            <select wire:model.live="city_id" id="city-select"
-                                class="w-full px-4 py-3 text-xs font-semibold rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition bg-white text-gray-800">
+                            <x-searchable-city-select :cities="$cities" model="city_id" label="" placeholder="Cari kota / wilayah layanan..." />
+
+                            <select wire:model.live="city_id" id="city-select" class="sr-only pointer-events-none" aria-hidden="true" tabindex="-1">
                                 <option value="">Pilih Kota</option>
                                 @foreach ($cities as $city)
                                     @php
@@ -600,14 +604,50 @@
 
                         <!-- Alamat Lengkap -->
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">
-                                <span class="flex items-center">
-                                    <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-                                    </svg>
-                                    Alamat Lengkap
-                                </span>
-                            </label>
+                            @php
+                                $customerSavedAddresses = auth()->check() ? \App\Models\CustomerAddress::where('user_id', auth()->id())->get() : collect();
+                            @endphp
+
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-xs font-bold text-gray-700">
+                                    <span class="flex items-center">
+                                        <svg class="w-3.5 h-3.5 mr-1.5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                        </svg>
+                                        Alamat Lengkap
+                                    </span>
+                                </label>
+                                @if($customerSavedAddresses->isNotEmpty())
+                                    <a href="{{ route('customer.addresses') }}" wire:navigate class="text-[11px] font-bold text-[#0066FF] hover:underline flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Kelola Alamat
+                                    </a>
+                                @endif
+                            </div>
+
+                            @if($customerSavedAddresses->isNotEmpty())
+                                <div class="mb-2">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
+                                        Pilih dari Alamat Tersimpan:
+                                    </p>
+                                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                                        @foreach($customerSavedAddresses as $sAddr)
+                                            <button type="button" wire:click="selectSavedAddress({{ $sAddr->id }})"
+                                                    title="{{ $sAddr->formatted_address ?: $sAddr->address }}"
+                                                    class="shrink-0 px-2.5 py-1 text-xs rounded-xl border border-slate-200 bg-white hover:border-[#0066FF] hover:bg-blue-50/60 transition active:scale-95 text-slate-800 font-semibold flex items-center gap-1 shadow-2xs cursor-pointer">
+                                                <span>{{ $sAddr->label === 'Rumah' ? '🏠' : ($sAddr->label === 'Kantor' ? '🏢' : ($sAddr->label === 'Kos' ? '🛏️' : '📍')) }}</span>
+                                                <span class="font-bold">{{ $sAddr->label }}</span>
+                                                @if($sAddr->is_primary)
+                                                    <span class="text-[9px] font-black text-rose-600 bg-rose-50 px-1 py-0.2 rounded border border-rose-200 uppercase">Utama</span>
+                                                @endif
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
                             <x-smart-address-input 
                                 wire:model="full_address" 
                                 id="full_address"

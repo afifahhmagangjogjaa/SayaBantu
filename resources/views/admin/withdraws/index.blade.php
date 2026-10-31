@@ -38,32 +38,32 @@
             <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                 <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
                     <a href="{{ route('admin.withdraws.index') }}" wire:navigate 
-                        class="p-3.5 rounded-xl border transition-all duration-200 {{ !request('status') ? 'bg-primary-50 border-primary-300 ring-2 ring-primary-200' : 'bg-white border-gray-200 hover:border-gray-300' }}">
-                        <div class="text-xs font-medium text-gray-500">Semua Request</div>
-                        <div class="text-xl font-bold text-gray-900 mt-1">{{ $counts['all'] ?? 0 }}</div>
+                        class="p-3.5 rounded-xl border transition-all duration-200 {{ !request('status') ? 'bg-gradient-to-br from-blue-100/90 via-blue-50/80 to-blue-100/40 border-blue-400 ring-2 ring-blue-300 shadow-sm' : 'bg-gradient-to-br from-gray-50/90 via-white to-gray-50/40 border-gray-200/80 hover:border-blue-300 hover:from-blue-50/30' }}">
+                        <div class="text-xs font-semibold {{ !request('status') ? 'text-blue-900' : 'text-gray-600' }}">Semua Request</div>
+                        <div class="text-xl font-black text-gray-900 mt-1">{{ $counts['all'] ?? 0 }}</div>
                     </a>
                     <a href="{{ route('admin.withdraws.index', array_merge(request()->except('status', 'page'), ['status' => 'pending'])) }}" 
-                        class="p-3.5 rounded-xl border transition-all duration-200 {{ request('status') === 'pending' ? 'bg-yellow-50 border-yellow-300 ring-2 ring-yellow-200' : 'bg-white border-gray-200 hover:border-yellow-200' }}">
-                        <div class="text-xs font-medium text-yellow-700 flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
+                        class="p-3.5 rounded-xl border transition-all duration-200 {{ request('status') === 'pending' ? 'bg-gradient-to-br from-amber-100/90 via-amber-50/80 to-amber-100/40 border-amber-400 ring-2 ring-amber-300 shadow-sm' : 'bg-gradient-to-br from-amber-50/70 via-white to-amber-50/30 border-amber-200/80 hover:border-amber-300' }}">
+                        <div class="text-xs font-semibold text-amber-800 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                             Pending
                         </div>
-                        <div class="text-xl font-bold text-yellow-800 mt-1">{{ $counts['pending'] ?? 0 }}</div>
+                        <div class="text-xl font-black text-amber-700 mt-1">{{ $counts['pending'] ?? 0 }}</div>
                     </a>
                     <a href="{{ route('admin.withdraws.index', array_merge(request()->except('status', 'page'), ['status' => 'processing'])) }}" 
-                        class="p-3.5 rounded-xl border transition-all duration-200 {{ request('status') === 'processing' ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200' : 'bg-white border-gray-200 hover:border-blue-200' }}">
-                        <div class="text-xs font-medium text-blue-700">Diproses</div>
-                        <div class="text-xl font-bold text-blue-800 mt-1">{{ $counts['processing'] ?? 0 }}</div>
+                        class="p-3.5 rounded-xl border transition-all duration-200 {{ request('status') === 'processing' ? 'bg-gradient-to-br from-sky-100/90 via-sky-50/80 to-sky-100/40 border-sky-400 ring-2 ring-sky-300 shadow-sm' : 'bg-gradient-to-br from-sky-50/70 via-white to-sky-50/30 border-sky-200/80 hover:border-sky-300' }}">
+                        <div class="text-xs font-semibold text-sky-800">Diproses</div>
+                        <div class="text-xl font-black text-sky-700 mt-1">{{ $counts['processing'] ?? 0 }}</div>
                     </a>
                     <a href="{{ route('admin.withdraws.index', array_merge(request()->except('status', 'page'), ['status' => 'success'])) }}" 
-                        class="p-3.5 rounded-xl border transition-all duration-200 {{ request('status') === 'success' ? 'bg-green-50 border-green-300 ring-2 ring-green-200' : 'bg-white border-gray-200 hover:border-green-200' }}">
-                        <div class="text-xs font-medium text-green-700">Berhasil</div>
-                        <div class="text-xl font-bold text-green-800 mt-1">{{ $counts['success'] ?? 0 }}</div>
+                        class="p-3.5 rounded-xl border transition-all duration-200 {{ request('status') === 'success' ? 'bg-gradient-to-br from-emerald-100/90 via-emerald-50/80 to-emerald-100/40 border-emerald-400 ring-2 ring-emerald-300 shadow-sm' : 'bg-gradient-to-br from-emerald-50/70 via-white to-emerald-50/30 border-emerald-200/80 hover:border-emerald-300' }}">
+                        <div class="text-xs font-semibold text-emerald-800">Berhasil</div>
+                        <div class="text-xl font-black text-emerald-700 mt-1">{{ $counts['success'] ?? 0 }}</div>
                     </a>
                     <a href="{{ route('admin.withdraws.index', array_merge(request()->except('status', 'page'), ['status' => 'failed'])) }}" 
-                        class="p-3.5 rounded-xl border transition-all duration-200 {{ request('status') === 'failed' ? 'bg-red-50 border-red-300 ring-2 ring-red-200' : 'bg-white border-gray-200 hover:border-red-200' }}">
-                        <div class="text-xs font-medium text-red-700">Ditolak/Gagal</div>
-                        <div class="text-xl font-bold text-red-800 mt-1">{{ $counts['failed'] ?? 0 }}</div>
+                        class="p-3.5 rounded-xl border transition-all duration-200 {{ request('status') === 'failed' ? 'bg-gradient-to-br from-rose-100/90 via-rose-50/80 to-rose-100/40 border-rose-400 ring-2 ring-rose-300 shadow-sm' : 'bg-gradient-to-br from-rose-50/70 via-white to-rose-50/30 border-rose-200/80 hover:border-rose-300' }}">
+                        <div class="text-xs font-semibold text-rose-800">Ditolak/Gagal</div>
+                        <div class="text-xl font-black text-rose-700 mt-1">{{ $counts['failed'] ?? 0 }}</div>
                     </a>
                 </div>
 
@@ -169,7 +169,7 @@
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Mitra</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Jumlah</th>
                             <th class="px-2.5 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Rekening Tujuan</th>
-                            <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Status</th>
+                            <th class="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-32">Status</th>
                             <th class="px-2.5 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap w-24">Aksi</th>
                         </tr>
                     </thead>
@@ -191,7 +191,13 @@
                                             </div>
                                             <div class="min-w-0">
                                                 <span class="text-sm font-semibold text-gray-900 truncate block max-w-[150px]">{{ $item->user->name }}</span>
-                                                <div class="text-[10px] text-gray-500 mt-0.5">WD: #{{ $item->id }} • ID: {{ $item->user_id }}</div>
+                                                <div class="flex items-center gap-1.5 mt-0.5">
+                                                    <span class="font-mono text-[10px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                                                        {{ $item->withdraw_code }}
+                                                    </span>
+                                                    <span class="text-[10px] text-gray-400">•</span>
+                                                    <span class="text-[10px] text-gray-500">ID: {{ $item->user_id }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     @else
@@ -205,31 +211,38 @@
                                     <div class="text-xs font-semibold text-gray-800">{{ $item->bank_code }}</div>
                                     <div class="text-[10px] font-mono text-gray-500 mt-0.5">{{ $item->account_number }}</div>
                                 </td>
-                                <td class="px-2.5 py-2.5 text-center whitespace-nowrap">
-                                    @if($item->status === 'pending')
-                                        <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
-                                            <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-1 animate-pulse"></span> Pending
-                                        </span>
-                                    @elseif($item->status === 'processing')
-                                        <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1"></span> Diproses
-                                        </span>
-                                    @elseif($item->status === 'success')
-                                        <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">
-                                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></span> Selesai
-                                        </span>
-                                    @else
-                                        <span class="px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">
-                                            <span class="w-1.5 h-1.5 bg-red-500 rounded-full mr-1"></span> Gagal
-                                        </span>
-                                    @endif
+                                <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                                    <div class="flex items-center justify-center">
+                                        @if($item->status === 'pending')
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                                <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                                                <span>Pending</span>
+                                            </span>
+                                        @elseif($item->status === 'processing')
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                                                <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                                                <span>Diproses</span>
+                                            </span>
+                                        @elseif($item->status === 'success')
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                                <span>Selesai</span>
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                                                <span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
+                                                <span>Gagal</span>
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-2.5 py-2.5 text-center whitespace-nowrap">
                                     <div class="flex items-center justify-center gap-1.5">
                                         {{-- Semua aksi (setujui/tolak) dilakukan di halaman detail --}}
                                         <a href="{{ route('admin.withdraws.show', $item) }}" wire:navigate 
-                                           class="inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold">
-                                            {{ $item->status === 'pending' ? 'Proses' : 'Detail' }}
+                                           class="inline-flex items-center px-2.5 py-1 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-primary-600 transition shadow-2xs text-xs font-semibold"
+                                           title="Lihat Detail Permintaan">
+                                            Detail
                                         </a>
                                         @if($item->status !== 'pending')
                                             <form action="{{ route('admin.withdraws.destroy', $item) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data riwayat withdraw ini?" data-confirm-danger="true" class="inline">

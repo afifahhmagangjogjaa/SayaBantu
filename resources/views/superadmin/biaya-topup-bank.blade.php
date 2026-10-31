@@ -453,6 +453,143 @@
                     </div>
                 </div>
 
+                <!-- Payment Methods (QRIS & E-Wallet) -->
+                <div class="border border-gray-200 rounded-2xl p-5 sm:p-6 bg-white shadow-xs">
+                    @if (session()->has('qris_message'))
+                        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" 
+                            class="mb-4 flex items-center justify-between p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold transition">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>{{ session('qris_message') }}</span>
+                            </div>
+                            <button type="button" @click="show = false" class="text-emerald-500 hover:text-emerald-700 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    @endif
+
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 mb-5 border-b border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-900">Metode Pembayaran QRIS &amp; E-Wallet (Scan &amp; Bayar)</h3>
+                                <p class="text-xs text-gray-500 mt-0.5">Upload barcode QRIS platform dan atur ketersediaan pembayaran QRIS untuk top-up customer.</p>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Status QRIS -->
+                        <div class="flex items-center gap-2 self-start sm:self-auto">
+                            <button type="button" wire:click="toggleQrisStatus"
+                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer {{ $qris_enabled ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100' : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200' }}">
+                                <span class="w-2 h-2 rounded-full {{ $qris_enabled ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400' }}"></span>
+                                <span>{{ $qris_enabled ? 'QRIS Aktif' : 'QRIS Dinonaktifkan' }}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                        <!-- Left: QRIS Image Preview (5 cols) -->
+                        <div class="md:col-span-5 flex flex-col items-center p-4 bg-gray-50/70 rounded-2xl border border-gray-200/80">
+                            <span class="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Tampilan Barcode QRIS</span>
+
+                            @if($qris_image_upload)
+                                <div class="relative group">
+                                    <img src="{{ $qris_image_upload->temporaryUrl() }}" 
+                                        alt="Preview QRIS" 
+                                        class="w-52 h-52 object-contain bg-white border-2 border-emerald-400 rounded-2xl shadow-sm p-2 mx-auto">
+                                    <div class="absolute inset-0 bg-emerald-900/10 rounded-2xl pointer-events-none"></div>
+                                </div>
+                                <p class="text-xs font-semibold text-emerald-700 mt-2 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    File dipilih (Klik Simpan di bawah)
+                                </p>
+                            @elseif($current_qris_image)
+                                @php
+                                    $previewUrl = ($current_qris_image === 'images/payment/qris.png') 
+                                        ? asset('images/payment/qris.png') 
+                                        : asset('storage/' . $current_qris_image);
+                                @endphp
+                                <img src="{{ $previewUrl }}" 
+                                    alt="QRIS Aktif" 
+                                    class="w-52 h-52 object-contain bg-white border-2 border-emerald-200 rounded-2xl shadow-sm p-2 mx-auto">
+                                @if($qris_merchant_name)
+                                    <p class="text-xs font-bold text-gray-900 mt-2">{{ $qris_merchant_name }}</p>
+                                @endif
+                                <div class="mt-3 flex items-center gap-2">
+                                    <button type="button" wire:click="removeQrisImage"
+                                        wire:confirm="Apakah Anda yakin ingin menghapus gambar QRIS ini? Pilihan QRIS pada customer akan menampilkan status belum tersedia."
+                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-semibold transition cursor-pointer">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        <span>Hapus Gambar</span>
+                                    </button>
+                                </div>
+                            @else
+                                <div class="w-52 h-52 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center p-4 bg-white text-center">
+                                    <div class="w-12 h-12 rounded-xl bg-gray-100 text-gray-400 flex items-center justify-center mb-2">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-xs font-semibold text-gray-600">Belum ada barcode QRIS</p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">Upload gambar QRIS pada formulir di samping</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Right: Form Settings & Upload (7 cols) -->
+                        <div class="md:col-span-7 space-y-4">
+                            <!-- Nama Merchant -->
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1.5">Nama Merchant / NMID QRIS</label>
+                                <input type="text" wire:model="qris_merchant_name" placeholder="Misal: SayaBantu / PT SayaBantu Indonesia"
+                                    class="w-full px-3.5 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                                @error('qris_merchant_name')
+                                    <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                                @enderror
+                                <p class="text-[11px] text-gray-400 mt-1">Nama ini akan dicantumkan di bawah barcode saat customer melakukan pembayaran.</p>
+                            </div>
+
+                            <!-- Upload File Gambar QRIS -->
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1.5">Upload File Gambar Barcode QRIS</label>
+                                <div class="relative">
+                                    <input type="file" wire:model="qris_image_upload" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+                                        class="w-full text-xs text-gray-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 border border-gray-300 rounded-xl bg-gray-50/50 p-1.5 cursor-pointer">
+                                </div>
+                                <div wire:loading wire:target="qris_image_upload" class="text-xs font-semibold text-emerald-600 mt-1.5 flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                    <span>Sedang memproses upload gambar...</span>
+                                </div>
+                                @error('qris_image_upload')
+                                    <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                                @enderror
+                                <p class="text-[11px] text-gray-400 mt-1">Dukung format file: PNG, JPG, JPEG, WEBP, SVG (Maks. 5 MB). Dianjurkan gambar berbentuk bujur sangkar (rasio 1:1) yang jernih dan mudah discan.</p>
+                            </div>
+
+                            <!-- Tombol Simpan -->
+                            <div class="pt-2">
+                                <button type="button" wire:click="saveQrisSettings"
+                                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow transition cursor-pointer">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span>Simpan Pengaturan QRIS</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Payment Methods (Banks) -->
                 <div class="border border-gray-200 rounded-2xl p-5 sm:p-6 bg-white">
                     @if (session()->has('bank_message'))
@@ -743,12 +880,23 @@
 @php
     $topupAdminChartJson = json_encode($topupAdminChart ?? ['daily' => ['labels' => [], 'data' => []], 'monthly' => ['labels' => [], 'data' => []], 'yearly' => ['labels' => [], 'data' => []]]);
 @endphp
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    function initTopupAdminChart() {
+        const canvas = document.getElementById('topupAdminChart');
+        if (!canvas) return;
+
+        if (typeof Chart === 'undefined') {
+            setTimeout(initTopupAdminChart, 50);
+            return;
+        }
+
         const topupData = {!! $topupAdminChartJson !!};
-        const topupCtx = document.getElementById('topupAdminChart')?.getContext('2d');
-        let topupChartInstance = null;
+        const topupCtx = canvas.getContext('2d');
+        let topupChartInstance = Chart.getChart(canvas);
+        if (topupChartInstance) {
+            topupChartInstance.destroy();
+            topupChartInstance = null;
+        }
 
         function renderTopupChart(range) {
             if (!topupCtx) return;
@@ -828,7 +976,8 @@
                     }
                 };
 
-                if (topupChartInstance) topupChartInstance.destroy();
+                const existing = Chart.getChart(canvas);
+                if (existing) existing.destroy();
                 topupChartInstance = new Chart(topupCtx, cfg);
 
                 if (container) container.style.opacity = '1';
@@ -847,15 +996,23 @@
                 }
             });
         }
-        topupTabs.forEach(t => t.addEventListener('click', function () {
-            const r = t.dataset.range;
-            setTopupActive(r);
-            renderTopupChart(r);
-        }));
+        topupTabs.forEach(t => {
+            t.onclick = function () {
+                const r = t.dataset.range;
+                setTopupActive(r);
+                renderTopupChart(r);
+            };
+        });
 
         setTopupActive('daily');
         renderTopupChart('daily');
-    });
+    }
+
+    document.addEventListener('DOMContentLoaded', initTopupAdminChart);
+    document.addEventListener('livewire:navigated', initTopupAdminChart);
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        initTopupAdminChart();
+    }
 </script>
 
 <script>

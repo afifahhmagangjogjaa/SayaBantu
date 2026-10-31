@@ -432,6 +432,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(\App\Models\WithdrawRequest::class);
     }
 
+    public function customerAddresses()
+    {
+        return $this->hasMany(\App\Models\CustomerAddress::class);
+    }
+
+    public function primaryAddress()
+    {
+        return $this->hasOne(\App\Models\CustomerAddress::class)->where('is_primary', true);
+    }
+
     /**
      * Accessor to get numeric balance conveniently via $user->balance
      */

@@ -6,75 +6,98 @@
         <!-- Filter Bar -->
         <div class="mb-6">
             <form method="GET" action="{{ url()->current() }}"
-                class="bg-white rounded-2xl shadow-md border border-gray-200 p-5 sm:p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <p class="text-xs font-semibold text-gray-700">Filter {{ request()->routeIs('admin.customers*') ? 'Customer' : (request()->routeIs('admin.mitra*') ? 'Mitra' : 'Pengguna') }}</p>
+                class="bg-white rounded-2xl shadow-xs border border-gray-200/80 p-4 sm:p-5">
+                
+                <!-- Header / Title -->
+                <div class="flex items-center justify-between pb-3 mb-3.5 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0066FF] flex-shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-sm font-bold text-gray-900">
+                            Filter {{ request()->routeIs('admin.customers*') ? 'Customer' : (request()->routeIs('admin.mitra*') ? 'Mitra' : 'Pengguna') }}
+                        </h3>
+                    </div>
+
                     @if (request()->hasAny(['search', 'role', 'account_status', 'ktp_status']))
                         <a href="{{ url()->current() }}"
-                            class="text-[11px] text-gray-400 hover:text-gray-600 underline">Reset filter</a>
+                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100/80 px-2.5 py-1 rounded-lg transition border border-rose-200/60">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Reset Filter
+                        </a>
                     @endif
                 </div>
 
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Cari {{ request()->routeIs('admin.customers*') ? 'Customer' : (request()->routeIs('admin.mitra*') ? 'Mitra' : 'Pengguna') }}</label>
-                        <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Nama atau email..."
-                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-{{ !request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*') ? '4' : '3' }} gap-4 items-end">
-                        @if(!request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*'))
-                        <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1.5">Role</label>
-                            <select name="role" onchange="this.form.submit()"
-                                class="w-full pl-3.5 pr-8 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 cursor-pointer">
-                                <option value="all" {{ request('role') === 'all' ? 'selected' : '' }}>Semua Role</option>
-                                <option value="mitra" {{ request('role') === 'mitra' ? 'selected' : '' }}>Mitra</option>
-                                <option value="kustomer" {{ in_array(request('role'), ['kustomer', 'customer']) ? 'selected' : '' }}>Customer</option>
-                                <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                            </select>
-                        </div>
-                        @endif
-
-                        <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1.5">Status Akun</label>
-                            <select name="account_status" onchange="this.form.submit()"
-                                class="w-full pl-3.5 pr-8 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 cursor-pointer">
-                                <option value="" {{ request('account_status') === null || request('account_status') === '' ? 'selected' : '' }}>Semua</option>
-                                <option value="active" {{ request('account_status') === 'active' ? 'selected' : '' }}>Aktif
-                                </option>
-                                <option value="inactive"
-                                    {{ request('account_status') === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
-                                <option value="blocked" {{ request('account_status') === 'blocked' ? 'selected' : '' }}>Diblokir
-                                </option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1.5">Status KTP</label>
-                            <select name="ktp_status" onchange="this.form.submit()"
-                                class="w-full pl-3.5 pr-8 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 cursor-pointer">
-                                <option value="" {{ request('ktp_status') === null || request('ktp_status') === '' ? 'selected' : '' }}>Semua</option>
-                                <option value="uploaded" {{ request('ktp_status') === 'uploaded' ? 'selected' : '' }}>Sudah
-                                    Upload</option>
-                                <option value="missing" {{ request('ktp_status') === 'missing' ? 'selected' : '' }}>Belum
-                                    Upload</option>
-                            </select>
-                        </div>
-
-                        <div class="flex justify-start sm:justify-end">
-                            <button type="submit"
-                                class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-primary-600 text-white text-xs font-semibold rounded-xl shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                                Terapkan Filter
-                            </button>
+                <!-- Filter Controls Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
+                    <!-- Search Input -->
+                    <div class="{{ !request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*') ? 'lg:col-span-3' : 'lg:col-span-5' }}">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">
+                            Cari {{ request()->routeIs('admin.customers*') ? 'Customer' : (request()->routeIs('admin.mitra*') ? 'Mitra' : 'Pengguna') }}
+                        </label>
+                        <div class="relative w-full">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Nama atau email..."
+                                class="w-full pl-9 pr-3.5 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#0066FF] focus:border-[#0066FF] transition">
                         </div>
                     </div>
-                </div>
 
-                <div class="mt-4 flex items-center justify-between">
-                    <p class="text-[11px] text-gray-400">Kombinasikan pencarian, role, status akun, dan status KTP untuk
-                        menemukan pengguna secara cepat.</p>
+                    @if(!request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*'))
+                    <!-- Role Filter -->
+                    <div class="lg:col-span-2">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Role</label>
+                        <select name="role" onchange="this.form.submit()"
+                            class="w-full px-3 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-sm text-gray-800 font-medium focus:ring-2 focus:ring-[#0066FF] focus:border-[#0066FF] cursor-pointer transition">
+                            <option value="all" {{ request('role') === 'all' ? 'selected' : '' }}>Semua Role</option>
+                            <option value="mitra" {{ request('role') === 'mitra' ? 'selected' : '' }}>Mitra</option>
+                            <option value="kustomer" {{ in_array(request('role'), ['kustomer', 'customer']) ? 'selected' : '' }}>Customer</option>
+                            <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                        </select>
+                    </div>
+                    @endif
+
+                    <!-- Status Akun -->
+                    <div class="{{ !request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*') ? 'lg:col-span-2' : 'lg:col-span-3' }}">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Status Akun</label>
+                        <select name="account_status" onchange="this.form.submit()"
+                            class="w-full px-3 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-sm text-gray-800 font-medium focus:ring-2 focus:ring-[#0066FF] focus:border-[#0066FF] cursor-pointer transition">
+                            <option value="" {{ request('account_status') === null || request('account_status') === '' ? 'selected' : '' }}>Semua Status</option>
+                            <option value="active" {{ request('account_status') === 'active' ? 'selected' : '' }}>Aktif</option>
+                            <option value="inactive" {{ request('account_status') === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
+                            <option value="blocked" {{ request('account_status') === 'blocked' ? 'selected' : '' }}>Diblokir</option>
+                        </select>
+                    </div>
+
+                    <!-- Status KTP -->
+                    <div class="{{ !request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*') ? 'lg:col-span-2' : 'lg:col-span-2' }}">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Status KTP</label>
+                        <select name="ktp_status" onchange="this.form.submit()"
+                            class="w-full px-3 py-2.5 bg-gray-50/50 hover:bg-white focus:bg-white border border-gray-300 rounded-xl text-sm text-gray-800 font-medium focus:ring-2 focus:ring-[#0066FF] focus:border-[#0066FF] cursor-pointer transition">
+                            <option value="" {{ request('ktp_status') === null || request('ktp_status') === '' ? 'selected' : '' }}>Semua KTP</option>
+                            <option value="uploaded" {{ request('ktp_status') === 'uploaded' ? 'selected' : '' }}>Sudah Upload</option>
+                            <option value="missing" {{ request('ktp_status') === 'missing' ? 'selected' : '' }}>Belum Upload</option>
+                        </select>
+                    </div>
+
+                    <!-- Button Action -->
+                    <div class="{{ !request()->routeIs('admin.customers*') && !request()->routeIs('admin.mitra*') ? 'lg:col-span-3' : 'lg:col-span-2' }} flex items-center">
+                        <button type="submit"
+                            class="w-full h-[42px] inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:from-[#0052CC] hover:to-[#0040A8] text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            <span>Terapkan</span>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -82,11 +105,11 @@
         <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Daftar Pengguna</h2>
-                    <p class="text-xs text-gray-500 mt-1">Pantau dan kelola akun pengguna yang terdaftar di platform.</p>
+                    <h2 class="text-lg font-semibold text-gray-900">Daftar {{ request()->routeIs('admin.customers*') ? 'Customer' : (request()->routeIs('admin.mitra*') ? 'Mitra' : 'Pengguna') }}</h2>
+                    <p class="text-xs text-gray-500 mt-1">Pantau dan kelola akun {{ strtolower(request()->routeIs('admin.customers*') ? 'Customer' : (request()->routeIs('admin.mitra*') ? 'Mitra' : 'Pengguna')) }} yang terdaftar di wilayah Anda.</p>
                 </div>
                 @if ($users->total() > 0)
-                    <p class="text-[11px] text-gray-500">Total {{ $users->total() }} pengguna.</p>
+                    <p class="text-[11px] text-gray-500">Total {{ $users->total() }} {{ strtolower(request()->routeIs('admin.customers*') ? 'customer' : (request()->routeIs('admin.mitra*') ? 'mitra' : 'pengguna')) }}.</p>
                 @endif
             </div>
 
