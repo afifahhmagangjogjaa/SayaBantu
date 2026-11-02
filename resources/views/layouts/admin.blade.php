@@ -785,6 +785,25 @@
             });
         });
     </script>
+
+    @if(session('success') || session('message') || session('status'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.sbToast) {
+                    window.sbToast(@json(session('success') ?? session('message') ?? session('status')), 'success');
+                }
+            });
+        </script>
+    @endif
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.sbToast) {
+                    window.sbToast(@json(session('error')), 'error');
+                }
+            });
+        </script>
+    @endif
 </body>
 
 </html>

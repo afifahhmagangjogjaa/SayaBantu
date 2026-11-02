@@ -4,6 +4,34 @@
 @endphp
 
 <div>
+    <!-- Sub-Nav Tabs Pengaturan Bantuan -->
+    <div class="mb-6 bg-white border border-slate-200/90 rounded-2xl p-1.5 shadow-2xs">
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <a href="{{ route('superadmin.pengaturan.bantuan.fee-pendapatan') }}" wire:navigate
+                class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition {{ request()->routeIs('superadmin.pengaturan.bantuan.fee-pendapatan*') ? 'bg-[#0066FF] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+                <span>Fee & Pendapatan</span>
+            </a>
+            <a href="{{ route('superadmin.pengaturan.bantuan.biaya-topup') }}" wire:navigate
+                class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition {{ request()->routeIs('superadmin.pengaturan.bantuan.biaya-topup*') ? 'bg-[#0066FF] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                <span>Biaya Top-Up & Bank</span>
+            </a>
+            <a href="{{ route('superadmin.pengaturan.bantuan.tarif-radius') }}" wire:navigate
+                class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition {{ request()->routeIs('superadmin.pengaturan.bantuan.tarif-radius*') || request()->routeIs('superadmin.settings.radius*') || request()->routeIs('superadmin.settings.tarif-radius*') ? 'bg-[#0066FF] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Tarif & Radius Jangkauan Mitra</span>
+            </a>
+        </div>
+    </div>
+
     <!-- Top-Up Admin Fee Stats & Chart Section -->
     <div class="mb-8">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">

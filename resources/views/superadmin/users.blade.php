@@ -161,6 +161,11 @@
                                                 Aktif
                                             </span>
                                         @endif
+                                        @if ($user->isShadowBanned())
+                                            <span class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                                👻 Shadow Ban
+                                            </span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-2.5 py-3 text-xs text-gray-600">
@@ -309,9 +314,20 @@
                             <div class="text-sm text-gray-500">{{ $selectedUser->email }}</div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        @if(in_array($selectedUser->role, ['mitra', 'customer', 'kustomer']))
+                            <button type="button" wire:click="toggleShadowBan({{ $selectedUser->id }})"
+                                wire:loading.attr="disabled"
+                                wire:target="toggleShadowBan"
+                                style="background-color: {{ $selectedUser->isShadowBanned() ? '#f3e8ff' : '#ffffff' }}; color: {{ $selectedUser->isShadowBanned() ? '#6b21a8' : '#7e22ce' }}; border: 1px solid {{ $selectedUser->isShadowBanned() ? '#d8b4fe' : '#c084fc' }};"
+                                class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs hover:opacity-90 transition cursor-pointer"
+                                title="{{ $selectedUser->isShadowBanned() ? 'Lepaskan status Shadow Ban agar mitra kembali dapat melihat pesanan' : 'Aktifkan Shadow Ban agar pesanan disembunyikan dari mitra ini' }}">
+                                <span>👻</span>
+                                <span class="text-[11px] font-bold">{{ $selectedUser->isShadowBanned() ? 'Lepas Shadow Ban' : 'Shadow Ban' }}</span>
+                            </button>
+                        @endif
                         <button type="button" wire:click.prevent="closeModal"
-                            class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+                            class="text-gray-500 hover:text-gray-700 text-xl cursor-pointer">&times;</button>
                     </div>
                 </div>
 
@@ -363,8 +379,14 @@
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500">Status</div>
-                                <div class="font-medium text-gray-900">
-                                    {{ $selectedUser->status ? ucfirst($selectedUser->status) : '—' }}</div>
+                                <div class="font-medium text-gray-900 flex items-center gap-2">
+                                    <span>{{ $selectedUser->status ? ucfirst($selectedUser->status) : '—' }}</span>
+                                    @if ($selectedUser->isShadowBanned())
+                                        <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                            👻 Shadow Banned
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500">Verified</div>

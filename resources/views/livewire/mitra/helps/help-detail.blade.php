@@ -53,10 +53,12 @@
     </div>
 
     {{-- Header - BRImo Style --}}
-    <div class="px-5 pt-5 pb-8 relative overflow-hidden"
+    <div class="px-5 pt-5 pb-8 relative text-white"
         style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
-        <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+        </div>
 
         <div class="relative z-10 max-w-md mx-auto">
             <div class="flex items-center justify-between text-white mb-6">
@@ -77,14 +79,13 @@
         </div>
 
         <!-- Curved separator -->
-        <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 72" preserveAspectRatio="none"
-            aria-hidden="true">
-            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f9fafb"></path>
+        <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+            <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f9fafb"></path>
         </svg>
     </div>
 
     <!-- Content -->
-    <div class="bg-gray-50 -mt-6 px-5 pt-6 pb-8 max-w-md mx-auto">
+    <div class="bg-gray-50 px-5 pt-4 pb-8 max-w-md mx-auto">
         {{-- GPS Tracker - Auto tracking untuk status aktif --}}
         @if (in_array($help->status, ['memperoleh_mitra', 'taken', 'partner_on_the_way', 'partner_arrived']))
             {{-- <div class="mb-3">
@@ -469,9 +470,9 @@
                     Jadwal Permintaan
                 </h3>
                 @if($help->isUrgent())
-                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700">⚡ URGENT</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700">⚡ PRIORITAS / URGENT</span>
                 @else
-                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">📅 TERJADWAL</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">📅 REGULER</span>
                 @endif
             </div>
             <p class="text-sm text-gray-700">
@@ -479,7 +480,7 @@
                 (Jam {{ \Carbon\Carbon::parse($help->scheduled_at ?? $help->created_at)->format('H:i') }})
             </p>
             @if($help->isUrgent())
-                <p class="text-xs text-red-600 font-semibold mt-1">Pesanan mendesak, mohon segera ditindaklanjuti.</p>
+                <p class="text-xs text-red-600 font-semibold mt-1">Pesanan prioritas / urgent, mohon segera ditindaklanjuti.</p>
             @endif
         </div>
 
@@ -668,7 +669,7 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-amber-900">Pesanan Terjadwal</span>
+                                <span class="text-xs font-bold text-amber-900">Pesanan Reguler</span>
                                 <span class="text-[10px] font-semibold bg-amber-200/70 text-amber-800 px-2 py-0.5 rounded-full">
                                     {{ $daysRemaining > 0 ? "H-{$daysRemaining}" : 'Hari Ini' }}
                                 </span>

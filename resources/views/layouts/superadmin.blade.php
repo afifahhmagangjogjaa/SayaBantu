@@ -27,8 +27,8 @@
             'subtitle' => 'Kelola kota layanan sayabantu'
         ],
         'superadmin.admin.users' => [
-            'title' => 'Manajemen Admin',
-            'subtitle' => 'Kelola admin dalam sistem'
+            'title' => 'Manajemen Administrator',
+            'subtitle' => 'Kelola akun Super Admin (Nasional) dan Admin Wilayah dalam sistem'
         ],
         'superadmin.settings.help' => [
             'title' => 'Pengaturan Bantuan',
@@ -43,6 +43,14 @@
             'subtitle' => 'Atur biaya admin top-up bertingkat dan daftar rekening bank penerima'
         ],
         'superadmin.pengaturan.bantuan.tarif-radius' => [
+            'title' => 'Tarif & Radius Bantuan',
+            'subtitle' => 'Nominal minimal bantuan standar & urgent, serta batas jangkauan mitra'
+        ],
+        'superadmin.settings.tarif-radius' => [
+            'title' => 'Tarif & Radius Bantuan',
+            'subtitle' => 'Nominal minimal bantuan standar & urgent, serta batas jangkauan mitra'
+        ],
+        'superadmin.settings.radius' => [
             'title' => 'Tarif & Radius Bantuan',
             'subtitle' => 'Nominal minimal bantuan standar & urgent, serta batas jangkauan mitra'
         ],
@@ -100,7 +108,7 @@
         } elseif (request()->routeIs('superadmin.admin*')) {
             $detectedTitle = 'Manajemen Admin';
             $detectedSubtitle = 'Kelola admin dalam sistem';
-        } elseif (request()->routeIs('superadmin.settings.help*') || request()->routeIs('superadmin.pengaturan.bantuan*')) {
+        } elseif (request()->routeIs('superadmin.settings.help*') || request()->routeIs('superadmin.pengaturan.bantuan*') || request()->routeIs('superadmin.settings.radius*') || request()->routeIs('superadmin.settings.tarif-radius*')) {
             $detectedTitle = 'Pengaturan Bantuan';
             $detectedSubtitle = 'Kelola nominal minimal, radius mitra, dan biaya platform';
         } elseif (request()->routeIs('superadmin.settings.banners*')) {
@@ -328,7 +336,7 @@
                 </a>
 
                 @php
-                    $isHelpSettingsActive = request()->routeIs('superadmin.settings.help*') || request()->routeIs('superadmin.pengaturan.bantuan*');
+                    $isHelpSettingsActive = request()->routeIs('superadmin.settings.help*') || request()->routeIs('superadmin.pengaturan.bantuan*') || request()->routeIs('superadmin.settings.radius*') || request()->routeIs('superadmin.settings.tarif-radius*');
                 @endphp
                 <div x-data="{ open: {{ $isHelpSettingsActive ? 'true' : 'false' }} }" class="mb-1">
                     <button type="button" @click="open = !open"
@@ -359,9 +367,9 @@
                         </a>
 
                         <a href="{{ route('superadmin.pengaturan.bantuan.tarif-radius') }}" wire:navigate
-                            class="flex items-center px-2.5 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('superadmin.pengaturan.bantuan.tarif-radius') ? 'text-[#0066FF] bg-white border border-blue-100 shadow-2xs font-semibold' : 'text-slate-500 hover:text-[#0066FF] hover:bg-white/80' }}">
-                            <span class="w-1.5 h-1.5 rounded-full mr-2.5 {{ request()->routeIs('superadmin.pengaturan.bantuan.tarif-radius') ? 'bg-[#0066FF]' : 'bg-slate-300' }}"></span>
-                            <span class="truncate">Tarif & Radius</span>
+                            class="flex items-center px-2.5 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('superadmin.pengaturan.bantuan.tarif-radius*') || request()->routeIs('superadmin.settings.radius*') || request()->routeIs('superadmin.settings.tarif-radius*') ? 'text-[#0066FF] bg-white border border-blue-100 shadow-2xs font-semibold' : 'text-slate-500 hover:text-[#0066FF] hover:bg-white/80' }}">
+                            <span class="w-1.5 h-1.5 rounded-full mr-2.5 {{ request()->routeIs('superadmin.pengaturan.bantuan.tarif-radius*') || request()->routeIs('superadmin.settings.radius*') || request()->routeIs('superadmin.settings.tarif-radius*') ? 'bg-[#0066FF]' : 'bg-slate-300' }}"></span>
+                            <span class="truncate">Tarif & Radius Mitra</span>
                         </a>
                     </div>
                 </div>
@@ -682,6 +690,25 @@
             });
         });
     </script>
+
+    @if(session('success') || session('message') || session('status'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.sbToast) {
+                    window.sbToast(@json(session('success') ?? session('message') ?? session('status')), 'success');
+                }
+            });
+        </script>
+    @endif
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.sbToast) {
+                    window.sbToast(@json(session('error')), 'error');
+                }
+            });
+        </script>
+    @endif
 </body>
 
 </html>

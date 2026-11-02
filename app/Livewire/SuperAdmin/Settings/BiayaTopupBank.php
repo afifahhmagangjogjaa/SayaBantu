@@ -211,8 +211,8 @@ class BiayaTopupBank extends Component
         ]);
 
         if ($this->qris_image_upload) {
-            // Store to public disk
-            $path = $this->qris_image_upload->store('payment', 'public');
+            // Store to public disk compressed
+            $path = \App\Services\ImageCompressionService::compressAndStore($this->qris_image_upload, 'payment');
 
             // Also copy to public/images/payment/qris.png for backwards compatibility
             $destinationDir = public_path('images/payment');

@@ -681,7 +681,7 @@ class Index extends Component
             'editCityId' => ['required', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
             'editLatitude' => 'required|numeric|between:-90,90',
             'editLongitude' => 'required|numeric|between:-180,180',
-            'editPhoto' => 'nullable|image|max:2048', // 2MB max
+            'editPhoto' => 'nullable|image|max:15360', // 15MB max
         ], [
             'editTitle.required' => 'Judul bantuan wajib diisi.',
             'editDescription.required' => 'Deskripsi bantuan wajib diisi.',
@@ -721,7 +721,7 @@ class Index extends Component
             if ($help->photo) {
                 Storage::disk('public')->delete($help->photo);
             }
-            $updateData['photo'] = $this->editPhoto->store('helps', 'public');
+            $updateData['photo'] = \App\Services\ImageCompressionService::compressAndStore($this->editPhoto, 'helps');
         }
 
         $help->update($updateData);

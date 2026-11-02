@@ -186,7 +186,7 @@
                     <div>
                         <p class="text-xs text-gray-500 mb-0.5">Tipe Layanan</p>
                         <p class="font-bold {{ $help->isUrgent() ? 'text-red-600' : 'text-blue-600' }}">
-                            {{ $help->isUrgent() ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}
+                            {{ $help->isUrgent() ? '⚡ Prioritas / Urgent' : '📅 Reguler' }}
                         </p>
                     </div>
                     <div>

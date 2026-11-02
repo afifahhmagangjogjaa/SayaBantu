@@ -28,9 +28,11 @@
 
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+        <div class="px-5 pt-5 pb-8 relative text-white" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+            </div>
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
@@ -73,13 +75,13 @@
             </div>
 
             <!-- Curved separator (SVG) -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
         <!-- Content -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6 min-h-[60vh]">
+        <div class="bg-white px-5 pt-4 pb-6 min-h-[60vh]">
             @if(session('success'))
                 <div class="mb-4 p-3 bg-green-50 border border-green-100 rounded-lg text-green-700 text-sm flex items-center gap-2">
                     <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -203,7 +205,7 @@
                                                     $schedDays = (int) now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($help->scheduled_at)->startOfDay(), false);
                                                 @endphp
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                                    ⏳ Terjadwal {{ $schedDays > 0 ? "(H-{$schedDays})" : '(Hari Ini)' }}
+                                                    ⏳ Reguler {{ $schedDays > 0 ? "(H-{$schedDays})" : '(Hari Ini)' }}
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
@@ -264,9 +266,9 @@
                                         <div class="text-xs text-gray-500 mb-1.5 flex items-center gap-1.5">
                                             <span>📅 {{ \Carbon\Carbon::parse($displayDate)->translatedFormat('d M Y, H:i') }}</span>
                                             @if($help->isUrgent())
-                                                <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">Urgent</span>
+                                                <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">Prioritas / Urgent</span>
                                             @elseif($help->scheduled_at && !($tab === 'diproses' && $help->isScheduled() && !$help->canPartnerStartJourney()))
-                                                <span class="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">Terjadwal</span>
+                                                <span class="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">Reguler</span>
                                             @endif
                                         </div>
                                     @endif

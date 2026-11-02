@@ -202,7 +202,10 @@ class AllHelps extends Component
             });
         }
 
-        // Sort
+        // Urutkan order prioritas/urgent paling atas dibanding order reguler
+        $query->orderByRaw("CASE WHEN helps.help_type = 'urgent' THEN 0 ELSE 1 END");
+
+        // Sort sekunder
         if ($this->sortBy === 'nearby') {
             if ($effectiveLat && $effectiveLng) {
                 $lat = (float) $effectiveLat;

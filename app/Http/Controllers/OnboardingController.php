@@ -302,17 +302,17 @@ class OnboardingController extends Controller
         $isExisting = ! empty($user->ktp_photo) || ! empty($user->ktp_path);
 
         $rules = [
-            'ktp_photo' => [$isExisting ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'ktp_photo' => [$isExisting ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg', 'max:15360'],
         ];
 
         $request->validate($rules, [
             'ktp_photo.required' => 'Foto fisik KTP wajib diunggah.',
-            'ktp_photo.max' => 'Ukuran foto KTP maksimal 2MB.',
+            'ktp_photo.max' => 'Ukuran foto KTP maksimal 15MB.',
             'ktp_photo.image' => 'File harus berupa gambar.',
         ]);
 
         if ($request->hasFile('ktp_photo')) {
-            $ktpPath = $request->file('ktp_photo')->store('ktp-photos', 'public');
+            $ktpPath = \App\Services\ImageCompressionService::compressAndStore($request->file('ktp_photo'), 'ktp-photos');
 
             if (Auth::check()) {
                 $authUser = $request->user();
@@ -370,17 +370,17 @@ class OnboardingController extends Controller
         $isExisting = ! empty($user->selfie_photo);
 
         $rules = [
-            'selfie_photo' => [$isExisting ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'selfie_photo' => [$isExisting ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg', 'max:15360'],
         ];
 
         $request->validate($rules, [
             'selfie_photo.required' => 'Foto selfie dengan KTP wajib diunggah.',
-            'selfie_photo.max' => 'Ukuran foto selfie maksimal 2MB.',
+            'selfie_photo.max' => 'Ukuran foto selfie maksimal 15MB.',
             'selfie_photo.image' => 'File harus berupa gambar.',
         ]);
 
         if ($request->hasFile('selfie_photo')) {
-            $selfiePath = $request->file('selfie_photo')->store('selfie-photos', 'public');
+            $selfiePath = \App\Services\ImageCompressionService::compressAndStore($request->file('selfie_photo'), 'selfie-photos');
 
             if (Auth::check()) {
                 $authUser = $request->user();

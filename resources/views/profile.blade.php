@@ -29,25 +29,29 @@
 
         <div class="max-w-md mx-auto">
             <!-- Top Blue Header Backdrop (SayaBantu Brand Blue dengan wave bergelombang) -->
-            <div class="relative overflow-hidden pt-8 pb-20 px-5 bg-[#0066FF]">
-                <!-- Decorative circle overlays -->
-                <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20 pointer-events-none"></div>
-                <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-16 -mb-16 pointer-events-none"></div>
+            <div class="relative bg-[#0066FF] text-white">
+                <!-- Decorative circle overlays in safe container -->
+                <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+                    <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+                </div>
 
-                <div class="relative z-10 text-center text-white mb-2">
-                    <h1 class="text-lg font-black text-white tracking-tight leading-tight">Profil Saya</h1>
-                    <p class="text-xs text-blue-100 font-medium mt-0.5">Kelola akun dan informasi Anda</p>
+                <div class="relative z-10 px-5 pt-8 pb-16">
+                    <div class="text-center text-white">
+                        <h1 class="text-lg font-black text-white tracking-tight leading-tight">Profil Saya</h1>
+                        <p class="text-xs text-blue-100 font-medium mt-0.5">Kelola akun dan informasi Anda</p>
+                    </div>
                 </div>
                 
-                <!-- Wave Separator (SVG) bergelombang -->
-                <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
-                    <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f8fafc"></path>
+                <!-- Wave Separator (SVG) bergelombang - Posisi di bawah teks header -->
+                <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                    <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f8fafc"></path>
                 </svg>
             </div>
 
-            <!-- Profile Card Berwarna (Gradasi Biru Royal & Glass Border) -->
-            <div class="px-5 -mt-16 relative z-10 mb-4">
-                <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-3xl p-5 text-white shadow-2xl relative overflow-hidden border border-white/20">
+            <!-- Profile Card Berwarna (Gradasi Biru Royal & Glass Border) - Mengambang Di Atas Wave -->
+            <div class="px-5 -mt-12 relative z-10 mb-4">
+                <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-3xl p-5 text-white shadow-xl relative overflow-hidden border border-white/20">
                     <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full pointer-events-none"></div>
 
                     <div class="relative z-10 flex items-center justify-between gap-3.5">

@@ -36,7 +36,7 @@ new #[Layout('layouts.guest')] class extends Component {
     public function updatedKtpPhoto()
     {
         $this->validate([
-            'ktp_photo' => 'image|max:2048', // 2MB Max
+            'ktp_photo' => 'image|max:15360', // 15MB Max
         ]);
 
         $this->preview_url = $this->ktp_photo->temporaryUrl();
@@ -64,9 +64,9 @@ new #[Layout('layouts.guest')] class extends Component {
 
         if ($this->ktp_photo) {
             $this->validate([
-                'ktp_photo' => ['image', 'max:2048'],
+                'ktp_photo' => ['image', 'max:15360'],
             ]);
-            $path = $this->ktp_photo->store('ktp-photos', 'public');
+            $path = \App\Services\ImageCompressionService::compressAndStore($this->ktp_photo, 'ktp-photos');
             if ($registration) {
                 $registration->update([
                     'ktp_photo_path' => $path,
@@ -75,7 +75,7 @@ new #[Layout('layouts.guest')] class extends Component {
             }
         } elseif (!$registration || !$registration->ktp_photo_path) {
             $this->validate([
-                'ktp_photo' => ['required', 'image', 'max:2048'],
+                'ktp_photo' => ['required', 'image', 'max:15360'],
             ]);
         }
 

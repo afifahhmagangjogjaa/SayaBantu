@@ -4,9 +4,11 @@
     <div class="min-h-screen bg-white">
         <div class="max-w-md mx-auto">
             <!-- Header -->
-            <div class="px-5 pt-6 pb-12 relative overflow-hidden bg-gradient-to-br from-emerald-500 to-green-600 text-white text-center">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-12 -mt-12"></div>
-                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-8 -mb-8"></div>
+            <div class="px-5 pt-6 pb-8 relative bg-gradient-to-br from-emerald-500 to-green-600 text-white text-center">
+                <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-12 -mt-12"></div>
+                    <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-8 -mb-8"></div>
+                </div>
                 
                 <div class="relative z-10">
                     <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
@@ -19,13 +21,13 @@
                     <p class="text-xs text-emerald-100 mt-1">Permintaan penarikan telah diproses</p>
                 </div>
 
-                <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
-                    <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+                <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                    <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
                 </svg>
             </div>
 
             <!-- Content -->
-            <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6 space-y-4">
+            <div class="bg-white px-5 pt-4 pb-6 space-y-4">
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
                     <div class="flex justify-between text-xs">
                         <span class="text-gray-500">Jumlah Penarikan:</span>

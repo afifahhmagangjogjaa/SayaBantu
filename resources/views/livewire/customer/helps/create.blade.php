@@ -84,9 +84,8 @@
                 </div>
 
                 <!-- Curved separator -->
-                <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none"
-                    aria-hidden="true" style="display: block; height: 24px;">
-                    <path d="M0,32 C420,68 1020,12 1440,32 L1440,72 L0,72 Z" fill="#ffffff"></path>
+                <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                    <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
                 </svg>
             </div>
 
@@ -307,7 +306,7 @@
                                     <div class="flex items-center justify-between mb-1">
                                         <div class="flex items-center gap-1.5">
                                             <span class="text-sm">⚡</span>
-                                            <span class="text-xs font-bold {{ $help_type === 'urgent' ? 'text-red-600' : 'text-gray-800' }}">Mendesak / Urgent</span>
+                                            <span class="text-xs font-bold {{ $help_type === 'urgent' ? 'text-red-600' : 'text-gray-800' }}">Prioritas / Urgent</span>
                                         </div>
                                         <div class="w-4 h-4 rounded-full border flex items-center justify-center {{ $help_type === 'urgent' ? 'border-red-500 bg-red-500' : 'border-gray-300' }}">
                                             @if($help_type === 'urgent')
@@ -318,13 +317,13 @@
                                     <p class="text-[11px] text-gray-500 leading-tight">Min. komisi Rp {{ number_format(\App\Models\AppSetting::get('default_urgent_nominal', 50000), 0, ',', '.') }}, pelaksanaan hari ini atau besok.</p>
                                 </label>
 
-                                <!-- Option 2: Terjadwal -->
+                                <!-- Option 2: Reguler -->
                                 <label class="relative flex flex-col p-3 rounded-xl border-2 cursor-pointer transition-all {{ $help_type === 'scheduled' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-gray-200 hover:border-gray-300 bg-white' }}">
                                     <input type="radio" wire:model.live="help_type" value="scheduled" class="sr-only">
                                     <div class="flex items-center justify-between mb-1">
                                         <div class="flex items-center gap-1.5">
                                             <span class="text-sm">📅</span>
-                                            <span class="text-xs font-bold {{ $help_type === 'scheduled' ? 'text-blue-600' : 'text-gray-800' }}">Terjadwal</span>
+                                            <span class="text-xs font-bold {{ $help_type === 'scheduled' ? 'text-blue-600' : 'text-gray-800' }}">Reguler</span>
                                         </div>
                                         <div class="w-4 h-4 rounded-full border flex items-center justify-center {{ $help_type === 'scheduled' ? 'border-blue-500 bg-blue-500' : 'border-gray-300' }}">
                                             @if($help_type === 'scheduled')
@@ -411,7 +410,7 @@
                                     <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                     </svg>
-                                    Bantuan Urgent hanya untuk hari ini atau besok. Jam pelaksanaan minimal 15 menit setelah waktu sekarang.
+                                    Bantuan Prioritas / Urgent hanya untuk hari ini atau besok. Jam pelaksanaan minimal 15 menit setelah waktu sekarang.
                                 </p>
                             @else
                                 <p class="text-xs text-gray-500 mt-1.5">Tentukan tanggal dan jam pelaksanaan bantuan. Jika memilih hari ini, jam tidak boleh sebelum waktu sekarang. Untuk tanggal besok dan seterusnya, bebas memilih jam berapa saja.</p>
@@ -438,7 +437,7 @@
                                 let min = this.currentMin;
                                 if (val < min) {
                                     this.clientError = this.helpType === 'urgent'
-                                        ? 'Nominal minimal untuk bantuan urgent adalah Rp ' + Number(min).toLocaleString('id-ID')
+                                        ? 'Nominal minimal untuk bantuan prioritas / urgent adalah Rp ' + Number(min).toLocaleString('id-ID')
                                         : 'Nominal minimal Rp ' + Number(min).toLocaleString('id-ID');
                                 } else if (val > this.max) {
                                     this.clientError = 'Nominal maksimal Rp ' + Number(this.max).toLocaleString('id-ID');
@@ -852,7 +851,7 @@
                                                 </svg>
                                             </div>
                                             <p class="mb-1 text-xs text-gray-700"><span class="font-semibold text-blue-600">Klik untuk upload</span> atau ambil foto</p>
-                                            <p class="text-[11px] text-gray-400">PNG, JPG, JPEG (Maks. 2MB)</p>
+                                            <p class="text-[11px] text-gray-400">PNG, JPG, JPEG (Maks. 15MB)</p>
                                         </div>
                                         <input type="file" id="photo-input" wire:model="photo" class="hidden" accept="image/png,image/jpeg,image/jpg" />
                                     </label>
@@ -1360,7 +1359,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
                                         <span style="font-size: 12px; font-weight: 700; color: #334155;">Pilih Bukti Transfer</span>
-                                        <span style="font-size: 10px; color: #94a3b8;">(Maks 2MB)</span>
+                                        <span style="font-size: 10px; color: #94a3b8;">(Maks 15MB)</span>
                                     </div>
                                     <input type="file" wire:model="topupReceipt" accept="image/*" style="display: none;">
                                 </label>
@@ -1460,7 +1459,7 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Jenis Bantuan</span>
                                 <span class="text-xs font-bold px-2.5 py-1 rounded-full {{ ($confirmHelpType ?? $help_type) === 'urgent' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
-                                    {{ ($confirmHelpType ?? $help_type) === 'urgent' ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}
+                                    {{ ($confirmHelpType ?? $help_type) === 'urgent' ? '⚡ Prioritas / Urgent' : '📅 Reguler' }}
                                 </span>
                             </div>
                             <div class="flex justify-between items-center">

@@ -307,6 +307,11 @@
         }
 
         function openUserRatingsModal(url){
+            var existing = document.getElementById('modal-wrapper-container');
+            if (existing && existing.parentNode) {
+                existing.parentNode.removeChild(existing);
+            }
+
             fetch(url, {headers: { 'X-Requested-With': 'XMLHttpRequest' }})
                 .then(function(res){
                     if (!res.ok) throw new Error('Network response was not ok');

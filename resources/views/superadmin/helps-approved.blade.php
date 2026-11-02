@@ -380,7 +380,7 @@
                         <div>
                             <span class="text-gray-400 block">Tipe Layanan</span>
                             <span class="font-bold {{ $detailHelp->isUrgent() ? 'text-red-600' : 'text-blue-600' }}">
-                                {{ $detailHelp->isUrgent() ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}
+                                {{ $detailHelp->isUrgent() ? '⚡ Prioritas / Urgent' : '📅 Reguler' }}
                             </span>
                         </div>
                     </div>

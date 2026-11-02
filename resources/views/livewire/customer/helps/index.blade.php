@@ -143,8 +143,8 @@
             </div>
 
             <!-- Curved separator (SVG) pembatas gelombang yang melengkung anggun di bawah tab -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
-                <path d="M0,32 C420,68 1020,12 1440,32 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
@@ -217,7 +217,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-bold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                                 @if($help->auto_cancel_at && in_array($help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra']))
                                                     @php
                                                         $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
@@ -306,7 +306,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -400,7 +400,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -486,7 +486,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                             @endif
                                         </div>
                                         <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} • {{ optional($help->updated_at)->format('d M Y') }}</p>
@@ -677,7 +677,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap text-red-600">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -1068,7 +1068,7 @@
                             <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                             </svg>
-                            Maksimal 2MB. Format: JPG, PNG, JPEG
+                            Maksimal 15MB. Format: JPG, PNG, JPEG
                         </p>
                         @error('editPhoto') 
                             <span class="text-red-500 text-xs mt-1.5 block flex items-center">

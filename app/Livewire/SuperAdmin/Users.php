@@ -593,6 +593,7 @@ class Users extends Component
         }
 
         $user->is_shadow_banned = ! ((bool) $user->is_shadow_banned);
+        $user->shadow_banned_at = $user->is_shadow_banned ? now() : null;
         $user->save();
 
         if ($this->selectedUser && $this->selectedUser->id == $id) {

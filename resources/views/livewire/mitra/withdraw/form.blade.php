@@ -3,13 +3,15 @@
 @section('content')
     <div class="min-h-screen bg-slate-50 pb-20">
         <!-- Header - Brand Blue with Wave Separator -->
-        <div class="px-5 pt-6 pb-20 relative overflow-hidden text-white bg-[#0066FF]">
-            <!-- Decorative circle overlays -->
-            <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20 pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-16 -mb-16 pointer-events-none"></div>
+        <div class="relative bg-[#0066FF] text-white">
+            <!-- Decorative circle overlays in safe container -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+                <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+            </div>
 
-            <div class="relative z-10">
-                <div class="flex items-center justify-between text-white mb-3">
+            <div class="relative z-10 px-5 pt-6 pb-[92px]">
+                <div class="flex items-center justify-between text-white">
                     <a href="{{ route('mitra.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-xl transition active:scale-95 cursor-pointer inline-flex items-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
@@ -25,14 +27,14 @@
                 </div>
             </div>
 
-            <!-- Wave Separator (SVG) bergelombang -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f8fafc"></path>
+            <!-- Wave Separator (SVG) bergelombang - Tepat di bawah header biru -->
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f8fafc"></path>
             </svg>
         </div>
 
-        <!-- Saldo Mitra Card (Overlapping Wavy Header) -->
-        <div class="px-5 -mt-14 relative z-10 mb-5">
+        <!-- Saldo Mitra Card (Mengambang di Atas Wave - Pas di Tengah Garis Wave) -->
+        <div class="px-5 -mt-[66px] relative z-10 mb-4">
             <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-2xl p-5 text-white shadow-xl relative overflow-hidden border border-white/20">
                 <!-- Decorative circle overlay matching Beranda -->
                 <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full pointer-events-none"></div>
@@ -59,7 +61,7 @@
         </div>
 
         <!-- Content Area -->
-        <div class="px-5 space-y-4">
+        <div class="px-5 pt-4 space-y-4">
             <!-- Status Messages -->
             @if(session('status') || session('success') || session('message'))
                 @php $msg = session('success') ?? session('message') ?? session('status'); @endphp

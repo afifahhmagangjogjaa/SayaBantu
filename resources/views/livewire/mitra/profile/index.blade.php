@@ -18,20 +18,27 @@
 
     <div class="max-w-md mx-auto">
         <!-- Top Blue Header Backdrop (SayaBantu Brand Blue dengan wave bergelombang) -->
-        <div class="relative overflow-hidden pt-6 pb-16 px-5 bg-[#0066FF]">
-            <!-- Decorative circle overlays -->
-            <div class="absolute top-0 right-0 w-44 h-44 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 w-36 h-36 bg-white/10 rounded-full -ml-14 -mb-14 pointer-events-none"></div>
-            
+        <div class="relative bg-[#0066FF] text-white">
+            <!-- Decorative circle overlays in safe container -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-0 right-0 w-44 h-44 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="absolute bottom-0 left-0 w-36 h-36 bg-white/10 rounded-full -ml-14 -mb-14"></div>
+            </div>
+
+            <div class="relative z-10 px-5 pt-8 pb-16 text-center text-white">
+                <h1 class="text-lg font-black text-white tracking-tight leading-tight">Profil Mitra</h1>
+                <p class="text-xs text-blue-100 font-medium mt-0.5">Kelola akun dan informasi kemitraan Anda</p>
+            </div>
+
             <!-- Wave Separator (SVG) bergelombang di bagian bawah latar biru -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f8fafc"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f8fafc"></path>
             </svg>
         </div>
 
-        <!-- Top Profile Card Berwarna (Gradasi Biru Royal Bergelombang & Glass Border) -->
-        <div class="px-5 -mt-14 relative z-10 mb-4">
-            <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-3xl p-5 text-white shadow-2xl relative overflow-hidden border border-white/20">
+        <!-- Top Profile Card Berwarna (Gradasi Biru Royal Bergelombang & Glass Border) - Mengambang Di Atas Wave -->
+        <div class="px-5 -mt-12 relative z-10 mb-4">
+            <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-3xl p-5 text-white shadow-xl relative overflow-hidden border border-white/20">
                 <!-- Decorative circle overlay -->
                 <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full pointer-events-none"></div>
 
@@ -43,9 +50,9 @@
                         </div>
 
                         <div class="min-w-0 flex-1">
-                            <h1 class="text-base font-extrabold text-white truncate leading-snug">
+                            <h2 class="text-base font-extrabold text-white truncate leading-snug">
                                 {{ trim(preg_replace('/\s*\((?:Mitra|Customer)[^)]*\)|\s*(?:Mitra|Customer)\b/i', '', $user->name ?? 'Budi Santoso')) }}
-                            </h1>
+                            </h2>
 
                             <div class="flex items-center gap-2 mt-1 flex-wrap">
                                 <span class="text-xs text-blue-100 font-semibold">Aktif</span>

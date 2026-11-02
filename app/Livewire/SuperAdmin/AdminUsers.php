@@ -21,7 +21,7 @@ class AdminUsers extends Component
 
     public $breadcrumb = 'Manajemen Admin';
 
-    public $roleFilter = 'admin';
+    public $roleFilter = 'all';
 
     public $perPage = 10;
 
@@ -365,7 +365,13 @@ class AdminUsers extends Component
     {
         $user = User::find($id);
         if (! $user) {
-            session()->flash('error', 'Admin tidak ditemukan');
+            session()->flash('error', 'Administrator tidak ditemukan');
+
+            return;
+        }
+
+        if ($user->id === auth()->id()) {
+            session()->flash('error', 'Anda tidak dapat menonaktifkan akun sendiri yang sedang aktif digunakan.');
 
             return;
         }
@@ -377,7 +383,7 @@ class AdminUsers extends Component
         } else {
             // Langsung aktifkan kembali
             $user->update(['status' => 'active']);
-            session()->flash('message', "Status admin {$user->name} berhasil diaktifkan kembali.");
+            session()->flash('message', "Status administrator {$user->name} berhasil diaktifkan kembali.");
         }
     }
 
@@ -386,9 +392,15 @@ class AdminUsers extends Component
         if ($this->confirmingDeactivateId) {
             $user = User::find($this->confirmingDeactivateId);
             if ($user) {
+                if ($user->id === auth()->id()) {
+                    session()->flash('error', 'Anda tidak dapat menonaktifkan akun sendiri yang sedang aktif digunakan.');
+                    $this->closeDeactivateModal();
+
+                    return;
+                }
                 $user->update(['status' => 'inactive']);
                 $user->purgeSessions();
-                session()->flash('message', "Status admin {$user->name} berhasil dinonaktifkan.");
+                session()->flash('message', "Status administrator {$user->name} berhasil dinonaktifkan.");
             }
         }
         $this->closeDeactivateModal();
@@ -435,12 +447,18 @@ class AdminUsers extends Component
                     ? \Illuminate\Validation\Rule::unique('users', 'phone')->ignore($this->selectedUser->id)
                     : \Illuminate\Validation\Rule::unique('users', 'phone'),
             ],
-            'role' => 'required|string',
-            'city_id' => 'required|exists:cities,id',
-            'managed_city_ids' => 'required|array|min:1',
-            'managed_city_ids.*' => 'exists:cities,id',
+            'role' => 'required|in:admin,super_admin',
             'address' => 'nullable|string|max:1000',
         ];
+
+        if ($this->role === 'admin') {
+            $rules['city_id'] = 'required|exists:cities,id';
+            $rules['managed_city_ids'] = 'required|array|min:1';
+            $rules['managed_city_ids.*'] = 'exists:cities,id';
+        } else {
+            $rules['city_id'] = 'nullable|exists:cities,id';
+            $rules['managed_city_ids'] = 'nullable|array';
+        }
 
         if ($isEdit) {
             $rules['password'] = 'nullable|string|min:8';
@@ -457,9 +475,10 @@ class AdminUsers extends Component
             'phone.max' => 'Nomor HP maksimal 13 digit angka.',
             'phone.regex' => 'Nomor HP hanya boleh berisi angka.',
             'phone.unique' => 'Nomor HP sudah digunakan oleh akun lain.',
-            'city_id.required' => 'Kota basis operasional wajib dipilih.',
-            'managed_city_ids.required' => 'Pilih minimal satu kota yang dikelola oleh admin.',
-            'managed_city_ids.min' => 'Pilih minimal satu kota yang dikelola oleh admin.',
+            'role.required' => 'Tipe peran administrator wajib dipilih.',
+            'city_id.required' => 'Kota basis operasional wajib dipilih untuk Admin Wilayah.',
+            'managed_city_ids.required' => 'Pilih minimal satu kota yang dikelola oleh Admin Wilayah.',
+            'managed_city_ids.min' => 'Pilih minimal satu kota yang dikelola oleh Admin Wilayah.',
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 8 karakter.',
         ];
@@ -474,11 +493,11 @@ class AdminUsers extends Component
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
-            'role' => $this->role ?: 'admin',
+            'role' => in_array($this->role, ['super_admin', 'admin']) ? $this->role : 'admin',
             'status' => $this->status ?? 'active',
             'verified' => true,
-            'city_id' => $this->city_id,
-            'province' => $this->province ?: null,
+            'city_id' => ($this->role === 'admin') ? $this->city_id : ($this->city_id ?: null),
+            'province' => ($this->role === 'admin') ? ($this->province ?: null) : ($this->province ?: null),
             'address' => $this->address ?: null,
             'kelurahan' => null,
             'kecamatan' => null,
@@ -501,7 +520,7 @@ class AdminUsers extends Component
         if ($this->selectedUser) {
             $user = User::find($this->selectedUser->id);
             if (! $user) {
-                session()->flash('error', 'User not found');
+                session()->flash('error', 'Administrator tidak ditemukan');
 
                 return;
             }
@@ -518,7 +537,7 @@ class AdminUsers extends Component
                 $user->managedCities()->sync([]);
             }
 
-            session()->flash('message', 'User updated successfully');
+            session()->flash('message', 'Data administrator berhasil diperbarui');
         } else {
             $data['password'] = bcrypt($this->password);
             $data['email_verified_at'] = now();
@@ -530,7 +549,8 @@ class AdminUsers extends Component
                 $user->managedCities()->sync($this->managed_city_ids ?? []);
             }
 
-            session()->flash('message', 'User created successfully');
+            $labelRole = ($this->role === 'super_admin') ? 'Super Admin' : 'Admin Wilayah';
+            session()->flash('message', "Akun {$labelRole} baru berhasil dibuat.");
         }
 
         $this->showCreateModal = false;
@@ -546,13 +566,28 @@ class AdminUsers extends Component
         }
         $user = User::find($this->confirmingDeleteId);
         if (! $user) {
-            session()->flash('error', 'User not found');
+            session()->flash('error', 'Administrator tidak ditemukan');
             $this->showConfirmDelete = false;
 
             return;
         }
+
+        if ($user->id === auth()->id()) {
+            session()->flash('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+            $this->showConfirmDelete = false;
+
+            return;
+        }
+
+        if ($user->isSuperAdmin() && User::where('role', 'super_admin')->count() <= 1) {
+            session()->flash('error', 'Tidak dapat menghapus satu-satunya akun Super Admin pada sistem.');
+            $this->showConfirmDelete = false;
+
+            return;
+        }
+
         $user->delete();
-        session()->flash('message', 'User deleted');
+        session()->flash('message', 'Akun administrator berhasil dihapus');
         $this->showConfirmDelete = false;
         $this->confirmingDeleteId = null;
         $this->resetPage();
@@ -574,7 +609,11 @@ class AdminUsers extends Component
     public function render()
     {
         $users = User::with(['city', 'managedCities'])
-            ->where('role', 'admin')
+            ->when($this->roleFilter && $this->roleFilter !== 'all', function ($query) {
+                $query->where('role', $this->roleFilter);
+            }, function ($query) {
+                $query->whereIn('role', ['admin', 'super_admin']);
+            })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%'.$this->search.'%')
@@ -598,6 +637,19 @@ class AdminUsers extends Component
 
         $availableCities = City::whereNotIn('id', $assignedToOthers)->orderBy('name')->get();
 
-        return view('superadmin.admin-users', compact('users', 'cities', 'availableCities'));
+        $totalAdminsCount = User::whereIn('role', ['admin', 'super_admin'])->count();
+        $superAdminsCount = User::where('role', 'super_admin')->count();
+        $branchAdminsCount = User::where('role', 'admin')->count();
+        $activeAdminsCount = User::whereIn('role', ['admin', 'super_admin'])->where('status', 'active')->count();
+
+        return view('superadmin.admin-users', compact(
+            'users',
+            'cities',
+            'availableCities',
+            'totalAdminsCount',
+            'superAdminsCount',
+            'branchAdminsCount',
+            'activeAdminsCount'
+        ));
     }
 }

@@ -187,7 +187,7 @@ class Banners extends Component
                 if ($imagePath && Storage::disk('public')->exists($imagePath)) {
                     Storage::disk('public')->delete($imagePath);
                 }
-                $imagePath = $this->promoFormImageUpload->store('promos', 'public');
+                $imagePath = \App\Services\ImageCompressionService::compressAndStore($this->promoFormImageUpload, 'promos');
                 $this->promoFormImageUpload = null;
             }
 
@@ -356,7 +356,7 @@ class Banners extends Component
 
         try {
             foreach ($this->homeUploads as $f) {
-                $path = $f->store('banners', 'public');
+                $path = \App\Services\ImageCompressionService::compressAndStore($f, 'banners', 1920, 1080, 82);
                 $this->homeBanners[] = $path;
             }
             $this->homeUploads = [];

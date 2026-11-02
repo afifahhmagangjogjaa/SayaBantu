@@ -37,7 +37,7 @@ new #[Layout('layouts.guest')] class extends Component {
     public function updatedSelfiePhoto()
     {
         $this->validate([
-            'selfie_photo' => 'image|max:2048', // 2MB Max
+            'selfie_photo' => 'image|max:15360', // 15MB Max
         ]);
 
         $this->preview_url = $this->selfie_photo->temporaryUrl();
@@ -65,9 +65,9 @@ new #[Layout('layouts.guest')] class extends Component {
 
         if ($this->selfie_photo) {
             $this->validate([
-                'selfie_photo' => ['image', 'max:2048'],
+                'selfie_photo' => ['image', 'max:15360'],
             ]);
-            $path = $this->selfie_photo->store('selfie-photos', 'public');
+            $path = \App\Services\ImageCompressionService::compressAndStore($this->selfie_photo, 'selfie-photos');
             if ($registration) {
                 $registration->update([
                     'selfie_photo_path' => $path,
@@ -76,7 +76,7 @@ new #[Layout('layouts.guest')] class extends Component {
             }
         } elseif (!$registration || !$registration->selfie_photo_path) {
             $this->validate([
-                'selfie_photo' => ['required', 'image', 'max:2048'],
+                'selfie_photo' => ['required', 'image', 'max:15360'],
             ]);
         }
 

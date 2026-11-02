@@ -51,10 +51,12 @@
     </style>
 
     <!-- Top Header Bar - Blue gradient matching mockup -->
-    <div class="px-5 pt-6 pb-6 sticky top-0 z-30 header-pattern" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
-        <!-- Decorative circles -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12 pointer-events-none"></div>
+    <div class="px-5 pt-6 pb-6 sticky top-0 z-30 text-white relative" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+        <!-- Decorative circles in safe container -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+        </div>
 
         <div class="relative z-10 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -168,8 +170,8 @@
         </div>
 
         <!-- Wave Separator (SVG) bergelombang -->
-        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 20px;">
-            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+        <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+            <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f3f4f6"></path>
         </svg>
     </div>
 
@@ -540,7 +542,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                                 @if($help->auto_cancel_at && in_array($help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra']))
                                                     @php
                                                         $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
@@ -653,7 +655,7 @@
                         <div class="flex items-center gap-2 mb-2 flex-wrap">
                             <h2 class="text-xl font-bold text-gray-900">{{ data_get($selectedHelpData, 'title') }}</h2>
                             @if(data_get($selectedHelpData, 'is_urgent') || data_get($selectedHelpData, 'help_type') === 'urgent')
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                             @endif
                         </div>
                         

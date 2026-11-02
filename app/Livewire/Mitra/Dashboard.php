@@ -412,6 +412,11 @@ class Dashboard extends Component
             $applyNearbyOrCityFilter($nearbyQuery);
         }
 
+        // Prioritaskan order prioritas/urgent muncul paling atas dibanding reguler
+        $recommendedQuery->orderByRaw("CASE WHEN helps.help_type = 'urgent' THEN 0 ELSE 1 END");
+        $latestQuery->orderByRaw("CASE WHEN helps.help_type = 'urgent' THEN 0 ELSE 1 END");
+        $nearbyQuery->orderByRaw("CASE WHEN helps.help_type = 'urgent' THEN 0 ELSE 1 END");
+
         // Determine safe ordering depending on which columns exist
         if (Schema::hasColumn('helps', 'priority')) {
             if (Schema::hasColumn('helps', 'rating')) {
