@@ -33,6 +33,16 @@ Route::middleware(['auth', 'onboarded', 'customer'])
         Route::redirect('/topup/instant', '/customer/topup');
         Route::redirect('/topup/midtrans', '/customer/topup');
 
+        // Kelola Rekening Bank Customer
+        Route::get('/bank-accounts', \App\Livewire\Mitra\Settings\BankAccounts::class)->name('bank-accounts');
+
+        // Penarikan Dana (Withdraw) Customer
+        Route::get('/withdraw', [\App\Http\Controllers\WithdrawController::class, 'showForm'])->name('withdraw.form');
+        Route::post('/withdraw', [\App\Http\Controllers\WithdrawController::class, 'requestWithdraw'])->name('withdraw.request');
+        Route::get('/withdraw/history', [\App\Http\Controllers\WithdrawController::class, 'withdrawHistory'])->name('withdraw.history');
+        Route::get('/withdraw/success/{withdraw}', [\App\Http\Controllers\WithdrawController::class, 'showSuccess'])->name('withdraw.success');
+        Route::get('/withdraw/rejected/{withdraw}', [\App\Http\Controllers\WithdrawController::class, 'showRejected'])->name('withdraw.rejected');
+
         // Chat
         Route::get('/chat/{help?}', \App\Livewire\Customer\Chat::class)->name('chat');
 

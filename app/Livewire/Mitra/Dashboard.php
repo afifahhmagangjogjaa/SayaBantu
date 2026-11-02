@@ -83,20 +83,16 @@ class Dashboard extends Component
             return;
         }
 
-        // Cek apakah mitra sedang memiliki order aktif yang belum selesai
-        if ($user && $user->hasActiveOngoingOrder()) {
-            session()->flash('error', 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.');
+        // Cek verifikasi email (wajib verifikasi email untuk mengambil order bantuan)
+        if ($user && ! $user->hasVerifiedEmail()) {
+            session()->flash('error', 'Email Anda belum diverifikasi. Silakan verifikasi email Anda terlebih dahulu untuk dapat mengambil pesanan bantuan.');
 
             return;
         }
 
-        // Cek kuota order mitra (belum verifikasi email = maks 2 order, sudah verifikasi = unlimited)
-        if (! $user || ! $user->canTakeMoreOrders()) {
-            if ($user && ! $user->hasVerifiedEmail()) {
-                session()->flash('error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.');
-            } else {
-                session()->flash('error', 'Anda telah mencapai batas maksimal order yang dapat diambil.');
-            }
+        // Cek apakah mitra sedang memiliki order aktif yang belum selesai
+        if ($user && $user->hasActiveOngoingOrder()) {
+            session()->flash('error', 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.');
 
             return;
         }
@@ -228,6 +224,8 @@ class Dashboard extends Component
 
     public function render()
     {
+        Help::cancelExpiredUrgentHelps();
+
         $user = auth()->user();
         \App\Services\KtpVerificationNoticeService::ensurePromptNotification($user);
 
@@ -274,6 +272,7 @@ class Dashboard extends Component
 
         $availableHelpsQuery = Help::where('status', 'menunggu_mitra')
             ->whereNull('mitra_id')
+            ->notExpired()
             ->notCancelledByMitra($user?->id)
             ->whereDoesntHave('user', function ($q) {
                 $q->where('is_shadow_banned', true);
@@ -310,6 +309,7 @@ class Dashboard extends Component
         if ($this->activeTab === 'tersedia') {
             $helpsQuery = Help::where('status', 'menunggu_mitra')
                 ->whereNull('mitra_id')
+                ->notExpired()
                 ->notCancelledByMitra($user?->id)
                 ->whereDoesntHave('user', function ($q) {
                     $q->where('is_shadow_banned', true);

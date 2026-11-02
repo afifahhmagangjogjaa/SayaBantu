@@ -1,3 +1,7 @@
+@php
+    $dashRoute = $dashboardRoute ?? (auth()->user()?->role === 'mitra' ? 'mitra.dashboard' : 'customer.dashboard');
+    $topRoute = $topupRoute ?? (auth()->user()?->role === 'mitra' ? 'mitra.topup' : 'customer.topup');
+@endphp
 <div class="min-h-full bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - SayaBantu Style -->
@@ -9,7 +13,7 @@
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
-                    <a href="{{ route('customer.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
+                    <a href="{{ route($dashRoute) }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -136,7 +140,7 @@
                         </div>
                         <h3 class="text-lg font-bold text-gray-800 mb-2">Belum Ada Riwayat</h3>
                         <p class="text-sm text-gray-500 mb-6">Mulai top-up saldo Anda sekarang</p>
-                        <a href="{{ route('customer.topup') }}" wire:navigate
+                        <a href="{{ route($topRoute) }}" wire:navigate
                             class="inline-block px-6 py-3 text-white rounded-xl font-semibold hover:shadow-lg transition"
                             style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
                             Top-Up Saldo

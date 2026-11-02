@@ -383,6 +383,13 @@
                         </svg>
                         <span>Top Up</span>
                     </a>
+                    <a href="{{ route('customer.withdraw.form') }}" wire:navigate
+                       class="px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#0066FF] hover:bg-blue-700 transition shadow-xs flex items-center gap-1 active:scale-95" title="Tarik Saldo">
+                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <span>Tarik</span>
+                    </a>
                 </div>
             </div>
         </div>

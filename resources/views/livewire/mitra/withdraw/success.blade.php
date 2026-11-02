@@ -1,4 +1,8 @@
-@extends('layouts.mitra')
+@php
+    $isCustomer = ($user && $user->role === 'customer');
+    $prefix = $prefix ?? ($isCustomer ? 'customer' : 'mitra');
+@endphp
+@extends($isCustomer ? 'layouts.app' : 'layouts.mitra')
 
 @section('content')
     <div class="min-h-screen bg-white">
@@ -41,10 +45,26 @@
                         <span class="text-gray-500">Nomor Rekening:</span>
                         <span class="font-mono text-gray-900 font-bold">{{ $withdraw->account_number }}</span>
                     </div>
+                    @if($withdraw->account_name)
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">Nama Pemilik:</span>
+                        <span class="font-bold text-gray-900">{{ $withdraw->account_name }}</span>
+                    </div>
+                    @endif
                     <div class="flex justify-between text-xs border-t border-gray-200 pt-2.5">
                         <span class="text-gray-500">Tanggal Diproses:</span>
                         <span class="text-gray-900">{{ optional($withdraw->processed_at)->format('d M Y • H:i') }} WIB</span>
                     </div>
+                    @if($withdraw->transfer_proof)
+                    <div class="pt-2 border-t border-gray-200">
+                        <span class="text-gray-500 text-xs block mb-1.5">Bukti Transfer dari Admin:</span>
+                        <a href="{{ asset('storage/' . $withdraw->transfer_proof) }}" target="_blank"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold transition">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            Lihat Bukti Transfer
+                        </a>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-800 flex items-start gap-2.5">
@@ -55,10 +75,10 @@
                 </div>
 
                 <div class="flex gap-2.5 pt-2">
-                    <a href="{{ route('mitra.withdraw.history') }}" wire:navigate class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm">
+                    <a href="{{ route($prefix . '.withdraw.history') }}" wire:navigate class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm">
                         Lihat Riwayat
                     </a>
-                    <a href="{{ route('mitra.dashboard') }}" wire:navigate class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
+                    <a href="{{ route($prefix . '.dashboard') }}" wire:navigate class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
                         Ke Dashboard
                     </a>
                 </div>

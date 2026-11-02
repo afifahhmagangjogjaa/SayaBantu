@@ -46,21 +46,25 @@ trait HasOrderQuota
 
     public function getMaxActiveOrdersLimit(): int
     {
-        return $this->hasVerifiedEmail() ? 999 : 2;
+        return $this->hasVerifiedEmail() ? PHP_INT_MAX : 0;
     }
 
     public function canTakeMoreOrders(): bool
     {
+        if (! $this->hasVerifiedEmail()) {
+            return false;
+        }
+
         if ($this->hasActiveOngoingOrder()) {
             return false;
         }
 
-        return $this->getMitraHelpsCount() < $this->getMaxActiveOrdersLimit();
+        return true;
     }
 
     public function canTakeHelp(): bool
     {
-        return $this->isProfileComplete() && (bool) $this->verified && $this->canTakeMoreOrders();
+        return $this->isProfileComplete() && (bool) $this->verified && $this->hasVerifiedEmail() && ! $this->hasActiveOngoingOrder();
     }
 
     public function getCannotTakeHelpReason(): ?string
@@ -71,20 +75,16 @@ trait HasOrderQuota
             return "Harap lengkapi biodata profil Anda ({$missing}) terlebih dahulu sebelum mengambil bantuan.";
         }
 
+        if (! $this->hasVerifiedEmail()) {
+            return 'Email Anda belum diverifikasi. Silakan verifikasi email Anda terlebih dahulu untuk dapat mengambil bantuan.';
+        }
+
         if (! $this->verified) {
             return 'Akun Anda belum terverifikasi KTP oleh Admin. Silakan tunggu proses verifikasi selesai sebelum dapat mengambil bantuan.';
         }
 
         if ($this->hasActiveOngoingOrder()) {
             return 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.';
-        }
-
-        if (! $this->canTakeMoreOrders()) {
-            if (! $this->hasVerifiedEmail()) {
-                return 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.';
-            }
-
-            return 'Anda telah mencapai batas maksimal order bantuan.';
         }
 
         return null;
@@ -124,16 +124,54 @@ trait HasOrderQuota
 
     public function getMaxActiveCustomerHelpsLimit(): int
     {
-        return $this->hasVerifiedEmail() ? 999 : 2;
+        return $this->hasVerifiedEmail() ? PHP_INT_MAX : 2;
     }
 
     public function canCreateMoreHelps(): bool
     {
-        return $this->getCustomerHelpsCount() < $this->getMaxActiveCustomerHelpsLimit();
+        if ($this->hasVerifiedEmail()) {
+            return true;
+        }
+
+        return $this->getCustomerHelpsCount() < 2;
     }
 
     public function canWithdrawBalance(): bool
     {
         return $this->hasVerifiedEmail() && $this->isProfileComplete();
+    }
+
+    /**
+     * Cek apakah user terkena batas penarikan saldo 1x dalam 24 jam.
+     */
+    public function getWithdraw24hLimitStatus(): array
+    {
+        $latest = \App\Models\WithdrawRequest::where('user_id', $this->id)
+            ->whereNotIn('status', [\App\Models\WithdrawRequest::STATUS_FAILED, 'rejected'])
+            ->where('created_at', '>=', now()->subHours(24))
+            ->orderByDesc('created_at')
+            ->first();
+
+        if (! $latest) {
+            return [
+                'allowed' => true,
+                'available_at' => null,
+                'remaining_text' => null,
+                'latest_withdraw' => null,
+            ];
+        }
+
+        $availableAt = $latest->created_at->copy()->addHours(24);
+        $diffMinutes = max(1, (int) now()->diffInMinutes($availableAt, false));
+        $hours = intdiv($diffMinutes, 60);
+        $minutes = $diffMinutes % 60;
+        $remainingText = ($hours > 0 ? "{$hours} jam " : '') . "{$minutes} menit";
+
+        return [
+            'allowed' => false,
+            'available_at' => $availableAt,
+            'remaining_text' => $remainingText,
+            'latest_withdraw' => $latest,
+        ];
     }
 }

@@ -90,6 +90,8 @@ class AllHelps extends Component
 
     public function render()
     {
+        Help::cancelExpiredUrgentHelps();
+
         $user = auth()->user();
         \App\Services\KtpVerificationNoticeService::ensurePromptNotification($user);
 
@@ -162,7 +164,7 @@ class AllHelps extends Component
         ];
 
         if ($this->tab === 'tersedia') {
-            $query->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+            $query->where('status', 'menunggu_mitra')->whereNull('mitra_id')->notExpired();
         } elseif ($this->tab === 'proses') {
             $query->where('mitra_id', $user?->id)->whereIn('status', $inProgressStatuses);
         } elseif ($this->tab === 'selesai') {
@@ -171,7 +173,7 @@ class AllHelps extends Component
             // 'semua'
             $query->where(function ($q) use ($user, $inProgressStatuses) {
                 $q->where(function ($sq) {
-                    $sq->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+                    $sq->where('status', 'menunggu_mitra')->whereNull('mitra_id')->notExpired();
                 });
                 if ($user) {
                     $q->orWhere(function ($sq) use ($user, $inProgressStatuses) {
@@ -232,6 +234,26 @@ class AllHelps extends Component
             $query->orderByRaw('COALESCE(total_amount, amount, 0) ASC')->latest();
         }
 
+        $countTersedia = Help::where('status', 'menunggu_mitra')
+            ->whereNull('mitra_id')
+            ->notExpired()
+            ->count();
+
+        $countProses = $user ? Help::where('mitra_id', $user->id)
+            ->whereIn('status', $inProgressStatuses)
+            ->count() : 0;
+
+        $countSelesai = $user ? Help::where('mitra_id', $user->id)
+            ->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI))
+            ->count() : 0;
+
+        $counts = [
+            'semua' => $countTersedia + $countProses + $countSelesai,
+            'tersedia' => $countTersedia,
+            'proses' => $countProses,
+            'selesai' => $countSelesai,
+        ];
+
         if ($needsCity) {
             // empty paginator
             $helps = Help::whereRaw('0 = 1')->paginate(15);
@@ -240,6 +262,7 @@ class AllHelps extends Component
                 'helps' => $helps,
                 'needsCity' => true,
                 'maxRadius' => $maxRadius,
+                'counts' => $counts,
             ]);
         }
 
@@ -250,6 +273,7 @@ class AllHelps extends Component
             'helps' => $helps,
             'needsCity' => false,
             'maxRadius' => $maxRadius,
+            'counts' => $counts,
         ]);
     }
 
@@ -264,20 +288,16 @@ class AllHelps extends Component
             return;
         }
 
-        // Cek apakah mitra sedang memiliki order aktif yang belum selesai
-        if ($user && $user->hasActiveOngoingOrder()) {
-            $this->dispatch('livewire-flash-error', 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.');
+        // Cek verifikasi email (wajib verifikasi email untuk mengambil order bantuan)
+        if ($user && ! $user->hasVerifiedEmail()) {
+            $this->dispatch('livewire-flash-error', 'Email Anda belum diverifikasi. Silakan verifikasi email Anda terlebih dahulu untuk dapat mengambil pesanan bantuan.');
 
             return;
         }
 
-        // Cek kuota order mitra (belum verifikasi email = maks 2 order, sudah verifikasi = unlimited)
-        if (! $user->canTakeMoreOrders()) {
-            if (! $user->hasVerifiedEmail()) {
-                $this->dispatch('livewire-flash-error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.');
-            } else {
-                $this->dispatch('livewire-flash-error', 'Anda telah mencapai batas maksimal order yang dapat diambil.');
-            }
+        // Cek apakah mitra sedang memiliki order aktif yang belum selesai
+        if ($user && $user->hasActiveOngoingOrder()) {
+            $this->dispatch('livewire-flash-error', 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.');
 
             return;
         }

@@ -1,4 +1,8 @@
-@extends('layouts.mitra')
+@php
+    $isCustomer = ($user && $user->role === 'customer');
+    $prefix = $prefix ?? ($isCustomer ? 'customer' : 'mitra');
+@endphp
+@extends($isCustomer ? 'layouts.app' : 'layouts.mitra')
 
 @section('content')
     <div class="min-h-screen bg-white">
@@ -41,6 +45,12 @@
                         <span class="text-gray-500">Nomor Rekening:</span>
                         <span class="font-mono text-gray-900 font-bold">{{ $withdraw->account_number }}</span>
                     </div>
+                    @if($withdraw->account_name)
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">Nama Pemilik:</span>
+                        <span class="font-bold text-gray-900">{{ $withdraw->account_name }}</span>
+                    </div>
+                    @endif
                     <div class="flex justify-between text-xs border-t border-gray-200 pt-2.5">
                         <span class="text-gray-500">Tanggal Diproses:</span>
                         <span class="text-gray-900">{{ optional($withdraw->processed_at)->format('d M Y • H:i') }} WIB</span>
@@ -52,11 +62,16 @@
                     <p class="text-xs text-red-700 leading-relaxed">{{ $withdraw->description ?? 'Nomor rekening tidak valid atau data bank tidak sesuai.' }}</p>
                 </div>
 
+                <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-800 flex items-center gap-2.5">
+                    <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    <span>Saldo sebesar <strong>Rp {{ number_format($withdraw->amount, 0, ',', '.') }}</strong> telah dikembalikan ke saldo akun Anda.</span>
+                </div>
+
                 <div class="flex gap-2.5 pt-2">
-                    <a href="{{ route('mitra.withdraw.form', ['force' => 1]) }}" wire:navigate class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm">
+                    <a href="{{ route($prefix . '.withdraw.form', ['force' => 1]) }}" wire:navigate class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm">
                         Ajukan Ulang
                     </a>
-                    <a href="{{ route('mitra.withdraw.history') }}" wire:navigate class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
+                    <a href="{{ route($prefix . '.withdraw.history') }}" wire:navigate class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-center text-xs font-bold transition">
                         Riwayat
                     </a>
                 </div>

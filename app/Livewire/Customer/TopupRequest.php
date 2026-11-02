@@ -225,10 +225,12 @@ class TopupRequest extends Component
     public function nextStep()
     {
         $user = auth()->user();
+        $dashboardRoute = ($user && $user->role === 'mitra') ? 'mitra.dashboard' : 'customer.dashboard';
+
         if ($user && ! $user->canTopup()) {
             session()->flash('error', $user->getCannotTopupReason());
 
-            return redirect()->route('customer.dashboard');
+            return redirect()->route($dashboardRoute);
         }
 
         $this->checkActivePending();
@@ -265,10 +267,12 @@ class TopupRequest extends Component
     public function submitRequest()
     {
         $user = auth()->user();
+        $dashboardRoute = ($user && $user->role === 'mitra') ? 'mitra.dashboard' : 'customer.dashboard';
+
         if ($user && ! $user->canTopup()) {
             session()->flash('error', $user->getCannotTopupReason());
 
-            return redirect()->route('customer.dashboard');
+            return redirect()->route($dashboardRoute);
         }
 
         // ==========================================
@@ -410,7 +414,14 @@ class TopupRequest extends Component
     public function render()
     {
         $this->checkActivePending();
+        $user = auth()->user();
+        $isMitra = $user && $user->role === 'mitra';
+        $layout = $isMitra ? 'layouts.mitra' : 'layouts.app';
 
-        return view('livewire.customer.topup-request');
+        return view('livewire.customer.topup-request', [
+            'isMitra' => $isMitra,
+            'dashboardRoute' => $isMitra ? 'mitra.dashboard' : 'customer.dashboard',
+            'historyRoute' => $isMitra ? 'mitra.topup.history' : 'customer.topup.history',
+        ])->layout($layout);
     }
 }

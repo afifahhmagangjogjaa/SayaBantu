@@ -16,8 +16,10 @@ class WithdrawRequest extends Model
         'amount',
         'bank_code',
         'account_number',
+        'account_name',
         'status',
         'external_id',
+        'transfer_proof',
         'description',
         'processed_at',
     ];

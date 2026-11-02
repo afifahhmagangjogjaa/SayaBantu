@@ -192,7 +192,14 @@
                                                 {{ strtoupper(substr($item->user->name, 0, 1)) }}
                                             </div>
                                             <div class="min-w-0">
-                                                <span class="text-sm font-semibold text-gray-900 truncate block max-w-[160px]">{{ $item->user->name }}</span>
+                                                <div class="flex items-center gap-1.5">
+                                                    <span class="text-sm font-semibold text-gray-900 truncate block max-w-[140px]">{{ $item->user->name }}</span>
+                                                    @if($item->user->role === 'customer')
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200">Customer</span>
+                                                    @else
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Mitra</span>
+                                                    @endif
+                                                </div>
                                                 <div class="flex items-center gap-1.5 mt-0.5">
                                                     <span class="font-mono text-[10px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
                                                         {{ $item->withdraw_code }}
@@ -212,6 +219,9 @@
                                 <td class="px-2.5 py-3 whitespace-nowrap">
                                     <div class="text-xs font-semibold text-gray-800">{{ $item->bank_code }}</div>
                                     <div class="text-[10px] font-mono text-gray-500 mt-0.5">{{ $item->account_number }}</div>
+                                    @if($item->account_name)
+                                        <div class="text-[10px] text-gray-400 truncate max-w-[150px]">a.n {{ $item->account_name }}</div>
+                                    @endif
                                 </td>
                                 <td class="px-3 py-3 text-center whitespace-nowrap">
                                     <div class="flex items-center justify-center">
@@ -463,7 +473,7 @@
             function openModal(id) {
                 var container = document.getElementById('superadmin-withdraw-modal-container');
                 // Fetch modal HTML
-                fetch('/superadmin/withdraws/' + id + '/modal')
+                fetch('/superadmin/withdraws/' + id + '/modal?t=' + Date.now(), { cache: 'no-store' })
                     .then(function (res) { return res.text(); })
                     .then(function (html) {
                         container.innerHTML = html;
@@ -568,7 +578,7 @@
                                 btn.addEventListener('click', function () {
                                     var id = this.getAttribute('data-id');
                                     var container = document.getElementById('superadmin-withdraw-modal-container');
-                                    fetch('/superadmin/withdraws/' + id + '/modal')
+                                    fetch('/superadmin/withdraws/' + id + '/modal?t=' + Date.now(), { cache: 'no-store' })
                                         .then(function (res) { return res.text(); })
                                         .then(function (mHtml) {
                                             container.innerHTML = mHtml;
