@@ -140,6 +140,7 @@ class RegionController extends Controller
                     if (! $villRes->successful() && $dotted !== $districtCode) {
                         $villRes = $this->client()->timeout(6)->get($this->url("villages/{$districtCode}.json"));
                     }
+
                     return $villRes->successful() ? ($villRes->json('data') ?? []) : [];
                 });
 

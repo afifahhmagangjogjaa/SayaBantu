@@ -40,7 +40,7 @@
                                     </svg>
                                 </div>
                                 <h3 class="text-sm font-bold text-gray-900 mb-1">Ambil atau Pilih Foto Selfie</h3>
-                                <p class="text-xs text-gray-500 mb-3.5">Format JPG, PNG (Maksimal 2MB)</p>
+                                <p class="text-xs text-gray-500 mb-3.5">Format JPG, PNG (Maksimal 15MB)</p>
                                 <div class="inline-flex items-center gap-1.5 bg-[#0066FF] hover:bg-[#0055D4] text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-xs transition active:scale-95">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />

@@ -335,10 +335,10 @@
                             );
                         @endphp
                         <a href="{{ route('profile') }}" wire:navigate
-                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 transition-colors {{ request()->routeIs('profile.*') || request()->routeIs('profile') ? 'text-[#0066FF] font-bold active' : 'text-gray-400 hover:text-gray-700' }}">
+                            class="nav-item flex-1 flex flex-col items-center justify-center py-1 px-0.5 min-w-0 transition-colors {{ request()->routeIs('profile.*') || request()->routeIs('profile') || request()->routeIs('customer.addresses*') ? 'text-[#0066FF] font-bold active' : 'text-gray-400 hover:text-gray-700' }}">
                             <div class="relative inline-flex items-center justify-center shrink-0">
                                 <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="{{ request()->routeIs('profile.*') || request()->routeIs('profile') ? '2.5' : '1.8' }}"
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="{{ request()->routeIs('profile.*') || request()->routeIs('profile') || request()->routeIs('customer.addresses*') ? '2.5' : '1.8' }}"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                                 @if($needsProfileAttention)

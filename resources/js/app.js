@@ -78,6 +78,9 @@ window.sbConfirm = function({
     cancelButtonText = 'Batal',
     isDanger = false
 } = {}) {
+    if (Swal.isVisible()) {
+        Swal.close();
+    }
     return Swal.fire({
         title: title,
         text: text,
@@ -97,14 +100,23 @@ window.sbConfirm = function({
     });
 };
 
-// Global listener for forms or elements with data-confirm
+// Global listener for non-form elements with data-confirm (e.g. <a> links, standalone action buttons)
 document.addEventListener('click', function(e) {
     const el = e.target.closest('[data-confirm]');
     if (!el) return;
 
+    // If the element is a FORM, or inside a FORM with data-confirm, or is a form submit button:
+    // Do NOT intercept here. Let the 'submit' event handler below handle it cleanly so that
+    // forms are reliably submitted without duplicate alerts or missing submissions.
+    if (el.tagName === 'FORM' || el.closest('form[data-confirm]') || (el.form && (el.type === 'submit' || !el.type))) {
+        return;
+    }
+
     e.preventDefault();
     const msg = el.getAttribute('data-confirm') || 'Apakah Anda yakin?';
-    const isDanger = el.getAttribute('data-confirm-danger') === 'true' || el.classList.contains('text-red-600') || el.classList.contains('bg-red-600');
+    const isDangerAttr = el.getAttribute('data-confirm-danger');
+    const isDanger = isDangerAttr === 'true' || 
+        (isDangerAttr !== 'false' && (el.classList.contains('text-red-600') || el.classList.contains('bg-red-600') || el.classList.contains('bg-rose-600') || /hapus|delete|sanksi|nonaktif|keluar/i.test(msg)));
 
     window.sbConfirm({
         title: 'Konfirmasi',
@@ -115,13 +127,133 @@ document.addEventListener('click', function(e) {
         if (result.isConfirmed) {
             if (el.tagName === 'A' && el.href) {
                 window.location.href = el.href;
-            } else if (el.form) {
-                el.form.submit();
+            } else if (typeof el.onclick === 'function') {
+                el.onclick();
             } else {
+                const origConfirm = el.getAttribute('data-confirm');
                 el.removeAttribute('data-confirm');
                 el.click();
+                setTimeout(() => {
+                    el.setAttribute('data-confirm', origConfirm);
+                }, 100);
             }
         }
     });
 });
+
+// Global listener for forms with data-confirm or submitted by buttons with data-confirm
+document.addEventListener('submit', function(e) {
+    const form = e.target;
+    if (form.__sbConfirmed) {
+        delete form.__sbConfirmed;
+        return;
+    }
+
+    const submitter = e.submitter || document.activeElement;
+    const confirmMsg = form.getAttribute('data-confirm') || submitter?.getAttribute('data-confirm');
+    if (confirmMsg) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const dangerAttr = form.getAttribute('data-confirm-danger') || submitter?.getAttribute('data-confirm-danger');
+        let isDanger = false;
+        if (dangerAttr === 'true') {
+            isDanger = true;
+        } else if (dangerAttr === 'false') {
+            isDanger = false;
+        } else {
+            isDanger = form.querySelector('.bg-red-600, .text-red-600, .bg-rose-600') !== null ||
+                submitter?.classList.contains('bg-red-600') ||
+                submitter?.classList.contains('text-red-600') ||
+                /hapus|delete|sanksi|nonaktif|keluar/i.test(confirmMsg);
+        }
+
+        const confirmBtn = form.getAttribute('data-confirm-btn') || submitter?.getAttribute('data-confirm-btn') || 'Ya, Lanjutkan';
+
+        window.sbConfirm({
+            title: 'Konfirmasi',
+            text: confirmMsg,
+            isDanger: isDanger,
+            confirmButtonText: confirmBtn
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.__sbConfirmed = true;
+                if (submitter && submitter.name) {
+                    let hidden = form.querySelector(`input[type="hidden"][name="${submitter.name}"]`);
+                    if (!hidden) {
+                        hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = submitter.name;
+                        form.appendChild(hidden);
+                    }
+                    hidden.value = submitter.value;
+                }
+                form.submit();
+            }
+        });
+    }
+}, true);
+
+// Otomatis ubah onsubmit/onclick confirm bawaan browser menjadi modal modern SayaBantu
+function convertLegacyBrowserAlerts() {
+    document.querySelectorAll('form[onsubmit*="confirm("]').forEach(function(form) {
+        const onsubmitStr = form.getAttribute('onsubmit') || '';
+        const match = onsubmitStr.match(/confirm\s*\(\s*['"`](.*?)['"`]\s*\)/);
+        if (match && match[1]) {
+            form.removeAttribute('onsubmit');
+            form.setAttribute('data-confirm', match[1]);
+            if (/hapus|delete|sanksi|nonaktif|keluar|ekstrem/i.test(match[1])) {
+                form.setAttribute('data-confirm-danger', 'true');
+            }
+        }
+    });
+
+    document.querySelectorAll('[onclick*="confirm("]').forEach(function(el) {
+        const onclickStr = el.getAttribute('onclick') || '';
+        const match = onclickStr.match(/confirm\s*\(\s*['"`](.*?)['"`]\s*\)/);
+        if (match && match[1]) {
+            el.removeAttribute('onclick');
+            el.setAttribute('data-confirm', match[1]);
+            if (/hapus|delete|sanksi|nonaktif|keluar|ekstrem/i.test(match[1])) {
+                el.setAttribute('data-confirm-danger', 'true');
+            }
+        }
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', convertLegacyBrowserAlerts);
+} else {
+    convertLegacyBrowserAlerts();
+}
+document.addEventListener('livewire:navigated', convertLegacyBrowserAlerts);
+document.addEventListener('livewire:init', convertLegacyBrowserAlerts);
+
+// Intercept Livewire 3 wire:confirm to use SayaBantu SweetAlert2 dialogs instead of native browser confirm
+document.addEventListener('click', function(e) {
+    const el = e.target.closest('[wire\\:confirm]');
+    if (el && el.__livewire_confirm && !el.__sbConfirmWrapped) {
+        el.__sbConfirmWrapped = true;
+        el.__livewire_confirm = (action, instead) => {
+            const msg = el.getAttribute('wire:confirm') || 'Apakah Anda yakin?';
+            const isDanger = /hapus|delete|sanksi|nonaktif|keluar|ekstrem|blokir|peringatan/i.test(msg) ||
+                el.classList.contains('bg-red-600') || el.classList.contains('text-red-600') || el.classList.contains('border-red-200');
+
+            window.sbConfirm({
+                title: 'Konfirmasi',
+                text: msg,
+                isDanger: isDanger,
+                confirmButtonText: 'Ya, Lanjutkan',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    action();
+                } else {
+                    instead();
+                }
+            });
+        };
+    }
+}, true);
+
 

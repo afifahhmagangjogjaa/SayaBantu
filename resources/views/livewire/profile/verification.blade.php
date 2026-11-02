@@ -51,7 +51,7 @@
                         <input id="ktp-upload" wire:model="ktp_photo" type="file" class="sr-only" accept="image/*">
                         <p class="pl-1">atau drag & drop</p>
                     </div>
-                    <p class="text-xs text-gray-500">PNG, JPG up to 2MB</p>
+                    <p class="text-xs text-gray-500">PNG, JPG up to 15MB</p>
                 </div>
                 
                 <div wire:loading wire:target="ktp_photo" class="absolute inset-0 bg-white/80 flex items-center justify-center z-20">
@@ -86,7 +86,7 @@
                         <input id="selfie-upload" wire:model="selfie_photo" type="file" class="sr-only" accept="image/*">
                         <p class="pl-1">atau drag & drop</p>
                     </div>
-                    <p class="text-xs text-gray-500">PNG, JPG up to 2MB</p>
+                    <p class="text-xs text-gray-500">PNG, JPG up to 15MB</p>
                 </div>
                 
                 <div wire:loading wire:target="selfie_photo" class="absolute inset-0 bg-white/80 flex items-center justify-center z-20">

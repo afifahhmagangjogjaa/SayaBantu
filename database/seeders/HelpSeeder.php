@@ -34,10 +34,10 @@ class HelpSeeder extends Seeder
         $slemanId = $sleman ? $sleman->id : 32;
         $jktId = $jkt ? $jkt->id : 1;
 
-        $catRumah = Category::where('name', 'like', '%Rumah Tangga%')->first() ?: Category::find(1);
-        $catKesehatan = Category::where('name', 'like', '%Kesehatan%')->first() ?: Category::find(3);
-        $catTransport = Category::where('name', 'like', '%Transportasi%')->first() ?: Category::find(5);
-        $catPangan = Category::where('name', 'like', '%Pangan%')->first() ?: Category::find(7);
+        $catRumah = Category::where('name', 'like', '%Cleaning%')->orWhere('name', 'like', '%Rumah%')->first() ?: Category::first();
+        $catKesehatan = Category::where('name', 'like', '%Hewan%')->orWhere('name', 'like', '%Kesehatan%')->first() ?: Category::first();
+        $catTransport = Category::where('name', 'like', '%Antar%')->orWhere('name', 'like', '%Transportasi%')->first() ?: Category::first();
+        $catPangan = Category::where('name', 'like', '%Food%')->orWhere('name', 'like', '%Pangan%')->first() ?: Category::first();
 
         $custFeePercent = (float) AppSetting::get('customer_service_fee_percent', 10);
         $mitraFeePercent = (float) AppSetting::get('mitra_platform_fee_percent', 10);

@@ -246,7 +246,8 @@
                         </div>
                         <div class="pt-3 border-t border-gray-100 space-y-2">
                             <form action="{{ route('admin.partners.toggle-shadow-ban', $user->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin {{ $user->isShadowBanned() ? 'melepaskan' : 'menerapkan' }} Shadow Ban pada pengguna {{ $user->name }}?');">
+                                data-confirm="Apakah Anda yakin ingin {{ $user->isShadowBanned() ? 'melepaskan' : 'menerapkan' }} Shadow Ban pada pengguna {{ $user->name }}?"
+                                data-confirm-danger="{{ $user->isShadowBanned() ? 'false' : 'true' }}">
                                 @csrf
                                 <button type="submit"
                                     style="background-color: {{ $user->isShadowBanned() ? '#faf5ff' : '#7e22ce' }}; color: {{ $user->isShadowBanned() ? '#6b21a8' : '#ffffff' }}; border: 1.5px solid {{ $user->isShadowBanned() ? '#c084fc' : '#6b21a8' }};"
@@ -257,7 +258,8 @@
                             </form>
                             @if ($user->status !== 'blocked')
                                 <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST"
-                                    onsubmit="return confirm('Apakah Anda yakin ingin {{ $user->status === 'active' ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?');">
+                                    data-confirm="Apakah Anda yakin ingin {{ $user->status === 'active' ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?"
+                                    data-confirm-danger="{{ $user->status === 'active' ? 'true' : 'false' }}">
                                     @csrf
                                     <button type="submit"
                                         class="w-full px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer shadow-2xs {{ $user->status === 'active' ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' }}">
@@ -442,7 +444,8 @@
                     <div class="space-y-3 text-sm">
                         @if(!$user->verified)
                             <form action="{{ route('admin.users.verify-ktp', $user->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menyetujui (ACC) dan memverifikasi KTP pengguna {{ $user->name }}?');">
+                                data-confirm="Apakah Anda yakin ingin menyetujui (ACC) dan memverifikasi KTP pengguna {{ $user->name }}?"
+                                data-confirm-danger="false">
                                 @csrf
                                 <button type="submit"
                                     class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
@@ -454,7 +457,8 @@
                             </form>
                         @else
                             <form action="{{ route('admin.users.reject-ktp', $user->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin membatalkan status verifikasi KTP pengguna {{ $user->name }}?');">
+                                data-confirm="Apakah Anda yakin ingin membatalkan status verifikasi KTP pengguna {{ $user->name }}?"
+                                data-confirm-danger="true">
                                 @csrf
                                 <button type="submit"
                                     class="w-full py-2 border border-gray-200 text-gray-600 hover:text-red-700 hover:bg-red-50 rounded-xl text-xs font-medium transition cursor-pointer">

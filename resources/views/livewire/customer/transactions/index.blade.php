@@ -1,9 +1,11 @@
 <div class="min-h-full bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - SayaBantu Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+        <div class="px-5 pt-5 pb-8 relative text-white" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+            </div>
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
@@ -25,13 +27,13 @@
             </div>
 
             <!-- Curved separator (Garis Lengkung Bawaan Asli) -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
         <!-- Content Area -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6">
+        <div class="bg-white px-5 pt-4 pb-6">
             
             <!-- Balance Card (Simpel & Elegan - Tanpa Total Akumulasi Uang) -->
             <div class="mb-5 bg-gradient-to-br from-blue-50 via-white to-sky-50 border border-blue-100 rounded-2xl p-4 shadow-xs">

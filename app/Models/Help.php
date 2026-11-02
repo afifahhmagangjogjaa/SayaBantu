@@ -135,7 +135,7 @@ class Help extends Model
 
     public function getCategoryNameAttribute(): string
     {
-        if ($this->category && strtolower(trim($this->category->name)) === 'lainnya' && !empty($this->other_category)) {
+        if ($this->category && strtolower(trim($this->category->name)) === 'lainnya' && ! empty($this->other_category)) {
             return $this->other_category;
         }
 

@@ -23,15 +23,24 @@ class EditPage extends Component
 
     protected function rules(): array
     {
+        $userId = auth()->id();
+
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:40',
+            'email' => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($userId)],
+            'phone' => ['nullable', 'string', 'max:40', \Illuminate\Validation\Rule::unique('users', 'phone')->ignore($userId)],
             'city_id' => ['nullable', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
             'address' => 'nullable|string|max:500',
             'bio' => 'nullable|string|max:1000',
         ];
     }
+
+    protected $messages = [
+        'name.required' => 'Nama lengkap wajib diisi.',
+        'email.required' => 'Email wajib diisi.',
+        'email.unique' => 'Email sudah terdaftar.',
+        'phone.unique' => 'Nomor HP sudah digunakan oleh akun lain.',
+    ];
 
     public function mount()
     {
@@ -53,6 +62,13 @@ class EditPage extends Component
         // If email changed, ensure uniqueness
         if ($this->email !== $user->email && \App\Models\User::where('email', $this->email)->exists()) {
             $this->addError('email', 'Email sudah terdaftar.');
+
+            return;
+        }
+
+        // If phone changed, ensure uniqueness
+        if (! empty($this->phone) && $this->phone !== $user->phone && \App\Models\User::where('phone', $this->phone)->where('id', '!=', $user->id)->exists()) {
+            $this->addError('phone', 'Nomor HP sudah digunakan oleh akun lain.');
 
             return;
         }

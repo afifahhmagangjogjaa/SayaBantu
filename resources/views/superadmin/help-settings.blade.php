@@ -64,9 +64,9 @@
                                 </svg>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <h3 class="text-sm font-medium text-gray-900 group-hover:text-indigo-700">Tarif & Radius Bantuan</h3>
+                                <h3 class="text-sm font-medium text-gray-900 group-hover:text-indigo-700">Tarif & Radius Jangkauan Mitra</h3>
                                 <p class="text-xs text-gray-500 mt-1 leading-relaxed">
-                                    Nominal minimal bantuan standar & urgent, serta radius maksimal jangkauan mitra.
+                                    Nominal minimal bantuan reguler & prioritas, serta radius maksimal jarak mitra bisa ambil order bantuan.
                                 </p>
                             </div>
                         </div>

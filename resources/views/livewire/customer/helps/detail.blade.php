@@ -75,17 +75,19 @@
     </div>
 
     {{-- Header - SayaBantu style matching Gambar 2 --}}
-    <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
-        <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+    <div class="px-5 pt-5 pb-8 relative text-white" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+        </div>
 
         <div class="relative z-10 max-w-md mx-auto">
             <div class="flex items-center justify-between text-white mb-6">
-                <button onclick="window.history.back()" aria-label="Kembali" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-lg transition shrink-0">
+                <a href="{{ route('customer.helps.index') }}" wire:navigate aria-label="Kembali ke Pesanan Saya" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-lg transition shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                </button>
+                </a>
 
                 <div class="text-center flex-1 px-2">
                     <h1 class="text-lg font-bold">Detail Pesanan</h1>
@@ -97,13 +99,13 @@
         </div>        
 
             <!-- Curved separator (SVG) to create non-flat divider into content -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
             </svg>
     </div>
 
     <!-- Content -->
-    <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-8 max-w-md mx-auto">
+    <div class="bg-white px-5 pt-4 pb-8 max-w-md mx-auto">
         {{-- Order ID --}}
         <div class="bg-white px-4 py-3 flex items-center justify-between rounded-xl shadow-sm border border-gray-100">
             <span class="text-sm text-gray-600">ID Pesanan: <span class="font-semibold text-gray-900">{{ $help->order_id }}</span></span>
@@ -145,7 +147,7 @@
                         </div>
                         <div>
                             <span class="text-[11px] font-bold text-red-600 uppercase tracking-wider block">Batas Waktu Tunggu Mitra</span>
-                            <span class="text-xs text-gray-600 font-medium">Bantuan Mendesak (Urgent)</span>
+                            <span class="text-xs text-gray-600 font-medium">Bantuan Prioritas / Urgent</span>
                         </div>
                     </div>
                     <div class="text-right">
@@ -510,7 +512,7 @@
                         <div>Jadwal: {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d F Y, H:i') }}</div>
                     @endif
                     <div class="mt-1">
-                        Jenis: <span class="font-bold {{ $help->isUrgent() ? 'text-red-600' : 'text-blue-600' }}">{{ $help->isUrgent() ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}</span>
+                        Jenis: <span class="font-bold {{ $help->isUrgent() ? 'text-red-600' : 'text-blue-600' }}">{{ $help->isUrgent() ? '⚡ Prioritas / Urgent' : '📅 Reguler' }}</span>
                     </div>
                 </div>
             </div>
@@ -649,7 +651,7 @@
                     @elseif($isScheduledWaiting)
                         <span class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border bg-blue-50 text-blue-700 border-blue-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                            <span>Terjadwal</span>
+                            <span>Reguler</span>
                         </span>
                     @else
                         <span class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border {{ $statusTheme['badge'] }}">
@@ -677,7 +679,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     <div>
-                        <span class="font-bold">Pesanan Terjadwal:</span> Rekan Jasa telah menerima pesanan Anda dan akan mulai menuju lokasi 1 jam sebelum jadwal (<strong>{{ $schedCarbonCust->translatedFormat('l, d F Y') }}</strong> - Jam {{ $schedCarbonCust->format('H:i') }} WIB).
+                        <span class="font-bold">Pesanan Reguler:</span> Rekan Jasa telah menerima pesanan Anda dan akan mulai menuju lokasi 1 jam sebelum jadwal (<strong>{{ $schedCarbonCust->translatedFormat('l, d F Y') }}</strong> - Jam {{ $schedCarbonCust->format('H:i') }} WIB).
                     </div>
                 </div>
             @endif

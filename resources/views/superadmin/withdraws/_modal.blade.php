@@ -10,7 +10,12 @@
         <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-xl font-bold text-gray-900">Withdraw Request #{{ $withdraw->id }}</h3>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-xl font-bold text-gray-900">Withdraw Request</h3>
+                        <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                            {{ $withdraw->withdraw_code }}
+                        </span>
+                    </div>
                     <p class="text-sm text-gray-500 mt-1">Detail permintaan penarikan saldo</p>
                 </div>
                 <button id="close-superadmin-withdraw-modal"

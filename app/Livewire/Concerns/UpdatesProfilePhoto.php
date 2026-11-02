@@ -21,13 +21,13 @@ trait UpdatesProfilePhoto
     public $showModal = false;
 
     protected $rules = [
-        'photo' => 'required|image|max:2048', // max 2MB
+        'photo' => 'required|image|max:15360', // max 15MB
     ];
 
     protected $messages = [
         'photo.required' => 'Pilih foto terlebih dahulu',
         'photo.image' => 'File harus berupa gambar',
-        'photo.max' => 'Ukuran foto maksimal 2MB',
+        'photo.max' => 'Ukuran foto maksimal 15MB',
     ];
 
     /**
@@ -67,8 +67,8 @@ trait UpdatesProfilePhoto
                 Storage::disk('public')->delete($user->profile_photo);
             }
 
-            // Store new photo
-            $path = $this->photo->store('profile-photos', 'public');
+            // Store new photo compressed
+            $path = \App\Services\ImageCompressionService::compressAndStore($this->photo, 'profile-photos', 800, 800, 80);
 
             $user->update([
                 'profile_photo' => $path,

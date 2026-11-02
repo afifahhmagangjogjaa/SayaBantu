@@ -69,8 +69,8 @@
             </div>
 
             <!-- Wave Separator (SVG) bergelombang -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
@@ -186,7 +186,7 @@
                                     <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
                                         <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                         @if($isUrgent)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black bg-red-100 text-red-700 uppercase tracking-wider border border-red-200 shadow-2xs flex-shrink-0">⚡ Prioritas / Urgent</span>
                                             @if($help->auto_cancel_at && $help->status === 'menunggu_mitra')
                                                 @php
                                                     $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
@@ -334,7 +334,7 @@
             <!-- Modal Content -->
             <div class="p-4 space-y-2.5">
                 <div id="previewUrgentBadge" class="hidden p-2 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold text-center">
-                    BANTUAN MENDESAK (URGENT)
+                    BANTUAN PRIORITAS / URGENT
                 </div>
 
                 <!-- Judul & Nominal -->

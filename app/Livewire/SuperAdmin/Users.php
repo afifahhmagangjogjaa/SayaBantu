@@ -141,6 +141,7 @@ class Users extends Component
                 $found = \App\Support\JsonMaster::find($master, $key);
                 if ($found !== []) {
                     $this->apiDistricts = $found;
+
                     return;
                 }
             }
@@ -163,6 +164,7 @@ class Users extends Component
                 $found = \App\Support\JsonMaster::find($master, $key);
                 if ($found !== []) {
                     $this->apiVillages = $found;
+
                     return;
                 }
             }
@@ -260,6 +262,7 @@ class Users extends Component
             $this->selectedVillageCode = '';
             $this->apiVillages = [];
             $this->isManualKelurahan = true;
+
             return;
         }
 
@@ -282,6 +285,7 @@ class Users extends Component
         if ($code === 'other') {
             $this->isManualKelurahan = true;
             $this->kelurahan = '';
+
             return;
         }
 
@@ -292,7 +296,7 @@ class Users extends Component
 
     public function toggleManualKecamatan(): void
     {
-        $this->isManualKecamatan = !$this->isManualKecamatan;
+        $this->isManualKecamatan = ! $this->isManualKecamatan;
         if ($this->isManualKecamatan) {
             $this->selectedDistrictCode = 'other';
             $this->isManualKelurahan = true;
@@ -306,7 +310,7 @@ class Users extends Component
 
     public function toggleManualKelurahan(): void
     {
-        $this->isManualKelurahan = !$this->isManualKelurahan;
+        $this->isManualKelurahan = ! $this->isManualKelurahan;
         if ($this->isManualKelurahan) {
             $this->selectedVillageCode = 'other';
         } else {
@@ -589,6 +593,7 @@ class Users extends Component
         }
 
         $user->is_shadow_banned = ! ((bool) $user->is_shadow_banned);
+        $user->shadow_banned_at = $user->is_shadow_banned ? now() : null;
         $user->save();
 
         if ($this->selectedUser && $this->selectedUser->id == $id) {
@@ -641,7 +646,16 @@ class Users extends Component
         $rules = [
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'email' => $emailRules,
-            'phone' => ['required', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
+            'phone' => [
+                'required',
+                'string',
+                'min:10',
+                'max:13',
+                'regex:/^[0-9]+$/',
+                ($this->selectedUser ? $this->selectedUser->id : $this->userId)
+                    ? \Illuminate\Validation\Rule::unique('users', 'phone')->ignore($this->selectedUser ? $this->selectedUser->id : $this->userId)
+                    : \Illuminate\Validation\Rule::unique('users', 'phone'),
+            ],
             'role' => 'required|string',
             'status' => 'nullable|string|in:active,inactive',
             'verified' => 'required|boolean',
@@ -691,6 +705,7 @@ class Users extends Component
             'phone.min' => 'Nomor HP minimal 10 digit angka.',
             'phone.max' => 'Nomor HP maksimal 13 digit angka.',
             'phone.regex' => 'Nomor HP hanya boleh berisi angka.',
+            'phone.unique' => 'Nomor HP sudah digunakan oleh pengguna lain.',
             'nik.required' => 'NIK wajib diisi.',
             'nik.size' => 'NIK harus 16 digit angka.',
             'nik.regex' => 'NIK hanya boleh berupa angka.',

@@ -100,6 +100,7 @@ class BlockedPartnerController extends Controller
     {
         $user = User::findOrFail($id);
         $user->is_shadow_banned = ! ((bool) $user->is_shadow_banned);
+        $user->shadow_banned_at = $user->is_shadow_banned ? now() : null;
         $user->save();
 
         // Record partner activity log
@@ -120,6 +121,14 @@ class BlockedPartnerController extends Controller
         $label = $user->is_shadow_banned
             ? '👻 Shadow Ban berhasil diaktifkan. Pengguna ini tidak akan melihat/menerima pesanan baru.'
             : '✅ Shadow Ban berhasil dinonaktifkan. Pengguna kembali dapat menerima pesanan secara normal.';
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'is_shadow_banned' => (bool) $user->is_shadow_banned,
+                'message' => $label,
+            ]);
+        }
 
         return back()->with('success', $label);
     }

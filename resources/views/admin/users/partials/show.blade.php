@@ -32,14 +32,15 @@
                 </div>
                 <!-- Actions & Close Button -->
                 <div class="flex items-center gap-2 flex-shrink-0 ml-4">
-                    @if($user->isMitra())
+                    @if(in_array($user->role, ['mitra', 'customer', 'kustomer']))
                         <form action="{{ route('admin.partners.toggle-shadow-ban', $user->id) }}" method="POST" class="inline-block m-0"
-                            onsubmit="return confirm('Apakah Anda yakin ingin {{ $user->isShadowBanned() ? 'melepaskan' : 'menerapkan' }} Shadow Ban pada pengguna {{ $user->name }}?');">
+                            data-confirm="Apakah Anda yakin ingin {{ $user->isShadowBanned() ? 'melepaskan' : 'menerapkan' }} Shadow Ban pada pengguna {{ $user->name }}?"
+                            data-confirm-danger="{{ $user->isShadowBanned() ? 'false' : 'true' }}">
                             @csrf
                             <button type="submit"
                                 style="background-color: {{ $user->isShadowBanned() ? '#f3e8ff' : '#ffffff' }}; color: {{ $user->isShadowBanned() ? '#6b21a8' : '#7e22ce' }}; border: 1px solid {{ $user->isShadowBanned() ? '#d8b4fe' : '#c084fc' }};"
                                 class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs hover:opacity-90 transition cursor-pointer"
-                                title="{{ $user->isShadowBanned() ? 'Lepaskan status Shadow Ban agar mitra kembali dapat melihat pesanan' : 'Aktifkan Shadow Ban agar pesanan disembunyikan dari mitra ini' }}">
+                                title="{{ $user->isShadowBanned() ? 'Lepaskan status Shadow Ban agar pengguna kembali normal' : 'Aktifkan Shadow Ban agar pesanan disembunyikan' }}">
                                 <span>👻</span>
                                 <span class="text-[11px] font-bold">{{ $user->isShadowBanned() ? 'Lepas Shadow Ban' : 'Shadow Ban' }}</span>
                             </button>
@@ -366,7 +367,8 @@
 
                             @if ($user->status !== 'blocked')
                                 <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="inline-block m-0"
-                                    onsubmit="return confirm('Apakah Anda yakin ingin {{ $user->status === 'active' ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?');">
+                                    data-confirm="Apakah Anda yakin ingin {{ $user->status === 'active' ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?"
+                                    data-confirm-danger="{{ $user->status === 'active' ? 'true' : 'false' }}">
                                     @csrf
                                     <button type="submit"
                                         class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer shadow-2xs {{ $user->status === 'active' ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' }}">
@@ -428,7 +430,8 @@
 
                         @if(!$user->verified)
                             <form action="{{ route('admin.users.verify-ktp', $user->id) }}" method="POST" class="inline-block m-0"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menyetujui (ACC) dan memverifikasi KTP pengguna {{ $user->name }}?');">
+                                data-confirm="Apakah Anda yakin ingin menyetujui (ACC) dan memverifikasi KTP pengguna {{ $user->name }}?"
+                                data-confirm-danger="false">
                                 @csrf
                                 <button type="submit"
                                     class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
@@ -441,7 +444,8 @@
                             </form>
                         @else
                             <form action="{{ route('admin.users.reject-ktp', $user->id) }}" method="POST" class="inline-block m-0"
-                                onsubmit="return confirm('Apakah Anda yakin ingin membatalkan status verifikasi KTP pengguna {{ $user->name }}?');">
+                                data-confirm="Apakah Anda yakin ingin membatalkan status verifikasi KTP pengguna {{ $user->name }}?"
+                                data-confirm-danger="true">
                                 @csrf
                                 <button type="submit"
                                     class="px-2.5 py-1 rounded-lg text-xs font-medium text-gray-500 hover:text-red-700 hover:bg-red-50 border border-gray-200 hover:border-red-200 transition cursor-pointer"

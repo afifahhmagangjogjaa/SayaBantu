@@ -252,6 +252,11 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getAdminCityIds(): array
     {
+        // Super Admin memiliki akses penuh ke seluruh wilayah kota di Indonesia
+        if ($this->isSuperAdmin()) {
+            return City::pluck('id')->toArray();
+        }
+
         $cityIds = collect();
 
         if ($this->exists && ! empty($this->id)) {
@@ -425,6 +430,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function withdrawRequests()
     {
         return $this->hasMany(\App\Models\WithdrawRequest::class);
+    }
+
+    public function customerAddresses()
+    {
+        return $this->hasMany(\App\Models\CustomerAddress::class);
+    }
+
+    public function primaryAddress()
+    {
+        return $this->hasOne(\App\Models\CustomerAddress::class)->where('is_primary', true);
     }
 
     /**

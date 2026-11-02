@@ -31,8 +31,13 @@
         <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="md:col-span-2">
-                    <h2 class="text-lg font-semibold text-gray-900">Withdraw #{{ $withdraw->id }}</h2>
-                    <p class="text-xs text-gray-500 mt-1">Permintaan dari mitra berikut informasinya.</p>
+                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <span>Withdraw Request</span>
+                        <span class="font-mono text-sm px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
+                            {{ $withdraw->withdraw_code }}
+                        </span>
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-1">ID Sistem: #{{ $withdraw->id }} • Permintaan dari mitra berikut informasinya.</p>
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-500">Status</div>

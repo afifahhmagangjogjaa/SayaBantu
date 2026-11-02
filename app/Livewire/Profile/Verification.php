@@ -43,13 +43,13 @@ class Verification extends Component
     public function save()
     {
         $this->validate([
-            'ktp_photo' => 'nullable|image|max:2048', // 2MB Max
-            'selfie_photo' => 'nullable|image|max:2048', // 2MB Max
+            'ktp_photo' => 'nullable|image|max:15360', // 15MB Max
+            'selfie_photo' => 'nullable|image|max:15360', // 15MB Max
         ], [
             'ktp_photo.image' => 'File KTP harus berupa gambar.',
-            'ktp_photo.max' => 'Ukuran gambar KTP maksimal 2MB.',
+            'ktp_photo.max' => 'Ukuran gambar KTP maksimal 15MB.',
             'selfie_photo.image' => 'File Selfie harus berupa gambar.',
-            'selfie_photo.max' => 'Ukuran gambar Selfie maksimal 2MB.',
+            'selfie_photo.max' => 'Ukuran gambar Selfie maksimal 15MB.',
         ]);
 
         $user = Auth::user();
@@ -60,7 +60,7 @@ class Verification extends Component
             if ($user->ktp_photo && Storage::disk('public')->exists($user->ktp_photo)) {
                 Storage::disk('public')->delete($user->ktp_photo);
             }
-            $path = $this->ktp_photo->store('ktp-photos', 'public');
+            $path = \App\Services\ImageCompressionService::compressAndStore($this->ktp_photo, 'ktp-photos');
             $user->ktp_photo = $path;
             $this->existing_ktp = $path;
             $changes++;
@@ -71,7 +71,7 @@ class Verification extends Component
             if ($user->selfie_photo && Storage::disk('public')->exists($user->selfie_photo)) {
                 Storage::disk('public')->delete($user->selfie_photo);
             }
-            $path = $this->selfie_photo->store('selfie-photos', 'public');
+            $path = \App\Services\ImageCompressionService::compressAndStore($this->selfie_photo, 'selfie-photos');
             $user->selfie_photo = $path;
             $this->existing_selfie = $path;
             $changes++;

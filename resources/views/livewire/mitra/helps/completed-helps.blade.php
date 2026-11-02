@@ -50,17 +50,19 @@
 
     <div class="max-w-md mx-auto">
         <!-- Header - BRImo Style -->
-        <div class="px-5 pt-5 pb-8 relative overflow-hidden header-pattern" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+        <div class="px-5 pt-5 pb-8 relative text-white" style="background: linear-gradient(to bottom right, #0066FF, #0052CC, #003EA8);">
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+            </div>
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-3">
-                    <button onclick="window.history.back()" aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition">
+                    <a href="{{ route('mitra.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
-                    </button>
+                    </a>
 
                     <div class="text-center flex-1">
                         <h1 class="text-lg font-bold">Riwayat Bantuan</h1>
@@ -119,13 +121,13 @@
             </div>
 
             <!-- Curved separator -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
         <!-- Main Content -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6">
+        <div class="bg-white px-5 pt-4 pb-6">
 
                 {{-- List --}}
                 @if(isset($helps) && $helps->isEmpty())
@@ -162,7 +164,7 @@
                                             <div class="flex items-center gap-1.5 min-w-0">
                                                 <h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
                                                 @if($help->isUrgent())
-                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black bg-red-100 text-red-700 uppercase tracking-wider border border-red-200 flex-shrink-0">⚡ Prioritas / Urgent</span>
                                                 @endif
                                             </div>
                                             <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} • {{ optional($help->updated_at)->format('d M Y') }}</p>

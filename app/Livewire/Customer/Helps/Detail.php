@@ -539,18 +539,18 @@ class Detail extends Component
         }
 
         $this->validate([
-            'complaint_photo' => 'required|image|max:5120',
+            'complaint_photo' => 'required|image|max:15360',
             'complaint_reason' => 'required|string|min:10|max:1000',
         ], [
             'complaint_photo.required' => 'Wajib mengunggah foto bukti ketidaksesuaian hasil kerja.',
             'complaint_photo.image' => 'File bukti harus berupa gambar (JPG, PNG, WebP).',
-            'complaint_photo.max' => 'Ukuran foto maksimal 5 MB.',
+            'complaint_photo.max' => 'Ukuran foto maksimal 15 MB.',
             'complaint_reason.required' => 'Wajib mengisi alasan/penjelasan komplain.',
             'complaint_reason.min' => 'Alasan komplain minimal 10 karakter.',
             'complaint_reason.max' => 'Alasan komplain maksimal 1000 karakter.',
         ]);
 
-        $photoPath = $this->complaint_photo->store('complaint_photos', 'public');
+        $photoPath = \App\Services\ImageCompressionService::compressAndStore($this->complaint_photo, 'complaint_photos');
 
         $this->help->update([
             'status' => 'komplain',

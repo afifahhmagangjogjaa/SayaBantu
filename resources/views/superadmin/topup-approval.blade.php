@@ -23,14 +23,14 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+            <div class="bg-gradient-to-br from-amber-50/80 via-white to-amber-50/30 rounded-2xl shadow-xs border border-amber-200/80 p-5 hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total Pending</p>
-                        <h3 class="text-2xl font-extrabold text-gray-900 mt-1.5">{{ $pendingRequests->total() }}</h3>
-                        <p class="text-amber-600 text-xs font-semibold mt-1">Request butuh verifikasi</p>
+                        <p class="text-amber-900/70 text-xs font-bold uppercase tracking-wider">Total Pending</p>
+                        <h3 class="text-2xl font-black text-amber-600 mt-1.5">{{ $pendingRequests->total() }}</h3>
+                        <p class="text-amber-700 text-xs font-semibold mt-1">Request butuh verifikasi</p>
                     </div>
-                    <div class="w-11 h-11 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
+                    <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-600 border border-amber-200/80 flex items-center justify-center shadow-2xs">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
                             <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -39,14 +39,14 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+            <div class="bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 rounded-2xl shadow-xs border border-emerald-200/80 p-5 hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Approved Hari Ini</p>
-                        <h3 class="text-2xl font-extrabold text-gray-900 mt-1.5">{{ $approvedToday ?? 0 }}</h3>
-                        <p class="text-green-600 text-xs font-semibold mt-1">Transaksi telah disetujui</p>
+                        <p class="text-emerald-900/70 text-xs font-bold uppercase tracking-wider">Approved Hari Ini</p>
+                        <h3 class="text-2xl font-black text-emerald-600 mt-1.5">{{ $approvedToday ?? 0 }}</h3>
+                        <p class="text-emerald-700 text-xs font-semibold mt-1">Transaksi telah disetujui</p>
                     </div>
-                    <div class="w-11 h-11 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center text-green-600">
+                    <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 border border-emerald-200/80 flex items-center justify-center shadow-2xs">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
@@ -54,14 +54,14 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+            <div class="bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 rounded-2xl shadow-xs border border-blue-200/80 p-5 hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total Nominal Pending</p>
-                        <h3 class="text-2xl font-extrabold text-gray-900 mt-1.5">Rp {{ number_format($totalPendingAmount ?? 0, 0, ',', '.') }}</h3>
-                        <p class="text-gray-400 text-xs mt-1">Rp {{ number_format($totalApprovedAmountToday ?? 0, 0, ',', '.') }} (Approved Hari Ini)</p>
+                        <p class="text-blue-900/70 text-xs font-bold uppercase tracking-wider">Total Nominal Pending</p>
+                        <h3 class="text-2xl font-black text-[#0066FF] mt-1.5">Rp {{ number_format($totalPendingAmount ?? 0, 0, ',', '.') }}</h3>
+                        <p class="text-blue-600/80 text-xs font-medium mt-1">Rp {{ number_format($totalApprovedAmountToday ?? 0, 0, ',', '.') }} (Approved Hari Ini)</p>
                     </div>
-                    <div class="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                    <div class="w-11 h-11 rounded-xl bg-blue-100 text-[#0066FF] border border-blue-200/80 flex items-center justify-center shadow-2xs">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
@@ -237,8 +237,8 @@
         <!-- SEKSI 2: RIWAYAT APPROVAL & TRANSAKSI -->
         <!-- ========================================== -->
         <div class="border-t border-gray-200 pt-6 mt-6">
-            <!-- Section Header & Filter Bar -->
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 px-1 sm:px-2">
+            <!-- Row 1: Section Title & Action Button -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 px-1 sm:px-2">
                 <div class="flex-shrink-0">
                     <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2.5 whitespace-nowrap">
                         <span>Riwayat Approval & Transaksi</span>
@@ -249,46 +249,51 @@
                     <p class="text-xs text-gray-500 mt-1">Histori seluruh transaksi top-up yang telah disetujui maupun ditolak</p>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
-                    <!-- Status Filter Tabs -->
-                    <div class="inline-flex h-9 items-center rounded-xl border border-gray-200 p-1 bg-gray-50 shadow-2xs flex-shrink-0">
-                        <button type="button" wire:click="filterHistoryStatus('')"
-                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === '' || $historyStatusFilter === 'all' ? 'bg-white text-gray-900 font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
-                            Semua ({{ $totalHistoryCount ?? 0 }})
-                        </button>
-                        <button type="button" wire:click="filterHistoryStatus('completed')"
-                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === 'completed' ? 'bg-green-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
-                            Disetujui ({{ $totalCompletedCount ?? 0 }})
-                        </button>
-                        <button type="button" wire:click="filterHistoryStatus('rejected')"
-                            class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === 'rejected' ? 'bg-red-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
-                            Ditolak ({{ $totalRejectedCount ?? 0 }})
-                        </button>
-                    </div>
-
-                    <!-- Search Input History -->
-                    <div class="flex items-center h-9 w-48 sm:w-56 bg-white border border-gray-300 rounded-xl px-3 shadow-2xs transition focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
-                        <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <input type="text" wire:model.live.debounce.300ms="searchHistory"
-                            placeholder="Cari riwayat transaksi..."
-                            class="w-full h-full bg-transparent border-0 py-0 px-0 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 leading-normal" />
-                        @if($searchHistory)
-                            <button type="button" wire:click="$set('searchHistory', '')" class="ml-1.5 text-gray-400 hover:text-gray-600 text-xs flex-shrink-0" title="Hapus pencarian">
-                                ✕
-                            </button>
-                        @endif
-                    </div>
-
-                    <!-- Tombol Hapus Riwayat -->
+                <!-- Tombol Hapus Riwayat -->
+                <div class="flex items-center self-start sm:self-auto flex-shrink-0">
                     <button type="button" wire:click="openDeleteModal"
-                        class="h-9 px-3.5 flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0">
+                        class="h-9 px-3.5 inline-flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition cursor-pointer shadow-xs whitespace-nowrap">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                         <span>Hapus Riwayat</span>
                     </button>
+                </div>
+            </div>
+
+            <!-- Row 2: Status Tabs & Search Toolbar -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 px-1 sm:px-2">
+                <!-- Status Filter Tabs -->
+                <div class="inline-flex h-9 items-center rounded-xl border border-gray-200 p-1 bg-gray-50 shadow-2xs flex-shrink-0 self-start sm:self-auto">
+                    <button type="button" wire:click="filterHistoryStatus('')"
+                        class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === '' || $historyStatusFilter === 'all' ? 'bg-white text-gray-900 font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                        Semua ({{ $totalHistoryCount ?? 0 }})
+                    </button>
+                    <button type="button" wire:click="filterHistoryStatus('completed')"
+                        class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === 'completed' ? 'bg-green-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                        Disetujui ({{ $totalCompletedCount ?? 0 }})
+                    </button>
+                    <button type="button" wire:click="filterHistoryStatus('rejected')"
+                        class="h-7 px-3 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer {{ $historyStatusFilter === 'rejected' ? 'bg-red-600 text-white font-bold shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                        Ditolak ({{ $totalRejectedCount ?? 0 }})
+                    </button>
+                </div>
+
+                <!-- Search Input History -->
+                <div class="relative w-full sm:w-64 flex-shrink-0">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" wire:model.live.debounce.300ms="searchHistory"
+                        placeholder="Cari riwayat transaksi..."
+                        class="w-full h-9 pl-9 pr-8 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 shadow-2xs transition" />
+                    @if($searchHistory)
+                        <button type="button" wire:click="$set('searchHistory', '')" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-400 hover:text-gray-600 text-xs" title="Hapus pencarian">
+                            ✕
+                        </button>
+                    @endif
                 </div>
             </div>
 

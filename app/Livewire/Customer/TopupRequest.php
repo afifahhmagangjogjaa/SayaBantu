@@ -288,12 +288,12 @@ class TopupRequest extends Component
         // Validate step 3
         $this->validate([
             'paymentMethod' => 'required',
-            'proofOfPayment' => 'required|image|max:2048|mimes:jpg,jpeg,png',
+            'proofOfPayment' => 'required|image|max:15360|mimes:jpg,jpeg,png',
         ], [
             'paymentMethod.required' => 'Silakan pilih metode pembayaran',
             'proofOfPayment.required' => 'Bukti transfer wajib diupload',
             'proofOfPayment.image' => 'File harus berupa gambar',
-            'proofOfPayment.max' => 'Ukuran file maksimal 2MB',
+            'proofOfPayment.max' => 'Ukuran file maksimal 15MB',
         ]);
 
         $allowed = array_merge(
@@ -308,7 +308,7 @@ class TopupRequest extends Component
         }
 
         try {
-            $proofPath = $this->proofOfPayment->store('proof-of-payment', 'public');
+            $proofPath = \App\Services\ImageCompressionService::compressAndStore($this->proofOfPayment, 'proof-of-payment');
 
             $this->requestCode = $this->generateRequestCode();
 

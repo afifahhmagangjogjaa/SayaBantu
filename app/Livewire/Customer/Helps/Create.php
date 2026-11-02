@@ -39,7 +39,10 @@ class Create extends Component
         }
         $cat = Category::find($this->category_id);
 
-        return $cat && strtolower(trim($cat->name)) === 'lainnya';
+        return $cat && (
+            strtolower(trim($cat->name)) === 'lainnya' ||
+            str_contains(strtolower($cat->name), 'lainnya')
+        );
     }
 
     public function updatedCategoryId($value)
@@ -73,9 +76,9 @@ class Create extends Component
 
     public $full_address = '';
 
-    public $latitude = null;
+    public ?float $latitude = null;
 
-    public $longitude = null;
+    public ?float $longitude = null;
 
     // Scheduling
     public $help_type = 'scheduled'; // 'urgent' or 'scheduled'
@@ -84,15 +87,15 @@ class Create extends Component
 
     public $confirmAutoCancelMinutes = 30;
 
-    public $scheduled_date = null; // YYYY-MM-DD
+    public ?string $scheduled_date = null; // YYYY-MM-DD
 
-    public $scheduled_time = null; // HH:MM
+    public ?string $scheduled_time = null; // HH:MM
 
     public $timezoneLabel = 'WIB';
 
     public $timezoneIana = 'Asia/Jakarta';
 
-    public $photo;
+    public mixed $photo = null;
 
     public $showInsufficientModal = false;
 
@@ -108,7 +111,7 @@ class Create extends Component
 
     public $topupMethod = 'qris';
 
-    public $topupReceipt;
+    public mixed $topupReceipt = null;
 
     public $availableBanks = [];
 
@@ -120,7 +123,7 @@ class Create extends Component
 
     public $hasActivePendingTopup = false;
 
-    public $activePendingTopup = null;
+    public mixed $activePendingTopup = null;
 
     public $confirmAmount = 0;
 
@@ -134,7 +137,7 @@ class Create extends Component
 
     public $currentBalance = 0;
 
-    public $confirmScheduled = null;
+    public ?string $confirmScheduled = null;
 
     public $confirmHelpType = 'scheduled';
 
@@ -162,13 +165,13 @@ class Create extends Component
     public function mount()
     {
         $requestedCat = request()->query('category_id') ?? request()->query('category');
-        if (!empty($requestedCat)) {
+        if (! empty($requestedCat)) {
             if (is_numeric($requestedCat)) {
                 if (Category::where('id', $requestedCat)->exists()) {
                     $this->category_id = (string) $requestedCat;
                 }
             } else {
-                $matchedCat = Category::where('name', 'like', '%' . trim($requestedCat) . '%')->first();
+                $matchedCat = Category::where('name', 'like', '%'.trim($requestedCat).'%')->first();
                 if ($matchedCat) {
                     $this->category_id = (string) $matchedCat->id;
                 }
@@ -215,6 +218,25 @@ class Create extends Component
                 }
             }
         }
+
+        if ($user) {
+            $primaryAddr = $user->primaryAddress ?: $user->customerAddresses()->first();
+            if ($primaryAddr) {
+                if (empty($this->full_address)) {
+                    $this->full_address = $primaryAddr->formatted_address ?: $primaryAddr->address;
+                }
+                if (! empty($primaryAddr->benchmark) && empty($this->location)) {
+                    $this->location = $primaryAddr->benchmark;
+                }
+                if (! empty($primaryAddr->city_id)) {
+                    $this->city_id = (string) $primaryAddr->city_id;
+                }
+                if (! empty($primaryAddr->latitude) && ! empty($primaryAddr->longitude)) {
+                    $this->latitude = (float) $primaryAddr->latitude;
+                    $this->longitude = (float) $primaryAddr->longitude;
+                }
+            }
+        }
         if (empty($this->latitude) || empty($this->longitude)) {
             $this->latitude = -7.7956;
             $this->longitude = 110.3695;
@@ -230,7 +252,7 @@ class Create extends Component
         $this->checkPendingTopup();
     }
 
-    public function updatedCityId($value)
+    public function updatedCityId(mixed $value)
     {
         if (empty($value)) {
             return;
@@ -252,7 +274,7 @@ class Create extends Component
         $this->dispatch('help:timezone-changed', zone: $zone, iana: $iana);
     }
 
-    public function updatedAmount($value)
+    public function updatedAmount(mixed $value)
     {
         $minNominal = $this->help_type === 'urgent'
             ? (float) AppSetting::get('default_urgent_nominal', 50000)
@@ -274,7 +296,7 @@ class Create extends Component
                 $this->addError('amount', 'Nominal maksimal Rp '.number_format($this->maxNominal, 0, ',', '.'));
             } elseif ($num < $this->minNominal) {
                 $msg = $this->help_type === 'urgent'
-                    ? 'Nominal bantuan mendesak (urgent) minimal Rp '.number_format($this->minNominal, 0, ',', '.')
+                    ? 'Nominal bantuan prioritas / urgent minimal Rp '.number_format($this->minNominal, 0, ',', '.')
                     : 'Nominal minimal Rp '.number_format($this->minNominal, 0, ',', '.');
                 $this->addError('amount', $msg);
             } else {
@@ -283,7 +305,7 @@ class Create extends Component
         }
     }
 
-    public function updatedHelpType($value)
+    public function updatedHelpType(mixed $value)
     {
         $tz = $this->timezoneIana ?: 'Asia/Jakarta';
         $now = Carbon::now($tz);
@@ -305,7 +327,7 @@ class Create extends Component
             $this->auto_cancel_minutes = $this->auto_cancel_minutes ?: 30;
 
             if (! empty($this->amount) && (float) $this->amount < $urgentMin) {
-                $this->addError('amount', 'Nominal minimal untuk bantuan urgent adalah Rp '.number_format($urgentMin, 0, ',', '.'));
+                $this->addError('amount', 'Nominal minimal untuk bantuan prioritas / urgent adalah Rp '.number_format($urgentMin, 0, ',', '.'));
             } else {
                 $this->resetErrorBag(['scheduled_date', 'scheduled_time', 'amount', 'auto_cancel_minutes']);
             }
@@ -329,7 +351,7 @@ class Create extends Component
         }
     }
 
-    public function updatedReqProvinceId($value)
+    public function updatedReqProvinceId(mixed $value)
     {
         if (! Schema::hasTable('req_regencies') || empty($value)) {
             $this->req_regencies = [];
@@ -349,7 +371,7 @@ class Create extends Component
         $this->req_district_id = '';
     }
 
-    public function updatedReqRegencyId($value)
+    public function updatedReqRegencyId(mixed $value)
     {
         if (! Schema::hasTable('req_districts') || empty($value)) {
             $this->req_districts = [];
@@ -365,7 +387,7 @@ class Create extends Component
         $this->req_district_id = '';
     }
 
-    public function selectReqDistrict($districtId)
+    public function selectReqDistrict(mixed $districtId)
     {
         if (! Schema::hasTable('req_districts') || ! Schema::hasTable('req_regencies') || ! Schema::hasTable('req_provinces')) {
             return;
@@ -415,7 +437,7 @@ class Create extends Component
         }
     }
 
-    public function updatedCityQuery($value)
+    public function updatedCityQuery(mixed $value)
     {
         $q = trim($value);
 
@@ -594,7 +616,7 @@ class Create extends Component
         if ($this->help_type === 'urgent') {
             $maxUrgentDate = $now->copy()->addDay()->format('Y-m-d');
             if ($this->scheduled_date > $maxUrgentDate) {
-                $this->addError('scheduled_date', 'Untuk bantuan mendesak (urgent), tanggal hanya bisa hari ini atau besok');
+                $this->addError('scheduled_date', 'Untuk bantuan prioritas / urgent, tanggal hanya bisa hari ini atau besok');
 
                 return false;
             }
@@ -606,7 +628,7 @@ class Create extends Component
                     if ($this->scheduled_date === $todayStr && $scheduledAt->gte($now->copy()->addMinutes(8))) {
                         $this->scheduled_time = $minTime->format('H:i');
                     } else {
-                        $this->addError('scheduled_time', 'Untuk bantuan mendesak (urgent), jadwal minimal 15 menit setelah waktu sekarang (minimal pukul '.$minTime->format('H:i').' '.$this->timezoneLabel.')');
+                        $this->addError('scheduled_time', 'Untuk bantuan prioritas / urgent, jadwal minimal 15 menit setelah waktu sekarang (minimal pukul '.$minTime->format('H:i').' '.$this->timezoneLabel.')');
 
                         return false;
                     }
@@ -648,7 +670,7 @@ class Create extends Component
         'full_address' => 'required|string|max:1000',
         'latitude' => 'required|numeric|between:-90,90',
         'longitude' => 'required|numeric|between:-180,180',
-        'photo' => 'nullable|image|max:2048',
+        'photo' => 'nullable|image|max:15360',
         'scheduled_date' => 'required|date',
         'scheduled_time' => ['required', 'regex:/^(?:[0-1]?\d|2[0-3]):[0-5]\d$/'],
     ];
@@ -656,6 +678,7 @@ class Create extends Component
     protected $messages = [
         'title.required' => 'Judul bantuan wajib diisi',
         'description.required' => 'Deskripsi bantuan wajib diisi',
+        'photo.max' => 'Ukuran foto maksimal 15MB',
         'amount.required' => 'Nominal uang harus diisi',
         'amount.numeric' => 'Nominal harus berupa angka',
         'amount.min' => 'Nominal tidak boleh kurang dari nilai minimal yang ditetapkan',
@@ -708,7 +731,7 @@ class Create extends Component
         $adminFee = 0;
 
         $this->rules['amount'] = 'required|numeric|min:'.$minNominal.'|max:'.$maxNominal;
-        $this->messages['amount.min'] = 'Nominal minimal '.($this->help_type === 'urgent' ? 'untuk bantuan urgent adalah ' : '').'Rp '.number_format($minNominal, 0, ',', '.');
+        $this->messages['amount.min'] = 'Nominal minimal '.($this->help_type === 'urgent' ? 'untuk bantuan prioritas / urgent adalah ' : '').'Rp '.number_format($minNominal, 0, ',', '.');
         $this->messages['amount.max'] = 'Nominal maksimal Rp '.number_format($maxNominal, 0, ',', '.');
 
         if ($this->help_type === 'urgent') {
@@ -768,7 +791,7 @@ class Create extends Component
         DB::transaction(function () use ($userId, $baseAmount, $custPercent, $custFeeAmount, $totalPaid, $mitraPercent, $mitraFeeAmount, $netMitra) {
             $photoPath = null;
             if ($this->photo) {
-                $photoPath = $this->photo->store('helps', 'public');
+                $photoPath = \App\Services\ImageCompressionService::compressAndStore($this->photo, 'helps');
             }
 
             $orderId = $this->generateOrderId();
@@ -891,7 +914,7 @@ class Create extends Component
         }
 
         $this->rules['amount'] = 'required|numeric|min:'.$minNominal.'|max:'.$maxNominal;
-        $this->messages['amount.min'] = 'Nominal minimal '.($this->help_type === 'urgent' ? 'untuk bantuan urgent adalah ' : '').'Rp '.number_format($minNominal, 0, ',', '.');
+        $this->messages['amount.min'] = 'Nominal minimal '.($this->help_type === 'urgent' ? 'untuk bantuan prioritas / urgent adalah ' : '').'Rp '.number_format($minNominal, 0, ',', '.');
         $this->messages['amount.max'] = 'Nominal maksimal Rp '.number_format($maxNominal, 0, ',', '.');
 
         if ($this->help_type === 'urgent') {
@@ -965,7 +988,7 @@ class Create extends Component
         $this->insufficientMessage = '';
     }
 
-    public function setTopupQuickAmount($amount)
+    public function setTopupQuickAmount(mixed $amount)
     {
         $this->topupAmount = (int) $amount;
         $this->calculateTopupFee();
@@ -1050,7 +1073,7 @@ class Create extends Component
         }
     }
 
-    public function selectTopupMethod($method)
+    public function selectTopupMethod(mixed $method)
     {
         $this->topupMethod = $method;
     }
@@ -1086,7 +1109,7 @@ class Create extends Component
         $this->validate([
             'topupAmount' => 'required|numeric|min:10000|max:10000000',
             'topupMethod' => 'required|string',
-            'topupReceipt' => 'required|image|max:2048',
+            'topupReceipt' => 'required|image|max:15360',
         ], [
             'topupAmount.required' => 'Nominal top up wajib diisi',
             'topupAmount.min' => 'Minimal top up adalah Rp 10.000',
@@ -1094,13 +1117,13 @@ class Create extends Component
             'topupMethod.required' => 'Metode pembayaran wajib dipilih',
             'topupReceipt.required' => 'Bukti transfer wajib diunggah',
             'topupReceipt.image' => 'File bukti harus berupa gambar',
-            'topupReceipt.max' => 'Ukuran maksimal gambar 2MB',
+            'topupReceipt.max' => 'Ukuran maksimal gambar 15MB',
         ]);
 
         try {
             $user = auth()->user();
             $orderId = 'TOPUP-MANUAL-'.$user->id.'-'.time();
-            $receiptPath = $this->topupReceipt->store('proof-of-payment', 'public');
+            $receiptPath = \App\Services\ImageCompressionService::compressAndStore($this->topupReceipt, 'proof-of-payment');
 
             $methodName = 'Transfer Bank';
             if ($this->topupMethod === 'qris') {
@@ -1196,7 +1219,26 @@ class Create extends Component
         }
     }
 
-    public function setCityId($id)
+    public function selectSavedAddress(int $id): void
+    {
+        $addr = \App\Models\CustomerAddress::where('user_id', auth()->id())->find($id);
+        if ($addr) {
+            $this->full_address = $addr->formatted_address ?: $addr->address;
+            if ($addr->city_id) {
+                $this->setCityId($addr->city_id);
+            }
+            if (! empty($addr->benchmark)) {
+                $this->location = $addr->benchmark;
+            }
+            if (! empty($addr->latitude) && ! empty($addr->longitude)) {
+                $this->latitude = (float) $addr->latitude;
+                $this->longitude = (float) $addr->longitude;
+                $this->dispatch('coordinatesUpdated', lat: $this->latitude, lng: $this->longitude);
+            }
+        }
+    }
+
+    public function setCityId(mixed $id)
     {
         $this->city_id = $id;
         $city = City::find($id);
@@ -1261,7 +1303,7 @@ class Create extends Component
         return 'WIB';
     }
 
-    private function ianaForZone($zone)
+    private function ianaForZone(mixed $zone)
     {
         switch ($zone) {
             case 'WITA':

@@ -23,11 +23,20 @@ class UpdateProfileInformationForm extends Component
 
     protected function rules(): array
     {
+        $userId = Auth::id();
+
         return [
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
-            'email' => ['required', 'email', 'max:255'],
+            'email' => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($userId)],
             'nik' => ['nullable', 'string'],
-            'phone' => ['required', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
+            'phone' => [
+                'required',
+                'string',
+                'min:10',
+                'max:13',
+                'regex:/^[0-9]+$/',
+                \Illuminate\Validation\Rule::unique('users', 'phone')->ignore($userId),
+            ],
             'city_id' => ['required', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
             'address' => ['required', 'string', 'max:500'],
             'gender' => ['required', 'string', 'in:Laki-laki,Perempuan'],
@@ -38,6 +47,7 @@ class UpdateProfileInformationForm extends Component
         'name.required' => 'Nama lengkap wajib diisi.',
         'name.regex' => 'Nama lengkap hanya boleh berisi huruf dan spasi.',
         'email.required' => 'Email wajib diisi.',
+        'email.unique' => 'Email sudah digunakan oleh akun lain.',
         'nik.required' => 'NIK wajib diisi.',
         'nik.size' => 'NIK harus 16 digit angka.',
         'nik.regex' => 'NIK hanya boleh berisi angka.',
@@ -45,6 +55,7 @@ class UpdateProfileInformationForm extends Component
         'phone.min' => 'Nomor HP minimal 10 digit angka.',
         'phone.max' => 'Nomor HP maksimal 13 digit angka.',
         'phone.regex' => 'Nomor HP hanya boleh berisi angka.',
+        'phone.unique' => 'Nomor HP sudah digunakan oleh akun lain.',
         'city_id.required' => 'Kota domisili wajib dipilih.',
         'address.required' => 'Alamat lengkap wajib diisi.',
         'gender.required' => 'Jenis kelamin wajib dipilih.',
@@ -103,6 +114,16 @@ class UpdateProfileInformationForm extends Component
             return;
         }
 
+        // Check if phone changed and already exists
+        if (
+            $this->phone !== $user->phone &&
+            \App\Models\User::where('phone', $this->phone)->where('id', '!=', $user->id)->exists()
+        ) {
+            $this->addError('phone', 'Nomor HP sudah digunakan oleh akun lain.');
+
+            return;
+        }
+
         $user->update([
             'name' => $this->name,
             'email' => $this->email,
@@ -112,6 +133,32 @@ class UpdateProfileInformationForm extends Component
             'city_id' => $this->city_id,
             'gender' => ! empty($this->gender) ? $this->gender : null,
         ]);
+
+        if ($user->role === 'customer') {
+            $primary = $user->primaryAddress ?: $user->customerAddresses()->first();
+            $city = \App\Models\City::find($this->city_id);
+            if ($primary) {
+                $primary->update([
+                    'address' => $this->address,
+                    'city_id' => $this->city_id,
+                    'city_name' => $city?->name,
+                    'province' => $city?->province,
+                    'is_primary' => true,
+                ]);
+            } else {
+                \App\Models\CustomerAddress::create([
+                    'user_id' => $user->id,
+                    'label' => 'Rumah',
+                    'recipient_name' => $this->name,
+                    'phone' => $this->phone,
+                    'city_id' => $this->city_id,
+                    'city_name' => $city?->name,
+                    'province' => $city?->province,
+                    'address' => $this->address,
+                    'is_primary' => true,
+                ]);
+            }
+        }
 
         session()->flash('message', 'Perubahan profil berhasil disimpan!');
 

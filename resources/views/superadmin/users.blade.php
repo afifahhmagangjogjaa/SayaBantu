@@ -6,15 +6,15 @@
 
 <div>
     <!-- Header Summary Card & Action -->
-    <div class="bg-white rounded-2xl border border-gray-200/80 p-3 sm:px-5 sm:py-3.5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+    <div class="bg-gradient-to-r from-blue-50/70 via-white to-blue-50/30 rounded-2xl border border-blue-200/80 p-3 sm:px-5 sm:py-3.5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-blue-50/80 border border-blue-100/80 flex items-center justify-center text-blue-600 flex-shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <div class="w-9 h-9 rounded-xl bg-blue-100 border border-blue-200/80 flex items-center justify-center text-[#0066FF] flex-shrink-0 shadow-2xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
             </div>
             <span class="text-base sm:text-lg font-bold text-gray-900">
-                Jumlah {{ strtolower($roleLabel) }} saat ini: <span class="text-blue-600 font-extrabold ml-1">{{ $users->total() }}</span>
+                Jumlah {{ strtolower($roleLabel) }} saat ini: <span class="text-[#0066FF] font-black ml-1">{{ $users->total() }}</span>
             </span>
         </div>
         <button wire:click="openCreateModal"
@@ -159,6 +159,11 @@
                                         @else
                                             <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-green-50 text-green-700 border border-green-200">
                                                 Aktif
+                                            </span>
+                                        @endif
+                                        @if ($user->isShadowBanned())
+                                            <span class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                                👻 Shadow Ban
                                             </span>
                                         @endif
                                     </div>
@@ -309,9 +314,20 @@
                             <div class="text-sm text-gray-500">{{ $selectedUser->email }}</div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        @if(in_array($selectedUser->role, ['mitra', 'customer', 'kustomer']))
+                            <button type="button" wire:click="toggleShadowBan({{ $selectedUser->id }})"
+                                wire:loading.attr="disabled"
+                                wire:target="toggleShadowBan"
+                                style="background-color: {{ $selectedUser->isShadowBanned() ? '#f3e8ff' : '#ffffff' }}; color: {{ $selectedUser->isShadowBanned() ? '#6b21a8' : '#7e22ce' }}; border: 1px solid {{ $selectedUser->isShadowBanned() ? '#d8b4fe' : '#c084fc' }};"
+                                class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs hover:opacity-90 transition cursor-pointer"
+                                title="{{ $selectedUser->isShadowBanned() ? 'Lepaskan status Shadow Ban agar mitra kembali dapat melihat pesanan' : 'Aktifkan Shadow Ban agar pesanan disembunyikan dari mitra ini' }}">
+                                <span>👻</span>
+                                <span class="text-[11px] font-bold">{{ $selectedUser->isShadowBanned() ? 'Lepas Shadow Ban' : 'Shadow Ban' }}</span>
+                            </button>
+                        @endif
                         <button type="button" wire:click.prevent="closeModal"
-                            class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+                            class="text-gray-500 hover:text-gray-700 text-xl cursor-pointer">&times;</button>
                     </div>
                 </div>
 
@@ -363,8 +379,14 @@
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500">Status</div>
-                                <div class="font-medium text-gray-900">
-                                    {{ $selectedUser->status ? ucfirst($selectedUser->status) : '—' }}</div>
+                                <div class="font-medium text-gray-900 flex items-center gap-2">
+                                    <span>{{ $selectedUser->status ? ucfirst($selectedUser->status) : '—' }}</span>
+                                    @if ($selectedUser->isShadowBanned())
+                                        <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                            👻 Shadow Banned
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500">Verified</div>
