@@ -8,7 +8,7 @@
 
         <div class="relative z-10">
             <div class="flex items-center justify-between text-white mb-2">
-                <a href="javascript:history.back()" aria-label="Kembali" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-xl transition active:scale-95 text-white shrink-0 cursor-pointer">
+                <a href="{{ route($backRoute ?? (auth()->user()?->role === 'mitra' ? 'mitra.settings' : 'profile.settings')) }}" wire:navigate aria-label="Kembali ke Pengaturan" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-xl transition active:scale-95 text-white shrink-0 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -27,8 +27,8 @@
         </div>
 
         <!-- Wave Separator (SVG) bergelombang -->
-        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
-            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f8fafc"></path>
+        <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+            <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f8fafc"></path>
         </svg>
     </div>
 

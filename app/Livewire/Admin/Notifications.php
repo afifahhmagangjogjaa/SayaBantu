@@ -148,45 +148,7 @@ class Notifications extends Component
 
     public function resolveNotificationUrl($notification)
     {
-        $data = $notification->data ?? [];
-        $type = $data['type'] ?? '';
-
-        // Jika pembatalan rekan jasa, rute langsung ke halaman detail mitra yang bersangkutan
-        if ($type === 'help_status' && (! empty($data['new_status']) && $data['new_status'] === 'partner_cancelled_direct')) {
-            $mitraId = $data['mitra_id'] ?? null;
-            if (! $mitraId && ! empty($data['help_id'])) {
-                $help = \App\Models\Help::find($data['help_id']);
-                $mitraId = $help?->mitra_id;
-                if (! $mitraId) {
-                    $activity = \App\Models\PartnerActivity::where('activity_type', 'help_cancelled')->where('description', 'like', "%#{$data['help_id']}%")->latest()->first();
-                    $mitraId = $activity?->user_id;
-                }
-            }
-            if ($mitraId) {
-                return route('admin.mitra.show', $mitraId);
-            }
-        }
-
-        if (! empty($data['url']) && ! str_contains($data['url'], '/superadmin/')) {
-            $url = $data['url'];
-            if (str_contains($url, 'ngrok-free.app')) {
-                $url = preg_replace('/https?:\/\/[^\/]+/', config('app.url', 'http://127.0.0.1:8000'), $url);
-            }
-
-            return $url;
-        }
-
-        return match ($type) {
-            'new_topup_request', 'topup_request_submitted' => route('admin.topup.approvals'),
-            'new_withdraw_request', 'withdraw_status' => route('admin.withdraws.index'),
-            'new_ktp_verification' => route('admin.verifications'),
-            'new_registration', 'new_user' => route('admin.customers'),
-            'new_report', 'partner_report' => ! empty($data['report_id']) ? route('admin.partners.reports.show', $data['report_id']) : route('admin.partners.report'),
-            'help_status' => (! empty($data['new_status']) && $data['new_status'] === 'partner_cancelled_direct' && ! empty($data['mitra_id']))
-                ? route('admin.mitra.show', $data['mitra_id'])
-                : (! empty($data['help_id']) ? route('admin.helps.show', $data['help_id']) : route('admin.helps')),
-            default => route('admin.dashboard'),
-        };
+        return \App\Services\NotificationUrlResolver::resolveUrl($notification, auth()->user());
     }
 
     public function refreshNotifications()

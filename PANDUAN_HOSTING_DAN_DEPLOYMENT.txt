@@ -22,6 +22,9 @@ b. Matikan Fitur Demo / Testing:
    DEMO_LOGIN=false
    (PENTING: Wajib diset false agar akun-akun demo dan tombol bypass login tidak muncul di publik)
 
+   GPS_SIMULATOR=false
+   (PENTING: Wajib diset false agar alat GPS simulator testing disembunyikan di aplikasi mitra)
+
    WILAYAH_VERIFY_TLS=true
    (Ubah ke true karena server hosting sudah memiliki sertifikat SSL aktif)
 

@@ -18,11 +18,11 @@ class Index extends Component
     use WithFileUploads, WithPagination;
 
     protected $queryString = [
-        'statusFilter' => ['except' => 'menunggu_mitra'],
+        'statusFilter' => ['except' => 'semua'],
         'search' => ['except' => ''],
     ];
 
-    public $statusFilter = 'menunggu_mitra';
+    public $statusFilter = 'semua';
 
     public $search = ''; // Variabel penampung teks pencarian
 
@@ -85,6 +85,12 @@ class Index extends Component
 
     // Reset pagination ketika user mengetik di kolom search
     public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    // Reset pagination ketika user mengganti tab filter status
+    public function updatingStatusFilter()
     {
         $this->resetPage();
     }
@@ -675,7 +681,7 @@ class Index extends Component
             'editCityId' => ['required', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
             'editLatitude' => 'required|numeric|between:-90,90',
             'editLongitude' => 'required|numeric|between:-180,180',
-            'editPhoto' => 'nullable|image|max:2048', // 2MB max
+            'editPhoto' => 'nullable|image|max:15360', // 15MB max
         ], [
             'editTitle.required' => 'Judul bantuan wajib diisi.',
             'editDescription.required' => 'Deskripsi bantuan wajib diisi.',
@@ -715,7 +721,7 @@ class Index extends Component
             if ($help->photo) {
                 Storage::disk('public')->delete($help->photo);
             }
-            $updateData['photo'] = $this->editPhoto->store('helps', 'public');
+            $updateData['photo'] = \App\Services\ImageCompressionService::compressAndStore($this->editPhoto, 'helps');
         }
 
         $help->update($updateData);
@@ -748,6 +754,8 @@ class Index extends Component
         // dijalankan oleh scheduler (helps:auto-confirm), bukan di dalam render.
 
         if ($user->isCustomer()) {
+            $ongoingStatuses = array_merge(['menunggu_mitra', 'waiting_customer_confirmation'], $this->diprosesStatuses);
+
             $helps = Help::where('user_id', $user->id)
                 ->with([
                     'city',
@@ -758,7 +766,10 @@ class Index extends Component
                     },
                 ])
                 ->withCount('chatMessages')
-                ->when($this->statusFilter !== '', function ($query) {
+                ->when(in_array($this->statusFilter, ['', 'semua', 'all']), function ($query) use ($ongoingStatuses) {
+                    // Di tab 'Semua', hanya tampilkan pesanan yang sedang menunggu mitra dan yang sedang diproses (selesai & batal dihilangkan)
+                    $query->whereIn('status', $ongoingStatuses);
+                }, function ($query) {
                     if ($this->statusFilter === 'diproses') {
                         $query->whereIn('status', $this->diprosesStatuses);
                     } elseif (in_array($this->statusFilter, ['ditolak', 'dibatalkan'])) {
@@ -771,10 +782,6 @@ class Index extends Component
                     } else {
                         $query->where('status', $this->statusFilter);
                     }
-                })
-                ->when($this->statusFilter === '', function ($query) {
-                    // By default exclude completed/rejected/cancelled - those go to history
-                    $query->whereNotIn('status', ['selesai', 'rejected', 'ditolak', 'dibatalkan']);
                 })
                 // Logika Filter Pencarian (Search)
                 ->when($this->search !== '', function ($query) {
@@ -794,6 +801,14 @@ class Index extends Component
                                 $mitraQuery->where('name', 'like', '%'.$keyword.'%');
                             });
                     });
+                })
+                // Prioritaskan pesanan menunggu konfirmasi di posisi paling atas (0), lalu pesanan yang sedang diproses (1), lalu yang masih menunggu mitra (2) jika di tab 'Semua'
+                ->when(in_array($this->statusFilter, ['', 'semua', 'all']), function ($query) {
+                    $query->orderByRaw("CASE 
+                        WHEN helps.status = 'waiting_customer_confirmation' THEN 0 
+                        WHEN helps.status != 'menunggu_mitra' THEN 1 
+                        ELSE 2 
+                    END ASC");
                 })
                 ->latest()
                 ->paginate(10);

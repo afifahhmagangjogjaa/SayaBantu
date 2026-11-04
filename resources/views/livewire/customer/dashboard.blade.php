@@ -51,10 +51,12 @@
     </style>
 
     <!-- Top Header Bar - Blue gradient matching mockup -->
-    <div class="px-5 pt-6 pb-6 sticky top-0 z-30 header-pattern" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
-        <!-- Decorative circles -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12 pointer-events-none"></div>
+    <div class="px-5 pt-6 pb-6 sticky top-0 z-30 text-white relative" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+        <!-- Decorative circles in safe container -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+        </div>
 
         <div class="relative z-10 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -126,23 +128,20 @@
                             <p class="px-4 pt-3 pb-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Kategori Jasa</p>
                             @foreach($searchResults as $cat)
                                 @php
-                                    $catStyles = [
-                                        1 => 'bg-blue-50 text-blue-600',
-                                        2 => 'bg-rose-50 text-rose-600',
-                                        3 => 'bg-emerald-50 text-emerald-600',
-                                        4 => 'bg-amber-50 text-amber-600',
-                                        5 => 'bg-indigo-50 text-indigo-600',
-                                        6 => 'bg-purple-50 text-purple-600',
-                                        7 => 'bg-orange-50 text-orange-600',
-                                        8 => 'bg-sky-50 text-sky-600',
-                                    ];
-                                    $catStyle = $catStyles[$cat->id] ?? 'bg-gray-50 text-gray-600';
+                                    $style = $cat->badge_style;
+                                    $svgPath = $cat->svg_path ? public_path($cat->svg_path) : null;
                                 @endphp
                                 <a href="{{ route('customer.helps.create', ['category_id' => $cat->id]) }}" wire:navigate
                                    class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/60 transition group border-b border-gray-50 last:border-0"
                                    wire:click="clearSearch">
-                                    <div class="w-10 h-10 rounded-xl {{ $catStyle }} flex items-center justify-center text-lg shrink-0">
-                                        {{ $cat->icon ?? '📦' }}
+                                    <div class="w-10 h-10 rounded-xl {{ $style['bg'] }} flex items-center justify-center p-2 text-lg shrink-0">
+                                        @if($svgPath && file_exists($svgPath))
+                                            <span class="w-5 h-5 flex items-center justify-center shrink-0 [&>svg]:w-full [&>svg]:h-full [&>svg]:fill-current">
+                                                {!! file_get_contents($svgPath) !!}
+                                            </span>
+                                        @else
+                                            <span>{{ $cat->icon ?? '📦' }}</span>
+                                        @endif
                                     </div>
                                     <div class="min-w-0 flex-1">
                                         <p class="text-sm font-bold text-gray-800 group-hover:text-[#0066FF] transition">{{ $cat->name }}</p>
@@ -171,8 +170,8 @@
         </div>
 
         <!-- Wave Separator (SVG) bergelombang -->
-        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 20px;">
-            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+        <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+            <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f3f4f6"></path>
         </svg>
     </div>
 
@@ -384,6 +383,13 @@
                         </svg>
                         <span>Top Up</span>
                     </a>
+                    <a href="{{ route('customer.withdraw.form') }}" wire:navigate
+                       class="px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#0066FF] hover:bg-blue-700 transition shadow-xs flex items-center gap-1 active:scale-95" title="Tarik Saldo">
+                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <span>Tarik</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -398,27 +404,21 @@
             </div>
 
             <div class="grid grid-cols-3 min-[380px]:grid-cols-4 gap-2 min-[380px]:gap-2.5">
-                @php
-                    $categoryStyles = [
-                        1 => ['bg' => 'bg-blue-50 text-blue-600 border-blue-100', 'label' => 'Rumah Tangga'],
-                        2 => ['bg' => 'bg-rose-50 text-rose-600 border-rose-100', 'label' => 'Bencana'],
-                        3 => ['bg' => 'bg-emerald-50 text-emerald-600 border-emerald-100', 'label' => 'Kesehatan'],
-                        4 => ['bg' => 'bg-amber-50 text-amber-600 border-amber-100', 'label' => 'Pendidikan'],
-                        5 => ['bg' => 'bg-indigo-50 text-indigo-600 border-indigo-100', 'label' => 'Transportasi'],
-                        6 => ['bg' => 'bg-purple-50 text-purple-600 border-purple-100', 'label' => 'Sosial'],
-                        7 => ['bg' => 'bg-orange-50 text-orange-600 border-orange-100', 'label' => 'Pangan'],
-                        8 => ['bg' => 'bg-sky-50 text-sky-600 border-sky-100', 'label' => 'Lainnya'],
-                    ];
-                @endphp
-
                 @foreach($categories as $cat)
                     @php
-                        $style = $categoryStyles[$cat->id] ?? ['bg' => 'bg-gray-50 text-gray-700 border-gray-100', 'label' => $cat->name];
+                        $style = $cat->badge_style;
+                        $svgPath = $cat->svg_path ? public_path($cat->svg_path) : null;
                     @endphp
                     <a href="{{ route('customer.helps.create', ['category_id' => $cat->id]) }}" wire:navigate
                        class="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white border border-gray-100 hover:border-[#0066FF]/30 hover:shadow-xs transition group cursor-pointer text-center">
-                        <div class="w-12 h-12 rounded-2xl {{ $style['bg'] }} border flex items-center justify-center text-xl shadow-2xs group-hover:scale-110 transition-transform">
-                            {{ $cat->icon ?? '📦' }}
+                        <div class="w-12 h-12 rounded-2xl {{ $style['bg'] }} border flex items-center justify-center p-2.5 shadow-2xs group-hover:scale-110 transition-transform">
+                            @if($svgPath && file_exists($svgPath))
+                                <span class="w-6 h-6 flex items-center justify-center shrink-0 [&>svg]:w-full [&>svg]:h-full [&>svg]:fill-current">
+                                    {!! file_get_contents($svgPath) !!}
+                                </span>
+                            @else
+                                <span class="text-xl">{{ $cat->icon ?? '📦' }}</span>
+                            @endif
                         </div>
                         <span class="text-[11px] font-semibold text-gray-800 mt-1.5 w-full text-center leading-tight line-clamp-2 group-hover:text-[#0066FF]">
                             {{ $cat->name }}
@@ -549,7 +549,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                                 @if($help->auto_cancel_at && in_array($help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra']))
                                                     @php
                                                         $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
@@ -662,7 +662,7 @@
                         <div class="flex items-center gap-2 mb-2 flex-wrap">
                             <h2 class="text-xl font-bold text-gray-900">{{ data_get($selectedHelpData, 'title') }}</h2>
                             @if(data_get($selectedHelpData, 'is_urgent') || data_get($selectedHelpData, 'help_type') === 'urgent')
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                             @endif
                         </div>
                         

@@ -52,14 +52,14 @@
         }
     </style>
 
-    <div class="max-w-md mx-auto">
+    <div class="max-w-md mx-auto w-full overflow-hidden">
         <!-- Header - BRImo Style -->
         <!-- Header - SayaBantu Style matching Gambar 2 -->
-        <div class="px-5 pt-5 pb-7 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+        <div class="px-5 pt-5 pb-7 relative overflow-hidden w-full" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
             
-            <div class="relative z-10">
+            <div class="relative z-10 w-full">
                 <div class="flex items-center justify-between text-white mb-3">
                     <a href="{{ route('customer.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="p-2 hover:bg-white/20 rounded-lg transition inline-flex items-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,117 +75,76 @@
                     @include('components.notification-icon', ['route' => route('customer.notifications.index')])
                 </div>
 
-                <!-- Filter Tabs dengan Sistem Halaman Penuh (Tampilan Asli, Area Biru Dikebawahkan) -->
-                <div x-data="{
-                    page: {{ in_array($statusFilter, ['komplain', 'selesai', 'ditolak', 'dibatalkan']) ? 2 : 1 }},
-                    startX: 0,
-                    handleTouchStart(e) {
-                        this.startX = e.touches[0].clientX;
-                    },
-                    handleTouchEnd(e) {
-                        const endX = e.changedTouches[0].clientX;
-                        const diff = this.startX - endX;
-                        if (diff > 40 && this.page === 1) {
-                            this.page = 2;
-                        } else if (diff < -40 && this.page === 2) {
-                            this.page = 1;
+                <!-- Filter Tabs: Scrollable Modern Pills -->
+                <div class="mt-3.5 relative w-full overflow-hidden"
+                    x-data="{
+                        centerTab(btn) {
+                            if (!btn || !this.$refs.tabsContainer) return;
+                            const container = this.$refs.tabsContainer;
+                            const targetLeft = btn.offsetLeft - (container.clientWidth / 2) + (btn.clientWidth / 2);
+                            container.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
+                        },
+                        init() {
+                            this.$nextTick(() => {
+                                const active = this.$refs.tabsContainer?.querySelector('.tab-active');
+                                if (active) {
+                                    this.centerTab(active);
+                                }
+                            });
                         }
-                    }
-                }"
-                class="mt-3.5">
-                    <div class="flex items-center gap-1.5">
-                        <!-- Tombol Panah Kiri -->
-                        <button type="button"
-                            @click="page = 1"
-                            :disabled="page === 1"
-                            :class="page === 2 ? 'opacity-100 hover:bg-white/30 active:scale-95 cursor-pointer shadow-sm' : 'invisible pointer-events-none'"
-                            class="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center flex-shrink-0 transition-all"
-                            aria-label="Halaman tab sebelumnya">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-                            </svg>
+                    }">
+                    <div x-ref="tabsContainer"
+                        class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-0.5 scroll-smooth"
+                        style="overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;">
+
+                        <button type="button" wire:key="tab-semua" wire:click="$set('statusFilter', 'semua')"
+                            @click="centerTab($el)"
+                            class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['semua', 'all', '']) ? 'tab-active bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                            Semua
                         </button>
 
-                        <!-- Wrapper Slide Halaman Penuh (Grid Stack - Bebas Glitch Geser Fokus) -->
-                        <div class="flex-1 grid grid-cols-1 grid-rows-1 overflow-hidden" style="overflow: clip;"
-                            @touchstart.passive="handleTouchStart($event)"
-                            @touchend.passive="handleTouchEnd($event)">
-
-                            <!-- Halaman 1 (3 Menu Utama) -->
-                            <div x-show="page === 1"
-                                x-transition:enter="transition-all duration-200 ease-out"
-                                x-transition:enter-start="opacity-0 -translate-x-3"
-                                x-transition:enter-end="opacity-100 translate-x-0"
-                                x-transition:leave="transition-all duration-100 ease-in"
-                                x-transition:leave-start="opacity-100 translate-x-0"
-                                x-transition:leave-end="opacity-0 -translate-x-3"
-                                class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
-                                <button type="button" wire:key="tab-menunggu-mitra" @click="page = 1" wire:click="$set('statusFilter', 'menunggu_mitra')" role="tab"
-                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
-                                    Menunggu Mitra
-                                </button>
-
-                                <button type="button" wire:key="tab-diproses" @click="page = 1" wire:click="$set('statusFilter', 'diproses')" role="tab"
-                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
-                                    Diproses
-                                </button>
-
-                                <button type="button" wire:key="tab-waiting-confirmation" @click="page = 1" wire:click="$set('statusFilter', 'waiting_customer_confirmation')" role="tab"
-                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
-                                    Menunggu Konfirmasi
-                                </button>
-                            </div>
-
-                            <!-- Halaman 2 (3 Menu Lanjutan) -->
-                            <div x-show="page === 2"
-                                x-transition:enter="transition-all duration-200 ease-out"
-                                x-transition:enter-start="opacity-0 translate-x-3"
-                                x-transition:enter-end="opacity-100 translate-x-0"
-                                x-transition:leave="transition-all duration-100 ease-in"
-                                x-transition:leave-start="opacity-100 translate-x-0"
-                                x-transition:leave-end="opacity-0 translate-x-3"
-                                class="col-start-1 row-start-1 w-full flex items-center justify-between gap-1 sm:gap-1.5 px-0.5">
-                                <button type="button" wire:key="tab-komplain" @click="page = 2" wire:click="$set('statusFilter', 'komplain')" role="tab"
-                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
-                                    Komplain & Refund
-                                </button>
-
-                                <button type="button" wire:key="tab-selesai" @click="page = 2" wire:click="$set('statusFilter', 'selesai')" role="tab"
-                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
-                                    Selesai
-                                </button>
-
-                                <button type="button" wire:key="tab-dibatalkan" @click="page = 2" wire:click="$set('statusFilter', 'dibatalkan')" role="tab"
-                                    class="flex-1 text-center py-2 px-2.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
-                                    Dibatalkan
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Tombol Panah Kanan -->
-                        <button type="button"
-                            @click="page = 2"
-                            :disabled="page === 2"
-                            :class="page === 1 ? 'opacity-100 hover:bg-white/30 active:scale-95 cursor-pointer shadow-sm' : 'invisible pointer-events-none'"
-                            class="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center flex-shrink-0 transition-all"
-                            aria-label="Halaman tab berikutnya">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                            </svg>
+                        <button type="button" wire:key="tab-menunggu-mitra" wire:click="$set('statusFilter', 'menunggu_mitra')"
+                            @click="centerTab($el)"
+                            class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'menunggu_mitra' ? 'tab-active bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                            Menunggu Mitra
                         </button>
-                    </div>
 
-                    <!-- Indikator Halaman (Dot Indicator) -->
-                    <div class="flex justify-center items-center gap-1.5 mt-2">
-                        <button type="button" @click="page = 1" :class="page === 1 ? 'w-4 bg-white' : 'w-1.5 bg-white/40'" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer" aria-label="Halaman 1"></button>
-                        <button type="button" @click="page = 2" :class="page === 2 ? 'w-4 bg-white' : 'w-1.5 bg-white/40'" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer" aria-label="Halaman 2"></button>
+                        <button type="button" wire:key="tab-diproses" wire:click="$set('statusFilter', 'diproses')"
+                            @click="centerTab($el)"
+                            class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'diproses' ? 'tab-active bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                            Diproses
+                        </button>
+
+                        <button type="button" wire:key="tab-waiting-confirmation" wire:click="$set('statusFilter', 'waiting_customer_confirmation')"
+                            @click="centerTab($el)"
+                            class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'waiting_customer_confirmation' ? 'tab-active bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                            Menunggu Konfirmasi
+                        </button>
+
+                        <button type="button" wire:key="tab-selesai" wire:click="$set('statusFilter', 'selesai')"
+                            @click="centerTab($el)"
+                            class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'selesai' ? 'tab-active bg-white text-[#0066FF] shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                            Selesai
+                        </button>
+
+                        <button type="button" wire:key="tab-komplain" wire:click="$set('statusFilter', 'komplain')"
+                            @click="centerTab($el)"
+                            class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ $statusFilter === 'komplain' ? 'tab-active bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                            Komplain & Refund
+                        </button>
+
+                        <button type="button" wire:key="tab-dibatalkan" wire:click="$set('statusFilter', 'dibatalkan')"
+                            @click="centerTab($el)"
+                            class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none {{ in_array($statusFilter, ['dibatalkan', 'ditolak']) ? 'tab-active bg-white text-red-600 shadow-md font-bold' : 'bg-white/20 text-white hover:bg-white/30' }}">
+                            Dibatalkan
+                        </button>
                     </div>
                 </div>
             </div>
 
             <!-- Curved separator (SVG) pembatas gelombang yang melengkung anggun di bawah tab -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
-                <path d="M0,32 C420,68 1020,12 1440,32 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
@@ -218,7 +177,28 @@
                 {{-- List based on filter --}}
                 <div class="space-y-4">
                 @forelse($helps as $help)
-                    @if($statusFilter === 'menunggu_mitra')
+                    @php
+                        // Tentukan jenis kartu: jika filter 'semua' atau kosong, petakan sesuai status bantuan
+                        $cardType = $statusFilter;
+                        if (in_array($statusFilter, ['semua', 'all', ''])) {
+                            $canonicalStatus = \App\Enums\HelpStatus::canonical($help->status);
+                            if ($canonicalStatus === \App\Enums\HelpStatus::MENUNGGU_MITRA->value) {
+                                $cardType = 'menunggu_mitra';
+                            } elseif ($canonicalStatus === \App\Enums\HelpStatus::WAITING_CUSTOMER_CONFIRMATION->value) {
+                                $cardType = 'waiting_customer_confirmation';
+                            } elseif ($canonicalStatus === \App\Enums\HelpStatus::SELESAI->value) {
+                                $cardType = 'selesai';
+                            } elseif (in_array($canonicalStatus, [\App\Enums\HelpStatus::DIBATALKAN->value, \App\Enums\HelpStatus::REJECTED->value])) {
+                                $cardType = 'dibatalkan';
+                            } elseif (in_array($help->status, ['komplain', 'disputed']) || !empty($help->complaint_resolution)) {
+                                $cardType = 'komplain';
+                            } else {
+                                $cardType = 'diproses';
+                            }
+                        }
+                    @endphp
+
+                    @if($cardType === 'menunggu_mitra')
                         {{-- Simple Menunggu Mitra Card --}}
                         <div class="bg-white rounded-2xl p-4 shadow-xs hover:shadow-md transition-all border border-gray-100">
                             <div class="flex items-start gap-3">
@@ -237,7 +217,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-bold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                                 @if($help->auto_cancel_at && in_array($help->status, ['menunggu_pembayaran', 'menunggu_mitra', 'mencari_mitra']))
                                                     @php
                                                         $secsLeft = (int) now()->diffInSeconds($help->auto_cancel_at, false);
@@ -280,8 +260,11 @@
                                     </div>
 
                                     @if(!empty($help->partner_cancel_requested_at))
+                                        @php
+                                            $isIndexReassigned = str_contains(strtolower($help->partner_cancel_reason ?? ''), 'rekan jasa lain') || str_contains(strtolower($help->partner_cancel_reason ?? ''), 'keberangkatan');
+                                        @endphp
                                         <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-                                            <p class="font-semibold text-amber-900">Rekan Jasa Berhalangan:</p>
+                                            <p class="font-semibold text-amber-900">{{ $isIndexReassigned ? 'Pengalihan Rekan Jasa:' : 'Rekan Jasa Berhalangan:' }}</p>
                                             <p class="italic text-[11px] text-amber-800">"{{ $help->partner_cancel_reason ?: 'Kendala darurat di jalan' }}"</p>
                                             <p class="text-[10px] text-amber-700 mt-1 font-medium">⚡ Sistem otomatis mencari Rekan Jasa pengganti.</p>
                                         </div>
@@ -307,7 +290,7 @@
                                 </div>
                             </div>
                         </div>
-                    @elseif($statusFilter === 'diproses')
+                    @elseif($cardType === 'diproses')
                         {{-- Diproses Card --}}
                         <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100">
                             <div class="flex items-start gap-3">
@@ -326,7 +309,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -401,7 +384,7 @@
                                 </div>
                             </div>
                         </div>
-                    @elseif($statusFilter === 'waiting_customer_confirmation')
+                    @elseif($cardType === 'waiting_customer_confirmation')
                         {{-- Menunggu Konfirmasi Card --}}
                         <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100">
                             <div class="flex items-start gap-3">
@@ -420,7 +403,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap" style="color: #0066FF;">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -484,7 +467,7 @@
                                 </div>
                             </div>
                         </div>
-                    @elseif($statusFilter === 'selesai')
+                    @elseif($cardType === 'selesai')
                         {{-- Selesai Card with Expandable Detail --}}
                         @php
                             $hasRatedThis = \App\Models\Rating::hasRated($help->id, auth()->id(), 'customer_to_mitra');
@@ -506,7 +489,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-gray-900 truncate">{{ $help->title ?? 'Permintaan Bantuan' }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                             @endif
                                         </div>
                                         <p class="text-xs text-gray-500 truncate">{{ optional($help->city)->name }} • {{ optional($help->updated_at)->format('d M Y') }}</p>
@@ -631,7 +614,7 @@
                                 </div>
                             </div>
                         </div>
-                    @elseif(in_array($statusFilter, ['ditolak', 'dibatalkan']))
+                    @elseif(in_array($cardType, ['ditolak', 'dibatalkan']))
                         {{-- Dibatalkan & Ditolak Card --}}
                         <div class="bg-white rounded-xl p-3.5 shadow-sm border border-gray-100 hover:shadow-md transition">
                             <div class="flex items-start gap-3">
@@ -676,7 +659,7 @@
                                 </div>
                             </div>
                         </div>
-                    @elseif($statusFilter === 'komplain')
+                    @elseif($cardType === 'komplain')
                         {{-- Komplain / Refund Card --}}
                         <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-red-100">
                             <div class="flex items-start gap-3">
@@ -697,7 +680,7 @@
                                         <div class="flex items-center gap-1.5 min-w-0">
                                             <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
                                             @if($help->isUrgent())
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Urgent</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wider flex-shrink-0">⚡ Prioritas / Urgent</span>
                                             @endif
                                         </div>
                                         <span class="text-xs font-bold whitespace-nowrap text-red-600">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
@@ -737,6 +720,31 @@
                                 </div>
                             </div>
                         </div>
+                    @else
+                        {{-- Fallback: Simple Card if any status is unhandled --}}
+                        <div class="bg-white rounded-xl p-3.5 shadow-sm hover:shadow-md transition-all border border-gray-100">
+                            <div class="flex items-start gap-3">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center text-lg">
+                                    {{ $help->category?->icon ?? '📦' }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between gap-2 mb-1">
+                                        <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">{{ $help->title }}</h3>
+                                        <span class="text-xs font-bold whitespace-nowrap text-[#0066FF]">Rp {{ number_format($help->amount, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                                            {{ ucfirst(str_replace('_', ' ', $help->status)) }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-end pt-2 border-t border-gray-100">
+                                        <a href="{{ route('customer.helps.detail', $help->id) }}" wire:navigate class="inline-flex items-center justify-center px-3.5 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition">
+                                            Detail
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     @endif
                 @empty
                     @if(!empty($search))
@@ -749,13 +757,68 @@
                             actionType="secondary" 
                         />
                     @else
-                        <x-empty-state 
-                            icon="clipboard" 
-                            title="Belum Ada Permintaan Bantuan" 
-                            description="Mulai buat permintaan bantuan baru untuk mendapatkan bantuan dari mitra terdekat." 
-                            actionText="Buat Permintaan Baru" 
-                            :actionUrl="route('customer.helps.create')" 
-                        />
+                        @if($statusFilter === 'diproses')
+                            <x-empty-state 
+                                icon="clock" 
+                                title="Tidak Ada Pesanan Diproses" 
+                                description="Saat ini belum ada pesanan Anda yang sedang dikerjakan mitra." 
+                                actionText="Lihat Semua Pesanan" 
+                                actionWireClick="$set('statusFilter', 'semua')" 
+                                actionType="secondary" 
+                            />
+                        @elseif($statusFilter === 'waiting_customer_confirmation')
+                            <x-empty-state 
+                                icon="check-circle" 
+                                title="Tidak Ada Menunggu Konfirmasi" 
+                                description="Tidak ada pesanan yang menunggu konfirmasi penyelesaian dari Anda." 
+                                actionText="Lihat Semua Pesanan" 
+                                actionWireClick="$set('statusFilter', 'semua')" 
+                                actionType="secondary" 
+                            />
+                        @elseif($statusFilter === 'menunggu_mitra')
+                            <x-empty-state 
+                                icon="users" 
+                                title="Tidak Ada Menunggu Mitra" 
+                                description="Tidak ada permintaan bantuan Anda yang sedang menunggu mitra." 
+                                actionText="Buat Permintaan Baru" 
+                                :actionUrl="route('customer.helps.create')" 
+                            />
+                        @elseif($statusFilter === 'selesai')
+                            <x-empty-state 
+                                icon="clipboard-check" 
+                                title="Belum Ada Pesanan Selesai" 
+                                description="Riwayat pesanan yang telah selesai akan tercatat di sini." 
+                                actionText="Lihat Semua Pesanan" 
+                                actionWireClick="$set('statusFilter', 'semua')" 
+                                actionType="secondary" 
+                            />
+                        @elseif($statusFilter === 'komplain')
+                            <x-empty-state 
+                                icon="shield-check" 
+                                title="Tidak Ada Komplain" 
+                                description="Tidak ada pesanan yang sedang dalam proses pengajuan komplain atau mediasi." 
+                                actionText="Lihat Semua Pesanan" 
+                                actionWireClick="$set('statusFilter', 'semua')" 
+                                actionType="secondary" 
+                            />
+                        @elseif(in_array($statusFilter, ['dibatalkan', 'ditolak']))
+                            <x-empty-state 
+                                icon="x-circle" 
+                                title="Tidak Ada Pesanan Dibatalkan" 
+                                description="Tidak ada riwayat pesanan yang dibatalkan atau ditolak." 
+                                actionText="Lihat Semua Pesanan" 
+                                actionWireClick="$set('statusFilter', 'semua')" 
+                                actionType="secondary" 
+                            />
+                        @else
+                            <x-empty-state 
+                                icon="clipboard" 
+                                title="Belum Ada Permintaan Bantuan" 
+                                description="Mulai buat permintaan bantuan baru untuk mendapatkan bantuan dari mitra terdekat." 
+                                actionText="Buat Permintaan Baru" 
+                                :actionUrl="route('customer.helps.create')" 
+                            />
+                        @endif
                     @endif
                 @endforelse
                 </div>
@@ -888,25 +951,7 @@
 
                     <!-- City select -->
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">
-                            <span class="flex items-center">
-                                <svg class="w-3.5 h-3.5 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5z" />
-                                </svg>
-                                Kota
-                            </span>
-                        </label>
-                        <div>
-                            <select wire:model.defer="editCityId" class="w-full px-3.5 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 transition bg-white shadow-sm">
-                                <option value="">Pilih kota atau kabupaten</option>
-                                @foreach($cities as $city)
-                                    <option value="{{ $city->id }}">{{ $city->name }}@if($city->province), {{ $city->province }}@endif</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        @error('editCityId')
-                            <span class="text-red-500 text-xs mt-1.5 block">{{ $message }}</span>
-                        @enderror
+                        <x-searchable-city-select :cities="$cities" model="editCityId" label="Kota / Kabupaten" placeholder="Pilih kota atau kabupaten..." />
                     </div>
 
                     <!-- Map Location Picker -->
@@ -1026,7 +1071,7 @@
                             <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                             </svg>
-                            Maksimal 2MB. Format: JPG, PNG, JPEG
+                            Maksimal 15MB. Format: JPG, PNG, JPEG
                         </p>
                         @error('editPhoto') 
                             <span class="text-red-500 text-xs mt-1.5 block flex items-center">

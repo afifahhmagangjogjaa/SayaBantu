@@ -16,42 +16,44 @@
     <div class="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity" id="user-ratings-modal-backdrop"></div>
 
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full z-10 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
-        <!-- Header -->
-        <div class="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between bg-gray-50/90 flex-shrink-0">
-            <div class="flex items-center gap-3 min-w-0">
-                <div class="w-9 h-9 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-sm">
+        <!-- Header (Emerald Teal Gradient Konsisten) -->
+        <div class="relative px-5 py-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white flex items-center justify-between flex-shrink-0 shadow-md overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+            <div class="relative flex items-center gap-3 min-w-0">
+                <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center font-black text-lg flex-shrink-0 shadow-inner border border-white/30">
                     {{ strtoupper(substr($user->name, 0, 1)) }}
                 </div>
                 <div class="truncate">
                     <div class="flex items-center gap-2">
-                        <h3 class="text-sm font-bold text-gray-900 truncate">{{ $user->name }}</h3>
-                        <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full {{ $user->isMitra() ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
-                            {{ $user->isMitra() ? 'Mitra' : 'Customer' }}
+                        <h3 class="text-sm font-bold text-white truncate drop-shadow-xs">{{ $user->name }}</h3>
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-white/20 text-white border border-white/30 backdrop-blur-xs">
+                            {{ $user->role_label ?? ($user->isMitra() ? 'Mitra Driver' : 'Customer') }}
                         </span>
                         @if($user->isShadowBanned())
-                            <span id="header-shadow-ban-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-full border" style="background-color: #f3e8ff; color: #6b21a8; border-color: #d8b4fe;">
+                            <span id="header-shadow-ban-badge" class="px-2 py-0.5 text-[10px] font-black bg-purple-500 text-white border border-purple-300/60 shadow-sm animate-pulse">
                                 👻 Shadow Banned
                             </span>
                         @endif
                     </div>
-                    <p class="text-[11px] text-gray-500 truncate">{{ $user->email }} • {{ $user->city?->name ?? 'Kota -' }}</p>
+                    <p class="text-[11px] text-white/85 truncate mt-0.5">{{ $user->email }} • {{ $user->city?->name ?? 'Kota Belum Diatur' }}</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
+            <div class="relative flex items-center gap-2 flex-shrink-0">
                 <!-- Tombol Shadow Ban -->
                 <button type="button" id="admin-toggle-shadow-ban-btn"
                     data-url="{{ route('admin.ratings.toggle-shadow-ban', $user->id) }}"
                     data-user-name="{{ $user->name }}"
                     data-is-banned="{{ $user->isShadowBanned() ? '1' : '0' }}"
-                    style="{{ $user->isShadowBanned() ? 'background-color: #7e22ce; color: #ffffff; border-color: #6b21a8;' : 'background-color: #ffffff; color: #374151; border-color: #d1d5db;' }}"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition border shadow-2xs cursor-pointer hover:opacity-90"
+                    style="{{ $user->isShadowBanned() ? 'background-color: #581c87; color: #ffffff; border-color: #c084fc;' : 'background-color: #ffffff; color: #6b21a8; border-color: #ffffff;' }}"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer hover:opacity-90 border"
                     title="{{ $user->isShadowBanned() ? 'Klik untuk melepaskan Shadow Ban' : 'Aktifkan Shadow Ban (order/bantuan tidak akan masuk/tampil)' }}">
                     <span>👻</span>
-                    <span id="shadow-ban-btn-text" class="whitespace-nowrap font-medium" style="{{ $user->isShadowBanned() ? 'color: #ffffff;' : 'color: #374151;' }}">{{ $user->isShadowBanned() ? 'Shadow Banned (Aktif)' : 'Shadow Ban' }}</span>
+                    <span id="shadow-ban-btn-text" class="whitespace-nowrap font-bold text-[11px]">{{ $user->isShadowBanned() ? 'Lepas Shadow Ban' : 'Shadow Ban' }}</span>
                 </button>
 
                 <button type="button" id="user-ratings-modal-close-btn"
-                    class="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition text-xs flex-shrink-0">✕</button>
+                    class="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition text-xs flex-shrink-0 backdrop-blur-xs border border-white/20 shadow-2xs"
+                    title="Tutup Modal">&times;</button>
             </div>
         </div>
 

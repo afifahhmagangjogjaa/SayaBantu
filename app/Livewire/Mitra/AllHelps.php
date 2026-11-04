@@ -90,6 +90,8 @@ class AllHelps extends Component
 
     public function render()
     {
+        Help::cancelExpiredUrgentHelps();
+
         $user = auth()->user();
         \App\Services\KtpVerificationNoticeService::ensurePromptNotification($user);
 
@@ -148,6 +150,13 @@ class AllHelps extends Component
             }
         }
 
+        // Hitung pesanan tersedia yang relevan untuk mitra ini (radius, lokasi, dan bukan pesanan yang pernah dibatalkan/dialihkan dari mitra ini)
+        $countTersedia = $needsCity ? 0 : (clone $query)
+            ->where('status', 'menunggu_mitra')
+            ->whereNull('mitra_id')
+            ->notExpired()
+            ->count();
+
         // Filter berdasarkan tab (Gambar 1: Semua, Tersedia, Dalam Proses, Selesai)
         $inProgressStatuses = [
             'memperoleh_mitra',
@@ -162,21 +171,21 @@ class AllHelps extends Component
         ];
 
         if ($this->tab === 'tersedia') {
-            $query->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+            $query->where('status', 'menunggu_mitra')->whereNull('mitra_id')->notExpired();
         } elseif ($this->tab === 'proses') {
             $query->where('mitra_id', $user?->id)->whereIn('status', $inProgressStatuses);
         } elseif ($this->tab === 'selesai') {
             $query->where('mitra_id', $user?->id)->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI));
         } else {
-            // 'semua'
+            // 'semua': hanya tampilkan pesanan yang tersedia dan yang sedang diproses (selesai dihilangkan dari tab Semua)
             $query->where(function ($q) use ($user, $inProgressStatuses) {
                 $q->where(function ($sq) {
-                    $sq->where('status', 'menunggu_mitra')->whereNull('mitra_id');
+                    $sq->where('status', 'menunggu_mitra')->whereNull('mitra_id')->notExpired();
                 });
                 if ($user) {
                     $q->orWhere(function ($sq) use ($user, $inProgressStatuses) {
                         $sq->where('mitra_id', $user->id)
-                            ->whereIn('status', array_merge($inProgressStatuses, HelpStatus::expand(HelpStatus::SELESAI)));
+                            ->whereIn('status', $inProgressStatuses);
                     });
                 }
             });
@@ -202,7 +211,15 @@ class AllHelps extends Component
             });
         }
 
-        // Sort
+        // Prioritaskan order yang masih dalam proses paling atas jika di tab 'semua'
+        if ($this->tab === 'semua') {
+            $query->orderByRaw("CASE WHEN helps.status != 'menunggu_mitra' THEN 0 ELSE 1 END");
+        }
+
+        // Urutkan order prioritas/urgent paling atas dibanding order reguler
+        $query->orderByRaw("CASE WHEN helps.help_type = 'urgent' THEN 0 ELSE 1 END");
+
+        // Sort sekunder
         if ($this->sortBy === 'nearby') {
             if ($effectiveLat && $effectiveLng) {
                 $lat = (float) $effectiveLat;
@@ -229,6 +246,21 @@ class AllHelps extends Component
             $query->orderByRaw('COALESCE(total_amount, amount, 0) ASC')->latest();
         }
 
+        $countProses = $user ? Help::where('mitra_id', $user->id)
+            ->whereIn('status', $inProgressStatuses)
+            ->count() : 0;
+
+        $countSelesai = $user ? Help::where('mitra_id', $user->id)
+            ->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI))
+            ->count() : 0;
+
+        $counts = [
+            'semua' => $countTersedia + $countProses,
+            'tersedia' => $countTersedia,
+            'proses' => $countProses,
+            'selesai' => $countSelesai,
+        ];
+
         if ($needsCity) {
             // empty paginator
             $helps = Help::whereRaw('0 = 1')->paginate(15);
@@ -237,6 +269,7 @@ class AllHelps extends Component
                 'helps' => $helps,
                 'needsCity' => true,
                 'maxRadius' => $maxRadius,
+                'counts' => $counts,
             ]);
         }
 
@@ -247,6 +280,7 @@ class AllHelps extends Component
             'helps' => $helps,
             'needsCity' => false,
             'maxRadius' => $maxRadius,
+            'counts' => $counts,
         ]);
     }
 
@@ -261,20 +295,16 @@ class AllHelps extends Component
             return;
         }
 
-        // Cek apakah mitra sedang memiliki order aktif yang belum selesai
-        if ($user && $user->hasActiveOngoingOrder()) {
-            $this->dispatch('livewire-flash-error', 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.');
+        // Cek verifikasi email (wajib verifikasi email untuk mengambil order bantuan)
+        if ($user && ! $user->hasVerifiedEmail()) {
+            $this->dispatch('livewire-flash-error', 'Email Anda belum diverifikasi. Silakan verifikasi email Anda terlebih dahulu untuk dapat mengambil pesanan bantuan.');
 
             return;
         }
 
-        // Cek kuota order mitra (belum verifikasi email = maks 2 order, sudah verifikasi = unlimited)
-        if (! $user->canTakeMoreOrders()) {
-            if (! $user->hasVerifiedEmail()) {
-                $this->dispatch('livewire-flash-error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.');
-            } else {
-                $this->dispatch('livewire-flash-error', 'Anda telah mencapai batas maksimal order yang dapat diambil.');
-            }
+        // Cek apakah mitra sedang memiliki order aktif yang belum selesai
+        if ($user && $user->hasActiveOngoingOrder()) {
+            $this->dispatch('livewire-flash-error', 'Anda masih memiliki 1 order aktif yang sedang berjalan. Harap selesaikan order tersebut terlebih dahulu sebelum mengambil order baru.');
 
             return;
         }

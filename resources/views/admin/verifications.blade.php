@@ -246,10 +246,6 @@
                                             <div class="text-xs text-gray-500 mb-1">Status Pernikahan</div>
                                             <div class="text-sm font-semibold text-gray-900">{{ $selected->marital_status ?? '-' }}</div>
                                         </div>
-                                        <div>
-                                            <div class="text-xs text-gray-500 mb-1">Pekerjaan</div>
-                                            <div class="text-sm font-semibold text-gray-900">{{ $selected->occupation ?? '-' }}</div>
-                                        </div>
                                     </div>
                                 </div>
 

@@ -78,6 +78,9 @@ window.sbConfirm = function({
     cancelButtonText = 'Batal',
     isDanger = false
 } = {}) {
+    if (Swal.isVisible()) {
+        Swal.close();
+    }
     return Swal.fire({
         title: title,
         text: text,
@@ -97,14 +100,23 @@ window.sbConfirm = function({
     });
 };
 
-// Global listener for forms or elements with data-confirm
+// Global listener for non-form elements with data-confirm (e.g. <a> links, standalone action buttons)
 document.addEventListener('click', function(e) {
     const el = e.target.closest('[data-confirm]');
     if (!el) return;
 
+    // If the element is a FORM, or inside a FORM with data-confirm, or is a form submit button:
+    // Do NOT intercept here. Let the 'submit' event handler below handle it cleanly so that
+    // forms are reliably submitted without duplicate alerts or missing submissions.
+    if (el.tagName === 'FORM' || el.closest('form[data-confirm]') || (el.form && (el.type === 'submit' || !el.type))) {
+        return;
+    }
+
     e.preventDefault();
     const msg = el.getAttribute('data-confirm') || 'Apakah Anda yakin?';
-    const isDanger = el.getAttribute('data-confirm-danger') === 'true' || el.classList.contains('text-red-600') || el.classList.contains('bg-red-600');
+    const isDangerAttr = el.getAttribute('data-confirm-danger');
+    const isDanger = isDangerAttr === 'true' || 
+        (isDangerAttr !== 'false' && (el.classList.contains('text-red-600') || el.classList.contains('bg-red-600') || el.classList.contains('bg-rose-600') || /hapus|delete|sanksi|nonaktif|keluar/i.test(msg)));
 
     window.sbConfirm({
         title: 'Konfirmasi',
@@ -115,13 +127,210 @@ document.addEventListener('click', function(e) {
         if (result.isConfirmed) {
             if (el.tagName === 'A' && el.href) {
                 window.location.href = el.href;
-            } else if (el.form) {
-                el.form.submit();
+            } else if (typeof el.onclick === 'function') {
+                el.onclick();
             } else {
+                const origConfirm = el.getAttribute('data-confirm');
                 el.removeAttribute('data-confirm');
                 el.click();
+                setTimeout(() => {
+                    el.setAttribute('data-confirm', origConfirm);
+                }, 100);
             }
         }
     });
 });
+
+// Global listener for forms with data-confirm or submitted by buttons with data-confirm
+document.addEventListener('submit', function(e) {
+    const form = e.target;
+    if (form.__sbConfirmed) {
+        delete form.__sbConfirmed;
+        return;
+    }
+
+    const submitter = e.submitter || document.activeElement;
+    const confirmMsg = form.getAttribute('data-confirm') || submitter?.getAttribute('data-confirm');
+    if (confirmMsg) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const dangerAttr = form.getAttribute('data-confirm-danger') || submitter?.getAttribute('data-confirm-danger');
+        let isDanger = false;
+        if (dangerAttr === 'true') {
+            isDanger = true;
+        } else if (dangerAttr === 'false') {
+            isDanger = false;
+        } else {
+            isDanger = form.querySelector('.bg-red-600, .text-red-600, .bg-rose-600') !== null ||
+                submitter?.classList.contains('bg-red-600') ||
+                submitter?.classList.contains('text-red-600') ||
+                /hapus|delete|sanksi|nonaktif|keluar/i.test(confirmMsg);
+        }
+
+        const confirmBtn = form.getAttribute('data-confirm-btn') || submitter?.getAttribute('data-confirm-btn') || 'Ya, Lanjutkan';
+
+        window.sbConfirm({
+            title: 'Konfirmasi',
+            text: confirmMsg,
+            isDanger: isDanger,
+            confirmButtonText: confirmBtn
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.__sbConfirmed = true;
+                if (submitter && submitter.name) {
+                    let hidden = form.querySelector(`input[type="hidden"][name="${submitter.name}"]`);
+                    if (!hidden) {
+                        hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = submitter.name;
+                        form.appendChild(hidden);
+                    }
+                    hidden.value = submitter.value;
+                }
+                form.submit();
+            }
+        });
+    }
+}, true);
+
+// Otomatis ubah onsubmit/onclick confirm bawaan browser menjadi modal modern SayaBantu
+function convertLegacyBrowserAlerts() {
+    document.querySelectorAll('form[onsubmit*="confirm("]').forEach(function(form) {
+        const onsubmitStr = form.getAttribute('onsubmit') || '';
+        const match = onsubmitStr.match(/confirm\s*\(\s*['"`](.*?)['"`]\s*\)/);
+        if (match && match[1]) {
+            form.removeAttribute('onsubmit');
+            form.setAttribute('data-confirm', match[1]);
+            if (/hapus|delete|sanksi|nonaktif|keluar|ekstrem/i.test(match[1])) {
+                form.setAttribute('data-confirm-danger', 'true');
+            }
+        }
+    });
+
+    document.querySelectorAll('[onclick*="confirm("]').forEach(function(el) {
+        const onclickStr = el.getAttribute('onclick') || '';
+        const match = onclickStr.match(/confirm\s*\(\s*['"`](.*?)['"`]\s*\)/);
+        if (match && match[1]) {
+            el.removeAttribute('onclick');
+            el.setAttribute('data-confirm', match[1]);
+            if (/hapus|delete|sanksi|nonaktif|keluar|ekstrem/i.test(match[1])) {
+                el.setAttribute('data-confirm-danger', 'true');
+            }
+        }
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', convertLegacyBrowserAlerts);
+} else {
+    convertLegacyBrowserAlerts();
+}
+document.addEventListener('livewire:navigated', convertLegacyBrowserAlerts);
+document.addEventListener('livewire:init', convertLegacyBrowserAlerts);
+
+// Intercept Livewire 3 wire:confirm and wire:confirm.prompt globally using SayaBantu SweetAlert2 dialogs
+function wrapLivewireConfirmElement(el, expr, modifiers = []) {
+    if (!el || typeof el !== 'object') return;
+
+    const rawMsg = expr || el.getAttribute('wire:confirm') || 'Apakah Anda yakin?';
+    const msg = String(rawMsg).replaceAll('\\n', '\n');
+    const isPrompt = (Array.isArray(modifiers) && modifiers.includes('prompt')) || el.hasAttribute('wire:confirm.prompt');
+
+    el.__livewire_confirm = (action, instead) => {
+        if (isPrompt) {
+            const parts = msg.split('|');
+            const question = parts[0] || 'Ketik konfirmasi untuk melanjutkan:';
+            const expected = parts[1] || '';
+
+            Swal.fire({
+                title: 'Konfirmasi Diperlukan',
+                text: question,
+                input: 'text',
+                inputPlaceholder: expected,
+                showCancelButton: true,
+                confirmButtonText: 'Konfirmasi',
+                cancelButtonText: 'Batal',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-3xl shadow-2xl p-6 border border-gray-100 font-sans max-w-sm',
+                    title: 'text-base font-extrabold text-gray-900',
+                    htmlContainer: 'text-xs text-gray-600 mt-1 leading-relaxed font-medium',
+                    input: 'w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 my-3',
+                    actions: 'flex gap-2.5 w-full mt-2',
+                    confirmButton: 'flex-1 py-3 px-4 rounded-xl font-bold text-xs bg-red-600 hover:bg-red-700 text-white shadow-md transition active:scale-95 cursor-pointer',
+                    cancelButton: 'flex-1 py-3 px-4 rounded-xl font-semibold text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 transition active:scale-95 cursor-pointer'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (!expected || result.value === expected) {
+                        action();
+                    } else {
+                        if (window.sbToast) {
+                            window.sbToast('Teks konfirmasi tidak sesuai!', 'error');
+                        }
+                        if (typeof instead === 'function') instead();
+                    }
+                } else {
+                    if (typeof instead === 'function') instead();
+                }
+            });
+        } else {
+            const isDanger = /hapus|delete|sanksi|nonaktif|keluar|ekstrem|blokir|peringatan|shadow ban/i.test(msg) ||
+                el.classList.contains('bg-red-600') ||
+                el.classList.contains('text-red-600') ||
+                el.classList.contains('border-red-200') ||
+                /7e22ce|6b21a8/i.test(el.getAttribute('style') || '');
+
+            window.sbConfirm({
+                title: 'Konfirmasi',
+                text: msg,
+                isDanger: isDanger,
+                confirmButtonText: 'Ya, Lanjutkan',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    action();
+                } else {
+                    if (typeof instead === 'function') instead();
+                }
+            });
+        }
+    };
+}
+
+// 1. Hook into Livewire directive lifecycle when directives are initialized
+function registerLivewireConfirmHooks() {
+    if (window.Livewire && typeof window.Livewire.hook === 'function') {
+        window.Livewire.hook('directive.init', ({ el, directive }) => {
+            if (directive && (directive.value === 'confirm' || directive.name === 'confirm')) {
+                wrapLivewireConfirmElement(el, directive.expression, directive.modifiers);
+            }
+        });
+    }
+}
+
+if (window.Livewire && typeof window.Livewire.hook === 'function') {
+    registerLivewireConfirmHooks();
+} else {
+    document.addEventListener('livewire:init', registerLivewireConfirmHooks);
+}
+
+// 2. Global capture-phase listener to catch any click on wire:confirm elements (works for newly injected DOM / modals)
+document.addEventListener('click', function(e) {
+    let target = e.target;
+    let el = null;
+    while (target && target !== document.body && target !== document.documentElement) {
+        if (target.hasAttribute && (target.hasAttribute('wire:confirm') || target.hasAttribute('wire:confirm.prompt'))) {
+            el = target;
+            break;
+        }
+        target = target.parentElement;
+    }
+
+    if (el) {
+        wrapLivewireConfirmElement(el, el.getAttribute('wire:confirm'));
+    }
+}, true);
+
 

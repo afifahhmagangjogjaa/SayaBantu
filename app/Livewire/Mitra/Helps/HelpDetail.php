@@ -359,7 +359,7 @@ class HelpDetail extends Component
             $formattedTime = $availAt
                 ? $availAt->translatedFormat('l, d F Y [pukul] H:i').' WIB'
                 : '1 jam sebelum jadwal pelaksanaan';
-            session()->flash('error', "Pesanan ini terjadwal. Anda baru bisa menuju lokasi mulai 1 jam sebelum jadwal pelaksanaan ({$formattedTime}).");
+            session()->flash('error', "Pesanan ini reguler. Anda baru bisa menuju lokasi mulai 1 jam sebelum jadwal pelaksanaan ({$formattedTime}).");
             $this->dispatch('show-status-notification', message: "Tombol baru aktif 1 jam sebelum jadwal ({$formattedTime})");
 
             return;
@@ -506,17 +506,17 @@ class HelpDetail extends Component
     public function markCompleted()
     {
         $this->validate([
-            'before_photo' => 'nullable|image|max:5120',
+            'before_photo' => 'nullable|image|max:15360',
             'before_notes' => 'nullable|string|max:500',
-            'completion_photo' => 'required|image|max:5120',
+            'completion_photo' => 'required|image|max:15360',
             'completion_notes' => 'nullable|string|max:500',
         ], [
             'before_photo.image' => 'Foto kondisi awal harus berupa gambar (JPG, PNG, WebP).',
-            'before_photo.max' => 'Ukuran foto kondisi awal maksimal 5 MB.',
+            'before_photo.max' => 'Ukuran foto kondisi awal maksimal 15 MB.',
             'before_notes.max' => 'Catatan kondisi awal maksimal 500 karakter.',
             'completion_photo.required' => 'Wajib mengunggah foto bukti selesai pekerjaan.',
             'completion_photo.image' => 'File bukti selesai harus berupa gambar (JPG, PNG, WebP).',
-            'completion_photo.max' => 'Ukuran foto selesai maksimal 5 MB.',
+            'completion_photo.max' => 'Ukuran foto selesai maksimal 15 MB.',
             'completion_notes.max' => 'Catatan selesai maksimal 500 karakter.',
         ]);
 
@@ -526,12 +526,12 @@ class HelpDetail extends Component
         ];
 
         if ($this->completion_photo) {
-            $updateData['completion_photo'] = $this->completion_photo->store('completion_photos', 'public');
+            $updateData['completion_photo'] = \App\Services\ImageCompressionService::compressAndStore($this->completion_photo, 'completion_photos');
             $updateData['completion_notes'] = $this->completion_notes;
         }
 
         if ($this->before_photo) {
-            $updateData['before_photo'] = $this->before_photo->store('before_photos', 'public');
+            $updateData['before_photo'] = \App\Services\ImageCompressionService::compressAndStore($this->before_photo, 'before_photos');
             $updateData['before_notes'] = $this->before_notes;
         }
 

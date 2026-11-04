@@ -7,6 +7,7 @@ use App\Models\Concerns\HasBalanceWallet;
 use App\Models\Concerns\HasOrderQuota;
 use App\Models\Concerns\HasProfileCompleteness;
 use App\Models\Concerns\HasRatingStats;
+use App\Models\Concerns\HasTransactionPin;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasOrderQuota;
     use HasProfileCompleteness;
     use HasRatingStats;
+    use HasTransactionPin;
 
     protected static function booted()
     {
@@ -157,6 +159,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'notification_settings',
         'warning_level',
         'is_banned',
+        'transaction_pin',
+        'pin_attempts',
+        'pin_locked_until',
     ];
 
     /**
@@ -167,6 +172,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'transaction_pin',
     ];
 
     /**
@@ -186,6 +192,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'notification_settings' => 'array',
             'warning_level' => 'integer',
             'is_banned' => 'boolean',
+            'pin_attempts' => 'integer',
+            'pin_locked_until' => 'datetime',
         ];
     }
 
@@ -224,6 +232,21 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->partnerActivities()->where('activity_type', 'help_cancelled')->count();
     }
 
+    /**
+     * Dapatkan nama bersih pengguna tanpa label imbuhan seperti (Mitra) atau (Customer).
+     */
+    public function getCleanName(): string
+    {
+        $clean = trim(preg_replace('/\s*\((?:Mitra|Customer)[^)]*\)|\s*(?:Mitra|Customer)\b/i', '', (string) $this->name));
+
+        return $clean ?: (string) $this->name;
+    }
+
+    public function getCleanNameAttribute(): string
+    {
+        return $this->getCleanName();
+    }
+
     public function city()
     {
         return $this->belongsTo(City::class);
@@ -252,6 +275,11 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getAdminCityIds(): array
     {
+        // Super Admin memiliki akses penuh ke seluruh wilayah kota di Indonesia
+        if ($this->isSuperAdmin()) {
+            return City::pluck('id')->toArray();
+        }
+
         $cityIds = collect();
 
         if ($this->exists && ! empty($this->id)) {
@@ -425,6 +453,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function withdrawRequests()
     {
         return $this->hasMany(\App\Models\WithdrawRequest::class);
+    }
+
+    public function customerAddresses()
+    {
+        return $this->hasMany(\App\Models\CustomerAddress::class);
+    }
+
+    public function primaryAddress()
+    {
+        return $this->hasOne(\App\Models\CustomerAddress::class)->where('is_primary', true);
     }
 
     /**

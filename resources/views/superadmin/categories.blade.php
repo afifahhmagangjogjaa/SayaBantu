@@ -4,15 +4,15 @@
         $breadcrumb = 'Super Admin / Manajemen Kategori';
     @endphp
         <!-- Header Summary Card & Action -->
-        <div class="bg-white rounded-2xl border border-gray-200/80 p-3 sm:px-5 sm:py-3.5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div class="bg-gradient-to-r from-blue-50/70 via-white to-blue-50/30 rounded-2xl border border-blue-200/80 p-3 sm:px-5 sm:py-3.5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-blue-50/80 border border-blue-100/80 flex items-center justify-center text-blue-600 flex-shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <div class="w-9 h-9 rounded-xl bg-blue-100 border border-blue-200/80 flex items-center justify-center text-[#0066FF] flex-shrink-0 shadow-2xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                     </svg>
                 </div>
                 <span class="text-base sm:text-lg font-bold text-gray-900">
-                    Jumlah kategori saat ini: <span class="text-blue-600 font-extrabold ml-1">{{ $categories->total() }}</span>
+                    Jumlah kategori saat ini: <span class="text-[#0066FF] font-black ml-1">{{ $categories->total() }}</span>
                 </span>
             </div>
             <button wire:click="openCreateModal"
@@ -96,7 +96,11 @@
                                     </div>
                                 </td>
                                 <td class="px-2.5 py-3 whitespace-nowrap text-center">
-                                    @if ($category->icon)
+                                    @if ($category->svg_path && file_exists(public_path($category->svg_path)))
+                                        <span class="inline-flex items-center justify-center w-6 h-6 mx-auto text-[#0066FF] [&>svg]:w-full [&>svg]:h-full [&>svg]:fill-current" title="{{ $category->icon }}">
+                                            {!! file_get_contents(public_path($category->svg_path)) !!}
+                                        </span>
+                                    @elseif ($category->icon)
                                         <span class="text-lg">{{ $category->icon }}</span>
                                     @else
                                         <span class="text-gray-400 text-xs">-</span>

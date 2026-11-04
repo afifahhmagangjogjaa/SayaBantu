@@ -75,12 +75,14 @@ class Index extends Component
             return;
         }
 
+        if (! auth()->user()->hasVerifiedEmail()) {
+            session()->flash('error', 'Email Anda belum diverifikasi. Silakan verifikasi email Anda terlebih dahulu untuk dapat mengambil bantuan.');
+
+            return;
+        }
+
         if (! auth()->user()->canTakeMoreOrders()) {
-            if (! auth()->user()->hasVerifiedEmail()) {
-                session()->flash('error', 'Akun Anda belum verifikasi email dan telah mencapai batas maksimal 2 bantuan. Silakan verifikasi email Anda terlebih dahulu untuk mengambil bantuan lagi.');
-            } else {
-                session()->flash('error', 'Anda telah mencapai batas maksimal order bantuan.');
-            }
+            session()->flash('error', 'Anda masih memiliki order aktif yang sedang berjalan.');
 
             return;
         }

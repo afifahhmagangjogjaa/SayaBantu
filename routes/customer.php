@@ -33,8 +33,23 @@ Route::middleware(['auth', 'onboarded', 'customer'])
         Route::redirect('/topup/instant', '/customer/topup');
         Route::redirect('/topup/midtrans', '/customer/topup');
 
+        // Kelola Rekening Bank Customer
+        Route::get('/bank-accounts', \App\Livewire\Mitra\Settings\BankAccounts::class)->name('bank-accounts');
+
+        // Penarikan Dana (Withdraw) Customer
+        Route::get('/withdraw', [\App\Http\Controllers\WithdrawController::class, 'showForm'])->name('withdraw.form');
+        Route::post('/withdraw', [\App\Http\Controllers\WithdrawController::class, 'requestWithdraw'])->name('withdraw.request');
+        Route::get('/withdraw/history', [\App\Http\Controllers\WithdrawController::class, 'withdrawHistory'])->name('withdraw.history');
+        Route::get('/withdraw/success/{withdraw}', [\App\Http\Controllers\WithdrawController::class, 'showSuccess'])->name('withdraw.success');
+        Route::get('/withdraw/rejected/{withdraw}', [\App\Http\Controllers\WithdrawController::class, 'showRejected'])->name('withdraw.rejected');
+
         // Chat
         Route::get('/chat/{help?}', \App\Livewire\Customer\Chat::class)->name('chat');
+
+        // Alamat Saya (Multi-address Shopee-style)
+        Route::get('/addresses', \App\Livewire\Customer\Addresses\Index::class)->name('addresses');
+        Route::get('/addresses/create', \App\Livewire\Customer\Addresses\Form::class)->name('addresses.create');
+        Route::get('/addresses/{address}/edit', \App\Livewire\Customer\Addresses\Form::class)->name('addresses.edit');
 
         // Help & Support
         Route::view('/help-support', 'customer.help-support')->name('help-support');

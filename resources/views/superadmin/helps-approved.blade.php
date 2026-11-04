@@ -117,7 +117,7 @@
                                     <button
                                         wire:click="openDetailModal({{ $help->id }})"
                                         class="px-3 py-1 {{ in_array($help->status, ['komplain', 'disputed']) ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-primary-600' }} rounded-lg text-xs font-semibold transition shadow-2xs cursor-pointer">
-                                        {{ in_array($help->status, ['komplain', 'disputed']) ? 'Mediasi' : 'Proses' }}
+                                        {{ in_array($help->status, ['komplain', 'disputed']) ? 'Mediasi' : 'Detail' }}
                                     </button>
                                 </td>
                             </tr>
@@ -380,7 +380,7 @@
                         <div>
                             <span class="text-gray-400 block">Tipe Layanan</span>
                             <span class="font-bold {{ $detailHelp->isUrgent() ? 'text-red-600' : 'text-blue-600' }}">
-                                {{ $detailHelp->isUrgent() ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}
+                                {{ $detailHelp->isUrgent() ? '⚡ Prioritas / Urgent' : '📅 Reguler' }}
                             </span>
                         </div>
                     </div>

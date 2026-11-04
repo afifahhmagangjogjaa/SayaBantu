@@ -21,7 +21,11 @@ Route::middleware(['auth', 'verified', 'super_admin'])->prefix('superadmin')->na
     Route::get('/settings/help/fee-pendapatan', \App\Livewire\SuperAdmin\Settings\FeePendapatan::class)->name('pengaturan.bantuan.fee-pendapatan');
     Route::get('/settings/help/biaya-topup', \App\Livewire\SuperAdmin\Settings\BiayaTopupBank::class)->name('pengaturan.bantuan.biaya-topup');
     Route::get('/settings/help/tarif-radius', \App\Livewire\SuperAdmin\Settings\TarifRadius::class)->name('pengaturan.bantuan.tarif-radius');
+    Route::get('/settings/radius', \App\Livewire\SuperAdmin\Settings\TarifRadius::class)->name('settings.radius');
+    Route::get('/settings/tarif-radius', \App\Livewire\SuperAdmin\Settings\TarifRadius::class)->name('settings.tarif-radius');
     Route::get('/settings/banners', \App\Livewire\SuperAdmin\Banners::class)->name('settings.banners');
+    Route::get('/settings/banks', \App\Livewire\SuperAdmin\Settings\BankSettings::class)->name('settings.banks');
+    Route::get('/settings/storage', \App\Livewire\SuperAdmin\Settings\StorageManager::class)->name('settings.storage');
     Route::view('/settings/transactions', 'superadmin.transactions')->name('settings.transactions');
     Route::get('/topup/approvals', \App\Livewire\SuperAdmin\TopupApproval::class)->name('topup.approvals');
     Route::get('/admin-users', \App\Livewire\SuperAdmin\AdminUsers::class)->name('admin.users');

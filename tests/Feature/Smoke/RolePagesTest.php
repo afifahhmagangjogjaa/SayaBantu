@@ -26,8 +26,8 @@ class RolePagesTest extends TestCase
             'is_completed' => true,
             'email_verified_at' => now(),
             'name' => 'Pengguna '.$role,
-            'phone' => '081234567890',
-            // NIK unik: satu test bisa membuat beberapa user sekaligus.
+            // Nomor HP & NIK unik: satu test bisa membuat beberapa user sekaligus.
+            'phone' => fake()->unique()->numerify('0812########'),
             'nik' => fake()->unique()->numerify('################'),
             'address' => 'Jl. Test No. 1',
             'gender' => 'Laki-laki',
@@ -91,6 +91,7 @@ class RolePagesTest extends TestCase
             'rating' => ['admin.ratings.index'],
             'aktivitas mitra' => ['admin.partners.activity'],
             'laporan mitra' => ['admin.partners.report'],
+            'blokir mitra' => ['admin.partners.blocked'],
             'notifikasi' => ['admin.notifications.index'],
             'approval topup' => ['admin.topup.approvals'],
             'penarikan saldo' => ['admin.withdraws.index'],
@@ -112,6 +113,7 @@ class RolePagesTest extends TestCase
             'transaksi' => ['superadmin.transactions.log'],
             'bantuan disetujui' => ['superadmin.helps.approved'],
             'pengaturan bantuan' => ['superadmin.settings.help'],
+            'biaya topup bank' => ['superadmin.pengaturan.bantuan.biaya-topup'],
             'banner' => ['superadmin.settings.banners'],
             'approval topup' => ['superadmin.topup.approvals'],
             'admin user' => ['superadmin.admin.users'],

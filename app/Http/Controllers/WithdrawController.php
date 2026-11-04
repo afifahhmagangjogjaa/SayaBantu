@@ -24,12 +24,18 @@ class WithdrawController extends Controller
     public function showForm(Request $request)
     {
         $user = $request->user();
+        $isCustomer = ($user->role === 'customer');
+        $prefix = $isCustomer ? 'customer' : 'mitra';
+        $dashboardRoute = $prefix . '.dashboard';
 
         if (! $user->isProfileComplete()) {
             $missing = implode(', ', $user->getMissingProfileFields());
 
-            return redirect()->route('mitra.dashboard')->with('error', "Harap lengkapi profil Anda ($missing) terlebih dahulu sebelum melakukan penarikan saldo.");
+            return redirect()->route($dashboardRoute)->with('error', "Harap lengkapi profil Anda ($missing) terlebih dahulu sebelum melakukan penarikan saldo.");
         }
+
+        // Cek batasan penarikan 1x dalam 24 jam
+        $limit24h = $user->getWithdraw24hLimitStatus();
 
         // If the user's latest withdraw was already processed successfully,
         // redirect them to the success page so they see the confirmation.
@@ -37,11 +43,11 @@ class WithdrawController extends Controller
         // If caller explicitly requests the form (force=1) skip redirect so "Kembali ke Pengajuan" works
         $force = $request->query('force');
 
-        // Also avoid redirecting when the user clicked the link from the mitra dashboard
+        // Also avoid redirecting when the user clicked the link from the dashboard
         $referer = $request->headers->get('referer');
         $fromDashboard = false;
         try {
-            $dashboardUrl = route('mitra.dashboard');
+            $dashboardUrl = route($dashboardRoute);
             if ($referer && str_contains($referer, $dashboardUrl)) {
                 $fromDashboard = true;
             }
@@ -63,31 +69,60 @@ class WithdrawController extends Controller
 
         if (! $force && ! $fromDashboard && $latest && $isRecent) {
             if ($latest->status === WithdrawRequest::STATUS_SUCCESS) {
-                return redirect()->route('mitra.withdraw.success', $latest->id);
+                return redirect()->route($prefix . '.withdraw.success', $latest->id);
             }
 
             if ($latest->status === WithdrawRequest::STATUS_FAILED) {
-                return redirect()->route('mitra.withdraw.rejected', $latest->id);
+                return redirect()->route($prefix . '.withdraw.rejected', $latest->id);
             }
         }
 
         // Otherwise render the withdraw form (the form view will show pending message if needed)
-        return view('livewire.mitra.withdraw.form', ['user' => $user]);
+        $bankAccounts = $user->bankAccounts()->get();
+        $primaryAccount = $user->primaryBankAccount();
+
+        return view('livewire.mitra.withdraw.form', [
+            'user' => $user,
+            'bankAccounts' => $bankAccounts,
+            'primaryAccount' => $primaryAccount,
+            'limit24h' => $limit24h,
+            'prefix' => $prefix,
+            'isCustomer' => $isCustomer,
+        ]);
     }
 
     /** Handle withdraw request */
     public function requestWithdraw(Request $request)
     {
         $user = $request->user();
+        $isCustomer = ($user->role === 'customer');
+        $prefix = $isCustomer ? 'customer' : 'mitra';
+        $dashboardRoute = $prefix . '.dashboard';
 
         if (! $user->isProfileComplete()) {
             $missing = implode(', ', $user->getMissingProfileFields());
 
-            return redirect()->route('mitra.dashboard')->with('error', "Harap lengkapi profil Anda ($missing) terlebih dahulu sebelum melakukan penarikan saldo.");
+            return redirect()->route($dashboardRoute)->with('error', "Harap lengkapi profil Anda ($missing) terlebih dahulu sebelum melakukan penarikan saldo.");
         }
 
         if (! $user->hasVerifiedEmail()) {
             return back()->withErrors(['general' => 'Saldo belum dapat ditarik. Harap verifikasi email Anda terlebih dahulu sebelum mengajukan penarikan dana.'])->withInput();
+        }
+
+        if (! $user->hasTransactionPin()) {
+            return redirect()->route($prefix . '.bank-accounts')->with('error', 'Harap atur PIN transaksi 6 digit terlebih dahulu untuk keamanan penarikan saldo.');
+        }
+
+        if ($user->isPinLocked()) {
+            return back()->withErrors(['pin' => 'PIN transaksi Anda terkunci karena salah 3x berturut-turut. Coba lagi dalam ' . $user->getPinLockRemainingMinutes() . ' menit.'])->withInput();
+        }
+
+        // Cek batasan penarikan 1x dalam 24 jam
+        $limit24h = $user->getWithdraw24hLimitStatus();
+        if (! $limit24h['allowed']) {
+            return back()->withErrors([
+                'general' => "Penarikan saldo dibatasi 1x dalam 24 jam. Anda dapat mengajukan penarikan kembali pada {$limit24h['available_at']->translatedFormat('d M Y, H:i')} WIB (sisa {$limit24h['remaining_text']}).",
+            ])->withInput();
         }
 
         $userBalance = (int) $user->balance;
@@ -97,24 +132,35 @@ class WithdrawController extends Controller
             $request->merge(['amount' => $rawAmount !== '' ? (int) $rawAmount : null]);
         }
 
-        if ($request->has('account_number')) {
-            $rawAccount = preg_replace('/\D/', '', (string) $request->input('account_number'));
-            $request->merge(['account_number' => $rawAccount]);
-        }
-
         $request->validate([
             'amount' => ['required', 'integer', 'min:10000', 'max:'.max(10000, $userBalance)],
-            'bank_code' => ['required', 'string'],
-            'account_number' => ['required', 'string', 'regex:/^[0-9]+$/'],
+            'bank_account_id' => ['required', 'exists:user_bank_accounts,id'],
+            'pin' => ['required', 'digits:6'],
         ], [
             'amount.required' => 'Jumlah penarikan wajib diisi.',
             'amount.integer' => 'Jumlah penarikan harus berupa angka.',
             'amount.min' => 'Jumlah penarikan minimal Rp 10.000.',
             'amount.max' => 'Saldo Anda tidak mencukupi untuk penarikan sebesar Rp '.number_format((int) $request->input('amount', 0), 0, ',', '.').'. Saldo tersedia: Rp '.number_format($userBalance, 0, ',', '.').'.',
-            'bank_code.required' => 'Silakan pilih Bank atau E-Wallet tujuan.',
-            'account_number.required' => 'Nomor rekening wajib diisi.',
-            'account_number.regex' => 'Nomor rekening hanya boleh berisi angka.',
+            'bank_account_id.required' => 'Silakan pilih rekening bank atau e-wallet tujuan.',
+            'bank_account_id.exists' => 'Rekening tujuan tidak valid.',
+            'pin.required' => 'PIN transaksi 6 digit wajib diisi.',
+            'pin.digits' => 'PIN transaksi harus berupa 6 digit angka.',
         ]);
+
+        // Verifikasi kepemilikan rekening
+        $bankAccount = $user->bankAccounts()->where('id', $request->input('bank_account_id'))->first();
+        if (! $bankAccount) {
+            return back()->withErrors(['bank_account_id' => 'Rekening bank tidak ditemukan atau bukan milik Anda.'])->withInput();
+        }
+
+        // Verifikasi PIN Transaksi
+        if (! $user->verifyTransactionPin($request->input('pin'))) {
+            $attemptsLeft = max(0, 3 - (int) $user->pin_attempts);
+            if ($attemptsLeft === 0) {
+                return back()->withErrors(['pin' => 'PIN salah! Akun Anda dikunci selama 15 menit karena 3x salah memasukkan PIN.'])->withInput();
+            }
+            return back()->withErrors(['pin' => 'PIN transaksi salah. Sisa percobaan: ' . $attemptsLeft . ' kali.'])->withInput();
+        }
 
         $amount = (int) $request->input('amount');
 
@@ -134,13 +180,21 @@ class WithdrawController extends Controller
         }
 
         try {
-            // Create withdraw request WITHOUT deducting balance.
-            // Admin will review and deduct when approving the transfer.
+            // Deduct / hold balance immediately from user wallet
+            $userBalanceModel = $user->balance()->firstOrCreate(['user_id' => $user->id], ['balance' => 0]);
+            $userBalanceModel->deductBalance(
+                $amount,
+                'Pengajuan Penarikan Saldo ke ' . $bankAccount->bank_name . ' (' . $bankAccount->masked_account_number . ')',
+                'WD-PENDING'
+            );
+
+            // Create withdraw request with account name saved
             $withdraw = WithdrawRequest::create([
                 'user_id' => $user->id,
                 'amount' => $amount,
-                'bank_code' => $request->input('bank_code'),
-                'account_number' => $request->input('account_number'),
+                'bank_code' => $bankAccount->bank_code,
+                'account_number' => $bankAccount->account_number,
+                'account_name' => $bankAccount->account_name,
                 'status' => WithdrawRequest::STATUS_PENDING,
             ]);
 
@@ -160,7 +214,7 @@ class WithdrawController extends Controller
             }
 
             // Redirect back to form — the form view will show a 'pending' message when a request exists
-            return redirect()->route('mitra.withdraw.form')->with('status', 'Pengajuan Anda berhasil dikirim dan sedang menunggu proses oleh admin. Mohon tunggu 1-5 hari kerja.');
+            return redirect()->route($prefix . '.withdraw.form')->with('status', 'Pengajuan Anda berhasil dikirim dan sedang menunggu proses oleh admin. Mohon tunggu 1-5 hari kerja.');
         } catch (\Throwable $e) {
             Log::error('WithdrawController: error creating withdraw', ['error' => $e->getMessage()]);
 
@@ -172,6 +226,8 @@ class WithdrawController extends Controller
     public function withdrawHistory(Request $request)
     {
         $user = $request->user();
+        $isCustomer = ($user->role === 'customer');
+        $prefix = $isCustomer ? 'customer' : 'mitra';
         $activeTab = $request->query('tab', 'income');
 
         $incomeHistory = BalanceTransaction::where('user_id', $user->id)
@@ -211,22 +267,23 @@ class WithdrawController extends Controller
             ->orderByDesc('created_at')
             ->limit(30)
             ->get()
-            ->map(function ($item) {
+            ->map(function ($item) use ($prefix) {
                 $help = $item->help;
-                $orderCode = $help ? ($help->order_id ?: ('SRB' . str_pad($help->id, 4, '0', STR_PAD_LEFT))) : ($item->order_id ?: ('SRB' . str_pad($item->id, 4, '0', STR_PAD_LEFT)));
+                $orderCode = $help ? ($help->order_id ?: ('SRB'.str_pad($help->id, 4, '0', STR_PAD_LEFT))) : ($item->order_id ?: ('SRB'.str_pad($item->id, 4, '0', STR_PAD_LEFT)));
                 if (str_starts_with($orderCode, 'HELP-')) {
-                    $orderCode = 'SRB' . str_pad(substr($orderCode, 5), 4, '0', STR_PAD_LEFT);
+                    $orderCode = 'SRB'.str_pad(substr($orderCode, 5), 4, '0', STR_PAD_LEFT);
                 }
                 $catName = $help ? (optional($help->category)->name ?? $help->title) : ($item->description ?? 'Pekerjaan Jasa');
+
                 return (object) [
                     'id' => $item->id,
                     'type' => 'income',
-                    'title' => 'Order #' . $orderCode,
+                    'title' => 'Order #'.$orderCode,
                     'subtitle' => $catName,
                     'amount' => (float) $item->amount,
                     'created_at' => $item->created_at,
                     'status' => 'completed',
-                    'detail_url' => $help ? route('mitra.helps.detail', $help->id) : null,
+                    'detail_url' => $help ? route($prefix . '.helps.detail', $help->id) : null,
                 ];
             });
 
@@ -234,14 +291,15 @@ class WithdrawController extends Controller
             ->orderByDesc('created_at')
             ->limit(30)
             ->get()
-            ->map(function ($item) {
+            ->map(function ($item) use ($prefix) {
                 $bankCode = strtoupper($item->bank_code ?? 'BCA');
-                $accMasked = strlen($item->account_number) >= 4 ? '****' . substr($item->account_number, -4) : '****1234';
+                $accMasked = strlen($item->account_number) >= 4 ? '****'.substr($item->account_number, -4) : '****1234';
+
                 return (object) [
                     'id' => $item->id,
                     'type' => 'withdraw',
                     'title' => 'Penarikan Saldo',
-                    'subtitle' => 'Ke ' . $bankCode . ' ' . $accMasked,
+                    'subtitle' => 'Ke '.$bankCode.' '.$accMasked,
                     'amount' => (float) $item->amount,
                     'created_at' => $item->created_at,
                     'status' => $item->status,
@@ -308,10 +366,12 @@ class WithdrawController extends Controller
             'totalIncome' => $totalIncome,
             'totalWithdrawn' => $totalWithdrawn,
             'user' => $user,
+            'prefix' => $user->role === 'customer' ? 'customer' : 'mitra',
+            'isCustomer' => ($user->role === 'customer'),
         ]);
     }
 
-    /** Show success page for a completed withdraw (Mitra) */
+    /** Show success page for a completed withdraw */
     public function showSuccess(Request $request, WithdrawRequest $withdraw)
     {
         $user = $request->user();
@@ -319,14 +379,21 @@ class WithdrawController extends Controller
             abort(403);
         }
 
+        $prefix = $user->role === 'customer' ? 'customer' : 'mitra';
+
         if ($withdraw->status !== WithdrawRequest::STATUS_SUCCESS) {
-            return redirect()->route('mitra.withdraw.history')->with('status', 'Penarikan belum selesai atau tidak ditemukan.');
+            return redirect()->route($prefix . '.withdraw.history')->with('status', 'Penarikan belum selesai atau tidak ditemukan.');
         }
 
-        return view('livewire.mitra.withdraw.success', ['withdraw' => $withdraw, 'user' => $user]);
+        return view('livewire.mitra.withdraw.success', [
+            'withdraw' => $withdraw,
+            'user' => $user,
+            'prefix' => $prefix,
+            'isCustomer' => ($user->role === 'customer'),
+        ]);
     }
 
-    /** Show rejected page for a failed withdraw (Mitra) */
+    /** Show rejected page for a failed withdraw */
     public function showRejected(Request $request, WithdrawRequest $withdraw)
     {
         $user = $request->user();
@@ -334,11 +401,18 @@ class WithdrawController extends Controller
             abort(403);
         }
 
+        $prefix = $user->role === 'customer' ? 'customer' : 'mitra';
+
         if ($withdraw->status !== WithdrawRequest::STATUS_FAILED) {
-            return redirect()->route('mitra.withdraw.history')->with('status', 'Penarikan belum dibatalkan atau tidak ditemukan.');
+            return redirect()->route($prefix . '.withdraw.history')->with('status', 'Penarikan belum dibatalkan atau tidak ditemukan.');
         }
 
-        return view('livewire.mitra.withdraw.rejected', ['withdraw' => $withdraw, 'user' => $user]);
+        return view('livewire.mitra.withdraw.rejected', [
+            'withdraw' => $withdraw,
+            'user' => $user,
+            'prefix' => $prefix,
+            'isCustomer' => ($user->role === 'customer'),
+        ]);
     }
 
     /** Public endpoint: gateway callback (for real integration) */

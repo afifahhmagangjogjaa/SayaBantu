@@ -22,11 +22,27 @@ class Edit extends Component
     {
         return [
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
-            'phone' => ['nullable', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
+            'phone' => [
+                'nullable',
+                'string',
+                'min:10',
+                'max:13',
+                'regex:/^[0-9]+$/',
+                \Illuminate\Validation\Rule::unique('users', 'phone')->ignore(auth()->id()),
+            ],
             'city_id' => ['nullable', \Illuminate\Validation\Rule::exists('cities', 'id')->where('is_active', true)],
             'bio' => 'nullable|string|max:1000',
         ];
     }
+
+    protected $messages = [
+        'name.required' => 'Nama lengkap wajib diisi.',
+        'name.regex' => 'Nama lengkap hanya boleh berisi huruf dan spasi.',
+        'phone.min' => 'Nomor HP minimal 10 digit angka.',
+        'phone.max' => 'Nomor HP maksimal 13 digit angka.',
+        'phone.regex' => 'Nomor HP hanya boleh berisi angka.',
+        'phone.unique' => 'Nomor HP sudah digunakan oleh akun lain.',
+    ];
 
     #[On('openEditProfile')]
     public function openModal(): void

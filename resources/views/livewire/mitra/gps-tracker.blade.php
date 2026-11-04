@@ -88,7 +88,7 @@ Alpine.data('gpsTracker', (helpId, isTracking) => ({
 
     startTracking() {
         if (!navigator.geolocation) {
-            alert('Browser Anda tidak mendukung GPS');
+            if (window.sbToast) { window.sbToast('Browser Anda tidak mendukung GPS', 'warning'); }
             return;
         }
 
@@ -157,7 +157,9 @@ Alpine.data('gpsTracker', (helpId, isTracking) => ({
             }
             
             // Show in-app alert
-            alert(messages[newStatus]);
+            if (window.sbToast) {
+                window.sbToast(messages[newStatus], 'info');
+            }
         }
     },
 

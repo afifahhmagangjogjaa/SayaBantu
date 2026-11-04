@@ -45,16 +45,7 @@
 
                 <!-- Kota Domisili -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                        Kota Domisili
-                    </label>
-                    <select name="city_id" id="city_id" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition bg-gray-50/50 focus:bg-white @error('city_id') border-red-500 @enderror">
-                        <option value="">Pilih Kota Domisili</option>
-                        @foreach($cities as $city)
-                            <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('city_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    <x-searchable-city-select :cities="$cities" name="city_id" id="city_id" label="Kota Domisili" placeholder="Cari kota domisili..." :value="old('city_id', $user->city_id ?? null)" />
                 </div>
 
                 <!-- Alamat Lengkap Domisili -->
@@ -82,7 +73,7 @@
                         <label class="block text-xs font-bold uppercase tracking-wider text-gray-900">
                             1. Foto Fisik KTP Asli
                         </label>
-                        <span class="text-[11px] text-gray-400 font-medium">Maksimal 2MB (JPG/PNG)</span>
+                        <span class="text-[11px] text-gray-400 font-medium">Maksimal 15MB (JPG/PNG)</span>
                     </div>
 
                     <!-- Upload Box KTP -->
@@ -95,7 +86,7 @@
                                     </svg>
                                 </div>
                                 <h3 class="text-xs font-bold text-gray-900 mb-0.5">Ambil atau Pilih Foto KTP</h3>
-                                <p class="text-[11px] text-gray-500 mb-3">Format JPG, PNG (Maksimal 2MB)</p>
+                                <p class="text-[11px] text-gray-500 mb-3">Format JPG, PNG (Maksimal 15MB)</p>
                                 <div class="inline-flex items-center gap-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white px-4 py-2 rounded-full text-xs font-bold shadow-xs transition active:scale-95">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -161,7 +152,7 @@
                         <label class="block text-xs font-bold uppercase tracking-wider text-gray-900">
                             2. Foto Selfie Memegang KTP
                         </label>
-                        <span class="text-[11px] text-gray-400 font-medium">Maksimal 2MB (JPG/PNG)</span>
+                        <span class="text-[11px] text-gray-400 font-medium">Maksimal 15MB (JPG/PNG)</span>
                     </div>
 
                     <!-- Upload Box Selfie -->

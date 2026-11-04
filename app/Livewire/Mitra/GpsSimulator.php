@@ -346,6 +346,12 @@ class GpsSimulator extends Component
 
     public function render()
     {
+        if (! config('app.gps_simulator', false)) {
+            return <<<'HTML'
+            <div></div>
+            HTML;
+        }
+
         return view('livewire.mitra.gps-simulator');
     }
 }

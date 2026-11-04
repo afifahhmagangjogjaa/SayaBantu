@@ -110,7 +110,7 @@ return [
     |
     */
 
-    'gps_simulator' => env('GPS_SIMULATOR', true),
+    'gps_simulator' => env('GPS_SIMULATOR', false),
 
     /*
     |--------------------------------------------------------------------------

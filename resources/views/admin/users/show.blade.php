@@ -1,14 +1,34 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="bg-white shadow-sm border-b border-gray-200">
-        <div class="px-8 py-6 flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Detail Pengguna</h1>
-                <p class="text-sm text-gray-600 mt-1">Tinjau informasi akun, status KTP, dan status keamanan pengguna.</p>
+    @php
+        $isMitraPage = $user->isMitra();
+        $pageHeaderBg = 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700';
+    @endphp
+    <div class="{{ $pageHeaderBg }} text-white shadow-md relative overflow-hidden">
+        <div class="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="px-8 py-6 flex items-center justify-between relative">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center font-black text-2xl shadow-inner border border-white/30 flex-shrink-0">
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                </div>
+                <div>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight drop-shadow-xs">{{ $user->name }}</h1>
+                        <span class="px-3 py-0.5 rounded-full text-xs font-bold bg-white/20 text-white border border-white/30 backdrop-blur-xs">
+                            {{ $user->role_label ?? ($isMitraPage ? 'Mitra Driver' : 'Customer') }}
+                        </span>
+                        @if($user->isShadowBanned())
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-purple-500 text-white border border-purple-300/60 shadow-sm animate-pulse">
+                                👻 Shadow Banned
+                            </span>
+                        @endif
+                    </div>
+                    <p class="text-xs sm:text-sm text-white/85 mt-1">{{ $user->email }} • {{ $cityName ?? ($user->city?->name ?? 'Kota Belum Diatur') }}</p>
+                </div>
             </div>
             <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('admin.users.index') }}"
-                class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-full text-xs text-gray-700 hover:bg-gray-50">
+                class="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-xl text-xs font-semibold backdrop-blur-xs transition shadow-2xs">
                 &larr; Kembali ke daftar
             </a>
         </div>
@@ -124,10 +144,6 @@
                     <div>
                         <dt class="text-gray-500 text-xs">Status Perkawinan</dt>
                         <dd class="font-medium text-gray-900">{{ $maritalStatus ?? '-' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-gray-500 text-xs">Pekerjaan</dt>
-                        <dd class="font-medium text-gray-900">{{ $occupation ?? '-' }}</dd>
                     </div>
                     <div class="md:col-span-2">
                         <dt class="text-gray-500 text-xs mb-1">Alamat Domisili KTP</dt>
@@ -245,8 +261,16 @@
                             </span>
                         </div>
                         <div class="pt-3 border-t border-gray-100 space-y-2">
+                            @php
+                                $confirmShadowBanText = $user->isShadowBanned()
+                                    ? 'Apakah Anda yakin ingin melepaskan status Shadow Ban untuk ' . $user->name . '?'
+                                    : ($isMitraPage
+                                        ? 'Apakah Anda yakin ingin menerapkan Shadow Ban pada mitra ' . $user->name . '? Mitra tidak akan menerima atau melihat pesanan baru secara senyap.'
+                                        : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada customer ' . $user->name . '? Permintaan bantuan yang dibuat customer ini akan disembunyikan secara senyap dari seluruh mitra.');
+                            @endphp
                             <form action="{{ route('admin.partners.toggle-shadow-ban', $user->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin {{ $user->isShadowBanned() ? 'melepaskan' : 'menerapkan' }} Shadow Ban pada pengguna {{ $user->name }}?');">
+                                data-confirm="{{ $confirmShadowBanText }}"
+                                data-confirm-danger="true">
                                 @csrf
                                 <button type="submit"
                                     style="background-color: {{ $user->isShadowBanned() ? '#faf5ff' : '#7e22ce' }}; color: {{ $user->isShadowBanned() ? '#6b21a8' : '#ffffff' }}; border: 1.5px solid {{ $user->isShadowBanned() ? '#c084fc' : '#6b21a8' }};"
@@ -257,7 +281,8 @@
                             </form>
                             @if ($user->status !== 'blocked')
                                 <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST"
-                                    onsubmit="return confirm('Apakah Anda yakin ingin {{ $user->status === 'active' ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?');">
+                                    data-confirm="Apakah Anda yakin ingin {{ $user->status === 'active' ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?"
+                                    data-confirm-danger="{{ $user->status === 'active' ? 'true' : 'false' }}">
                                     @csrf
                                     <button type="submit"
                                         class="w-full px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer shadow-2xs {{ $user->status === 'active' ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' }}">
@@ -442,7 +467,8 @@
                     <div class="space-y-3 text-sm">
                         @if(!$user->verified)
                             <form action="{{ route('admin.users.verify-ktp', $user->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menyetujui (ACC) dan memverifikasi KTP pengguna {{ $user->name }}?');">
+                                data-confirm="Apakah Anda yakin ingin menyetujui (ACC) dan memverifikasi KTP pengguna {{ $user->name }}?"
+                                data-confirm-danger="false">
                                 @csrf
                                 <button type="submit"
                                     class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
@@ -454,7 +480,8 @@
                             </form>
                         @else
                             <form action="{{ route('admin.users.reject-ktp', $user->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin membatalkan status verifikasi KTP pengguna {{ $user->name }}?');">
+                                data-confirm="Apakah Anda yakin ingin membatalkan status verifikasi KTP pengguna {{ $user->name }}?"
+                                data-confirm-danger="true">
                                 @csrf
                                 <button type="submit"
                                     class="w-full py-2 border border-gray-200 text-gray-600 hover:text-red-700 hover:bg-red-50 rounded-xl text-xs font-medium transition cursor-pointer">

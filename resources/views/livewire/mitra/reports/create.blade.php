@@ -1,16 +1,18 @@
 <div class="min-h-screen bg-slate-50 pb-20">
     <!-- Header - SayaBantu Brand Blue with Wave Separator -->
-    <div class="px-5 pt-6 pb-12 relative overflow-hidden text-white bg-[#0066FF]">
-        <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20 pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-16 -mb-16 pointer-events-none"></div>
+    <div class="px-5 pt-6 pb-8 relative text-white bg-[#0066FF]">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+        </div>
 
         <div class="relative z-10 max-w-md mx-auto">
             <div class="flex items-center justify-between text-white mb-3">
-                <button onclick="window.history.back()" aria-label="Kembali" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-xl transition active:scale-95 shrink-0 cursor-pointer">
+                <a href="{{ route('mitra.dashboard') }}" wire:navigate aria-label="Kembali ke Dashboard" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-xl transition active:scale-95 shrink-0 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                     </svg>
-                </button>
+                </a>
 
                 <div class="text-center flex-1 px-2">
                     <h1 class="text-lg font-black text-white tracking-tight leading-tight">Buat Laporan Aduan</h1>
@@ -22,13 +24,13 @@
         </div>
 
         <!-- Wave Separator (SVG) bergelombang -->
-        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
-            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f8fafc"></path>
+        <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+            <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f8fafc"></path>
         </svg>
     </div>
 
     <!-- Content container -->
-    <div class="bg-gray-50 -mt-6 px-5 pt-6 pb-8 max-w-md mx-auto">
+    <div class="bg-slate-50 px-5 pt-4 pb-8 max-w-md mx-auto">
         <div class="max-w-md mx-auto">
             @if (session('message'))
                 <div class="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-xl shadow-sm">

@@ -1,35 +1,44 @@
-@extends('layouts.mitra')
+@php
+    $isCustomer = ($user && $user->role === 'customer');
+    $prefix = $prefix ?? ($isCustomer ? 'customer' : 'mitra');
+    $withdrawFormRoute = $prefix . '.withdraw.form';
+    $withdrawHistoryRoute = $prefix . '.withdraw.history';
+    $notifRoute = $isCustomer ? 'customer.notifications.index' : 'mitra.notifications.index';
+@endphp
+@extends($isCustomer ? 'layouts.app' : 'layouts.mitra')
 
 @section('content')
-    <div class="bg-slate-50 pb-4">
-        <!-- Header - SayaBantu Brand Blue matching Beranda with Wave Separator -->
-        <div class="px-5 pt-6 pb-20 relative overflow-hidden text-white bg-[#0066FF]">
-            <!-- Decorative circle overlays -->
-            <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20 pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-16 -mb-16 pointer-events-none"></div>
+    <div class="bg-white pb-4 min-h-screen">
+        <!-- Header - SayaBantu Brand Blue with Wave Separator -->
+        <div class="relative bg-[#0066FF] text-white">
+            <!-- Decorative circle overlays in safe container -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+                <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+            </div>
 
-            <div class="relative z-10">
+            <div class="relative z-10 px-5 pt-6 pb-[102px]">
                 <!-- Top Row: Title & Notification -->
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-xl font-black text-white tracking-tight leading-tight">Penghasilan</h1>
+                        <h1 class="text-xl font-black text-white tracking-tight leading-tight">{{ $isCustomer ? 'Saldo & Riwayat' : 'Penghasilan' }}</h1>
                         <p class="text-xs text-blue-100 font-medium mt-0.5">Kelola saldo &amp; riwayat transaksi Anda</p>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
+                        @include('components.notification-icon', ['route' => route($notifRoute), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
                     </div>
                 </div>
             </div>
 
-            <!-- Wave Separator (SVG) bergelombang di bawah nominal saldo -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f8fafc"></path>
+            <!-- Wave Separator (SVG) bergelombang di bawah header biru -->
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
-        <!-- Saldo Card matching Beranda (bg-gradient-to-r from-[#0052CC] to-[#0044AA]) -->
-        <div class="px-5 -mt-14 relative z-10 mb-5">
+        <!-- Saldo Card (Mengambang Di Atas Wave - Pas di Tengah Garis Wave) -->
+        <div class="px-5 -mt-[74px] relative z-10 mb-2">
             <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-2xl p-5 text-white shadow-xl relative overflow-hidden border border-white/20">
                 <!-- Decorative circle overlay matching Beranda -->
                 <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full pointer-events-none"></div>
@@ -51,8 +60,8 @@
 
                 <!-- Centered Tarik Saldo Pill Button (White with Blue Text) -->
                 <div class="relative z-10 mt-5 flex justify-center">
-                    <a href="{{ route('mitra.withdraw.form', ['force' => 1]) }}" wire:navigate
-                       class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-8 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all text-center inline-block">
+                    <a href="{{ route($withdrawFormRoute, ['force' => 1]) }}" wire:navigate
+                       class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-8 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all text-center inline-block cursor-pointer">
                         Penarikan Saldo
                     </a>
                 </div>
@@ -60,7 +69,7 @@
         </div>
 
         <!-- Content Area: Riwayat Transaksi -->
-        <div class="bg-white rounded-t-3xl pt-2 pb-6 px-5 border-t border-slate-100 shadow-xs">
+        <div class="bg-white pt-2 pb-6 px-5">
             <!-- Status Flash Message (If any) -->
             @if(session('status'))
                 <div class="mb-4 mt-2 p-3.5 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl text-xs flex items-start gap-2.5 shadow-2xs">
@@ -74,7 +83,7 @@
             <!-- Section: Riwayat Transaksi -->
             <div class="flex items-center justify-between mb-2 pt-2">
                 <h2 class="text-sm font-bold text-gray-900 tracking-tight">Riwayat Transaksi</h2>
-                <a href="{{ route('mitra.withdraw.history') }}" wire:navigate
+                <a href="{{ route($withdrawHistoryRoute) }}" wire:navigate
                    class="text-xs font-semibold text-[#0066FF] hover:underline flex items-center gap-0.5">
                     Lihat Semua <span class="text-[11px]">&gt;</span>
                 </a>

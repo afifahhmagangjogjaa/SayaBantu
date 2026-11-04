@@ -188,6 +188,9 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     // ========================================
     Route::view('/profile', 'profile')->name('profile');
     Route::view('/profile/edit', 'profile.edit')->name('profile.edit');
+    Route::get('/profile/addresses', \App\Livewire\Customer\Addresses\Index::class)
+        ->name('profile.addresses')
+        ->middleware(['auth', 'onboarded', 'customer']);
     Route::view('/profile/settings', 'profile.settings')->name('profile.settings');
     Route::view('/profile/settings/notifications', 'profile.settings.notifications')->name('profile.settings.notifications');
     Route::view('/profile/settings/password', 'profile.settings.password')->name('profile.settings.password');

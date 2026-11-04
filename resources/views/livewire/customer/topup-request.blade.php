@@ -1,3 +1,7 @@
+@php
+    $dashRoute = $dashboardRoute ?? (auth()->user()?->role === 'mitra' ? 'mitra.dashboard' : 'customer.dashboard');
+    $histRoute = $historyRoute ?? (auth()->user()?->role === 'mitra' ? 'mitra.topup.history' : 'customer.topup.history');
+@endphp
 <div class="bg-gradient-to-b from-gray-50 to-white pb-6">
     @if($hasActivePending)
         <!-- Header Sederhana saat Pending dengan Wave Bergelombang -->
@@ -8,14 +12,14 @@
 
             <div class="relative z-10 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('customer.dashboard') }}" wire:navigate class="text-white hover:opacity-80 transition">
+                    <a href="{{ route($dashRoute) }}" wire:navigate class="text-white hover:opacity-80 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
                     </a>
                     <h1 class="text-xl font-bold text-white">Top-Up Saldo</h1>
                 </div>
-                <a href="{{ route('customer.topup.history') }}" wire:navigate class="flex items-center gap-1 px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg transition">
+                <a href="{{ route($histRoute) }}" wire:navigate class="flex items-center gap-1 px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -24,8 +28,8 @@
             </div>
 
             <!-- Wave Separator (SVG) bergelombang -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f9fafb"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f9fafb"></path>
             </svg>
         </div>
 
@@ -60,10 +64,10 @@
                 @endif
 
                 <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
-                    <a href="{{ route('customer.topup.history') }}" wire:navigate class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
+                    <a href="{{ route($histRoute) }}" wire:navigate class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
                         Lihat Riwayat & Status
                     </a>
-                    <a href="{{ route('customer.dashboard') }}" wire:navigate class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition">
+                    <a href="{{ route($dashRoute) }}" wire:navigate class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition">
                         Kembali ke Dashboard
                     </a>
                 </div>
@@ -78,14 +82,14 @@
 
         <div class="relative z-10 flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
-                <a href="{{ route('customer.dashboard') }}" wire:navigate class="text-white">
+                <a href="{{ route($dashRoute) }}" wire:navigate class="text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
                 <h1 class="text-xl font-bold text-white">Top-Up Saldo</h1>
             </div>
-            <a href="{{ route('customer.topup.history') }}" wire:navigate class="flex items-center gap-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold rounded-lg transition">
+            <a href="{{ route($histRoute) }}" wire:navigate class="flex items-center gap-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold rounded-lg transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
@@ -118,8 +122,8 @@
         </div>
 
         <!-- Wave Separator (SVG) bergelombang -->
-        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
-            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f9fafb"></path>
+        <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+            <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f9fafb"></path>
         </svg>
     </div>
 
@@ -251,7 +255,7 @@
                     <!-- Buttons -->
                     <div class="space-y-2">
                         <div class="flex gap-3">
-                            <a href="{{ route('customer.dashboard') }}" wire:navigate
+                            <a href="{{ route($dashRoute) }}" wire:navigate
                                 class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold text-center hover:bg-gray-200">
                                 Batal
                             </a>
@@ -399,18 +403,29 @@
                                     <div class="mt-4 pt-4 border-t border-gray-200">
                                         <div class="bg-white rounded-xl p-4 text-center">
                                             <p class="text-sm font-semibold text-gray-900 mb-3">Scan QR Code untuk Bayar</p>
-                                            @if(file_exists(public_path('images/payment/qris.png')))
-                                                <img src="{{ asset('images/payment/qris.png') }}" 
+                                            @php
+                                                $qrisImageSetting = \App\Models\AppSetting::get('qris_image');
+                                                $qrisImageUrl = ($qrisImageSetting && \Illuminate\Support\Facades\Storage::disk('public')->exists($qrisImageSetting))
+                                                    ? asset('storage/' . $qrisImageSetting)
+                                                    : (file_exists(public_path('images/payment/qris.png')) ? asset('images/payment/qris.png') : null);
+                                                $qrisMerchantName = \App\Models\AppSetting::get('qris_merchant_name', 'SayaBantu');
+                                            @endphp
+
+                                            @if($qrisImageUrl)
+                                                <img src="{{ $qrisImageUrl }}" 
                                                     alt="QRIS QR Code" 
-                                                    class="w-full max-w-[220px] aspect-square mx-auto border-2 border-gray-200 rounded-xl shadow-lg object-contain">
+                                                    class="w-full max-w-[220px] aspect-square mx-auto border-2 border-gray-200 rounded-xl shadow-lg object-contain bg-white p-1">
+                                                @if($qrisMerchantName)
+                                                    <p class="text-xs font-semibold text-gray-700 mt-2">NMID / Merchant: <span class="font-bold text-gray-900">{{ $qrisMerchantName }}</span></p>
+                                                @endif
                                             @else
-                                                <div class="w-full max-w-[220px] aspect-square mx-auto border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center p-4">
+                                                <div class="w-full max-w-[220px] aspect-square mx-auto border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center p-4 bg-gray-50/50">
                                                     <div class="text-center">
                                                         <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                                                         </svg>
-                                                        <p class="text-xs font-semibold text-gray-500">QR Code belum tersedia</p>
-                                                        <p class="text-[10px] text-gray-400 mt-0.5">Upload file: public/images/payment/qris.png</p>
+                                                        <p class="text-xs font-semibold text-gray-600">QR Code belum tersedia</p>
+                                                        <p class="text-[10px] text-gray-400 mt-0.5">Admin belum mengunggah barcode QRIS</p>
                                                     </div>
                                                 </div>
                                             @endif
@@ -444,7 +459,7 @@
                                             <p class="text-xs text-gray-500">a.n. {{ $bank['account_name'] }}</p>
                                         </div>
                                         <button type="button" 
-                                            onclick="navigator.clipboard.writeText('{{ $bank['account_number'] }}'); (window.sbToast ? window.sbToast('Nomor rekening {{ $bank['name'] }} disalin!', 'success') : alert('Nomor rekening disalin!'))"
+                                            onclick="navigator.clipboard.writeText('{{ $bank['account_number'] }}'); if (window.sbToast) { window.sbToast('Nomor rekening {{ $bank['name'] }} berhasil disalin!', 'success'); }"
                                             class="px-3 py-1.5 text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition active:scale-95 cursor-pointer">
                                             📋 Salin
                                         </button>
@@ -476,7 +491,7 @@
                                 </div>
                                 <p class="text-sm font-medium text-gray-700">Klik untuk pilih file</p>
                                 <p class="text-xs text-gray-500 mt-1">atau Drag & Drop di sini</p>
-                                <p class="text-xs text-gray-400 mt-1">Max: 2MB (JPG, PNG)</p>
+                                <p class="text-xs text-gray-400 mt-1">Max: 15MB (JPG, PNG)</p>
                             </label>
                         </div>
                         @error('proofOfPayment') <span class="text-xs text-red-600 mt-2 block">{{ $message }}</span> @enderror

@@ -31,8 +31,13 @@
         <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="md:col-span-2">
-                    <h2 class="text-lg font-semibold text-gray-900">Withdraw #{{ $withdraw->id }}</h2>
-                    <p class="text-xs text-gray-500 mt-1">Permintaan dari mitra berikut informasinya.</p>
+                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <span>Withdraw Request</span>
+                        <span class="font-mono text-sm px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
+                            {{ $withdraw->withdraw_code }}
+                        </span>
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-1">ID Sistem: #{{ $withdraw->id }} • Permintaan dari mitra berikut informasinya.</p>
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-500">Status</div>
@@ -69,6 +74,8 @@
             <div class="bg-white border border-gray-100 rounded p-4 mb-4">
                 <div class="text-sm text-gray-500">Bank / Rekening</div>
                 <div class="font-medium">{{ $withdraw->bank_code }} / {{ $withdraw->account_number }}</div>
+                <div class="text-sm text-gray-500 mt-2">Nama Pemilik Rekening</div>
+                <div class="font-semibold text-gray-900">{{ $withdraw->account_name ?: ($withdraw->user?->name ?? '-') }}</div>
                 <div class="text-sm text-gray-500 mt-3">Keterangan</div>
                 <div>{{ $withdraw->description ?? '-' }}</div>
             </div>
@@ -92,14 +99,26 @@
                             {{ $withdraw->description ?? 'Tanpa keterangan.' }}
                             Diproses pada: {{ $withdraw->processed_at ? $withdraw->processed_at->format('d M Y, H:i') : '-' }}
                         @endif
+                        @if($withdraw->transfer_proof)
+                            <div class="mt-2 pt-2 border-t border-blue-200">
+                                <span class="font-semibold block mb-1">Bukti Transfer:</span>
+                                <a href="{{ asset('storage/' . $withdraw->transfer_proof) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-white text-blue-700 hover:bg-blue-50 text-xs font-semibold rounded border border-blue-200 transition">
+                                    Lihat Bukti Transfer
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
             @if($withdraw->status === 'pending')
                 <div class="flex flex-col md:flex-row gap-4 mt-4">
-                    <form action="{{ route('admin.withdraws.approve', $withdraw) }}" method="POST"
+                    <form action="{{ route('admin.withdraws.approve', $withdraw) }}" method="POST" enctype="multipart/form-data"
                         class="flex-1 bg-white p-4 border border-gray-100 rounded">
                         @csrf
+                        <div class="mb-3">
+                            <label class="block text-sm font-medium text-gray-700">Unggah Bukti Transfer (opsional)</label>
+                            <input type="file" name="transfer_proof" accept="image/jpeg,image/png,image/jpg,image/webp" class="mt-1 block w-full text-xs text-gray-600 border border-gray-300 rounded p-1.5" />
+                        </div>
                         <div class="mb-3">
                             <label class="block text-sm font-medium text-gray-700">Nomor Referensi Transfer (opsional)</label>
                             <input type="text" name="transfer_reference" class="mt-1 block w-full rounded border-gray-300" />
@@ -110,17 +129,25 @@
                         </div>
                         <div class="flex items-center justify-end">
                             <button type="submit"
-                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-sm transition">
-                                Setujui &amp; Potong Saldo
+                                style="display: inline-flex; align-items: center; justify-content: center; height: 40px;"
+                                class="h-10 px-5 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm leading-none shadow-sm transition active:scale-95 cursor-pointer">
+                                <svg class="w-4 h-4 shrink-0 text-white" style="display: block;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="leading-none pt-0.5 inline-flex items-center">Setujui Transfer</span>
                             </button>
                         </div>
                     </form>
 
-                    <div class="w-full md:w-56 bg-white p-4 border border-red-100 rounded">
-                        <p class="text-sm text-gray-700 mb-4">Jika ingin menolak permintaan ini, klik tombol di bawah.</p>
+                    <div class="w-full md:w-56 bg-white p-4 border border-red-100 rounded-xl">
+                        <p class="text-xs text-gray-600 mb-4">Jika ingin menolak permintaan ini, klik tombol di bawah.</p>
                         <button id="open-reject-modal"
-                            class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold text-sm transition">
-                            Tolak
+                            style="display: inline-flex; align-items: center; justify-content: center; height: 40px;"
+                            class="w-full h-10 inline-flex items-center justify-center gap-2 border border-red-500 bg-white text-red-600 hover:bg-red-50 font-bold text-xs sm:text-sm leading-none rounded-xl transition active:scale-95 cursor-pointer">
+                            <svg class="w-4 h-4 shrink-0 text-red-500" style="display: block;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            <span class="leading-none pt-0.5 inline-flex items-center">Tolak</span>
                         </button>
                     </div>
                 </div>

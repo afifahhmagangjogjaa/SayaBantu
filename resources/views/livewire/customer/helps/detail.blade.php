@@ -75,17 +75,19 @@
     </div>
 
     {{-- Header - SayaBantu style matching Gambar 2 --}}
-    <div class="px-5 pt-5 pb-8 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
-        <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+    <div class="px-5 pt-5 pb-8 relative text-white" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+        </div>
 
         <div class="relative z-10 max-w-md mx-auto">
             <div class="flex items-center justify-between text-white mb-6">
-                <button onclick="window.history.back()" aria-label="Kembali" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-lg transition shrink-0">
+                <a href="{{ route('customer.helps.index') }}" wire:navigate aria-label="Kembali ke Pesanan Saya" class="w-9 h-9 flex items-center justify-center p-2 hover:bg-white/20 rounded-lg transition shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                </button>
+                </a>
 
                 <div class="text-center flex-1 px-2">
                     <h1 class="text-lg font-bold">Detail Pesanan</h1>
@@ -97,13 +99,13 @@
         </div>        
 
             <!-- Curved separator (SVG) to create non-flat divider into content -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
             </svg>
     </div>
 
     <!-- Content -->
-    <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-8 max-w-md mx-auto">
+    <div class="bg-white px-5 pt-4 pb-8 max-w-md mx-auto">
         {{-- Order ID --}}
         <div class="bg-white px-4 py-3 flex items-center justify-between rounded-xl shadow-sm border border-gray-100">
             <span class="text-sm text-gray-600">ID Pesanan: <span class="font-semibold text-gray-900">{{ $help->order_id }}</span></span>
@@ -145,7 +147,7 @@
                         </div>
                         <div>
                             <span class="text-[11px] font-bold text-red-600 uppercase tracking-wider block">Batas Waktu Tunggu Mitra</span>
-                            <span class="text-xs text-gray-600 font-medium">Bantuan Mendesak (Urgent)</span>
+                            <span class="text-xs text-gray-600 font-medium">Bantuan Prioritas / Urgent</span>
                         </div>
                     </div>
                     <div class="text-right">
@@ -190,43 +192,53 @@
             </div>
         @endif
 
-        {{-- Banner Notifikasi Jika Rekan Jasa Membatalkan Langsung --}}
+        {{-- Banner Notifikasi Jika Rekan Jasa Dialihkan / Berhalangan --}}
         @if($help->status === 'menunggu_mitra' && !empty($help->partner_cancel_requested_at))
-            <div class="mt-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 shadow-2xs">
-                <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 text-amber-700">
+            @php
+                $isReassigned = str_contains(strtolower($help->partner_cancel_reason ?? ''), 'rekan jasa lain') || str_contains(strtolower($help->partner_cancel_reason ?? ''), 'keberangkatan');
+                $cTime = $help->partner_cancel_requested_at ?? $help->updated_at;
+            @endphp
+            <div class="mt-3 p-4 bg-amber-50/90 border border-amber-200 rounded-2xl flex items-start gap-3 shadow-xs">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0 text-amber-700 shadow-2xs">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        @if($isReassigned)
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        @else
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        @endif
                     </svg>
                 </div>
-                    <h4 class="font-bold text-amber-900 text-sm">
-                        @if(str_contains(strtolower($help->partner_cancel_reason), 'rekan jasa lain') || str_contains(strtolower($help->partner_cancel_reason), 'keberangkatan'))
-                            Pengalihan Rekan Jasa
-                        @else
-                            Rekan Jasa Berhalangan Hadir
+                <div class="flex-1 min-w-0 text-xs">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <h4 class="font-bold text-amber-950 text-sm">
+                            {{ $isReassigned ? 'Pengalihan Rekan Jasa' : 'Rekan Jasa Berhalangan Hadir' }}
+                        </h4>
+                        @if($cTime)
+                            <span class="text-[11px] text-amber-700/80 font-medium">
+                                {{ $cTime->format('d M Y, H:i') }} WIB
+                            </span>
                         @endif
-                    </h4>
-                    <p class="text-amber-800 mt-1">
-                        @if($help->lastCancelledMitra)
-                            Rekan Jasa sebelumnya (<strong class="text-gray-900">{{ $help->lastCancelledMitra->name }}</strong>):
-                        @else
-                            Keterangan:
-                        @endif
-                        <span class="italic font-medium">"{{ $help->partner_cancel_reason ?: 'Kendala darurat di jalan' }}"</span>
-                    </p>
-                    @php
-                        $cTime = $help->partner_cancel_requested_at ?? $help->updated_at;
-                    @endphp
-                    @if($cTime)
-                        <p class="text-[11px] text-amber-700/80 mt-0.5">
-                            Waktu: {{ $cTime->format('d M Y, H:i') }} WIB
+                    </div>
+
+                    <div class="mt-2 p-2.5 bg-white/85 border border-amber-200/70 rounded-xl space-y-1">
+                        <p class="text-gray-600 text-[11px]">
+                            @if($help->lastCancelledMitra)
+                                Rekan Jasa sebelumnya: <strong class="text-gray-900 font-semibold">{{ $help->lastCancelledMitra->name }}</strong>
+                            @else
+                                Keterangan pengalihan:
+                            @endif
                         </p>
-                    @endif
-                    <div class="mt-2 flex items-center gap-1.5 text-amber-900 font-semibold bg-amber-100/70 px-2.5 py-1.5 rounded-lg">
-                        <svg class="w-4 h-4 animate-spin text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <p class="text-amber-900 text-xs italic font-medium leading-relaxed">
+                            "{{ $help->partner_cancel_reason ?: 'Customer memilih mencari rekan jasa lain' }}"
+                        </p>
+                    </div>
+
+                    <div class="mt-2.5 flex items-center gap-2 text-amber-900 text-xs font-semibold bg-amber-100/80 px-3 py-2 rounded-xl border border-amber-200/60">
+                        <svg class="w-4 h-4 animate-spin text-amber-600 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span>Sistem otomatis mencari Rekan Jasa pengganti baru untuk Anda...</span>
+                        <span class="flex-1 leading-snug">Sistem otomatis mencari Rekan Jasa pengganti baru untuk Anda...</span>
                     </div>
                 </div>
             </div>
@@ -393,13 +405,16 @@
 
                 {{-- Partner Info --}}
             @if($help->mitra)
-                <div class="mt-4 p-3 bg-white rounded-xl flex items-center justify-between shadow-sm border border-gray-100">
-                    <div class="flex items-center gap-3">
-                        <x-user-avatar :user="$help->mitra"
-                            class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold border-2 border-blue-100" />
-                        <div>
+                <div class="mt-4 p-4 bg-white rounded-2xl flex items-center justify-between shadow-xs border border-slate-100">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="relative shrink-0">
+                            <x-user-avatar :user="$help->mitra"
+                                class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold text-sm shadow-xs ring-2 ring-blue-50" />
+                            <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                        </div>
+                        <div class="min-w-0">
                             <div class="flex items-center gap-1.5 flex-wrap">
-                                <h3 class="font-semibold text-sm text-gray-900">{{ $help->mitra->name ?? 'Mitra' }}</h3>
+                                <h3 class="font-bold text-sm text-slate-900 truncate">{{ $help->mitra->name ?? 'Mitra' }}</h3>
                                 @php
                                     $badge = $help->mitra->mitra_badge;
                                 @endphp
@@ -417,17 +432,17 @@
                                     $avgRating = $mitra ? ($mitra->mitra_average_rating ?? ($mitra->rating ?? 0)) : 0;
                                     $ratingCount = $mitra ? ($mitra->mitra_rating_count ?? null) : null;
                                 @endphp
-                                <span class="text-sm font-semibold text-gray-900">{{ number_format($avgRating, 1) }}</span>
+                                <span class="text-xs font-bold text-slate-800">{{ number_format($avgRating, 1) }}</span>
                                 @if($ratingCount)
-                                    <span class="text-xs text-gray-400">({{ $ratingCount }} ulasan)</span>
+                                    <span class="text-[11px] text-slate-400">({{ $ratingCount }})</span>
                                 @endif
-                                <span class="text-xs text-gray-300">•</span>
-                                <span class="text-[11px] text-gray-500 font-medium">{{ $help->mitra->mitra_completed_jobs_count }}x selesai</span>
+                                <span class="text-xs text-slate-300">•</span>
+                                <span class="text-[11px] text-slate-500 font-medium">{{ $help->mitra->mitra_completed_jobs_count }}x selesai</span>
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        @if ($help->mitra->phone)
+                    <div class="flex items-center gap-2 shrink-0">
+                        @if (\App\Models\AppSetting::isWhatsappEnabled() && $help->mitra->phone)
                             @php
                                 $cleanPhone = preg_replace('/[^0-9]/', '', $help->mitra->phone);
                                 if (str_starts_with($cleanPhone, '0')) {
@@ -436,15 +451,15 @@
                                 $waText = urlencode("Halo Rekan Jasa " . $help->mitra->name . ", saya Customer dari pesanan SayaBantu #" . $help->id . " (" . $help->title . "). Apakah ada yang perlu dikoordinasikan?");
                             @endphp
                             <a href="https://wa.me/{{ $cleanPhone }}?text={{ $waText }}" target="_blank"
-                                class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 hover:text-emerald-700 transition shadow-2xs"
+                                class="w-10 h-10 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center transition shadow-2xs hover:shadow-xs active:scale-95"
                                 title="Hubungi via WhatsApp">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
                                     <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
                                 </svg>
                             </a>
                         @endif
-                        <a href="{{ route('customer.chat', $help->id) }}" wire:navigate class="relative w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition shadow-2xs" title="Chat di Aplikasi">
-                            <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('customer.chat', $help->id) }}" wire:navigate class="relative w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-[#0066FF] flex items-center justify-center hover:bg-blue-100 transition shadow-2xs active:scale-95" title="Chat di Aplikasi">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                             </svg>
                             @php
@@ -454,7 +469,7 @@
                                     ->count();
                             @endphp
                             @if($unreadCount > 0)
-                                <span class="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[9px] font-bold text-white bg-red-500 rounded-full ring-2 ring-white shadow-xs">
+                                <span class="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[9px] font-bold text-white bg-red-500 rounded-full ring-2 ring-white shadow-xs">
                                     {{ $unreadCount > 9 ? '9+' : $unreadCount }}
                                 </span>
                             @endif
@@ -510,7 +525,7 @@
                         <div>Jadwal: {{ \Carbon\Carbon::parse($help->scheduled_at)->translatedFormat('d F Y, H:i') }}</div>
                     @endif
                     <div class="mt-1">
-                        Jenis: <span class="font-bold {{ $help->isUrgent() ? 'text-red-600' : 'text-blue-600' }}">{{ $help->isUrgent() ? '⚡ Mendesak (Urgent)' : '📅 Terjadwal' }}</span>
+                        Jenis: <span class="font-bold {{ $help->isUrgent() ? 'text-red-600' : 'text-blue-600' }}">{{ $help->isUrgent() ? '⚡ Prioritas / Urgent' : '📅 Reguler' }}</span>
                     </div>
                 </div>
             </div>
@@ -649,7 +664,7 @@
                     @elseif($isScheduledWaiting)
                         <span class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border bg-blue-50 text-blue-700 border-blue-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                            <span>Terjadwal</span>
+                            <span>Reguler</span>
                         </span>
                     @else
                         <span class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border {{ $statusTheme['badge'] }}">
@@ -677,7 +692,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     <div>
-                        <span class="font-bold">Pesanan Terjadwal:</span> Rekan Jasa telah menerima pesanan Anda dan akan mulai menuju lokasi 1 jam sebelum jadwal (<strong>{{ $schedCarbonCust->translatedFormat('l, d F Y') }}</strong> - Jam {{ $schedCarbonCust->format('H:i') }} WIB).
+                        <span class="font-bold">Pesanan Reguler:</span> Rekan Jasa telah menerima pesanan Anda dan akan mulai menuju lokasi 1 jam sebelum jadwal (<strong>{{ $schedCarbonCust->translatedFormat('l, d F Y') }}</strong> - Jam {{ $schedCarbonCust->format('H:i') }} WIB).
                     </div>
                 </div>
             @endif

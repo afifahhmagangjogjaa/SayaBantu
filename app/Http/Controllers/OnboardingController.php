@@ -138,7 +138,14 @@ class OnboardingController extends Controller
             ],
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.\,\'\-]+$/'],
             'gender' => ['required', 'in:Laki-laki,Perempuan'],
-            'phone' => ['required', 'string', 'min:10', 'max:13', 'regex:/^[0-9]+$/'],
+            'phone' => [
+                'required',
+                'string',
+                'min:10',
+                'max:13',
+                'regex:/^[0-9]+$/',
+                Rule::unique('users', 'phone')->ignore($userId),
+            ],
             'city_id' => ['required', Rule::exists('cities', 'id')->where('is_active', true)],
             'address' => ['required', 'string', 'max:500'],
         ];
@@ -157,8 +164,11 @@ class OnboardingController extends Controller
             'nik.unique' => 'NIK ini sudah terdaftar pada akun lain. Mohon gunakan NIK Anda sendiri.',
             'name.required' => 'Nama lengkap wajib diisi.',
             'name.regex' => 'Nama lengkap hanya boleh berupa huruf.',
+            'phone.required' => 'Nomor HP wajib diisi.',
             'phone.min' => 'Nomor HP minimal 10 digit.',
             'phone.max' => 'Nomor HP maksimal 13 digit.',
+            'phone.regex' => 'Nomor HP hanya boleh berisi angka.',
+            'phone.unique' => 'Nomor HP ini sudah terdaftar pada akun lain. Mohon gunakan nomor HP Anda yang lain.',
             'city_id.required' => 'Kota domisili wajib dipilih.',
             'city_id.exists' => 'Kota yang dipilih saat ini sedang tidak aktif.',
             'address.required' => 'Alamat lengkap wajib diisi.',
@@ -182,6 +192,15 @@ class OnboardingController extends Controller
 
         if ($existsInUser || $existsInReg) {
             return back()->withErrors(['nik' => 'NIK ini sudah terdaftar pada akun lain. Mohon gunakan NIK Anda sendiri.'])->withInput();
+        }
+
+        // Cek apakah Nomor HP sudah digunakan oleh akun lain di tabel users
+        $phoneExistsInUser = User::where('phone', $request->phone)
+            ->when($userId, fn ($q) => $q->where('id', '!=', $userId))
+            ->exists();
+
+        if ($phoneExistsInUser) {
+            return back()->withErrors(['phone' => 'Nomor HP ini sudah terdaftar pada akun lain. Mohon gunakan nomor HP Anda yang lain.'])->withInput();
         }
 
         $city = City::find($request->city_id);
@@ -283,17 +302,17 @@ class OnboardingController extends Controller
         $isExisting = ! empty($user->ktp_photo) || ! empty($user->ktp_path);
 
         $rules = [
-            'ktp_photo' => [$isExisting ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'ktp_photo' => [$isExisting ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg', 'max:15360'],
         ];
 
         $request->validate($rules, [
             'ktp_photo.required' => 'Foto fisik KTP wajib diunggah.',
-            'ktp_photo.max' => 'Ukuran foto KTP maksimal 2MB.',
+            'ktp_photo.max' => 'Ukuran foto KTP maksimal 15MB.',
             'ktp_photo.image' => 'File harus berupa gambar.',
         ]);
 
         if ($request->hasFile('ktp_photo')) {
-            $ktpPath = $request->file('ktp_photo')->store('ktp-photos', 'public');
+            $ktpPath = \App\Services\ImageCompressionService::compressAndStore($request->file('ktp_photo'), 'ktp-photos');
 
             if (Auth::check()) {
                 $authUser = $request->user();
@@ -351,17 +370,17 @@ class OnboardingController extends Controller
         $isExisting = ! empty($user->selfie_photo);
 
         $rules = [
-            'selfie_photo' => [$isExisting ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'selfie_photo' => [$isExisting ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg', 'max:15360'],
         ];
 
         $request->validate($rules, [
             'selfie_photo.required' => 'Foto selfie dengan KTP wajib diunggah.',
-            'selfie_photo.max' => 'Ukuran foto selfie maksimal 2MB.',
+            'selfie_photo.max' => 'Ukuran foto selfie maksimal 15MB.',
             'selfie_photo.image' => 'File harus berupa gambar.',
         ]);
 
         if ($request->hasFile('selfie_photo')) {
-            $selfiePath = $request->file('selfie_photo')->store('selfie-photos', 'public');
+            $selfiePath = \App\Services\ImageCompressionService::compressAndStore($request->file('selfie_photo'), 'selfie-photos');
 
             if (Auth::check()) {
                 $authUser = $request->user();
@@ -456,6 +475,9 @@ class OnboardingController extends Controller
         }
         if (User::where('nik', $step1['nik'])->exists()) {
             return redirect()->route('onboarding.step1')->withErrors(['nik' => 'NIK ini sudah terdaftar pada akun lain.']);
+        }
+        if (! empty($step1['phone']) && User::where('phone', $step1['phone'])->exists()) {
+            return redirect()->route('onboarding.step1')->withErrors(['phone' => 'Nomor HP ini sudah terdaftar pada akun lain.']);
         }
 
         $userData = array_merge($account, $step1, $step2, $step3, [

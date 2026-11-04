@@ -6,15 +6,15 @@
 
 <div>
     <!-- Header Summary Card & Action -->
-    <div class="bg-white rounded-2xl border border-gray-200/80 p-3 sm:px-5 sm:py-3.5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+    <div class="bg-gradient-to-r from-blue-50/70 via-white to-blue-50/30 rounded-2xl border border-blue-200/80 p-3 sm:px-5 sm:py-3.5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-blue-50/80 border border-blue-100/80 flex items-center justify-center text-blue-600 flex-shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <div class="w-9 h-9 rounded-xl bg-blue-100 border border-blue-200/80 flex items-center justify-center text-[#0066FF] flex-shrink-0 shadow-2xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
             </div>
             <span class="text-base sm:text-lg font-bold text-gray-900">
-                Jumlah {{ strtolower($roleLabel) }} saat ini: <span class="text-blue-600 font-extrabold ml-1">{{ $users->total() }}</span>
+                Jumlah {{ strtolower($roleLabel) }} saat ini: <span class="text-[#0066FF] font-black ml-1">{{ $users->total() }}</span>
             </span>
         </div>
         <button wire:click="openCreateModal"
@@ -161,6 +161,11 @@
                                                 Aktif
                                             </span>
                                         @endif
+                                        @if ($user->isShadowBanned())
+                                            <span class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                                👻 Shadow Ban
+                                            </span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-2.5 py-3 text-xs text-gray-600">
@@ -297,21 +302,70 @@
 
     {{-- View User Modal --}}
     @if($showViewModal && $selectedUser)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl overflow-hidden">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold text-xl">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                @php
+                    $isMitraUser = $selectedUser->isMitra();
+                    $headerBgGradient = 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700';
+                @endphp
+                <!-- Header Berwarna Emerald Teal (Konsisten dengan Mitra) -->
+                <div class="relative px-6 py-5 {{ $headerBgGradient }} text-white flex items-center justify-between flex-shrink-0 shadow-md overflow-hidden">
+                    <!-- Ornamen Background Gradient Glow -->
+                    <div class="absolute -right-12 -top-12 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="absolute right-36 -bottom-12 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+
+                    <div class="relative flex items-center gap-4 min-w-0">
+                        <div class="w-13 h-13 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white font-black text-2xl shadow-inner border border-white/30 flex-shrink-0">
                             {{ strtoupper(substr($selectedUser->name, 0, 1)) }}
                         </div>
-                        <div>
-                            <div class="text-lg font-semibold text-gray-900">{{ $selectedUser->name }}</div>
-                            <div class="text-sm text-gray-500">{{ $selectedUser->email }}</div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="text-base sm:text-lg font-bold text-white leading-tight truncate drop-shadow-xs">{{ $selectedUser->name }}</h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-2xs bg-white/20 text-white border border-white/30 backdrop-blur-xs">
+                                    {{ $selectedUser->role_label ?? ($isMitraUser ? 'Mitra Driver' : 'Customer') }}
+                                </span>
+                                @if($selectedUser->isShadowBanned())
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-purple-500 text-white border border-purple-300/60 shadow-sm animate-pulse">
+                                        👻 Shadow Banned
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="flex items-center gap-2 mt-1 text-xs text-white/85 truncate">
+                                <span>{{ $selectedUser->email }}</span>
+                                <span>•</span>
+                                <span>{{ $selectedUser->city?->name ?? 'Kota Belum Diatur' }}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
+
+                    <div class="relative flex items-center gap-2 flex-shrink-0 ml-4">
+                        @if(in_array($selectedUser->role, ['mitra', 'customer', 'kustomer']))
+                            @php
+                                $confirmShadowBanText = $selectedUser->isShadowBanned()
+                                    ? 'Apakah Anda yakin ingin melepaskan status Shadow Ban untuk ' . $selectedUser->name . '?'
+                                    : ($isMitraUser
+                                        ? 'Apakah Anda yakin ingin menerapkan Shadow Ban pada mitra ' . $selectedUser->name . '? Mitra tidak akan menerima atau melihat pesanan baru secara senyap.'
+                                        : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada customer ' . $selectedUser->name . '? Permintaan bantuan yang dibuat customer ini akan disembunyikan secara senyap dari seluruh mitra.');
+                            @endphp
+                            <button type="button" 
+                                wire:click="toggleShadowBan({{ $selectedUser->id }})"
+                                wire:confirm="{{ $confirmShadowBanText }}"
+                                wire:loading.attr="disabled"
+                                wire:target="toggleShadowBan"
+                                style="{{ $selectedUser->isShadowBanned() ? 'background-color: #581c87; color: #ffffff; border-color: #c084fc;' : 'background-color: #ffffff; color: #6b21a8; border-color: #ffffff;' }}"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer hover:opacity-90 border"
+                                title="{{ $selectedUser->isShadowBanned() ? 'Lepaskan status Shadow Ban agar mitra kembali dapat melihat pesanan' : 'Aktifkan Shadow Ban agar pesanan disembunyikan dari mitra ini' }}">
+                                <span wire:loading.remove wire:target="toggleShadowBan">👻</span>
+                                <svg wire:loading wire:target="toggleShadowBan" class="w-3.5 h-3.5 animate-spin text-current" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span class="text-[11px] font-bold whitespace-nowrap">{{ $selectedUser->isShadowBanned() ? 'Lepas Shadow Ban' : 'Shadow Ban' }}</span>
+                            </button>
+                        @endif
                         <button type="button" wire:click.prevent="closeModal"
-                            class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+                            class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition text-sm cursor-pointer backdrop-blur-xs border border-white/20 shadow-2xs"
+                            title="Tutup Modal">&times;</button>
                     </div>
                 </div>
 
@@ -363,8 +417,14 @@
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500">Status</div>
-                                <div class="font-medium text-gray-900">
-                                    {{ $selectedUser->status ? ucfirst($selectedUser->status) : '—' }}</div>
+                                <div class="font-medium text-gray-900 flex items-center gap-2">
+                                    <span>{{ $selectedUser->status ? ucfirst($selectedUser->status) : '—' }}</span>
+                                    @if ($selectedUser->isShadowBanned())
+                                        <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                            👻 Shadow Banned
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500">Verified</div>
@@ -389,10 +449,6 @@
                             </div>
                             @endif
 
-                            <div>
-                                <div class="text-xs text-gray-500">Pekerjaan</div>
-                                <div class="font-medium text-gray-900">{{ $selectedUser->occupation ?? '-' }}</div>
-                            </div>
                             <div>
                                 <div class="text-xs text-gray-500">Terdaftar</div>
                                 <div class="font-medium text-gray-900">
@@ -693,11 +749,6 @@
                                                 <option value="Cerai Hidup">Cerai Hidup</option>
                                                 <option value="Cerai Mati">Cerai Mati</option>
                                             </select>
-                                        </div>
-                                        <div>
-                                            <label class="text-xs font-medium text-gray-700">Pekerjaan</label>
-                                            <input type="text" wire:model="occupation" placeholder="Contoh: Wiraswasta"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                         </div>
                                         <div class="grid grid-cols-2 gap-3">
                                             <div>

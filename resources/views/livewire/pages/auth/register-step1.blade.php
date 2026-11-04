@@ -515,14 +515,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <!-- Kota/Kabupaten Domisili (Dropdown Kota Aktif di DB) -->
         <div>
-            <label for="city_id" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kota / Kabupaten Wilayah Kerja</label>
-            <select wire:model.live="city_id" id="city_id"
-                class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
-                <option value="">Pilih Kota / Kabupaten Wilayah Kerja</option>
-                @foreach ($cities as $c)
-                    <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->province ?? 'Indonesia' }})</option>
-                @endforeach
-            </select>
+            <x-searchable-city-select :cities="$cities" model="city_id" label="Kota / Kabupaten Wilayah Kerja" placeholder="Cari kota / kabupaten wilayah kerja..." />
             <p class="text-[11px] text-gray-400 mt-1">Pesanan bantuan yang masuk akan disesuaikan dengan kota yang Anda pilih di sini.</p>
             <x-input-error :messages="$errors->get('city_id')" class="mt-1" />
         </div>

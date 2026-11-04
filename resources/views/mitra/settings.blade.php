@@ -29,14 +29,39 @@
             </div>
 
             <!-- Wave Separator (SVG) bergelombang -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f8fafc"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f8fafc"></path>
             </svg>
         </div>
 
         <!-- Settings Content -->
         <div class="max-w-md mx-auto px-5 pt-2 relative z-10">
             <div class="space-y-3">
+                <!-- Bank Accounts & PIN Settings -->
+                <a href="{{ route('mitra.bank-accounts') }}" wire:navigate
+                    class="bg-white rounded-2xl shadow-2xs border border-slate-200/80 p-4 flex items-center gap-3.5 hover:border-blue-200 hover:shadow-xs active:scale-[0.99] transition group">
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center bg-blue-50 text-[#0066FF] border border-blue-100 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-slate-900 text-xs group-hover:text-[#0066FF] transition truncate">Rekening & PIN Transaksi</h3>
+                            @if(auth()->user()->hasTransactionPin())
+                                <span class="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800">PIN Aktif</span>
+                            @else
+                                <span class="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-100 text-amber-800">PIN Belum Diatur</span>
+                            @endif
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-0.5 truncate">Kelola rekening penarikan & keamanan PIN</p>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-400 group-hover:text-[#0066FF] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+
                 <!-- Notification Settings -->
                 <a href="{{ route('mitra.settings.notifications') }}" wire:navigate
                     class="bg-white rounded-2xl shadow-2xs border border-slate-200/80 p-4 flex items-center gap-3.5 hover:border-blue-200 hover:shadow-xs active:scale-[0.99] transition group">

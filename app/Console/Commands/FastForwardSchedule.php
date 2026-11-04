@@ -103,7 +103,7 @@ class FastForwardSchedule extends Command
                     'ID' => $h->id,
                     'Order ID' => $h->order_id,
                     'Judul' => \Illuminate\Support\Str::limit($h->title, 25),
-                    'Tipe' => $h->help_type === 'urgent' ? 'Urgent' : 'Terjadwal',
+                    'Tipe' => $h->help_type === 'urgent' ? 'Prioritas / Urgent' : 'Reguler',
                     'Status' => $h->status,
                     'Mitra' => $h->mitra ? $h->mitra->name : '<fg=gray>Belum ada</>',
                     'Jadwal' => $h->scheduled_at ? Carbon::parse($h->scheduled_at)->format('d/m/Y H:i') : '-',

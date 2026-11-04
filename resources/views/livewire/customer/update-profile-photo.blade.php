@@ -104,7 +104,7 @@
                                                     </svg>
                                                 </div>
                                                 <p class="text-sm text-gray-700 font-bold">Klik untuk memilih foto</p>
-                                                <p class="text-xs text-gray-400 mt-1">PNG, JPG hingga 2MB</p>
+                                                <p class="text-xs text-gray-400 mt-1">PNG, JPG hingga 15MB</p>
                                             </div>
                                         @endtry
                                     @else
@@ -116,7 +116,7 @@
                                                 </svg>
                                             </div>
                                             <p class="text-sm text-gray-700 font-bold">Klik untuk memilih foto</p>
-                                            <p class="text-xs text-gray-400 mt-1">PNG, JPG hingga 2MB</p>
+                                            <p class="text-xs text-gray-400 mt-1">PNG, JPG hingga 15MB</p>
                                         </div>
                                     @endif
                                 </div>

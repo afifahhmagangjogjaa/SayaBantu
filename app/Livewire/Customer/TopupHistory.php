@@ -63,9 +63,15 @@ class TopupHistory extends Component
         }
 
         $transactions = $query->orderBy('created_at', 'desc')->paginate(10);
+        $user = auth()->user();
+        $isMitra = $user && $user->role === 'mitra';
+        $layout = $isMitra ? 'layouts.mitra' : 'layouts.app';
 
         return view('livewire.customer.topup-history', [
             'transactions' => $transactions,
-        ]);
+            'isMitra' => $isMitra,
+            'topupRoute' => $isMitra ? 'mitra.topup' : 'customer.topup',
+            'dashboardRoute' => $isMitra ? 'mitra.dashboard' : 'customer.dashboard',
+        ])->layout($layout);
     }
 }

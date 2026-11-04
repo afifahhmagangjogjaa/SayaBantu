@@ -1,13 +1,15 @@
 <div class="min-h-full bg-white">
     <div class="max-w-md mx-auto">
         <!-- Header - SayaBantu Style -->
-        <div class="px-4 pt-4 pb-12 relative overflow-hidden" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+        <div class="px-4 pt-4 pb-8 relative text-white" style="background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);">
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+            </div>
             
             <div class="relative z-10">
                 <div class="flex items-center justify-between text-white mb-4">
-                    <button onclick="window.history.back()" aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition">
+                    <button onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '{{ auth()->user()?->role === 'mitra' ? route('mitra.profile') : route('profile') }}'; }" aria-label="Kembali" class="p-2 hover:bg-white/20 rounded-lg transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -42,13 +44,13 @@
             </div>
 
             <!-- Curved separator -->
-            <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 24px;">
-                <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#ffffff"></path>
+            <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+                <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#ffffff"></path>
             </svg>
         </div>
 
         <!-- Ratings List -->
-        <div class="bg-white rounded-t-3xl -mt-6 px-5 pt-6 pb-6">
+        <div class="bg-white px-5 pt-4 pb-6">
             @if($ratings->count() > 0)
                 <div class="space-y-3">
                     @foreach($ratings as $rating)

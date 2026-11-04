@@ -306,12 +306,14 @@ class RealtimeNotifications extends Component
                 default => 'info',
             };
 
+            $url = \App\Services\NotificationUrlResolver::resolveUrl($notif, auth()->user());
+
             $this->js(sprintf(
                 "setTimeout(() => { window.dispatchEvent(new CustomEvent('customer-toast', { detail: { title: '%s', message: '%s', type: '%s', url: '%s', timeout: 8000 } })); if (typeof window.playNotifChime === 'function') { window.playNotifChime(); } }, 600);",
                 addslashes($data['title'] ?? 'Pembaruan Status Aduan'),
                 addslashes($data['message'] ?? ''),
                 $statusType,
-                addslashes($data['url'] ?? '#')
+                addslashes($url)
             ));
         }
     }
@@ -346,11 +348,13 @@ class RealtimeNotifications extends Component
             $isApproved = $type === 'topup_approved' || $notif->type === 'App\Notifications\TopupApproved';
             $isRejected = $type === 'topup_rejected' || $notif->type === 'App\Notifications\TopupRejected';
 
+            $resolvedUrl = \App\Services\NotificationUrlResolver::resolveUrl($notif, auth()->user());
+
             if ($isApproved) {
                 $amount = isset($data['amount']) ? 'Rp '.number_format((float) $data['amount'], 0, ',', '.') : '';
                 $title = $data['title'] ?? 'Top-Up Saldo Disetujui! ✅';
                 $message = $data['message'] ?? ("Request top-up saldo Anda sebesar $amount telah disetujui! Saldo sudah masuk.");
-                $url = $data['url'] ?? route('customer.transactions.index', ['tab' => 'masuk']);
+                $url = $resolvedUrl;
                 $toastType = 'success';
 
                 $this->dispatch('balance-updated');
@@ -359,13 +363,13 @@ class RealtimeNotifications extends Component
                 $title = $data['title'] ?? 'Top-Up Saldo Ditolak ❌';
                 $reason = $data['rejection_reason'] ?? '';
                 $message = $data['message'] ?? ('Request top-up saldo Anda ditolak.'.($reason ? " Alasan: $reason" : ''));
-                $url = $data['url'] ?? route('customer.topup.history');
+                $url = $resolvedUrl;
                 $toastType = 'error';
             } else {
                 $title = $data['title'] ?? '⏳ Request Top-Up Terkirim';
                 $amount = isset($data['amount']) ? 'Rp '.number_format((float) $data['amount'], 0, ',', '.') : '';
                 $message = $data['message'] ?? ("Request top-up saldo Anda sebesar $amount telah diterima dan menunggu verifikasi Admin.");
-                $url = $data['url'] ?? route('customer.topup.history');
+                $url = $resolvedUrl;
                 $toastType = 'info';
             }
 

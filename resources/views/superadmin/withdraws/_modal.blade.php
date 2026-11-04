@@ -10,7 +10,12 @@
         <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-xl font-bold text-gray-900">Withdraw Request #{{ $withdraw->id }}</h3>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-xl font-bold text-gray-900">Withdraw Request</h3>
+                        <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                            {{ $withdraw->withdraw_code }}
+                        </span>
+                    </div>
                     <p class="text-sm text-gray-500 mt-1">Detail permintaan penarikan saldo</p>
                 </div>
                 <button id="close-superadmin-withdraw-modal"
@@ -31,8 +36,15 @@
                         {{ substr($withdraw->user?->name ?? 'U', 0, 1) }}
                     </div>
                     <div>
-                        <h4 class="text-base font-semibold text-gray-900">{{ $withdraw->user?->name ?? '-' }}</h4>
-                        <p class="text-sm text-gray-500">ID Mitra: {{ $withdraw->user_id }}</p>
+                        <div class="flex items-center gap-2">
+                            <h4 class="text-base font-semibold text-gray-900">{{ $withdraw->user?->name ?? '-' }}</h4>
+                            @if($withdraw->user?->role === 'customer')
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">Customer</span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Mitra</span>
+                            @endif
+                        </div>
+                        <p class="text-xs text-gray-500 mt-0.5">ID {{ $withdraw->user?->role === 'customer' ? 'Customer' : 'Mitra' }}: {{ $withdraw->user_id }}</p>
                     </div>
                 </div>
                 <div>
@@ -87,12 +99,33 @@
                 </div>
                 <div class="mt-4 pt-4 border-t border-blue-200 grid grid-cols-2 gap-4">
                     <div>
-                        <p class="text-xs text-blue-700 mb-1">Bank</p>
+                        <p class="text-xs text-blue-700 mb-1">Bank / E-Wallet</p>
                         <p class="text-sm font-semibold text-blue-900">{{ $withdraw->bank_code }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-blue-700 mb-1">No. Rekening</p>
-                        <p class="text-sm font-semibold text-blue-900">{{ $withdraw->account_number }}</p>
+                        <p class="text-xs text-blue-700 mb-1">No. Rekening / No. HP</p>
+                        <p class="text-sm font-semibold text-blue-900 font-mono">{{ $withdraw->account_number }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <div class="flex items-center justify-between mb-1">
+                            <p class="text-xs text-blue-700">Nama Pemilik Rekening</p>
+                            @php
+                                $accName = trim(strtolower($withdraw->account_name ?: ''));
+                                $mitraClean = trim(strtolower($withdraw->user?->clean_name ?? $withdraw->user?->name ?? ''));
+                                $isMatch = ($accName !== '' && $mitraClean !== '') && ($accName === $mitraClean || str_contains($accName, $mitraClean) || str_contains($mitraClean, $accName));
+                            @endphp
+                            @if($isMatch)
+                                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-100/70 border border-emerald-300 px-2 py-0.5 rounded-full">
+                                    <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                    Sesuai Identitas {{ $withdraw->user?->role === 'customer' ? 'Customer' : 'Mitra' }}
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full">
+                                    ⚠️ Perbedaan Nama Rekening
+                                </span>
+                            @endif
+                        </div>
+                        <p class="text-sm font-bold text-blue-950">{{ $withdraw->account_name ?: ($withdraw->user?->clean_name ?? $withdraw->user?->name ?? '-') }}</p>
                     </div>
                 </div>
                 @if($withdraw->description)
@@ -106,37 +139,45 @@
             @if($withdraw->status === 'pending')
                 <!-- Approval Form -->
                 <div class="bg-white border border-gray-200 rounded-xl p-6">
-                    <h5 class="text-sm font-semibold text-gray-900 mb-4">Form Approval</h5>
-                    <form action="{{ route('superadmin.withdraws.approve', $withdraw) }}" method="POST">
+                    <h5 class="text-sm font-semibold text-gray-900 mb-4">Form Approval & Bukti Transfer</h5>
+                    <form action="{{ route('superadmin.withdraws.approve', $withdraw) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Catatan <span class="text-gray-400 font-normal">(opsional)</span></label>
-                                <input type="text" name="note" 
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-                                    placeholder="Tambahkan catatan jika diperlukan" />
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Unggah Bukti Transfer <span class="text-gray-400 font-normal">(opsional)</span></label>
+                                <input type="file" name="transfer_proof" accept="image/jpeg,image/png,image/jpg,image/webp"
+                                    class="w-full text-xs text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0066FF] hover:file:bg-blue-100 border border-gray-300 rounded-lg p-1.5 transition cursor-pointer" />
+                                <p class="text-[11px] text-gray-400 mt-1">Format: JPG, PNG, WEBP (Maks 5MB)</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Referensi Transfer <span class="text-gray-400 font-normal">(opsional)</span></label>
                                 <input type="text" name="transfer_reference"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-                                    placeholder="Masukkan referensi transfer" />
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-sm"
+                                    placeholder="Contoh: No. referensi bank / ID transaksi" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Catatan Tambahan <span class="text-gray-400 font-normal">(opsional)</span></label>
+                                <input type="text" name="note" 
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-sm"
+                                    placeholder="Tambahkan catatan jika diperlukan" />
                             </div>
                         </div>
-                        <div class="mt-6 flex items-center justify-end space-x-3">
+                        <div class="mt-6 grid grid-cols-2 gap-3">
                             <button type="button" id="open-reject-local"
-                                class="px-5 py-2.5 bg-white border-2 border-red-500 text-red-600 font-medium rounded-lg hover:bg-red-50 transition-colors duration-200">
-                                <svg class="w-5 h-5 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                style="display: inline-flex; align-items: center; justify-content: center; height: 44px; width: 100%;"
+                                class="w-full h-11 px-4 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500 bg-white text-red-600 hover:bg-red-50 font-bold text-xs sm:text-sm leading-none transition-all duration-150 active:scale-95 cursor-pointer shadow-xs">
+                                <svg class="w-4 h-4 shrink-0 text-red-500" style="display: block;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
-                                Tolak
+                                <span class="leading-none inline-flex items-center">Tolak</span>
                             </button>
                             <button type="submit" 
-                                class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white font-medium rounded-lg hover:from-green-700 hover:to-green-800 shadow-lg shadow-green-500/30 transition-all duration-200">
-                                <svg class="w-5 h-5 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                style="display: inline-flex; align-items: center; justify-content: center; height: 44px; width: 100%;"
+                                class="w-full h-11 px-5 inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-600 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm leading-none shadow-sm shadow-emerald-600/25 transition-all duration-150 active:scale-95 cursor-pointer">
+                                <svg class="w-4 h-4 shrink-0 text-white" style="display: block;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                Approve & Potong Saldo
+                                <span class="leading-none inline-flex items-center">Setujui Transfer</span>
                             </button>
                         </div>
                     </form>
@@ -162,6 +203,16 @@
                             <span class="text-sm font-mono font-semibold text-gray-900">{{ $withdraw->external_id }}</span>
                         </div>
                         @endif
+                        @if($withdraw->transfer_proof)
+                        <div class="pt-3 border-t border-gray-200">
+                            <span class="text-sm text-gray-600 block mb-2 font-medium">Bukti Transfer:</span>
+                            <a href="{{ asset('storage/' . $withdraw->transfer_proof) }}" target="_blank"
+                                class="inline-flex items-center gap-2 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-[#0066FF] rounded-lg text-xs font-bold transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                Buka Bukti Transfer
+                            </a>
+                        </div>
+                        @endif
                     </div>
                 </div>
             @endif
@@ -169,26 +220,26 @@
     </div>
 
     <!-- Fallback Reject Modal (used when modal is injected dynamically) -->
-    <div id="withdraw-reject-modal-fallback" class="hidden fixed inset-0 z-50 flex items-center justify-center">
-        <div id="withdraw-reject-fallback-overlay" class="absolute inset-0 bg-black bg-opacity-50"></div>
-        <div class="relative bg-white rounded-lg shadow-lg w-full max-w-md mx-4 z-10">
-            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 class="text-lg font-semibold">Tolak Permintaan Withdraw</h3>
-                <button id="close-reject-fallback" class="text-gray-500 hover:text-gray-700">&times;</button>
+    <div id="withdraw-reject-modal-fallback" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div id="withdraw-reject-fallback-overlay" class="absolute inset-0 bg-gray-900/60 backdrop-blur-xs"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto z-10 overflow-hidden border border-slate-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-base font-bold text-gray-900">Tolak Permintaan Withdraw</h3>
+                <button id="close-reject-fallback" class="text-gray-400 hover:text-gray-600 p-1 text-lg rounded-lg hover:bg-gray-100 transition cursor-pointer">&times;</button>
             </div>
             <div class="p-6">
-                <p class="text-sm text-gray-600 mb-4">Masukkan catatan penolakan (opsional) dan konfirmasi penolakan.</p>
+                <p class="text-xs text-gray-500 mb-4 leading-relaxed">Masukkan alasan penolakan. Saldo penarikan akan otomatis dikembalikan ke saldo dompet {{ $withdraw->user?->role === 'customer' ? 'customer' : 'mitra' }}.</p>
                 <form action="{{ route('superadmin.withdraws.reject', $withdraw) }}" method="POST">
                     @csrf
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Catatan Penolakan</label>
-                        <input type="text" name="note" class="mt-1 block w-full rounded border-gray-300"
-                            placeholder="Contoh: Saldo tidak mencukupi" />
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">Alasan Penolakan <span class="text-gray-400 font-normal">(opsional)</span></label>
+                        <input type="text" name="note" class="w-full px-3.5 py-2.5 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition outline-none"
+                            placeholder="Contoh: Nomor rekening tidak valid atau nama tidak sesuai" />
                     </div>
-                    <div class="flex items-center justify-end gap-3">
+                    <div class="grid grid-cols-2 gap-2.5 pt-2">
                         <button type="button" id="cancel-reject-fallback"
-                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded">Batal</button>
-                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded">Konfirmasi Tolak</button>
+                            class="w-full h-10 inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 text-xs font-bold transition active:scale-95 cursor-pointer">Batal</button>
+                        <button type="submit" class="w-full h-10 inline-flex items-center justify-center rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition active:scale-95 cursor-pointer shadow-sm shadow-red-600/20">Konfirmasi Tolak</button>
                     </div>
                 </form>
             </div>

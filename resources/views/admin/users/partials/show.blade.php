@@ -7,46 +7,62 @@
         <!-- Modal Card -->
         <div class="relative z-10 bg-white rounded-2xl shadow-2xl max-w-2xl sm:max-w-3xl w-full overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[88vh] border border-gray-100 text-left my-auto animate-in fade-in zoom-in duration-200">
             
-            <!-- Modal Header (Pinned at top) -->
-            <div class="px-6 sm:px-7 py-5 border-b border-gray-100 flex items-center justify-between bg-white flex-shrink-0">
-                <div class="flex items-center gap-4 sm:gap-5 min-w-0" style="gap: 18px;">
+            <!-- Modal Header (Pinned at top - Emerald Teal Gradient Konsisten dengan Mitra) -->
+            @php
+                $isMitraUser = $user->isMitra();
+                $headerBgGradient = 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700';
+            @endphp
+            <div class="relative px-6 sm:px-7 py-5 {{ $headerBgGradient }} text-white flex items-center justify-between flex-shrink-0 shadow-md overflow-hidden">
+                <!-- Ornamen Background Gradient Glow -->
+                <div class="absolute -right-12 -top-12 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute right-36 -bottom-12 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+
+                <div class="relative flex items-center gap-4 sm:gap-5 min-w-0" style="gap: 18px;">
                     <!-- Avatar Icon -->
-                    <div class="w-12 h-12 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-sm ring-4 ring-primary-50" style="width: 48px; height: 48px; min-width: 48px;">
+                    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center font-black text-xl flex-shrink-0 shadow-inner border border-white/30 ring-2 ring-white/20" style="width: 48px; height: 48px; min-width: 48px;">
                         {{ strtoupper(substr($user->name, 0, 1)) }}
                     </div>
                     <!-- User Details -->
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2.5 flex-wrap" style="gap: 10px;">
-                            <h3 id="modal-title" class="text-base sm:text-lg font-bold text-gray-900 leading-tight truncate">{{ $user->name }}</h3>
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $user->isMitra() ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-blue-50 text-blue-700 border border-blue-200' }}">
-                                {{ $user->isMitra() ? 'Mitra' : 'Customer' }}
+                            <h3 id="modal-title" class="text-base sm:text-lg font-bold text-white leading-tight truncate drop-shadow-xs">{{ $user->name }}</h3>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-2xs bg-white/20 text-white border border-white/30 backdrop-blur-xs">
+                                {{ $user->role_label ?? ($isMitraUser ? 'Mitra Driver' : 'Customer') }}
                             </span>
                             @if($user->isShadowBanned())
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-purple-500 text-white border border-purple-300/60 shadow-sm animate-pulse">
                                     👻 Shadow Banned
                                 </span>
                             @endif
                         </div>
-                        <p class="text-xs sm:text-sm text-gray-500 mt-1 truncate">{{ $user->email }}</p>
+                        <p class="text-xs sm:text-sm text-white/85 mt-1 truncate">{{ $user->email }} • {{ $user->city_name ?? ($user->city?->name ?? 'Kota Belum Diatur') }}</p>
                     </div>
                 </div>
                 <!-- Actions & Close Button -->
-                <div class="flex items-center gap-2 flex-shrink-0 ml-4">
-                    @if($user->isMitra())
+                <div class="relative flex items-center gap-2 flex-shrink-0 ml-4">
+                    @if(in_array($user->role, ['mitra', 'customer', 'kustomer']))
+                        @php
+                            $confirmShadowBanText = $user->isShadowBanned()
+                                ? 'Apakah Anda yakin ingin melepaskan status Shadow Ban untuk ' . $user->name . '?'
+                                : ($isMitraUser
+                                    ? 'Apakah Anda yakin ingin menerapkan Shadow Ban pada mitra ' . $user->name . '? Mitra tidak akan menerima atau melihat pesanan baru secara senyap.'
+                                    : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada customer ' . $user->name . '? Permintaan bantuan yang dibuat customer ini akan disembunyikan secara senyap dari seluruh mitra.');
+                        @endphp
                         <form action="{{ route('admin.partners.toggle-shadow-ban', $user->id) }}" method="POST" class="inline-block m-0"
-                            onsubmit="return confirm('Apakah Anda yakin ingin {{ $user->isShadowBanned() ? 'melepaskan' : 'menerapkan' }} Shadow Ban pada pengguna {{ $user->name }}?');">
+                            data-confirm="{{ $confirmShadowBanText }}"
+                            data-confirm-danger="true">
                             @csrf
                             <button type="submit"
-                                style="background-color: {{ $user->isShadowBanned() ? '#f3e8ff' : '#ffffff' }}; color: {{ $user->isShadowBanned() ? '#6b21a8' : '#7e22ce' }}; border: 1px solid {{ $user->isShadowBanned() ? '#d8b4fe' : '#c084fc' }};"
-                                class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs hover:opacity-90 transition cursor-pointer"
-                                title="{{ $user->isShadowBanned() ? 'Lepaskan status Shadow Ban agar mitra kembali dapat melihat pesanan' : 'Aktifkan Shadow Ban agar pesanan disembunyikan dari mitra ini' }}">
+                                style="{{ $user->isShadowBanned() ? 'background-color: #581c87; color: #ffffff; border-color: #c084fc;' : 'background-color: #ffffff; color: #6b21a8; border-color: #ffffff;' }}"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer hover:opacity-90 border"
+                                title="{{ $user->isShadowBanned() ? 'Lepaskan status Shadow Ban agar pengguna kembali normal' : 'Aktifkan Shadow Ban agar pesanan disembunyikan' }}">
                                 <span>👻</span>
-                                <span class="text-[11px] font-bold">{{ $user->isShadowBanned() ? 'Lepas Shadow Ban' : 'Shadow Ban' }}</span>
+                                <span class="text-[11px] font-bold whitespace-nowrap">{{ $user->isShadowBanned() ? 'Lepas Shadow Ban' : 'Shadow Ban' }}</span>
                             </button>
                         </form>
                     @endif
 
-                    <button type="button" id="modal-close-btn" class="w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition text-sm shadow-2xs cursor-pointer" title="Tutup Pop-up">
+                    <button type="button" id="modal-close-btn" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition text-sm shadow-2xs cursor-pointer backdrop-blur-xs border border-white/20" title="Tutup Pop-up">
                         ✕
                     </button>
                 </div>
@@ -366,7 +382,8 @@
 
                             @if ($user->status !== 'blocked')
                                 <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="inline-block m-0"
-                                    onsubmit="return confirm('Apakah Anda yakin ingin {{ $user->status === 'active' ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?');">
+                                    data-confirm="Apakah Anda yakin ingin {{ $user->status === 'active' ? 'menonaktifkan' : 'mengaktifkan kembali' }} akun {{ $user->name }}?"
+                                    data-confirm-danger="{{ $user->status === 'active' ? 'true' : 'false' }}">
                                     @csrf
                                     <button type="submit"
                                         class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer shadow-2xs {{ $user->status === 'active' ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' }}">
@@ -396,11 +413,6 @@
                         <span class="block text-gray-400 font-medium mb-1">Terdaftar Sejak:</span>
                         <span class="font-semibold text-gray-900 text-sm">{{ optional($user->created_at)->format('d M Y H:i') ?? '-' }}</span>
                     </div>
-
-                    <div>
-                        <span class="block text-gray-400 font-medium mb-1">Pekerjaan:</span>
-                        <span class="font-semibold text-gray-900 text-sm">{{ $occupation ?? '-' }}</span>
-                    </div>
                 </div>
             </div>
 
@@ -428,7 +440,8 @@
 
                         @if(!$user->verified)
                             <form action="{{ route('admin.users.verify-ktp', $user->id) }}" method="POST" class="inline-block m-0"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menyetujui (ACC) dan memverifikasi KTP pengguna {{ $user->name }}?');">
+                                data-confirm="Apakah Anda yakin ingin menyetujui (ACC) dan memverifikasi KTP pengguna {{ $user->name }}?"
+                                data-confirm-danger="false">
                                 @csrf
                                 <button type="submit"
                                     class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
@@ -441,7 +454,8 @@
                             </form>
                         @else
                             <form action="{{ route('admin.users.reject-ktp', $user->id) }}" method="POST" class="inline-block m-0"
-                                onsubmit="return confirm('Apakah Anda yakin ingin membatalkan status verifikasi KTP pengguna {{ $user->name }}?');">
+                                data-confirm="Apakah Anda yakin ingin membatalkan status verifikasi KTP pengguna {{ $user->name }}?"
+                                data-confirm-danger="true">
                                 @csrf
                                 <button type="submit"
                                     class="px-2.5 py-1 rounded-lg text-xs font-medium text-gray-500 hover:text-red-700 hover:bg-red-50 border border-gray-200 hover:border-red-200 transition cursor-pointer"
@@ -480,11 +494,6 @@
                     <div>
                         <span class="block text-gray-400 font-medium mb-1">Status Perkawinan:</span>
                         <span class="font-semibold text-gray-900 text-sm">{{ $maritalStatus ?? '-' }}</span>
-                    </div>
-
-                    <div>
-                        <span class="block text-gray-400 font-medium mb-1">Pekerjaan:</span>
-                        <span class="font-semibold text-gray-900 text-sm">{{ $occupation ?? '-' }}</span>
                     </div>
                 </div>
 

@@ -172,7 +172,9 @@
                         @if($warningLevel >= 3)
                             {{-- SP 3: Tombol Saya Mengerti → ban + logout --}}
                             <a href="{{ route('notifications.sanction.acknowledge', $notification->id) }}" wire:navigate
-                               onclick="return confirm('Dengan mengklik ini, akun Anda akan segera dinonaktifkan dan Anda akan keluar dari sistem. Lanjutkan?')"
+                               data-confirm="Dengan mengklik ini, akun Anda akan segera dinonaktifkan dan Anda akan keluar dari sistem. Lanjutkan?"
+                               data-confirm-danger="true"
+                               data-confirm-btn="Ya, Saya Mengerti"
                                class="w-full py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl text-center transition flex items-center justify-center gap-2 cursor-pointer">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>

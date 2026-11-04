@@ -51,35 +51,45 @@
         }
     </style>
 
-    <!-- Top Profile Bar (Blue Header matching Design) -->
-    <div class="px-5 pt-8 pb-20 bg-[#0066FF] text-white flex items-center justify-between shadow-xs relative">
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-xs">
-                <x-user-avatar :user="auth()->user()" class="h-full w-full text-white font-bold text-sm" />
-            </div>
-            <div>
-                <h1 class="text-base font-extrabold text-white leading-tight">{{ trim(preg_replace('/\s*\((?:Mitra|Customer)[^)]*\)|\s*(?:Mitra|Customer)\b/i', '', optional(auth()->user())->name ?? 'Budi Santoso')) }}</h1>
-                <div class="mt-1">
-                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-400/30">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        Mitra Aktif
-                    </span>
+    <!-- Top Profile Bar & Saldo Mitra (Blue Header) -->
+    <div class="relative bg-[#0066FF] text-white">
+        <!-- Decorative circle overlays in safe container -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-0 right-0 w-44 h-44 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+            <div class="absolute bottom-0 left-0 w-36 h-36 bg-white/10 rounded-full -ml-14 -mb-14"></div>
+        </div>
+
+        <div class="px-5 pt-7 pb-20 relative z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-xs">
+                        <x-user-avatar :user="auth()->user()" class="h-full w-full text-white font-bold text-sm" />
+                    </div>
+                    <div>
+                        <h1 class="text-base font-extrabold text-white leading-tight">{{ trim(preg_replace('/\s*\((?:Mitra|Customer)[^)]*\)|\s*(?:Mitra|Customer)\b/i', '', optional(auth()->user())->name ?? 'Budi Santoso')) }}</h1>
+                        <div class="mt-1">
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-400/30">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Mitra Aktif
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
                 </div>
             </div>
         </div>
 
-        <div class="flex items-center gap-2">
-            @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
-        </div>
-
         <!-- Wave Separator (SVG) bergelombang di bagian bawah header -->
-        <svg class="absolute bottom-0 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 26px;">
-            <path d="M0,32 C360,72 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f3f4f6"></path>
+        <svg class="absolute -bottom-1 left-0 w-full pointer-events-none" viewBox="0 0 1440 72" preserveAspectRatio="none" aria-hidden="true" style="display: block; height: 28px; bottom: -2px;">
+            <path d="M0,28 C360,76 1080,-4 1440,36 L1440,84 L0,84 Z" fill="#f3f4f6"></path>
         </svg>
     </div>
 
-    <!-- Saldo Mitra Card (Overlapping Header) -->
-    <div class="px-5 -mt-12 relative z-10">
+    <!-- Saldo Mitra Card (Mengambang di Atas Wave) -->
+    <div class="px-5 -mt-12 relative z-10 mb-2">
         <div class="bg-gradient-to-r from-[#0052CC] to-[#0044AA] rounded-2xl p-5 text-white shadow-xl relative overflow-hidden border border-white/10 flex items-center justify-between">
             <!-- Decorative circle overlay -->
             <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full pointer-events-none"></div>
@@ -96,10 +106,14 @@
                 </h2>
             </div>
 
-            <div class="flex-shrink-0 ml-4">
+            <div class="flex-shrink-0 ml-3 flex items-center gap-1.5">
+                <a href="{{ route('mitra.topup') }}" wire:navigate
+                   class="bg-white/20 hover:bg-white/30 text-white border border-white/25 active:scale-95 font-bold text-xs px-3 py-2.5 rounded-xl transition block whitespace-nowrap cursor-pointer">
+                    + Top Up
+                </a>
                 <a href="{{ route('mitra.withdraw.form') }}" wire:navigate
-                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-4 py-3 rounded-xl transition shadow-md block whitespace-nowrap">
-                    Penarikan Saldo
+                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-3.5 py-2.5 rounded-xl transition shadow-md block whitespace-nowrap cursor-pointer">
+                    Tarik Saldo
                 </a>
             </div>
         </div>
@@ -392,7 +406,12 @@
 
                         <!-- Info -->
                         <div class="flex-1 min-w-0">
-                            <h3 class="font-extrabold text-xs text-gray-900 group-hover:text-[#0066FF] truncate transition-colors">{{ $help->title }}</h3>
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <h3 class="font-extrabold text-xs text-gray-900 group-hover:text-[#0066FF] truncate transition-colors">{{ $help->title }}</h3>
+                                @if($isUrgent)
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black bg-red-100 text-red-700 uppercase tracking-wider border border-red-200 shrink-0">⚡ Prioritas / Urgent</span>
+                                @endif
+                            </div>
                             <p class="text-[11px] text-gray-500 truncate mt-0.5 flex items-center gap-1">
                                 <span>📍</span>
                                 <span>{{ Str::limit($addressStr, 35) }}</span>
@@ -597,7 +616,7 @@
             <!-- Modal Content -->
             <div class="p-4 space-y-2.5">
                 <div id="previewUrgentBadge" class="hidden p-2 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold text-center">
-                    BANTUAN MENDESAK (URGENT)
+                    BANTUAN PRIORITAS / URGENT
                 </div>
 
                 <!-- Judul & Nominal -->
@@ -664,14 +683,24 @@
                             Akun dan KTP sedang dalam verifikasi Admin. Belum dapat mengambil bantuan.
                         </p>
                     </div>
+                @elseif(auth()->check() && !auth()->user()->hasVerifiedEmail())
+                    <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                        <p class="font-bold flex items-center gap-1.5 mb-0.5">
+                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <span>Email Belum Terverifikasi</span>
+                        </p>
+                        <p class="text-[11px] text-amber-700 leading-relaxed">
+                            Silakan verifikasi alamat email Anda terlebih dahulu untuk dapat mengambil bantuan.
+                        </p>
+                    </div>
                 @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
                     <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
                         <p class="font-bold flex items-center gap-1.5 mb-0.5">
                             <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                            <span>Batas 2 Bantuan Tercapai</span>
+                            <span>Tidak Dapat Mengambil Order</span>
                         </p>
                         <p class="text-[11px] text-amber-700 leading-relaxed">
-                            Akun belum verifikasi email dan mencapai batas maksimal 2 bantuan.
+                            Anda belum dapat mengambil pesanan saat ini.
                         </p>
                     </div>
                 @endif
@@ -703,9 +732,13 @@
                         <button type="button" disabled class="flex-1 bg-amber-50 text-amber-800 border border-amber-200 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
                             Selesaikan Order Aktif Dahulu
                         </button>
+                    @elseif(auth()->check() && !auth()->user()->hasVerifiedEmail())
+                        <a href="{{ route('verification.notice') }}" wire:navigate class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2.5 px-4 rounded-xl font-bold text-center text-xs flex items-center justify-center">
+                            Verifikasi Email
+                        </a>
                     @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
                         <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
-                            Batas Order Tercapai
+                            Tidak Dapat Diambil
                         </button>
                     @else
                         <button type="button" id="previewTakeBtn" onclick="takeHelpFromModal()" class="flex-1 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white py-2.5 px-4 rounded-xl font-bold text-xs transition shadow-md shadow-primary-500/20 cursor-pointer text-center">
