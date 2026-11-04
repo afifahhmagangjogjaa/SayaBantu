@@ -15,14 +15,26 @@ use Livewire\Form;
 
 class LoginForm extends Form
 {
-    #[Validate('required|string')]
+    #[Validate('required|string', message: [
+        'required' => 'Nomor HP atau email wajib diisi.',
+    ])]
     public string $email = '';
 
-    #[Validate('required|string')]
+    #[Validate('required|string', message: [
+        'required' => 'Password wajib diisi.',
+    ])]
     public string $password = '';
 
     #[Validate('boolean')]
     public bool $remember = false;
+
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Nomor HP atau email wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
+        ];
+    }
 
     /**
      * Attempt to authenticate the request's credentials.
@@ -100,8 +112,12 @@ class LoginForm extends Form
                 \Log::warning('Failed to record login_failed PartnerActivity: '.$e->getMessage());
             }
 
+            $failedMessage = ($field === 'phone')
+                ? 'Nomor HP atau password salah.'
+                : trans('auth.failed');
+
             throw ValidationException::withMessages([
-                'form.email' => trans('auth.failed'),
+                'form.email' => $failedMessage,
             ]);
         }
 

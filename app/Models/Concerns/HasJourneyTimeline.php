@@ -166,6 +166,11 @@ trait HasJourneyTimeline
 
     public function isExpired(): bool
     {
+        // Pesanan yang sudah diambil mitra atau sudah tidak berstatus menunggu mitra tidak kedaluwarsa
+        if ($this->status !== 'menunggu_mitra' || ! is_null($this->mitra_id)) {
+            return false;
+        }
+
         if ($this->help_type === 'urgent' && $this->auto_cancel_at) {
             return now()->greaterThan($this->auto_cancel_at);
         }
@@ -176,7 +181,9 @@ trait HasJourneyTimeline
     public function scopeNotExpired($query)
     {
         return $query->where(function ($q) {
-            $q->whereNull('auto_cancel_at')
+            $q->where('status', '!=', 'menunggu_mitra')
+                ->orWhereNotNull('mitra_id')
+                ->orWhereNull('auto_cancel_at')
                 ->orWhere('auto_cancel_at', '>', now());
         });
     }

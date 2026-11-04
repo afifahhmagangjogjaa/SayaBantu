@@ -257,7 +257,31 @@ class AdminWithdrawController extends Controller
             return back()->withErrors(['general' => 'Hanya request dengan status pending yang dapat diproses.']);
         }
 
+        $user = $withdraw->user;
+        $alreadyHeld = false;
+        if ($user) {
+            $alreadyHeld = \App\Models\BalanceTransaction::where('user_id', $user->id)
+                ->where('type', 'deduction')
+                ->where('amount', $withdraw->amount)
+                ->where(function ($q) {
+                    $q->where('reference_id', 'WD-PENDING')
+                      ->orWhere('description', 'like', '%Pengajuan Penarikan Saldo%');
+                })
+                ->exists();
+
+            if (! $alreadyHeld) {
+                $current = (int) $user->balance;
+                if ($current < $withdraw->amount) {
+                    return back()->withErrors(['general' => 'Saldo user tidak mencukupi untuk melakukan transfer.']);
+                }
+            }
+        }
+
         try {
+            if (! $alreadyHeld && $user) {
+                $user->adjustBalance(-((int) $withdraw->amount));
+            }
+
             $dataToUpdate = [
                 'status' => WithdrawRequest::STATUS_SUCCESS,
                 'processed_at' => now(),
@@ -299,9 +323,21 @@ class AdminWithdrawController extends Controller
         }
 
         try {
-            // Refund the held balance back to user wallet
             $user = $withdraw->user;
+            $alreadyHeld = false;
             if ($user) {
+                $alreadyHeld = \App\Models\BalanceTransaction::where('user_id', $user->id)
+                    ->where('type', 'deduction')
+                    ->where('amount', $withdraw->amount)
+                    ->where(function ($q) {
+                        $q->where('reference_id', 'WD-PENDING')
+                          ->orWhere('description', 'like', '%Pengajuan Penarikan Saldo%');
+                    })
+                    ->exists();
+            }
+
+            // Refund the held balance back to user wallet if it was deducted at request time
+            if ($alreadyHeld && $user) {
                 $userBalance = $user->balance()->firstOrCreate(['user_id' => $user->id], ['balance' => 0]);
                 $userBalance->addBalance(
                     (int) $withdraw->amount,

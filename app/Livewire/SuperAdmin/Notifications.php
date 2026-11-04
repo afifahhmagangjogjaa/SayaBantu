@@ -104,21 +104,9 @@ class Notifications extends Component
             $this->dispatch('notification-updated');
         }
 
-        $data = $notification->data ?? [];
-        $type = $data['type'] ?? '';
-        $url = $data['url'] ?? null;
+        $targetUrl = \App\Services\NotificationUrlResolver::resolveUrl($notification, $user);
 
-        if (! $url) {
-            $url = match ($type) {
-                'new_topup_request', 'topup_request_submitted' => route('superadmin.topup.approvals'),
-                'new_withdraw_request', 'withdraw_status' => route('superadmin.withdraws.index'),
-                'new_registration', 'new_user' => route('superadmin.users'),
-                'help_taken', 'help_status' => route('superadmin.helps.approved'),
-                default => route('superadmin.notifications.index'),
-            };
-        }
-
-        return redirect()->to($url);
+        return redirect()->to($targetUrl);
     }
 
     public function updatedFilter()

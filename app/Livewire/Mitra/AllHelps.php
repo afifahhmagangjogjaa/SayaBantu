@@ -150,6 +150,13 @@ class AllHelps extends Component
             }
         }
 
+        // Hitung pesanan tersedia yang relevan untuk mitra ini (radius, lokasi, dan bukan pesanan yang pernah dibatalkan/dialihkan dari mitra ini)
+        $countTersedia = $needsCity ? 0 : (clone $query)
+            ->where('status', 'menunggu_mitra')
+            ->whereNull('mitra_id')
+            ->notExpired()
+            ->count();
+
         // Filter berdasarkan tab (Gambar 1: Semua, Tersedia, Dalam Proses, Selesai)
         $inProgressStatuses = [
             'memperoleh_mitra',
@@ -170,7 +177,7 @@ class AllHelps extends Component
         } elseif ($this->tab === 'selesai') {
             $query->where('mitra_id', $user?->id)->whereIn('status', HelpStatus::expand(HelpStatus::SELESAI));
         } else {
-            // 'semua'
+            // 'semua': hanya tampilkan pesanan yang tersedia dan yang sedang diproses (selesai dihilangkan dari tab Semua)
             $query->where(function ($q) use ($user, $inProgressStatuses) {
                 $q->where(function ($sq) {
                     $sq->where('status', 'menunggu_mitra')->whereNull('mitra_id')->notExpired();
@@ -178,7 +185,7 @@ class AllHelps extends Component
                 if ($user) {
                     $q->orWhere(function ($sq) use ($user, $inProgressStatuses) {
                         $sq->where('mitra_id', $user->id)
-                            ->whereIn('status', array_merge($inProgressStatuses, HelpStatus::expand(HelpStatus::SELESAI)));
+                            ->whereIn('status', $inProgressStatuses);
                     });
                 }
             });
@@ -202,6 +209,11 @@ class AllHelps extends Component
                         $catQuery->where('name', 'like', '%'.$keyword.'%');
                     });
             });
+        }
+
+        // Prioritaskan order yang masih dalam proses paling atas jika di tab 'semua'
+        if ($this->tab === 'semua') {
+            $query->orderByRaw("CASE WHEN helps.status != 'menunggu_mitra' THEN 0 ELSE 1 END");
         }
 
         // Urutkan order prioritas/urgent paling atas dibanding order reguler
@@ -234,11 +246,6 @@ class AllHelps extends Component
             $query->orderByRaw('COALESCE(total_amount, amount, 0) ASC')->latest();
         }
 
-        $countTersedia = Help::where('status', 'menunggu_mitra')
-            ->whereNull('mitra_id')
-            ->notExpired()
-            ->count();
-
         $countProses = $user ? Help::where('mitra_id', $user->id)
             ->whereIn('status', $inProgressStatuses)
             ->count() : 0;
@@ -248,7 +255,7 @@ class AllHelps extends Component
             ->count() : 0;
 
         $counts = [
-            'semua' => $countTersedia + $countProses + $countSelesai,
+            'semua' => $countTersedia + $countProses,
             'tersedia' => $countTersedia,
             'proses' => $countProses,
             'selesai' => $countSelesai,

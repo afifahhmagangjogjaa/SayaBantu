@@ -118,7 +118,8 @@
             @endphp
             <div 
                 wire:key="full-notif-{{ $notification->id }}"
-                class="p-5 sm:p-6 hover:bg-gray-50/70 transition-all duration-150 {{ $isUnread ? 'bg-primary-50/20' : 'bg-white' }}">
+                wire:click="openNotification('{{ $notification->id }}')"
+                class="p-5 sm:p-6 hover:bg-gray-50/70 transition-all duration-150 cursor-pointer {{ $isUnread ? 'bg-primary-50/20' : 'bg-white' }}">
                 <div class="flex flex-col sm:flex-row sm:items-start gap-4">
                     <!-- Icon -->
                     <div class="flex-shrink-0">
@@ -198,7 +199,7 @@
                         <!-- Action Buttons Row -->
                         <div class="mt-4 flex flex-wrap items-center gap-2.5">
                             <button 
-                                wire:click="openNotification('{{ $notification->id }}')"
+                                wire:click.stop="openNotification('{{ $notification->id }}')"
                                 type="button"
                                 class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-xs font-semibold shadow-xs transition cursor-pointer">
                                 <span>{{ $actionLabel }}</span>
@@ -209,7 +210,7 @@
 
                             @if($isUnread)
                                 <button 
-                                    wire:click="markAsRead('{{ $notification->id }}')"
+                                    wire:click.stop="markAsRead('{{ $notification->id }}')"
                                     type="button"
                                     class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition cursor-pointer"
                                     title="Tandai sudah dibaca">
@@ -221,7 +222,7 @@
                             @endif
 
                             <button 
-                                wire:click="deleteNotification('{{ $notification->id }}')"
+                                wire:click.stop="deleteNotification('{{ $notification->id }}')"
                                 wire:confirm="Hapus notifikasi ini?"
                                 type="button"
                                 class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-red-50 text-gray-500 hover:text-red-600 rounded-xl text-xs font-semibold transition cursor-pointer"

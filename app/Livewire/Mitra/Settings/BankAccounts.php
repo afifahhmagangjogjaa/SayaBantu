@@ -4,7 +4,10 @@ namespace App\Livewire\Mitra\Settings;
 
 use App\Models\BankChannel;
 use App\Models\UserBankAccount;
+use App\Notifications\TransactionPinOtpNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -25,10 +28,14 @@ class BankAccounts extends Component
     public string $account_pin = '';
 
     // PIN Form
-    public string $pinMode = 'setup'; // 'setup' or 'change'
+    public string $pinMode = 'setup'; // 'setup', 'change', or 'reset'
+    public string $resetMethod = 'password'; // 'password' or 'otp'
     public string $current_pin = '';
     public string $new_pin = '';
     public string $new_pin_confirmation = '';
+    public string $account_password = '';
+    public string $otp_code = '';
+    public bool $otpSent = false;
 
     // Delete confirmation PIN
     public string $delete_pin = '';
@@ -41,7 +48,11 @@ class BankAccounts extends Component
     {
         $this->account_name = $this->getCleanMitraName();
         $user = Auth::user();
-        $this->pinMode = ($user && $user->hasTransactionPin()) ? 'change' : 'setup';
+        if (request()->query('action') === 'reset_pin') {
+            $this->openPinModal('reset');
+        } else {
+            $this->pinMode = ($user && $user->hasTransactionPin()) ? 'change' : 'setup';
+        }
     }
 
     /**
@@ -268,7 +279,8 @@ class BankAccounts extends Component
     {
         $user = Auth::user();
         $this->pinMode = $mode ?: (($user && $user->hasTransactionPin()) ? 'change' : 'setup');
-        $this->reset(['current_pin', 'new_pin', 'new_pin_confirmation']);
+        $this->reset(['current_pin', 'new_pin', 'new_pin_confirmation', 'account_password', 'otp_code', 'otpSent']);
+        $this->resetMethod = 'password';
         $this->resetErrorBag();
         $this->showPinModal = true;
     }
@@ -276,8 +288,71 @@ class BankAccounts extends Component
     public function closePinModal()
     {
         $this->showPinModal = false;
-        $this->reset(['current_pin', 'new_pin', 'new_pin_confirmation']);
+        $this->reset(['current_pin', 'new_pin', 'new_pin_confirmation', 'account_password', 'otp_code', 'otpSent']);
+        $this->resetMethod = 'password';
         $this->resetErrorBag();
+    }
+
+    public function switchResetMethod(string $method)
+    {
+        $this->resetMethod = $method;
+        $this->reset(['account_password', 'otp_code']);
+        $this->resetErrorBag();
+
+        if ($method === 'otp' && ! $this->otpSent) {
+            $this->sendOtp();
+        }
+    }
+
+    public function sendOtp()
+    {
+        $user = Auth::user();
+        if (! $user || ! $user->email) {
+            $this->addError('otp_code', 'Alamat email tidak ditemukan pada akun Anda.');
+            return;
+        }
+
+        $lastSent = Cache::get('pin_reset_otp_time_' . $user->id);
+        if ($lastSent && (now()->timestamp - $lastSent < 60)) {
+            $remaining = 60 - (now()->timestamp - $lastSent);
+            $this->addError('otp_code', "Mohon tunggu {$remaining} detik sebelum meminta kode baru.");
+            return;
+        }
+
+        $otp = (string) random_int(100000, 999999);
+
+        Cache::put('pin_reset_otp_' . $user->id, $otp, now()->addMinutes(10));
+        Cache::put('pin_reset_otp_time_' . $user->id, now()->timestamp, now()->addMinutes(10));
+
+        try {
+            $user->notify(new TransactionPinOtpNotification($otp));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal mengirim email OTP Reset PIN: ' . $e->getMessage());
+        }
+
+        $this->otpSent = true;
+        $this->resetErrorBag();
+
+        $this->feedbackMessage = "Kode OTP 6 digit telah dikirim ke email {$this->getMaskedEmail()}. Silakan periksa kotak masuk/spam email Anda.";
+        $this->feedbackType = 'info';
+    }
+
+    public function getMaskedEmail(): string
+    {
+        $email = Auth::user()?->email ?? '';
+        if (! $email || ! str_contains($email, '@')) {
+            return $email;
+        }
+
+        [$name, $domain] = explode('@', $email, 2);
+        $len = strlen($name);
+        if ($len <= 2) {
+            $maskedName = substr($name, 0, 1) . '*';
+        } else {
+            $maskedName = substr($name, 0, 1) . str_repeat('*', min(4, $len - 2)) . substr($name, -1);
+        }
+
+        return $maskedName . '@' . $domain;
     }
 
     public function savePin()
@@ -303,6 +378,63 @@ class BankAccounts extends Component
             $this->pinMode = 'change';
             $this->feedbackMessage = 'PIN transaksi 6 digit Anda berhasil dibuat! Simpan dan jaga kerahasiaannya.';
             $this->feedbackType = 'success';
+        } elseif ($this->pinMode === 'reset') {
+            if ($this->resetMethod === 'otp') {
+                // Mode 'reset' via Kode OTP Email
+                $this->validate([
+                    'otp_code' => 'required|digits:6',
+                    'new_pin' => 'required|digits:6',
+                    'new_pin_confirmation' => 'required|same:new_pin',
+                ], [
+                    'otp_code.required' => 'Kode OTP 6 digit wajib diisi.',
+                    'otp_code.digits' => 'Kode OTP harus berupa 6 digit angka.',
+                    'new_pin.required' => 'PIN transaksi baru wajib diisi.',
+                    'new_pin.digits' => 'PIN transaksi harus berupa 6 digit angka.',
+                    'new_pin_confirmation.required' => 'Konfirmasi PIN baru wajib diisi.',
+                    'new_pin_confirmation.same' => 'Konfirmasi PIN tidak cocok dengan PIN baru.',
+                ]);
+
+                $cachedOtp = Cache::get('pin_reset_otp_' . $user->id);
+                if (! $cachedOtp || $cachedOtp !== trim($this->otp_code)) {
+                    $this->addError('otp_code', 'Kode OTP salah atau telah kedaluwarsa. Silakan minta kode baru.');
+                    return;
+                }
+
+                Cache::forget('pin_reset_otp_' . $user->id);
+                Cache::forget('pin_reset_otp_time_' . $user->id);
+
+                $user->setTransactionPin($this->new_pin);
+                $user->resetPinAttempts();
+                $this->closePinModal();
+                $this->pinMode = 'change';
+                $this->feedbackMessage = 'PIN transaksi berhasil direset menggunakan verifikasi OTP Email!';
+                $this->feedbackType = 'success';
+            } else {
+                // Mode 'reset' via Kata Sandi Akun
+                $this->validate([
+                    'account_password' => 'required|string',
+                    'new_pin' => 'required|digits:6',
+                    'new_pin_confirmation' => 'required|same:new_pin',
+                ], [
+                    'account_password.required' => 'Kata sandi akun wajib diisi untuk verifikasi identitas.',
+                    'new_pin.required' => 'PIN transaksi baru wajib diisi.',
+                    'new_pin.digits' => 'PIN transaksi harus berupa 6 digit angka.',
+                    'new_pin_confirmation.required' => 'Konfirmasi PIN baru wajib diisi.',
+                    'new_pin_confirmation.same' => 'Konfirmasi PIN tidak cocok dengan PIN baru.',
+                ]);
+
+                if (! Hash::check($this->account_password, $user->password)) {
+                    $this->addError('account_password', 'Kata sandi akun salah. Pastikan memasukkan kata sandi akun SayaBantu Anda.');
+                    return;
+                }
+
+                $user->setTransactionPin($this->new_pin);
+                $user->resetPinAttempts();
+                $this->closePinModal();
+                $this->pinMode = 'change';
+                $this->feedbackMessage = 'PIN transaksi berhasil direset menggunakan verifikasi kata sandi!';
+                $this->feedbackType = 'success';
+            }
         } else {
             // Mode 'change'
             if ($user->isPinLocked()) {

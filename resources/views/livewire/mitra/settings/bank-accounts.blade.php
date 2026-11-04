@@ -99,9 +99,14 @@
             </div>
 
             @if($user->isPinLocked())
-                <div class="mt-3.5 p-3 rounded-2xl bg-red-50 border border-red-200 flex items-center gap-2.5 text-xs text-red-800 font-medium">
-                    <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span>PIN terkunci karena 3x salah. Coba lagi dalam <strong>{{ $user->getPinLockRemainingMinutes() }} menit</strong>.</span>
+                <div class="mt-3.5 p-3 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-between gap-2.5 text-xs text-red-800 font-medium">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>PIN terkunci karena 3x salah (sisa {{ $user->getPinLockRemainingMinutes() }} mnt).</span>
+                    </div>
+                    <button type="button" wire:click="openPinModal('reset')" class="text-xs font-bold text-red-700 hover:text-red-900 underline whitespace-nowrap cursor-pointer">
+                        Reset PIN
+                    </button>
                 </div>
             @endif
         </div>
@@ -303,23 +308,115 @@
                         </svg>
                     </div>
                     <h3 class="text-base font-black text-slate-900">
-                        {{ $pinMode === 'setup' ? 'Buat PIN Transaksi' : 'Ubah PIN Transaksi' }}
+                        @if($pinMode === 'setup')
+                            Buat PIN Transaksi
+                        @elseif($pinMode === 'reset')
+                            Reset PIN Transaksi
+                        @else
+                            Ubah PIN Transaksi
+                        @endif
                     </h3>
                     <p class="text-xs text-slate-500 mt-1">
-                        {{ $pinMode === 'setup' ? 'Buat 6 digit PIN untuk keamanan penarikan dana dan rekening' : 'Masukkan PIN saat ini dan buat 6 digit PIN baru' }}
+                        @if($pinMode === 'setup')
+                            Buat 6 digit PIN untuk keamanan penarikan dana dan rekening
+                        @elseif($pinMode === 'reset')
+                            Pilih metode verifikasi untuk membuat PIN baru
+                        @else
+                            Masukkan PIN saat ini dan buat 6 digit PIN baru
+                        @endif
                     </p>
                 </div>
 
                 <form wire:submit="savePin" class="space-y-3.5">
                     @if($pinMode === 'change')
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">PIN Saat Ini (6 Digit)</label>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-bold text-slate-700">PIN Saat Ini (6 Digit)</label>
+                                <button type="button" wire:click="openPinModal('reset')" class="text-[11px] font-bold text-[#0066FF] hover:underline cursor-pointer">
+                                    Lupa PIN?
+                                </button>
+                            </div>
                             <input type="password" inputmode="numeric" maxlength="6" wire:model="current_pin"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)"
                                 placeholder="••••••"
                                 class="w-full text-center tracking-[0.5em] text-base font-black px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition" />
                             @error('current_pin') <span class="text-red-600 text-[11px] font-semibold block mt-1">{{ $message }}</span> @enderror
                         </div>
+                    @elseif($pinMode === 'reset')
+                        <!-- Tab Pilihan Metode Reset: Password vs OTP Email -->
+                        <div class="grid grid-cols-2 p-1 bg-slate-100 rounded-xl gap-1">
+                            <button type="button" wire:click="switchResetMethod('password')"
+                                class="py-1.5 text-xs font-bold rounded-lg transition {{ $resetMethod === 'password' ? 'bg-white text-[#0066FF] shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                                Kata Sandi Akun
+                            </button>
+                            <button type="button" wire:click="switchResetMethod('otp')"
+                                class="py-1.5 text-xs font-bold rounded-lg transition {{ $resetMethod === 'otp' ? 'bg-white text-[#0066FF] shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                                Kode OTP Email
+                            </button>
+                        </div>
+
+                        @if($resetMethod === 'password')
+                            <div x-data="{ showPass: false }">
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-bold text-slate-700">Kata Sandi Akun</label>
+                                    <button type="button" wire:click="openPinModal('change')" class="text-[11px] font-bold text-[#0066FF] hover:underline cursor-pointer">
+                                        Ingat PIN?
+                                    </button>
+                                </div>
+                                <div class="relative">
+                                    <input :type="showPass ? 'text' : 'password'" wire:model="account_password"
+                                        placeholder="Masukkan kata sandi akun SayaBantu"
+                                        class="w-full text-xs font-medium px-3.5 py-2.5 pr-10 rounded-xl border border-slate-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none" />
+                                    <button type="button" @click="showPass = !showPass" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
+                                        <svg x-show="!showPass" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        <svg x-show="showPass" x-cloak style="display:none;" class="w-4 h-4 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                                    </button>
+                                </div>
+                                @error('account_password') <span class="text-red-600 text-[11px] font-semibold block mt-1">{{ $message }}</span> @enderror
+                                <div class="mt-1 flex justify-end">
+                                    <button type="button" wire:click="switchResetMethod('otp')" class="text-[11px] font-bold text-slate-500 hover:text-[#0066FF] hover:underline cursor-pointer">
+                                        Lupa kata sandi juga? Pakai OTP Email &rarr;
+                                    </button>
+                                </div>
+                            </div>
+                        @else
+                            <!-- Metode Reset via OTP Email -->
+                            <div class="space-y-3">
+                                <div class="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-3.5">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="min-w-0">
+                                            <span class="text-[10px] font-bold text-slate-500 block uppercase tracking-wider">Kirim OTP ke:</span>
+                                            <span class="text-xs font-black text-[#0066FF] truncate block">{{ $this->getMaskedEmail() }}</span>
+                                        </div>
+                                        <button type="button" wire:click="sendOtp" wire:loading.attr="disabled"
+                                            class="px-3 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-bold rounded-xl transition shadow-xs active:scale-95 disabled:opacity-50 cursor-pointer shrink-0">
+                                            <span wire:loading.remove wire:target="sendOtp">{{ $otpSent ? 'Kirim Ulang' : 'Kirim Kode' }}</span>
+                                            <span wire:loading wire:target="sendOtp">Mengirim...</span>
+                                        </button>
+                                    </div>
+                                    @if($otpSent)
+                                        <p class="text-[11px] text-emerald-700 font-semibold mt-2 pt-2 border-t border-blue-200/60 flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                            <span>Kode OTP telah dikirim ke email Anda. Berlaku 10 menit.</span>
+                                        </p>
+                                    @endif
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="block text-xs font-bold text-slate-700">Kode OTP (6 Digit)</label>
+                                        <button type="button" wire:click="switchResetMethod('password')" class="text-[11px] font-bold text-[#0066FF] hover:underline cursor-pointer">
+                                            Pakai Sandi Akun
+                                        </button>
+                                    </div>
+                                    <input type="text" inputmode="numeric" maxlength="6" wire:model="otp_code"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)"
+                                        placeholder="••••••"
+                                        class="w-full text-center tracking-[0.5em] text-base font-black px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition placeholder:font-normal placeholder:tracking-normal placeholder:text-xs placeholder:text-slate-300" />
+                                    @error('otp_code') <span class="text-red-600 text-[11px] font-semibold block mt-1">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        @endif
                     @endif
 
                     <div>
@@ -347,7 +444,7 @@
                             Batal
                         </button>
                         <button type="submit" class="flex-1 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-bold shadow-md shadow-blue-500/25 transition active:scale-95 cursor-pointer">
-                            Simpan PIN
+                            {{ $pinMode === 'reset' ? 'Reset PIN' : 'Simpan PIN' }}
                         </button>
                     </div>
                 </form>

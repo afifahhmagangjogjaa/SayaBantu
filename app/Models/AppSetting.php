@@ -21,4 +21,14 @@ class AppSetting extends Model
     {
         return static::updateOrCreate(['key' => $key], ['value' => (string) $value]);
     }
+
+    /**
+     * Cek apakah tombol WhatsApp pada detail bantuan diaktifkan oleh Super Admin
+     */
+    public static function isWhatsappEnabled(): bool
+    {
+        $val = static::get('show_whatsapp_button', false);
+
+        return filter_var($val, FILTER_VALIDATE_BOOLEAN);
+    }
 }

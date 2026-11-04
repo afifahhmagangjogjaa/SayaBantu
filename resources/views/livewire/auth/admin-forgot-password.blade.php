@@ -81,7 +81,7 @@
                     </div>
                 @endif
 
-                <form wire:submit="sendPasswordResetLink" class="space-y-6">
+                <form wire:submit="sendPasswordResetLink" novalidate class="space-y-6">
                     <!-- Email Address -->
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Alamat Email Administrator</label>
@@ -92,7 +92,8 @@
                                         d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
                                 </svg>
                             </div>
-                            <input id="email" type="email" wire:model="email" required autofocus
+                            <input id="email" type="email" wire:model="email" autofocus
+                                oninvalid="this.setCustomValidity('Alamat email administrator wajib diisi.')" oninput="this.setCustomValidity('')"
                                 class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm"
                                 placeholder="admin@sayabantu.com">
                         </div>

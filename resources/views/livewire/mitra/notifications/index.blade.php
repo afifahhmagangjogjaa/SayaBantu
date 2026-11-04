@@ -102,6 +102,7 @@
                             $type = $data['type'] ?? 'general';
                             $isSanction = ($type === 'sanction_warning' || str_contains($type, 'sanction'));
                             $helpId = $data['help_id'] ?? null;
+                            $detailUrl = \App\Services\NotificationUrlResolver::resolveUrl($notification, auth()->user());
 
                             if ($isSanction) {
                                 $warningLevel = (int) ($data['warning_level'] ?? 1);
@@ -117,39 +118,32 @@
                                     };
                                     $bodyText = 'Anda menerima sanksi Surat Peringatan ' . $warningLevel . ' resmi dari SayaBantu. Ketuk Lihat Detail Surat untuk membaca surat selengkapnya.';
                                 }
-                                $detailUrl = route('notifications.sanction', $notification->id);
                             } elseif ($type === 'chat_message') {
                                 $titleText = 'Pesan dari ' . ($data['from_name'] ?? 'Customer');
-                                $detailUrl = $helpId ? route('mitra.chat', $helpId) : '#';
                                 $bodyText = $data['message'] ?? ($data['body'] ?? 'Notifikasi baru');
                             } elseif (str_contains($type, 'ktp') || str_contains($type, 'verification')) {
                                 $titleText = $data['title'] ?? 'Verifikasi KTP';
-                                $detailUrl = $data['url'] ?? route('profile.settings.verification');
                                 $bodyText = $data['message'] ?? ($data['body'] ?? 'Notifikasi baru');
                             } elseif ($type === 'rating_received') {
                                 $titleText = $data['title'] ?? 'Ulasan & Rating Baru';
-                                $detailUrl = route('mitra.ratings');
                                 $bodyText = $data['message'] ?? ($data['body'] ?? 'Notifikasi baru');
                             } elseif ($type === 'help_request' || str_contains($type, 'help')) {
                                 $titleText = $data['title'] ?? 'Permintaan Bantuan';
-                                $detailUrl = $helpId ? route('mitra.helps.detail', $helpId) : ($data['url'] ?? '#');
                                 $bodyText = $data['message'] ?? ($data['body'] ?? 'Notifikasi baru');
                             } elseif ($type === 'withdraw' || str_contains($type, 'withdraw')) {
                                 $titleText = $data['title'] ?? 'Status Penarikan Saldo';
-                                $detailUrl = route('mitra.withdraw.history');
                             } elseif ($type === 'report_status') {
                                 $titleText = $data['title'] ?? 'Update Status Laporan Aduan';
-                                $detailUrl = isset($data['report_id']) ? route('mitra.reports.show', $data['report_id']) : ($data['url'] ?? '#');
                                 $bodyText = $data['message'] ?? ($data['body'] ?? 'Status laporan aduan Anda telah diperbarui oleh Admin.');
                             } else {
                                 $titleText = $data['title'] ?? 'Notifikasi';
-                                $detailUrl = $data['url'] ?? '#';
                                 $bodyText = $data['message'] ?? ($data['body'] ?? 'Notifikasi baru');
                             }
                         @endphp
 
                         <div wire:key="notif-{{ $notification->id }}" 
-                            class="rounded-2xl border transition shadow-2xs overflow-hidden relative p-4 {{ $isSanction ? 'border-red-200 bg-red-50/40 hover:border-red-300' : ($isUnread ? 'border-blue-200 bg-blue-50/20' : 'border-gray-200 bg-white hover:border-blue-300') }}">
+                            wire:click="readAndRedirect('{{ $notification->id }}', '{{ $detailUrl }}')"
+                            class="rounded-2xl border transition shadow-2xs overflow-hidden relative p-4 cursor-pointer hover:shadow-md {{ $isSanction ? 'border-red-200 bg-red-50/40 hover:border-red-300' : ($isUnread ? 'border-blue-200 bg-blue-50/20' : 'border-gray-200 bg-white hover:border-blue-300') }}">
 
                             <div class="flex items-start gap-3">
                                 @if($isSanction)
@@ -234,9 +228,9 @@
 
                                     <div class="flex items-center gap-3 mt-3 pt-2 border-t {{ $isSanction ? 'border-red-100' : 'border-gray-100' }}">
                                         @if($isSanction)
-                                            <a href="{{ $detailUrl }}" class="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline">Lihat Detail Surat &rarr;</a>
+                                            <a href="{{ $detailUrl }}" @click.stop class="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline">Lihat Detail Surat &rarr;</a>
                                             @if($isUnread)
-                                                <button type="button" wire:click="markAsRead('{{ $notification->id }}')" class="text-xs font-medium text-gray-500 hover:underline">Tandai Dibaca</button>
+                                                <button type="button" wire:click.stop="markAsRead('{{ $notification->id }}')" class="text-xs font-medium text-gray-500 hover:underline">Tandai Dibaca</button>
                                             @endif
                                             <span class="text-[10px] font-medium text-red-400 ml-auto flex items-center gap-1">
                                                 <svg class="w-3 h-3 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -246,12 +240,12 @@
                                             </span>
                                         @else
                                             @if(isset($detailUrl) && $detailUrl !== '#')
-                                                <button type="button" wire:click="readAndRedirect('{{ $notification->id }}', '{{ $detailUrl }}')" class="text-xs font-semibold text-blue-600 hover:underline text-left">Lihat Detail &rarr;</button>
+                                                <button type="button" wire:click.stop="readAndRedirect('{{ $notification->id }}', '{{ $detailUrl }}')" class="text-xs font-semibold text-blue-600 hover:underline text-left">Lihat Detail &rarr;</button>
                                             @endif
                                             @if($isUnread)
-                                                <button type="button" wire:click="markAsRead('{{ $notification->id }}')" class="text-xs font-semibold text-emerald-600 hover:underline">Tandai Dibaca</button>
+                                                <button type="button" wire:click.stop="markAsRead('{{ $notification->id }}')" class="text-xs font-semibold text-emerald-600 hover:underline">Tandai Dibaca</button>
                                             @endif
-                                            <button type="button" wire:click="deleteNotification('{{ $notification->id }}')" class="text-xs font-semibold text-red-500 hover:underline ml-auto">Hapus</button>
+                                            <button type="button" wire:click.stop="deleteNotification('{{ $notification->id }}')" class="text-xs font-semibold text-red-500 hover:underline ml-auto">Hapus</button>
                                         @endif
                                     </div>
                                 </div>

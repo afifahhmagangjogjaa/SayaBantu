@@ -81,14 +81,21 @@ class Index extends Component
         }
     }
 
-    public function readAndRedirect($notificationId, $url)
+    public function readAndRedirect($notificationId, $url = null)
     {
         $notification = DatabaseNotification::find($notificationId);
         if ($notification && $notification->notifiable_id === auth()->id()) {
             $notification->markAsRead();
+            $targetUrl = \App\Services\NotificationUrlResolver::resolveUrl($notification, auth()->user());
+
+            return redirect()->to($targetUrl);
         }
 
-        return redirect()->to($url);
+        if ($url) {
+            return redirect()->to(\App\Services\NotificationUrlResolver::normalizeUrl($url, route('customer.dashboard')));
+        }
+
+        return redirect()->route('customer.dashboard');
     }
 
     public function markAllAsRead()

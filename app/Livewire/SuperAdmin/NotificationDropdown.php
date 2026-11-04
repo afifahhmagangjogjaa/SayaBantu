@@ -84,20 +84,7 @@ class NotificationDropdown extends Component
 
     public function resolveNotificationUrl($notification)
     {
-        $data = $notification->data ?? [];
-        $type = $data['type'] ?? '';
-
-        if (! empty($data['url'])) {
-            return $data['url'];
-        }
-
-        return match ($type) {
-            'new_topup_request', 'topup_request_submitted' => route('superadmin.topup.approvals'),
-            'new_withdraw_request', 'withdraw_status' => route('superadmin.withdraws.index'),
-            'new_registration', 'new_user' => route('superadmin.users'),
-            'help_taken', 'help_status' => route('superadmin.helps.approved'),
-            default => route('superadmin.notifications.index'),
-        };
+        return \App\Services\NotificationUrlResolver::resolveUrl($notification, Auth::user());
     }
 
     public function markAsRead($notificationId)
@@ -181,22 +168,9 @@ class NotificationDropdown extends Component
             $notification->update(['read_at' => now(), 'popped_at' => $notification->popped_at ?? now()]);
         }
 
-        $data = $notification->data ?? [];
-        $type = $data['type'] ?? '';
-        $url = $data['url'] ?? null;
+        $targetUrl = \App\Services\NotificationUrlResolver::resolveUrl($notification, $user);
 
-        // Determine destination url if not directly present in data
-        if (! $url) {
-            $url = match ($type) {
-                'new_topup_request', 'topup_request_submitted' => route('superadmin.topup.approvals'),
-                'new_withdraw_request', 'withdraw_status' => route('superadmin.withdraws.index'),
-                'new_registration', 'new_user' => route('superadmin.users'),
-                'help_taken', 'help_status' => route('superadmin.helps.approved'),
-                default => route('superadmin.notifications.index'),
-            };
-        }
-
-        return redirect()->to($url);
+        return redirect()->to($targetUrl);
     }
 
     public function render()

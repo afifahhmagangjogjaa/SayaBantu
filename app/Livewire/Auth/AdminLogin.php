@@ -84,6 +84,10 @@ class AdminLogin extends Component
      */
     public function fillCredentials(string $email, string $name = '', string $password = 'Sayabantu123!'): void
     {
+        if (! config('app.demo_login', false)) {
+            abort(403, 'Fitur akun demo dinonaktifkan.');
+        }
+
         $this->form->email = $email;
         $this->form->password = $password;
         $this->selectedEmail = $email;
@@ -96,6 +100,10 @@ class AdminLogin extends Component
      */
     public function quickLogin(string $email): void
     {
+        if (! config('app.demo_login', false)) {
+            abort(403, 'Fitur akun demo dinonaktifkan.');
+        }
+
         $user = \App\Models\User::where('email', $email)->first();
         if (! $user) {
             $this->addError('form.email', "Akun {$email} belum terdaftar di database.");

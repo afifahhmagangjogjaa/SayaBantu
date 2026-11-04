@@ -452,7 +452,7 @@
 
                 <div class="flex justify-between items-center text-[11px] mb-5 px-1">
                     <span class="text-slate-400">Pastikan 6 digit sesuai</span>
-                    <a href="{{ route($bankRoute) }}" wire:navigate class="text-[#0066FF] font-bold hover:underline">Lupa PIN?</a>
+                    <a href="{{ route($bankRoute, ['action' => 'reset_pin']) }}" wire:navigate class="text-[#0066FF] font-bold hover:underline">Lupa PIN?</a>
                 </div>
 
                 <!-- Tombol Aksi Modal -->

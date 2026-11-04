@@ -75,7 +75,7 @@
                         class="flex items-center gap-2 overflow-x-auto hide-scrollbar py-1 px-0.5 scroll-smooth"
                         style="overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;">
 
-                        <!-- Tab: Semua -->
+                        <!-- Tab: Semua (Default) -->
                         <button type="button" wire:click="setTab('semua')" @click="centerTab($el)"
                             class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all focus:outline-none flex items-center gap-1.5 {{ $tab === 'semua' ? 'tab-active bg-white text-[#0066FF] shadow-md' : 'bg-white/20 text-white hover:bg-white/30' }}">
                             <span>Semua</span>
@@ -112,35 +112,21 @@
             </svg>
         </div>
 
-        <!-- Search Bar & Sort Row -->
+        <!-- Search Bar Row -->
         <div class="px-5 pt-3 pb-2">
-            <div class="flex items-center gap-2">
-                <!-- Search Input -->
-                <div class="relative flex-1">
-                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <input type="text"
-                        wire:model.live.debounce.300ms="search"
-                        placeholder="Cari pesanan, lokasi, kategori..."
-                        class="w-full pl-9 pr-8 py-2.5 text-xs bg-white border border-gray-200/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] shadow-2xs transition placeholder:text-gray-400 font-medium" />
-                    @if(!empty($search))
-                        <button type="button" wire:click="$set('search', '')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 rounded-full hover:bg-gray-100 transition" title="Hapus pencarian">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                    @endif
-                </div>
-
-                <!-- Sort Selector -->
-                <div class="shrink-0">
-                    <select wire:model.live="sortBy" class="bg-white border border-gray-200/90 text-gray-700 text-xs font-semibold py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] shadow-2xs cursor-pointer">
-                        <option value="latest">Terbaru</option>
-                        <option value="nearby">📍 Terdekat</option>
-                        <option value="price_high">💰 Upah Tertinggi</option>
-                        <option value="price_low">Upah Terendah</option>
-                        <option value="oldest">Terlama</option>
-                    </select>
-                </div>
+            <div class="relative w-full">
+                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text"
+                    wire:model.live.debounce.300ms="search"
+                    placeholder="Cari pesanan, lokasi, kategori..."
+                    class="w-full pl-9 pr-8 py-2.5 text-xs bg-white border border-gray-200/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] shadow-2xs transition placeholder:text-gray-400 font-medium" />
+                @if(!empty($search))
+                    <button type="button" wire:click="$set('search', '')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 rounded-full hover:bg-gray-100 transition cursor-pointer" title="Hapus pencarian">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                @endif
             </div>
         </div>
 
@@ -323,24 +309,24 @@
 
                             <!-- Right: Status Badge -->
                             <div class="shrink-0">
-                                @if($isExpired)
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-600 border border-rose-200">
-                                        Waktu Habis
-                                    </span>
-                                @elseif($isAvailable)
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                                        Tersedia
+                                @if($isMyOrder)
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-[#0066FF] border border-blue-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#0066FF] animate-pulse"></span>
+                                        Sedang Berjalan
                                     </span>
                                 @elseif($isCompleted)
                                     <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                         <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                         Selesai
                                     </span>
-                                @elseif($isMyOrder)
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-[#0066FF] border border-blue-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-[#0066FF] animate-pulse"></span>
-                                        Sedang Berjalan
+                                @elseif($isAvailable)
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                                        Tersedia
+                                    </span>
+                                @elseif($isExpired)
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-600 border border-rose-200">
+                                        Waktu Habis
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-600">
@@ -415,13 +401,21 @@
 
                             <!-- Right: Action Buttons -->
                             <div class="flex items-center gap-2">
-                                @if($isExpired)
-                                    <button type="button" disabled class="px-3.5 py-1.5 bg-gray-100 text-gray-400 font-bold rounded-xl text-xs cursor-not-allowed">
-                                        Waktu Habis
-                                    </button>
+                                @if($isMyOrder)
+                                    <a href="{{ route('mitra.helps.detail', $help->id) }}" wire:navigate
+                                       class="px-4 py-1.5 bg-[#0066FF] hover:bg-[#0052cc] active:scale-95 text-white font-bold rounded-xl text-xs transition shadow-xs flex items-center gap-1.5">
+                                        <span>Buka Detail & Chat</span>
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </a>
+                                @elseif($isCompleted)
+                                    <a href="{{ route('mitra.helps.detail', $help->id) }}" wire:navigate
+                                       class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-gray-700 font-bold rounded-xl text-xs transition flex items-center gap-1.5">
+                                        <span>Lihat Riwayat</span>
+                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </a>
                                 @elseif($isAvailable)
                                     <button type="button"
-                                        onclick="showHelpPreview({{ $help->id }}, '{{ addslashes($help->title) }}', {{ $help->amount }}, '{{ addslashes($schedLabel) }}', '{{ addslashes($catLabel) }}', {{ $isUrgent ? 'true' : 'false' }}, '{{ addslashes($cityLabel) }}', '{{ addslashes($distLabel) }}', {{ $isCancelledByMe ? 'true' : 'false' }}, {{ $isExpired ? 'true' : 'false' }})"
+                                        onclick="showHelpPreview({{ $help->id }}, '{{ addslashes($help->title) }}', {{ $help->amount }}, '{{ addslashes($schedLabel) }}', '{{ addslashes($catLabel) }}', {{ $isUrgent ? 'true' : 'false' }}, '{{ addslashes($cityLabel) }}', '{{ addslashes($distLabel) }}', {{ $isCancelledByMe ? 'true' : 'false' }}, false)"
                                         class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-gray-700 font-bold rounded-xl text-xs transition cursor-pointer">
                                         Detail
                                     </button>
@@ -438,18 +432,10 @@
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                         </button>
                                     @endif
-                                @elseif($isCompleted)
-                                    <a href="{{ route('mitra.helps.detail', $help->id) }}" wire:navigate
-                                       class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-gray-700 font-bold rounded-xl text-xs transition flex items-center gap-1.5">
-                                        <span>Lihat Riwayat</span>
-                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                    </a>
-                                @elseif($isMyOrder)
-                                    <a href="{{ route('mitra.helps.detail', $help->id) }}" wire:navigate
-                                       class="px-4 py-1.5 bg-[#0066FF] hover:bg-[#0052cc] active:scale-95 text-white font-bold rounded-xl text-xs transition shadow-xs flex items-center gap-1.5">
-                                        <span>Buka Detail & Chat</span>
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                    </a>
+                                @elseif($isExpired)
+                                    <button type="button" disabled class="px-3.5 py-1.5 bg-gray-100 text-gray-400 font-bold rounded-xl text-xs cursor-not-allowed">
+                                        Waktu Habis
+                                    </button>
                                 @else
                                     <a href="{{ route('mitra.helps.detail', $help->id) }}" wire:navigate
                                        class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-gray-700 font-bold rounded-xl text-xs transition">

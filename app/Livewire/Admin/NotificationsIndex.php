@@ -83,33 +83,21 @@ class NotificationsIndex extends Component
         }
     }
 
-    public function readAndRedirect($notificationId, $url)
+    public function readAndRedirect($notificationId, $url = null)
     {
         $notification = DatabaseNotification::find($notificationId);
         if ($notification && $notification->notifiable_id === auth()->id()) {
             $notification->markAsRead();
-            $data = $notification->data ?? [];
-            if (($data['type'] ?? '') === 'help_status' && ($data['new_status'] ?? '') === 'partner_cancelled_direct') {
-                $mitraId = $data['mitra_id'] ?? null;
-                if (! $mitraId && ! empty($data['help_id'])) {
-                    $help = \App\Models\Help::find($data['help_id']);
-                    $mitraId = $help?->mitra_id;
-                    if (! $mitraId) {
-                        $activity = \App\Models\PartnerActivity::where('activity_type', 'help_cancelled')->where('description', 'like', "%#{$data['help_id']}%")->latest()->first();
-                        $mitraId = $activity?->user_id;
-                    }
-                }
-                if ($mitraId) {
-                    $url = route('admin.mitra.show', $mitraId);
-                }
-            }
+            $targetUrl = \App\Services\NotificationUrlResolver::resolveUrl($notification, auth()->user());
+
+            return redirect()->to($targetUrl);
         }
 
-        if (str_contains($url, 'ngrok-free.app')) {
-            $url = preg_replace('/https?:\/\/[^\/]+/', config('app.url', 'http://127.0.0.1:8000'), $url);
+        if ($url) {
+            return redirect()->to(\App\Services\NotificationUrlResolver::normalizeUrl($url, route('admin.dashboard')));
         }
 
-        return redirect()->to($url);
+        return redirect()->route('admin.dashboard');
     }
 
     public function render()
