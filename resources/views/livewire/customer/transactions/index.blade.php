@@ -42,12 +42,20 @@
                         <p class="text-[11px] text-gray-500 font-medium">Saldo Tersedia</p>
                         <p class="text-xl font-black text-gray-900 mt-0.5 tracking-tight">Rp {{ number_format($user->balance ?? 0, 0, ',', '.') }}</p>
                     </div>
-                    <a href="{{ route('customer.topup') }}" wire:navigate class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Top Up Saldo
-                    </a>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('customer.topup') }}" wire:navigate class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Top Up
+                        </a>
+                        <a href="{{ route('customer.withdraw.form') }}" wire:navigate class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                            Tarik Saldo
+                        </a>
+                    </div>
                 </div>
             </div>
 

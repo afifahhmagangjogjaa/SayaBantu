@@ -52,9 +52,18 @@ trait HandlesMitraCancellation
 
         // Reset data mitra dan kembalikan status ke menunggu_mitra
         $oldStatus = $this->status;
+
+        // Reset batas waktu pencarian baru (auto_cancel_at) jika jenis bantuan urgent
+        $newAutoCancelAt = null;
+        if ($this->help_type === 'urgent') {
+            $minutes = (int) ($this->auto_cancel_minutes ?: 30);
+            $newAutoCancelAt = now()->addMinutes($minutes);
+        }
+
         $this->update([
             'status' => 'menunggu_mitra',
             'mitra_id' => null,
+            'auto_cancel_at' => $newAutoCancelAt,
             'partner_cancel_reason' => $reason,
             'partner_cancel_requested_at' => now(),
             'partner_current_lat' => null,

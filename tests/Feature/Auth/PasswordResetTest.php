@@ -3,8 +3,10 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\PasswordResetOtpNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Volt\Volt;
 use Tests\TestCase;
@@ -13,7 +15,7 @@ class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_reset_password_link_screen_can_be_rendered(): void
+    public function test_reset_password_screen_can_be_rendered(): void
     {
         $response = $this->get('/forgot-password');
 
@@ -22,63 +24,55 @@ class PasswordResetTest extends TestCase
             ->assertStatus(200);
     }
 
-    public function test_reset_password_link_can_be_requested(): void
+    public function test_otp_code_can_be_requested(): void
     {
         Notification::fake();
 
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'email' => 'user@test.com',
+        ]);
 
         Volt::test('pages.auth.forgot-password')
-            ->set('email', $user->email)
-            ->call('sendPasswordResetLink');
+            ->set('email', 'user@test.com')
+            ->call('sendOtp')
+            ->assertHasNoErrors()
+            ->assertSet('step', 2);
 
-        Notification::assertSentTo($user, ResetPassword::class);
+        Notification::assertSentTo($user, PasswordResetOtpNotification::class);
     }
 
-    public function test_reset_password_screen_can_be_rendered(): void
+    public function test_password_can_be_reset_with_valid_otp(): void
     {
         Notification::fake();
 
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'email' => 'user@test.com',
+            'password' => Hash::make('OldPassword123!'),
+        ]);
 
-        Volt::test('pages.auth.forgot-password')
-            ->set('email', $user->email)
-            ->call('sendPasswordResetLink');
+        // Step 1: Send OTP
+        $component = Volt::test('pages.auth.forgot-password')
+            ->set('email', 'user@test.com')
+            ->call('sendOtp')
+            ->assertSet('step', 2);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-            $response = $this->get('/reset-password/'.$notification->token);
+        $cachedOtp = Cache::get('password_reset_otp_' . md5('user@test.com'));
+        $this->assertNotEmpty($cachedOtp);
 
-            $response
-                ->assertSeeVolt('pages.auth.reset-password')
-                ->assertStatus(200);
+        // Step 2: Verify OTP
+        $component->set('otp_code', $cachedOtp)
+            ->call('verifyOtp')
+            ->assertHasNoErrors()
+            ->assertSet('step', 3);
 
-            return true;
-        });
-    }
+        // Step 3: Reset password
+        $component->set('password', 'NewSecret123!')
+            ->set('password_confirmation', 'NewSecret123!')
+            ->call('resetPassword')
+            ->assertHasNoErrors()
+            ->assertSet('isSuccess', true);
 
-    public function test_password_can_be_reset_with_valid_token(): void
-    {
-        Notification::fake();
-
-        $user = User::factory()->create();
-
-        Volt::test('pages.auth.forgot-password')
-            ->set('email', $user->email)
-            ->call('sendPasswordResetLink');
-
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $component = Volt::test('pages.auth.reset-password', ['token' => $notification->token])
-                ->set('email', $user->email)
-                ->set('password', 'Password123!')
-                ->set('password_confirmation', 'Password123!');
-
-            $component->call('resetPassword');
-
-            $component
-                ->assertRedirect('/login')
-                ->assertHasNoErrors();
-
-            return true;
-        });
+        $user->refresh();
+        $this->assertTrue(Hash::check('NewSecret123!', $user->password));
     }
 }

@@ -1,4 +1,11 @@
-@extends('layouts.mitra')
+@php
+    $isCustomer = ($user && $user->role === 'customer');
+    $prefix = $prefix ?? ($isCustomer ? 'customer' : 'mitra');
+    $withdrawFormRoute = $prefix . '.withdraw.form';
+    $withdrawHistoryRoute = $prefix . '.withdraw.history';
+    $notifRoute = $isCustomer ? 'customer.notifications.index' : 'mitra.notifications.index';
+@endphp
+@extends($isCustomer ? 'layouts.app' : 'layouts.mitra')
 
 @section('content')
     <div class="bg-white pb-4 min-h-screen">
@@ -14,12 +21,12 @@
                 <!-- Top Row: Title & Notification -->
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-xl font-black text-white tracking-tight leading-tight">Penghasilan</h1>
+                        <h1 class="text-xl font-black text-white tracking-tight leading-tight">{{ $isCustomer ? 'Saldo & Riwayat' : 'Penghasilan' }}</h1>
                         <p class="text-xs text-blue-100 font-medium mt-0.5">Kelola saldo &amp; riwayat transaksi Anda</p>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        @include('components.notification-icon', ['route' => route('mitra.notifications.index'), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
+                        @include('components.notification-icon', ['route' => route($notifRoute), 'class' => 'p-2 rounded-xl text-white hover:bg-white/20 transition relative'])
                     </div>
                 </div>
             </div>
@@ -53,7 +60,7 @@
 
                 <!-- Centered Tarik Saldo Pill Button (White with Blue Text) -->
                 <div class="relative z-10 mt-5 flex justify-center">
-                    <a href="{{ route('mitra.withdraw.form', ['force' => 1]) }}" wire:navigate
+                    <a href="{{ route($withdrawFormRoute, ['force' => 1]) }}" wire:navigate
                        class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-8 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all text-center inline-block cursor-pointer">
                         Penarikan Saldo
                     </a>
@@ -76,7 +83,7 @@
             <!-- Section: Riwayat Transaksi -->
             <div class="flex items-center justify-between mb-2 pt-2">
                 <h2 class="text-sm font-bold text-gray-900 tracking-tight">Riwayat Transaksi</h2>
-                <a href="{{ route('mitra.withdraw.history') }}" wire:navigate
+                <a href="{{ route($withdrawHistoryRoute) }}" wire:navigate
                    class="text-xs font-semibold text-[#0066FF] hover:underline flex items-center gap-0.5">
                     Lihat Semua <span class="text-[11px]">&gt;</span>
                 </a>

@@ -216,14 +216,14 @@ new #[Layout('layouts.blank')] class extends Component
                                 <div class="text-xs">
                                     <p class="font-bold text-red-800">Gagal Mengubah Password</p>
                                     <p class="mt-0.5 text-red-600 leading-relaxed">{{ $message }}</p>
-                                    <a href="{{ route('admin.password.request') }}" wire:navigate class="inline-block mt-2 font-semibold text-primary-600 hover:underline">
+                                    <a href="{{ route('admin.password.request') }}" class="inline-block mt-2 font-semibold text-primary-600 hover:underline">
                                         Minta link baru &rarr;
                                     </a>
                                 </div>
                             </div>
                         @enderror
 
-                        <form wire:submit="resetPassword" class="space-y-5">
+                        <form wire:submit="resetPassword" novalidate class="space-y-5">
                             <!-- Email Badge -->
                             @if(!empty($email))
                                 <div class="p-3.5 bg-primary-50/70 border border-primary-100 rounded-xl flex items-center gap-3">
@@ -244,7 +244,8 @@ new #[Layout('layouts.blank')] class extends Component
                             @else
                                 <div>
                                     <label for="email_admin" class="block text-sm font-medium text-gray-700 mb-2">Alamat Email</label>
-                                    <input wire:model="email" id="email_admin" type="email" required autofocus
+                                    <input wire:model="email" id="email_admin" type="email" autofocus
+                                        oninvalid="this.setCustomValidity('Alamat email wajib diisi.')" oninput="this.setCustomValidity('')"
                                         placeholder="admin@sayabantu.com"
                                         class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm">
                                     <x-input-error :messages="$errors->get('email')" class="mt-1.5" />
@@ -255,7 +256,8 @@ new #[Layout('layouts.blank')] class extends Component
                             <div>
                                 <label for="password_admin" class="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
                                 <div class="relative">
-                                    <input wire:model="password" id="password_admin" :type="showPass ? 'text' : 'password'" required autofocus
+                                    <input wire:model="password" id="password_admin" :type="showPass ? 'text' : 'password'" autofocus
+                                        oninvalid="this.setCustomValidity('Password baru wajib diisi.')" oninput="this.setCustomValidity('')"
                                         @input="newPass = $event.target.value"
                                         autocomplete="new-password" placeholder="Minimal 8 karakter"
                                         class="w-full pl-4 pr-11 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm">
@@ -294,7 +296,8 @@ new #[Layout('layouts.blank')] class extends Component
                             <div>
                                 <label for="password_confirm_admin" class="block text-sm font-medium text-gray-700 mb-2">Ulangi Password Baru</label>
                                 <div class="relative">
-                                    <input wire:model="password_confirmation" id="password_confirm_admin" :type="showConfirm ? 'text' : 'password'" required
+                                    <input wire:model="password_confirmation" id="password_confirm_admin" :type="showConfirm ? 'text' : 'password'"
+                                        oninvalid="this.setCustomValidity('Konfirmasi password wajib diisi.')" oninput="this.setCustomValidity('')"
                                         @input="confirmPass = $event.target.value"
                                         autocomplete="new-password" placeholder="Ketik ulang password baru Anda"
                                         class="w-full pl-4 pr-11 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm">
@@ -481,14 +484,14 @@ new #[Layout('layouts.blank')] class extends Component
                                 <div class="text-xs">
                                     <p class="font-bold text-red-800">Gagal Mengubah Password</p>
                                     <p class="mt-0.5 text-red-600 leading-relaxed">{{ $message }}</p>
-                                    <a href="{{ route('password.request') }}" wire:navigate class="inline-block mt-2 font-semibold text-blue-600 hover:underline">
+                                    <a href="{{ route('password.request') }}" class="inline-block mt-2 font-semibold text-blue-600 hover:underline">
                                         Minta link baru &rarr;
                                     </a>
                                 </div>
                             </div>
                         @enderror
 
-                        <form wire:submit="resetPassword" class="space-y-4">
+                        <form wire:submit="resetPassword" novalidate class="space-y-4">
                             <!-- Email Badge / Display -->
                             @if(!empty($email))
                                 <div class="p-3.5 bg-blue-50/70 border border-blue-100 rounded-xl flex items-center gap-3">
@@ -511,7 +514,8 @@ new #[Layout('layouts.blank')] class extends Component
                                     <label for="email_cust" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
                                         Alamat Email
                                     </label>
-                                    <input wire:model="email" id="email_cust" type="email" required autofocus
+                                    <input wire:model="email" id="email_cust" type="email" autofocus
+                                        oninvalid="this.setCustomValidity('Alamat email wajib diisi.')" oninput="this.setCustomValidity('')"
                                         placeholder="nama@example.com"
                                         class="w-full px-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
                                     <x-input-error :messages="$errors->get('email')" class="mt-1.5" />
@@ -524,7 +528,8 @@ new #[Layout('layouts.blank')] class extends Component
                                     Password Baru
                                 </label>
                                 <div class="relative">
-                                    <input wire:model="password" id="password_cust" :type="showPass ? 'text' : 'password'" required autofocus
+                                    <input wire:model="password" id="password_cust" :type="showPass ? 'text' : 'password'" autofocus
+                                        oninvalid="this.setCustomValidity('Password baru wajib diisi.')" oninput="this.setCustomValidity('')"
                                         @input="newPass = $event.target.value"
                                         autocomplete="new-password" placeholder="Minimal 8 karakter"
                                         class="w-full pl-4 pr-11 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">
@@ -565,7 +570,8 @@ new #[Layout('layouts.blank')] class extends Component
                                     Ulangi Password Baru
                                 </label>
                                 <div class="relative">
-                                    <input wire:model="password_confirmation" id="password_confirmation_cust" :type="showConfirm ? 'text' : 'password'" required
+                                    <input wire:model="password_confirmation" id="password_confirmation_cust" :type="showConfirm ? 'text' : 'password'"
+                                        oninvalid="this.setCustomValidity('Konfirmasi password wajib diisi.')" oninput="this.setCustomValidity('')"
                                         @input="confirmPass = $event.target.value"
                                         autocomplete="new-password" placeholder="Ketik ulang password baru Anda"
                                         class="w-full pl-4 pr-11 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition shadow-2xs font-medium">

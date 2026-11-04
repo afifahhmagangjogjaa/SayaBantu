@@ -163,47 +163,56 @@
     @if($showUserRatingsModal && $selectedUser)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
             <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
-                <!-- Header Pengguna -->
-                <div class="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between bg-gray-50/90 flex-shrink-0">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-9 h-9 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-sm">
+                <!-- Header Pengguna (Emerald Teal Gradient Konsisten) -->
+                <div class="relative px-5 py-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white flex items-center justify-between flex-shrink-0 shadow-md overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+                    <div class="relative flex items-center gap-3 min-w-0">
+                        <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center font-black text-lg flex-shrink-0 shadow-inner border border-white/30">
                             {{ strtoupper(substr($selectedUser->name, 0, 1)) }}
                         </div>
                         <div class="truncate">
                             <div class="flex items-center gap-2">
-                                <h3 class="text-sm font-bold text-gray-900 truncate">{{ $selectedUser->name }}</h3>
-                                <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full {{ $selectedUser->isMitra() ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
-                                    {{ $selectedUser->isMitra() ? 'Mitra' : 'Customer' }}
+                                <h3 class="text-sm font-bold text-white truncate drop-shadow-xs">{{ $selectedUser->name }}</h3>
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-white/20 text-white border border-white/30 backdrop-blur-xs">
+                                    {{ $selectedUser->role_label ?? ($selectedUser->isMitra() ? 'Mitra Driver' : 'Customer') }}
                                 </span>
                                 @if($selectedUser->isShadowBanned())
-                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full border" style="background-color: #f3e8ff; color: #6b21a8; border-color: #d8b4fe;">
+                                    <span class="px-2 py-0.5 text-[10px] font-black bg-purple-500 text-white border border-purple-300/60 shadow-sm animate-pulse">
                                         👻 Shadow Banned
                                     </span>
                                 @endif
                             </div>
-                            <p class="text-[11px] text-gray-500 truncate">{{ $selectedUser->email }} • {{ $selectedUser->city?->name ?? 'Kota -' }}</p>
+                            <p class="text-[11px] text-white/85 truncate mt-0.5">{{ $selectedUser->email }} • {{ $selectedUser->city?->name ?? 'Kota Belum Diatur' }}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 flex-shrink-0">
+                    <div class="relative flex items-center gap-2 flex-shrink-0">
                         <!-- Tombol Shadow Ban -->
+                        @php
+                            $confirmShadowBanText = $selectedUser->isShadowBanned()
+                                ? 'Apakah Anda yakin ingin melepaskan status Shadow Ban untuk ' . $selectedUser->name . '?'
+                                : ($selectedUser->isMitra()
+                                    ? 'Apakah Anda yakin ingin menerapkan Shadow Ban pada mitra ' . $selectedUser->name . '? Mitra tidak akan menerima atau melihat pesanan baru secara senyap.'
+                                    : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada customer ' . $selectedUser->name . '? Permintaan bantuan yang dibuat customer ini akan disembunyikan secara senyap dari seluruh mitra.');
+                        @endphp
                         <button type="button" 
                             wire:click="toggleShadowBan({{ $selectedUser->id }})" 
-                            wire:confirm="{{ $selectedUser->isShadowBanned() ? 'Apakah Anda yakin ingin melepaskan status Shadow Ban untuk ' . $selectedUser->name . '?' : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada ' . $selectedUser->name . '? User tidak akan menerima/melihat pesanan baru secara senyap.' }}"
+                            wire:confirm="{{ $confirmShadowBanText }}"
                             wire:loading.attr="disabled"
                             wire:target="toggleShadowBan"
-                            style="{{ $selectedUser->isShadowBanned() ? 'background-color: #7e22ce; color: #ffffff; border-color: #6b21a8;' : 'background-color: #ffffff; color: #374151; border-color: #d1d5db;' }}"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition border shadow-2xs cursor-pointer hover:opacity-90"
+                            style="{{ $selectedUser->isShadowBanned() ? 'background-color: #581c87; color: #ffffff; border-color: #c084fc;' : 'background-color: #ffffff; color: #6b21a8; border-color: #ffffff;' }}"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer hover:opacity-90 border"
                             title="{{ $selectedUser->isShadowBanned() ? 'Klik untuk melepaskan Shadow Ban' : 'Aktifkan Shadow Ban (order/bantuan tidak akan masuk/tampil)' }}">
                             <span wire:loading.remove wire:target="toggleShadowBan">👻</span>
                             <svg wire:loading wire:target="toggleShadowBan" class="w-3.5 h-3.5 animate-spin text-current" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                             </svg>
-                            <span class="whitespace-nowrap font-medium" style="{{ $selectedUser->isShadowBanned() ? 'color: #ffffff;' : 'color: #374151;' }}">{{ $selectedUser->isShadowBanned() ? 'Shadow Banned (Aktif)' : 'Shadow Ban' }}</span>
+                            <span class="whitespace-nowrap font-bold text-[11px]">{{ $selectedUser->isShadowBanned() ? 'Lepas Shadow Ban' : 'Shadow Ban' }}</span>
                         </button>
 
                         <button type="button" wire:click="closeModal"
-                            class="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition text-xs flex-shrink-0">✕</button>
+                            class="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition text-xs flex-shrink-0 backdrop-blur-xs border border-white/20 shadow-2xs"
+                            title="Tutup Modal">&times;</button>
                     </div>
                 </div>
 

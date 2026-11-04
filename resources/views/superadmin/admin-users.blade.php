@@ -784,37 +784,40 @@
     @if($showViewModal && $selectedUser)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-gray-950/60 backdrop-blur-xs transition-opacity animate-fade-in">
             <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col">
-                <!-- Header Card Banner -->
-                <div class="p-6 bg-gradient-to-br {{ $selectedUser->isSuperAdmin() ? 'from-indigo-700 via-purple-700 to-indigo-900' : 'from-primary-600 via-indigo-600 to-blue-700' }} text-white relative">
+                <!-- Header Card Banner (Emerald Teal Gradient - Konsisten dengan Mitra) -->
+                <div class="relative p-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white overflow-hidden shadow-md">
+                    <!-- Ornamen Background Gradient Glow -->
+                    <div class="absolute -right-12 -top-12 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="absolute right-36 -bottom-12 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+
                     <button type="button" wire:click.prevent="closeModal"
-                        class="absolute top-4 right-4 p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition text-sm cursor-pointer backdrop-blur-xs border border-white/20 shadow-2xs z-10"
+                        title="Tutup Modal">
+                        &times;
                     </button>
                     
-                    <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 text-white font-black text-2xl flex items-center justify-center shadow-lg">
+                    <div class="relative flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 text-white font-black text-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                             {{ strtoupper(substr($selectedUser->name, 0, 1)) }}
                         </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="text-xl font-bold tracking-tight text-white">{{ $selectedUser->name }}</h3>
+                        <div class="min-w-0 pr-8">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="text-xl font-bold tracking-tight text-white truncate drop-shadow-xs">{{ $selectedUser->name }}</h3>
                                 @if($selectedUser->isSuperAdmin())
                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-gray-900 border border-amber-300 shadow-xs">
                                         👑 Super Admin
                                     </span>
                                 @else
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white border border-white/30">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white border border-white/30 backdrop-blur-xs">
                                         📍 Admin Wilayah
                                     </span>
                                 @endif
                             </div>
-                            <p class="text-xs text-white/80 mt-1 flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <p class="text-xs text-white/85 mt-1 flex items-center gap-1.5 truncate">
+                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
-                                {{ $selectedUser->email }}
+                                <span>{{ $selectedUser->email }}</span>
                             </p>
                         </div>
                     </div>

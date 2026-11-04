@@ -47,9 +47,6 @@ Route::middleware('guest')->group(function () {
     Route::post('register/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'completeGoogleRegistration'])
         ->middleware('throttle:10,1')
         ->name('register.google.complete');
-
-    Volt::route('forgot-password', 'pages.auth.forgot-password')
-        ->name('password.request');
 });
 
 // Admin Login - redirect to main login (single login page for all roles)
@@ -69,6 +66,10 @@ Route::get('admin/login', function () {
 // Admin Forgot Password route: accessible directly (auto-logs out any stale session on mount)
 Route::get('admin/forgot-password', \App\Livewire\Auth\AdminForgotPassword::class)
     ->name('admin.password.request');
+
+// User Forgot Password route: accessible directly (auto-logs out any stale session on mount)
+Volt::route('forgot-password', 'pages.auth.forgot-password')
+    ->name('password.request');
 
 // Password reset route: accessible directly from email link (auto-logs out any stale session on mount)
 Volt::route('reset-password/{token}', 'pages.auth.reset-password')

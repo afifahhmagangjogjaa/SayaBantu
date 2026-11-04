@@ -30,7 +30,12 @@ Route::middleware(['auth', 'onboarded', 'mitra'])
         Route::view('/settings', 'mitra.settings')->name('settings');
         Route::view('/settings/notifications', 'mitra.settings.notifications')->name('settings.notifications');
         Route::view('/settings/password', 'mitra.settings.password')->name('settings.password');
+        Route::get('/bank-accounts', \App\Livewire\Mitra\Settings\BankAccounts::class)->name('bank-accounts');
         Route::view('/help-support', 'mitra.help-support')->name('help-support');
+
+        // Top Up Saldo Mitra (Bebas tanpa batasan frekuensi)
+        Route::get('/topup', \App\Livewire\Customer\TopupRequest::class)->name('topup');
+        Route::get('/topup/history', \App\Livewire\Customer\TopupHistory::class)->name('topup.history');
 
         Route::get('/withdraw', [\App\Http\Controllers\WithdrawController::class, 'showForm'])->name('withdraw.form');
         Route::post('/withdraw', [\App\Http\Controllers\WithdrawController::class, 'requestWithdraw'])->name('withdraw.request');

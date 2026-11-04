@@ -84,6 +84,10 @@ new #[Layout('layouts.guest')] class extends Component {
      */
     public function quickLogin(string $email, string $password = 'Sayabantu123!'): void
     {
+        if (! config('app.demo_login', false)) {
+            abort(403, 'Fitur akun demo dinonaktifkan.');
+        }
+
         $this->resetErrorBag();
 
         $user = \App\Models\User::where('email', $email)->first();
@@ -135,7 +139,7 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         @endif
 
-        <form wire:submit="login" class="space-y-4 mt-5">
+        <form wire:submit="login" novalidate class="space-y-4 mt-5">
             <!-- Nomor HP / Email -->
             <div>
                 <label for="email" class="block text-xs font-bold text-gray-700 mb-1.5">
@@ -147,7 +151,8 @@ new #[Layout('layouts.guest')] class extends Component {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                         </svg>
                     </div>
-                    <input wire:model="form.email" id="email" type="text" name="email" required
+                    <input wire:model="form.email" id="email" type="text" name="email"
+                        oninvalid="this.setCustomValidity('Nomor HP atau email wajib diisi.')" oninput="this.setCustomValidity('')"
                         autocomplete="username" placeholder="Masukkan nomor HP atau email"
                         class="w-full pl-10 pr-4 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-4 focus:ring-blue-100 transition shadow-2xs font-medium">
                 </div>
@@ -165,7 +170,8 @@ new #[Layout('layouts.guest')] class extends Component {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                         </svg>
                     </div>
-                    <input wire:model="form.password" id="password" x-bind:type="show ? 'text' : 'password'" name="password" required
+                    <input wire:model="form.password" id="password" x-bind:type="show ? 'text' : 'password'" name="password"
+                        oninvalid="this.setCustomValidity('Password wajib diisi.')" oninput="this.setCustomValidity('')"
                         autocomplete="current-password" placeholder="••••••••"
                         class="w-full pl-10 pr-12 py-3 bg-gray-50/70 border border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:bg-white focus:border-[#0066FF] focus:ring-4 focus:ring-blue-100 transition shadow-2xs font-medium">
                     
@@ -184,7 +190,7 @@ new #[Layout('layouts.guest')] class extends Component {
 
                 @if (Route::has('password.request'))
                     <div class="flex justify-end mt-2">
-                        <a href="{{ route('password.request') }}" wire:navigate
+                        <a href="{{ route('password.request') }}"
                             class="text-xs font-semibold text-[#0066FF] hover:underline">
                             Lupa password?
                         </a>
@@ -226,21 +232,29 @@ new #[Layout('layouts.guest')] class extends Component {
                 <span>Login dengan Google</span>
             </a>
         </div>
+    </div>
 
-        <!-- Register Link matching mockup -->
-        <div class="mt-4 text-center">
-            <p class="text-xs sm:text-sm text-gray-500 font-medium">
-                Belum punya akun?
-                <a href="{{ route('register.choose-role') }}" wire:navigate class="font-bold text-[#0066FF] hover:underline ml-1">
-                    Daftar
-                </a>
-            </p>
+    <!-- Bottom Footer Section (Tersusun Pas di Bawah) -->
+    <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+        <p class="text-xs sm:text-sm text-gray-500 font-medium">
+            Belum punya akun?
+            <a href="{{ route('register.choose-role') }}" wire:navigate class="font-bold text-[#0066FF] hover:underline ml-1">
+                Daftar
+            </a>
+        </p>
+
+        <div class="flex items-center justify-center gap-1.5 text-[11px] text-gray-400 mt-2">
+            <svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd"/>
+            </svg>
+            <span>Koneksi aman & terenkripsi • SayaBantu</span>
         </div>
 
+        @if (config('app.demo_login', false))
         <!-- ========================================================================= -->
         <!-- AKUN TESTING — 1 KLIK LANGSUNG MASUK (DROPDOWN / DRAWER BERSIH)           -->
         <!-- ========================================================================= -->
-        <div class="mt-6 pt-3 border-t border-slate-100">
+        <div class="mt-4 pt-3 border-t border-slate-100">
             <button type="button" @click="testOpen = !testOpen"
                     class="w-full flex items-center justify-between text-xs font-bold text-gray-700 hover:text-[#0066FF] py-1 transition cursor-pointer">
                 <div class="flex items-center gap-1.5">
@@ -405,6 +419,7 @@ new #[Layout('layouts.guest')] class extends Component {
             </div>
         </div>
         <!-- ========================================================================= -->
+        @endif
     </div>
 </div>
 

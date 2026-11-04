@@ -114,6 +114,12 @@
         } elseif (request()->routeIs('superadmin.settings.banners*')) {
             $detectedTitle = 'Pengaturan Banner';
             $detectedSubtitle = 'Kelola banner yang tampil di dashboard Customer, Mitra, dan halaman Beranda';
+        } elseif (request()->routeIs('superadmin.settings.storage*')) {
+            $detectedTitle = 'Pembersihan Storage';
+            $detectedSubtitle = 'Pantau kapasitas penyimpanan disk dan bersihkan berkas tumpukan order lama';
+        } elseif (request()->routeIs('superadmin.settings.banks*')) {
+            $detectedTitle = 'Pengaturan Bank & E-Wallet';
+            $detectedSubtitle = 'Kelola daftar bank dan e-wallet yang aktif untuk penarikan dana mitra';
         } elseif (request()->routeIs('superadmin.transactions*')) {
             $detectedTitle = 'Financial Report';
             $detectedSubtitle = 'Laporan daftar transaksi, top up, dan mutasi saldo sistem';
@@ -381,6 +387,24 @@
                             d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                     <span>Pengaturan Banner</span>
+                </a>
+
+                <a href="{{ route('superadmin.settings.storage') }}" wire:navigate
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('superadmin.settings.storage*') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('superadmin.settings.storage*') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7M4 7c0-2 1.5-3 3.5-3h9c2 0 3.5 1 3.5 3M4 7h16m-8 4v6m-3-3h6" />
+                    </svg>
+                    <span>Pembersihan Storage</span>
+                </a>
+
+                <a href="{{ route('superadmin.settings.banks') }}" wire:navigate
+                    class="flex items-center mx-1 px-3 py-2.5 mb-1 text-xs font-medium leading-tight {{ request()->routeIs('superadmin.settings.banks*') ? 'text-white bg-gradient-to-r from-[#0066FF] to-[#0052CC] shadow-md shadow-blue-500/25 font-semibold' : 'text-slate-600 hover:text-[#0066FF] hover:bg-white/90 hover:shadow-2xs' }} rounded-xl transition cursor-pointer group">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 {{ request()->routeIs('superadmin.settings.banks*') ? 'text-white' : 'text-slate-400 group-hover:text-[#0066FF]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    <span>Saluran Bank & E-Wallet</span>
                 </a>
 
                 <div class="mt-4 mb-2 px-3 flex items-center justify-between">

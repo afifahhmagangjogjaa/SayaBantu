@@ -78,6 +78,8 @@ class LocationTrackingService
                 'success' => true,
                 'message' => 'Lokasi awal mitra berhasil disimpan',
                 'status' => $help->status,
+                'old_status' => $help->status,
+                'status_changed' => false,
                 'distance_from_initial' => 0,
                 'distance_to_customer' => null,
             ];

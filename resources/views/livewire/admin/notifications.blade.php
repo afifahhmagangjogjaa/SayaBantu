@@ -206,7 +206,9 @@
                     $isUnread = is_null($notification->read_at);
                 @endphp
                 <div 
-                    class="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition {{ $isUnread ? 'bg-blue-50' : '' }}"
+                    wire:key="admin-drop-notif-{{ $notification->id }}"
+                    wire:click="openNotification('{{ $notification->id }}')"
+                    class="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition cursor-pointer {{ $isUnread ? 'bg-blue-50' : '' }}"
                 >
                     <div class="flex items-start gap-3">
                         <!-- Icon based on notification type -->
@@ -253,7 +255,7 @@
                         </div>
 
                         <!-- Content -->
-                        <div class="flex-1 min-w-0 cursor-pointer" wire:click="openNotification('{{ $notification->id }}')">
+                        <div class="flex-1 min-w-0">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
                                     <p class="text-sm font-semibold text-gray-900 leading-snug">

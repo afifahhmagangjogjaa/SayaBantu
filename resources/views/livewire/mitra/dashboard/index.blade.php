@@ -106,10 +106,14 @@
                 </h2>
             </div>
 
-            <div class="flex-shrink-0 ml-4">
+            <div class="flex-shrink-0 ml-3 flex items-center gap-1.5">
+                <a href="{{ route('mitra.topup') }}" wire:navigate
+                   class="bg-white/20 hover:bg-white/30 text-white border border-white/25 active:scale-95 font-bold text-xs px-3 py-2.5 rounded-xl transition block whitespace-nowrap cursor-pointer">
+                    + Top Up
+                </a>
                 <a href="{{ route('mitra.withdraw.form') }}" wire:navigate
-                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-4 py-3 rounded-xl transition shadow-md block whitespace-nowrap cursor-pointer">
-                    Penarikan Saldo
+                   class="bg-white hover:bg-slate-50 text-[#0066FF] active:scale-95 font-bold text-xs px-3.5 py-2.5 rounded-xl transition shadow-md block whitespace-nowrap cursor-pointer">
+                    Tarik Saldo
                 </a>
             </div>
         </div>
@@ -679,14 +683,24 @@
                             Akun dan KTP sedang dalam verifikasi Admin. Belum dapat mengambil bantuan.
                         </p>
                     </div>
+                @elseif(auth()->check() && !auth()->user()->hasVerifiedEmail())
+                    <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                        <p class="font-bold flex items-center gap-1.5 mb-0.5">
+                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <span>Email Belum Terverifikasi</span>
+                        </p>
+                        <p class="text-[11px] text-amber-700 leading-relaxed">
+                            Silakan verifikasi alamat email Anda terlebih dahulu untuk dapat mengambil bantuan.
+                        </p>
+                    </div>
                 @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
                     <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
                         <p class="font-bold flex items-center gap-1.5 mb-0.5">
                             <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                            <span>Batas 2 Bantuan Tercapai</span>
+                            <span>Tidak Dapat Mengambil Order</span>
                         </p>
                         <p class="text-[11px] text-amber-700 leading-relaxed">
-                            Akun belum verifikasi email dan mencapai batas maksimal 2 bantuan.
+                            Anda belum dapat mengambil pesanan saat ini.
                         </p>
                     </div>
                 @endif
@@ -718,9 +732,13 @@
                         <button type="button" disabled class="flex-1 bg-amber-50 text-amber-800 border border-amber-200 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
                             Selesaikan Order Aktif Dahulu
                         </button>
+                    @elseif(auth()->check() && !auth()->user()->hasVerifiedEmail())
+                        <a href="{{ route('verification.notice') }}" wire:navigate class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2.5 px-4 rounded-xl font-bold text-center text-xs flex items-center justify-center">
+                            Verifikasi Email
+                        </a>
                     @elseif(auth()->check() && !auth()->user()->canTakeMoreOrders())
                         <button type="button" disabled class="flex-1 bg-gray-200 text-gray-400 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed text-xs">
-                            Batas Order Tercapai
+                            Tidak Dapat Diambil
                         </button>
                     @else
                         <button type="button" id="previewTakeBtn" onclick="takeHelpFromModal()" class="flex-1 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white py-2.5 px-4 rounded-xl font-bold text-xs transition shadow-md shadow-primary-500/20 cursor-pointer text-center">

@@ -80,7 +80,7 @@
                 @endif
 
                 <div class="relative">
-                    <form wire:submit="login" class="space-y-6">
+                    <form wire:submit="login" novalidate class="space-y-6">
                         <!-- Email Address -->
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
@@ -92,7 +92,8 @@
                                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
                                 </div>
-                                <input id="email" type="email" wire:model="form.email" required
+                                <input id="email" type="email" wire:model="form.email"
+                                    oninvalid="this.setCustomValidity('Alamat email wajib diisi.')" oninput="this.setCustomValidity('')"
                                     autocomplete="username"
                                     class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                     placeholder="admin@example.com">
@@ -111,7 +112,8 @@
                                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                     </svg>
                                 </div>
-                                <input id="password" x-bind:type="show ? 'text' : 'password'" wire:model="form.password" required
+                                <input id="password" x-bind:type="show ? 'text' : 'password'" wire:model="form.password"
+                                    oninvalid="this.setCustomValidity('Password wajib diisi.')" oninput="this.setCustomValidity('')"
                                     autocomplete="current-password"
                                     class="w-full py-3 pl-11 pr-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                     placeholder="••••••••">
@@ -140,12 +142,12 @@
                             </label>
 
                             @if (Route::has('admin.password.request'))
-                                <a href="{{ route('admin.password.request') }}" wire:navigate
+                                <a href="{{ route('admin.password.request') }}"
                                     class="text-sm text-primary-600 hover:text-primary-700 font-medium">
                                     Lupa password?
                                 </a>
                             @elseif (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}" wire:navigate
+                                <a href="{{ route('password.request') }}"
                                     class="text-sm text-primary-600 hover:text-primary-700 font-medium">
                                     Lupa password?
                                 </a>
@@ -167,6 +169,7 @@
                         </button>
                     </form>
 
+                    @if (config('app.demo_login', false))
                     <!-- ========================================================================= -->
                     <!-- AKUN TESTING SEMENTARA ADMIN (KLIK UNTUK MENGISI FORM)                     -->
                     <!-- ========================================================================= -->
@@ -227,6 +230,7 @@
                     <!-- ========================================================================= -->
                     <!-- AKHIR BLOK AKUN TESTING SEMENTARA ADMIN                                   -->
                     <!-- ========================================================================= -->
+                    @endif
                 </div>
 
                 <!-- Divider -->

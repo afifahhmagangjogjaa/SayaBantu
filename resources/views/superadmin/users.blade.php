@@ -302,32 +302,70 @@
 
     {{-- View User Modal --}}
     @if($showViewModal && $selectedUser)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl overflow-hidden">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold text-xl">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                @php
+                    $isMitraUser = $selectedUser->isMitra();
+                    $headerBgGradient = 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700';
+                @endphp
+                <!-- Header Berwarna Emerald Teal (Konsisten dengan Mitra) -->
+                <div class="relative px-6 py-5 {{ $headerBgGradient }} text-white flex items-center justify-between flex-shrink-0 shadow-md overflow-hidden">
+                    <!-- Ornamen Background Gradient Glow -->
+                    <div class="absolute -right-12 -top-12 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="absolute right-36 -bottom-12 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+
+                    <div class="relative flex items-center gap-4 min-w-0">
+                        <div class="w-13 h-13 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white font-black text-2xl shadow-inner border border-white/30 flex-shrink-0">
                             {{ strtoupper(substr($selectedUser->name, 0, 1)) }}
                         </div>
-                        <div>
-                            <div class="text-lg font-semibold text-gray-900">{{ $selectedUser->name }}</div>
-                            <div class="text-sm text-gray-500">{{ $selectedUser->email }}</div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="text-base sm:text-lg font-bold text-white leading-tight truncate drop-shadow-xs">{{ $selectedUser->name }}</h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-2xs bg-white/20 text-white border border-white/30 backdrop-blur-xs">
+                                    {{ $selectedUser->role_label ?? ($isMitraUser ? 'Mitra Driver' : 'Customer') }}
+                                </span>
+                                @if($selectedUser->isShadowBanned())
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-purple-500 text-white border border-purple-300/60 shadow-sm animate-pulse">
+                                        👻 Shadow Banned
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="flex items-center gap-2 mt-1 text-xs text-white/85 truncate">
+                                <span>{{ $selectedUser->email }}</span>
+                                <span>•</span>
+                                <span>{{ $selectedUser->city?->name ?? 'Kota Belum Diatur' }}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+
+                    <div class="relative flex items-center gap-2 flex-shrink-0 ml-4">
                         @if(in_array($selectedUser->role, ['mitra', 'customer', 'kustomer']))
-                            <button type="button" wire:click="toggleShadowBan({{ $selectedUser->id }})"
+                            @php
+                                $confirmShadowBanText = $selectedUser->isShadowBanned()
+                                    ? 'Apakah Anda yakin ingin melepaskan status Shadow Ban untuk ' . $selectedUser->name . '?'
+                                    : ($isMitraUser
+                                        ? 'Apakah Anda yakin ingin menerapkan Shadow Ban pada mitra ' . $selectedUser->name . '? Mitra tidak akan menerima atau melihat pesanan baru secara senyap.'
+                                        : 'Apakah Anda yakin ingin menerapkan Shadow Ban pada customer ' . $selectedUser->name . '? Permintaan bantuan yang dibuat customer ini akan disembunyikan secara senyap dari seluruh mitra.');
+                            @endphp
+                            <button type="button" 
+                                wire:click="toggleShadowBan({{ $selectedUser->id }})"
+                                wire:confirm="{{ $confirmShadowBanText }}"
                                 wire:loading.attr="disabled"
                                 wire:target="toggleShadowBan"
-                                style="background-color: {{ $selectedUser->isShadowBanned() ? '#f3e8ff' : '#ffffff' }}; color: {{ $selectedUser->isShadowBanned() ? '#6b21a8' : '#7e22ce' }}; border: 1px solid {{ $selectedUser->isShadowBanned() ? '#d8b4fe' : '#c084fc' }};"
-                                class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs hover:opacity-90 transition cursor-pointer"
+                                style="{{ $selectedUser->isShadowBanned() ? 'background-color: #581c87; color: #ffffff; border-color: #c084fc;' : 'background-color: #ffffff; color: #6b21a8; border-color: #ffffff;' }}"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer hover:opacity-90 border"
                                 title="{{ $selectedUser->isShadowBanned() ? 'Lepaskan status Shadow Ban agar mitra kembali dapat melihat pesanan' : 'Aktifkan Shadow Ban agar pesanan disembunyikan dari mitra ini' }}">
-                                <span>👻</span>
-                                <span class="text-[11px] font-bold">{{ $selectedUser->isShadowBanned() ? 'Lepas Shadow Ban' : 'Shadow Ban' }}</span>
+                                <span wire:loading.remove wire:target="toggleShadowBan">👻</span>
+                                <svg wire:loading wire:target="toggleShadowBan" class="w-3.5 h-3.5 animate-spin text-current" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span class="text-[11px] font-bold whitespace-nowrap">{{ $selectedUser->isShadowBanned() ? 'Lepas Shadow Ban' : 'Shadow Ban' }}</span>
                             </button>
                         @endif
                         <button type="button" wire:click.prevent="closeModal"
-                            class="text-gray-500 hover:text-gray-700 text-xl cursor-pointer">&times;</button>
+                            class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition text-sm cursor-pointer backdrop-blur-xs border border-white/20 shadow-2xs"
+                            title="Tutup Modal">&times;</button>
                     </div>
                 </div>
 
@@ -411,10 +449,6 @@
                             </div>
                             @endif
 
-                            <div>
-                                <div class="text-xs text-gray-500">Pekerjaan</div>
-                                <div class="font-medium text-gray-900">{{ $selectedUser->occupation ?? '-' }}</div>
-                            </div>
                             <div>
                                 <div class="text-xs text-gray-500">Terdaftar</div>
                                 <div class="font-medium text-gray-900">
@@ -715,11 +749,6 @@
                                                 <option value="Cerai Hidup">Cerai Hidup</option>
                                                 <option value="Cerai Mati">Cerai Mati</option>
                                             </select>
-                                        </div>
-                                        <div>
-                                            <label class="text-xs font-medium text-gray-700">Pekerjaan</label>
-                                            <input type="text" wire:model="occupation" placeholder="Contoh: Wiraswasta"
-                                                class="w-full mt-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
                                         </div>
                                         <div class="grid grid-cols-2 gap-3">
                                             <div>

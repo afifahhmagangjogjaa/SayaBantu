@@ -147,12 +147,20 @@ class Detail extends Component
 
         // Make help available again for other mitra
         // Set partner_cancel_prev_status sebagai flag bahwa pembatalan diterima
-        $this->help->update([
+        $updateData = [
             'status' => 'menunggu_mitra', // Ubah ke menunggu_mitra agar bisa diambil mitra lain
             'mitra_id' => null,
             'partner_cancel_prev_status' => 'cancel_accepted', // Flag untuk modal
             // Jangan hapus partner_cancel_requested_at dan reason untuk history
-        ]);
+        ];
+
+        // Reset batas waktu pencarian baru (auto_cancel_at) jika urgent
+        if ($this->help->help_type === 'urgent') {
+            $minutes = (int) ($this->help->auto_cancel_minutes ?: 30);
+            $updateData['auto_cancel_at'] = now()->addMinutes($minutes);
+        }
+
+        $this->help->update($updateData);
 
         // Notify mitra (if exists)
         try {

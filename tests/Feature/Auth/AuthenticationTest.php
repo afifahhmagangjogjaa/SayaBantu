@@ -28,7 +28,24 @@ class AuthenticationTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSeeVolt('pages.auth.login');
+            ->assertSeeVolt('pages.auth.login')
+            ->assertDontSee('Akun Demo / Testing');
+    }
+
+    public function test_admin_login_screen_hides_demo_accounts(): void
+    {
+        $response = $this->get('/admin/login');
+
+        $response->assertRedirect('/login');
+
+        $followed = $this->followRedirects($response);
+        $followed
+            ->assertOk()
+            ->assertDontSee('Akun Testing Admin')
+            ->assertDontSee('Akun Demo / Testing');
+
+        \Livewire\Livewire::test(\App\Livewire\Auth\AdminLogin::class)
+            ->assertDontSee('Akun Testing Admin');
     }
 
     public function test_users_can_authenticate_using_the_login_screen(): void

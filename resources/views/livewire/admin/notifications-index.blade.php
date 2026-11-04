@@ -81,19 +81,7 @@
                         $type      = $data['type'] ?? 'general';
                         $helpId    = $data['help_id'] ?? null;
                         $reportId  = $data['report_id'] ?? null;
-
-                        $detailUrl = match(true) {
-                            in_array($type, ['new_topup_request','topup_request_submitted']) => route('admin.topup.approvals'),
-                            in_array($type, ['new_withdraw_request','withdraw_status'])       => route('admin.withdraws.index'),
-                            $type === 'new_ktp_verification'                                  => route('admin.verifications'),
-                            in_array($type, ['new_registration','new_user'])                  => route('admin.customers'),
-                            in_array($type, ['new_report','partner_report']) && $reportId     => route('admin.partners.reports.show', $reportId),
-                            in_array($type, ['new_report','partner_report'])                  => route('admin.partners.report'),
-                            $type === 'help_status' && $helpId                                => route('admin.helps.show', $helpId),
-                            $type === 'help_status'                                           => route('admin.helps'),
-                            !empty($data['url'])                                              => $data['url'],
-                            default                                                           => '#',
-                        };
+                        $detailUrl = \App\Services\NotificationUrlResolver::resolveUrl($notification, auth()->user());
 
                         $title = $data['title'] ?? match($type) {
                             'new_topup_request', 'topup_request_submitted' => '💰 Request Top-Up Saldo Baru',
@@ -129,7 +117,8 @@
                         {{-- Content --}}
                         <div class="flex-1 min-w-0">
                             <div class="flex items-start justify-between gap-4">
-                                <div class="flex-1 min-w-0">
+                                <div class="flex-1 min-w-0 {{ $detailUrl !== '#' ? 'cursor-pointer' : '' }}"
+                                    @if($detailUrl !== '#') wire:click="readAndRedirect('{{ $notification->id }}', '{{ $detailUrl }}')" @endif>
                                     <p class="text-sm font-semibold text-gray-900">{{ $title }}</p>
                                     <p class="text-sm text-gray-600 mt-0.5 leading-snug">{{ $body }}</p>
                                     <p class="text-xs text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>

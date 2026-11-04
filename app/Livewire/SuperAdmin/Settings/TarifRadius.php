@@ -19,6 +19,8 @@ class TarifRadius extends Component
 
     public $mitra_max_distance_km;
 
+    public $show_whatsapp_button = false;
+
     protected function rules()
     {
         return [
@@ -35,6 +37,14 @@ class TarifRadius extends Component
         $this->admin_fee = (float) AppSetting::get('admin_fee', 0);
         $this->default_urgent_nominal = (int) AppSetting::get('default_urgent_nominal', 50000);
         $this->mitra_max_distance_km = (float) AppSetting::get('mitra_max_distance_km', 10);
+        $this->show_whatsapp_button = AppSetting::isWhatsappEnabled();
+    }
+
+    public function updatedShowWhatsappButton($value)
+    {
+        AppSetting::set('show_whatsapp_button', $value ? '1' : '0');
+        session()->flash('message', 'Visibilitas tombol WhatsApp berhasil diperbarui.');
+        $this->dispatch('settingsSaved', message: 'Visibilitas tombol WhatsApp berhasil diperbarui.');
     }
 
     public function save()
@@ -55,9 +65,10 @@ class TarifRadius extends Component
         AppSetting::set('default_urgent_nominal', (string) $this->default_urgent_nominal);
         AppSetting::set('mitra_max_distance_km', (string) $this->mitra_max_distance_km);
         AppSetting::set('max_help_radius_km', (string) $this->mitra_max_distance_km);
+        AppSetting::set('show_whatsapp_button', $this->show_whatsapp_button ? '1' : '0');
 
-        session()->flash('message', 'Tarif dan radius bantuan berhasil disimpan.');
-        $this->dispatch('settingsSaved', message: 'Tarif dan radius bantuan berhasil disimpan.');
+        session()->flash('message', 'Tarif, radius, dan pengaturan WhatsApp bantuan berhasil disimpan.');
+        $this->dispatch('settingsSaved', message: 'Tarif, radius, dan pengaturan WhatsApp bantuan berhasil disimpan.');
     }
 
     public function render()

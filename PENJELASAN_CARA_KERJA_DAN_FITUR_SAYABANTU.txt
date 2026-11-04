@@ -1,0 +1,520 @@
+================================================================================
+          DOKUMENTASI LENGKAP SISTEM & CARA KERJA PLATFORM SAYABANTU
+    (Penjelasan Alur End-to-End, Katalog Fitur Semua Role, dan Stack Teknologi)
+================================================================================
+
+TANGGAL PEMBUATAN : November 2026
+PROJECT           : SayaBantu (sayabantu.com)
+TAGLINE           : Jasa Serabutan, Mudah, Cepat, Terpercaya
+TIPE APLIKASI     : On-Demand Social Service Platform (Mobile-First Web App)
+
+================================================================================
+DAFTAR ISI
+================================================================================
+1. PENDAHULUAN & KONSEP UTAMA PROYEK
+2. CARA KERJA APLIKASI DARI AWAL HINGGA SELESAI (END-TO-END WORKFLOW)
+   2.1. Halaman Landing Page & Masuk Aplikasi
+   2.2. Registrasi Akun & Pemilihan Peran
+   2.3. Alur Onboarding 4 Langkah (KYC & Dokumen KTP)
+   2.4. Verifikasi Email & Autentikasi
+   2.5. Verifikasi Akun & Dokumen oleh Admin Wilayah
+   2.6. Pembuatan Permintaan Bantuan oleh Customer (Escrow Deposit)
+   2.7. Penemuan & Pengambilan Order oleh Rekan Mitra
+   2.8. Pelacakan Perjalanan Mitra (Otomasi GPS & Haversine Tracking)
+   2.9. Pelaksanaan Tugas & Fitur Live Chat Real-Time
+   2.10. Penyelesaian Tugas, Bukti Foto & Konfirmasi Selesai (Auto-Confirm)
+   2.11. Pelepasan Dana Otomatis (Escrow Payout) & Penambahan Saldo Mitra
+   2.12. Rating & Ulasan Dua Arah (Mutual Rating)
+   2.13. Alur Pembatalan, Auto-Cancel, dan Pengembalian Dana (Refund)
+   2.14. Penanganan Komplain, Pelanggaran, dan Sanksi (SP1 - SP3)
+3. PENJELASAN LENGKAP SEMUA FITUR BERDASARKAN ROLE PENGGUNA
+   3.1. Fitur Role Customer (Pelanggan)
+   3.2. Fitur Role Mitra (Penyedia Jasa Serabutan)
+   3.3. Fitur Role Admin Wilayah (Pengawas Operasional Regional)
+   3.4. Fitur Role Super Admin (Pengelola Pusat & Konfigurasi Sistem)
+   3.5. Fitur Bersama (Shared Features: Dompet, Keamanan, Profil)
+4. TEKNOLOGI LENGKAP YANG DIGUNAKAN
+   4.1. Backend Framework & Arsitektur
+   4.2. Frontend & Reaktivitas Komponen
+   4.3. UI/UX & Mobile-First Container
+   4.4. Pemetaan, Geocoding & GPS Tracking
+   4.5. Database & Relasi Data
+   4.6. Sistem Penyimpanan Media & Kompresi Berkas
+   4.7. Background Task, Cron Scheduler & Otomasi Sistem
+   4.8. Keamanan, Proteksi Sesi, dan Enkripsi
+5. PENUTUP & KESIMPULAN
+
+================================================================================
+1. PENDAHULUAN & KONSEP UTAMA PROYEK
+================================================================================
+SayaBantu adalah platform marketplace jasa serabutan on-demand berbasis web
+dengan pendekatan mobile-first. Platform ini menghubungkan dua pihak utama:
+1. Customer (Pelanggan): Individu atau rumah tangga yang membutuhkan bantuan
+   tenaga serabutan seperti angkat barang, bersih-bersih rumah, perbaikan
+   ringan, antaran paket lokal, perawatan taman, atau pekerjaan umum lainnya.
+2. Mitra: Penyedia jasa perorangan yang bersedia membantu dan mendapatkan
+   penghasilan tambahan dengan jam kerja fleksibel.
+
+Platform ini diawasi secara berjenjang oleh Admin Wilayah (mengelola kota/kabupaten
+tertentu) dan Super Admin (pemilik/manajemen sistem secara nasional).
+
+Sistem menerapkan model pembayaran Escrow (Rekber / Rekening Bersama Platform),
+di mana uang customer ditahan aman oleh sistem saat pesanan dibuat, dan baru
+diteruskan ke saldo mitra secara otomatis saat pekerjaan selesai dan dikonfirmasi.
+
+================================================================================
+2. CARA KERJA APLIKASI DARI AWAL HINGGA SELESAI (END-TO-END WORKFLOW)
+================================================================================
+
+--------------------------------------------------------------------------------
+2.1. Halaman Landing Page & Masuk Aplikasi
+--------------------------------------------------------------------------------
+- Pengguna mengakses URL utama (/) atau (/welcome).
+- Tampilan dirancang dengan konsep Mobile-First App Mockup berukuran maksimal
+  420px (container smartphone di tengah layar desktop atau full screen di HP).
+- Komponen di Landing Page meliputi:
+  * Header: Logo resmi SayaBantu dan tagline "Jasa Serabutan, Mudah, Cepat, Terpercaya".
+  * Hero Section: Menampilkan maskot resmi SayaBantu (karakter petugas berkaus
+    biru dan bertopi yang memberikan jempol ramah) dengan transisi kurva gelombang.
+  * 3 Nilai Utama (Value Proposition Badges):
+    1. Aman & Terpercaya: Mitra dan customer terverifikasi KTP.
+    2. Proses Cepat: Pesanan langsung disebarkan ke mitra di wilayah terdekat.
+    3. Harga Bersaing: Transparan dengan kalkulasi radius dan ongkos wajar.
+  * Tombol CTA: Tombol "Mulai Sekarang" yang langsung mengarahkan user ke halaman
+    Login (/login) atau Registrasi (/register/choose-role).
+  * Halaman Katalog Publik (/bantuan): Tersedia bagi publik untuk melihat daftar
+    bantuan aktif tanpa harus login terlebih dahulu.
+
+--------------------------------------------------------------------------------
+2.2. Registrasi Akun & Pemilihan Peran
+--------------------------------------------------------------------------------
+1. Pemilihan Peran (/register/choose-role):
+   Pengguna baru memilih jenis akun:
+   - "Saya Butuh Bantuan" (Customer)
+   - "Saya Ingin Membantu" (Mitra)
+2. Input Data Akun Awal (/register):
+   - Nama Lengkap (hanya huruf dan spasi)
+   - Alamat Email aktif (unik di sistem)
+   - Kata Sandi (validasi kuat: min 8 karakter, huruf besar, angka, dan simbol)
+   - Konfirmasi Kata Sandi
+   - Data sementara disimpan aman di server session ('reg_account').
+3. Pilihan Login Alternatif:
+   - Pengguna juga dapat mendaftar/masuk instan menggunakan Google OAuth (Socialite).
+   - Login bisa dilakukan dengan Alamat Email maupun Nomor Handphone.
+
+--------------------------------------------------------------------------------
+2.3. Alur Onboarding 4 Langkah (KYC & Dokumen KTP)
+--------------------------------------------------------------------------------
+Setelah data akun diinput, pengguna masuk ke proses Onboarding wajib:
+- Step 1 (Biodata & Kependudukan):
+  * Pengisian NIK (Nomor Induk Kependudukan 16 digit angka yang divalidasi unik).
+  * Tanggal Lahir dan Jenis Kelamin.
+  * Nomor Handphone / WhatsApp aktif.
+  * Pemilihan Kota/Kabupaten domisili dan alamat tempat tinggal lengkap.
+- Step 2 (Upload Foto KTP):
+  * Pengguna mengunggah foto kartu identitas (KTP).
+  * Sistem secara otomatis mengompresi gambar lewat ImageCompressionService
+    sehingga hemat bandwidth dan kapasitas server tanpa mengurangi keterbacaan.
+- Step 3 (Upload Foto Selfie / Pasfoto):
+  * Pengguna mengunggah foto wajah/selfie sambil memegang KTP untuk memastikan
+    kesesuaian identitas asli.
+- Step 4 (Review & Konfirmasi Akhir):
+  * Ringkasan seluruh identitas dan pratinjau dokumen ditampilkan kembali.
+  * Saat pengguna menekan "Kirim Pendaftaran", data disimpan ke tabel `users`
+    dan tabel antrean `registrations` dengan status `pending_verification`.
+
+--------------------------------------------------------------------------------
+2.4. Verifikasi Email & Autentikasi
+--------------------------------------------------------------------------------
+- Sistem secara otomatis mengirimkan email verifikasi berisi Signed URL aman.
+- Halaman /email/verify menampilkan antarmuka tunggu dengan fitur Polling AJAX
+  Real-time (/email/check-verification-status) setiap beberapa detik.
+- Begitu pengguna membuka dan menekan tautan verifikasi dari email (bahkan lewat
+  aplikasi email di smartphone atau tab lain), halaman verifikasi di browser
+  langsung mendeteksi otomatis dan me-redirect pengguna ke Dashboard utama tanpa
+  perlu me-refresh halaman secara manual.
+
+--------------------------------------------------------------------------------
+2.5. Verifikasi Akun & Dokumen oleh Admin Wilayah
+--------------------------------------------------------------------------------
+- Dokumen KTP dan selfie masuk ke panel verifikasi Admin Wilayah (/admin/verifications).
+- Admin wilayah memeriksa keaslian data NIK, foto KTP, dan selfie.
+- Jika disetujui (Approve):
+  * Status verifikasi KTP user berubah menjadi 'verified'.
+  * Kuota pemesanan customer terbuka penuh dan mitra dapat mengambil semua bantuan.
+- Jika ditolak (Reject):
+  * Admin wajib menyertakan alasan penolakan (misal: "Foto KTP buram/terpotong").
+  * Pengguna menerima notifikasi penolakan dan dapat mengunggah ulang dokumen KTP.
+
+--------------------------------------------------------------------------------
+2.6. Pembuatan Permintaan Bantuan oleh Customer (Escrow Deposit)
+--------------------------------------------------------------------------------
+1. Customer membuka menu Buat Bantuan (/customer/helps/create).
+2. Input Data Pekerjaan:
+   - Kategori Bantuan: Memilih kategori yang tersedia (Angkat Barang, Bersih-bersih,
+     Pertukangan, Antar Paket, dll.) atau kategori 'Lainnya'.
+   - Judul & Deskripsi: Detail tugas yang harus dikerjakan mitra.
+   - Perlengkapan: Menentukan apakah alat/bahan kerja disediakan customer atau mitra.
+   - Foto Sebelum (Before Photo): Dokumentasi kondisi awal sebelum dikerjakan.
+   - Tipe Bantuan: "Instant / Urgent" (secepatnya) atau "Terjadwal" (menentukan
+     tanggal dan jam rencana pelaksanaan).
+3. Penentuan Lokasi Cerdas (Smart Location & Address):
+   - Dilengkapi Smart Address Autocomplete terintegrasi OpenStreetMap / Photon API.
+   - Pinpoint Peta Interaktif Leaflet untuk menentukan titik koordinat presisi.
+   - Dukungan Buku Alamat Multi-Address (simpan alamat Rumah, Kantor, Toko, dsb).
+4. Kalkulasi Biaya Transparan:
+   - Ongkos Dasar Bantuan (Amount)
+   - Biaya Radius Jarak (Kalkulasi jarak dari pusat kota/radius lokasi mitra)
+   - Biaya Admin Layanan Pelanggan (Admin Fee)
+   - Total Biaya yang Dibayarkan Customer (total_customer_paid)
+5. Pembayaran Terlindungi (Escrow Payment):
+   - Sistem memotong saldo dari Dompet Customer.
+   - Saldo tersebut ditahan (di-freeze) oleh sistem SayaBantu sebagai jaminan.
+   - Status pesanan diset: 'menunggu_mitra'.
+
+--------------------------------------------------------------------------------
+2.7. Penemuan & Pengambilan Order oleh Rekan Mitra
+--------------------------------------------------------------------------------
+1. Mitra membuka menu Cari Bantuan (/mitra/helps).
+2. Mitra melihat daftar order yang tersedia di kotanya dengan filter kategori,
+   jarak, dan nominal upah bersih yang akan diterima (setelah dipotong fee platform).
+3. Mitra memilih salah satu order untuk melihat detail deskripsi dan titik lokasi.
+4. Mitra menekan tombol "Ambil Bantuan".
+5. Sistem mengunci pesanan untuk mitra tersebut, mencatat koordinat awal GPS mitra
+   (partner_initial_lat, partner_initial_lng), dan status berganti menjadi:
+   'memperoleh_mitra' (Mitra Ditugaskan).
+6. Customer menerima notifikasi instan bahwa pesanannya telah diambil mitra.
+
+--------------------------------------------------------------------------------
+2.8. Pelacakan Perjalanan Mitra (Otomasi GPS & Haversine Tracking)
+--------------------------------------------------------------------------------
+SayaBantu memiliki sistem GPS Tracking otomatis di latar belakang:
+1. Browser/aplikasi mitra menjalankan HTML5 Geolocation API (watchPosition)
+   dengan tingkat akurasi tinggi (enableHighAccuracy: true).
+2. Service Backend (LocationTrackingService) menghitung jarak perpindahan berkala
+   menggunakan Formula Matematika Haversine:
+   - Ambang Bergerak (>= 20 meter dari posisi awal):
+     Status bantuan otomatis beralih menjadi 'partner_on_the_way' (Mitra Menuju Lokasi),
+     dan mencatat timestamp 'partner_started_moving_at'.
+   - Ambang Tiba (<= 50 meter dari titik alamat customer):
+     Status bantuan otomatis beralih menjadi 'partner_arrived' (Mitra Tiba di Lokasi),
+     dan mencatat timestamp 'partner_arrived_at'.
+3. Layar Tracking Interaktif Customer (/customer/helps/{id}/tracking):
+   Customer dapat membuka peta Leaflet langsung dari aplikasi untuk melihat posisi
+   ikon motor/mitra yang bergerak mendekati lokasinya secara live.
+
+--------------------------------------------------------------------------------
+2.9. Pelaksanaan Tugas & Fitur Live Chat Real-Time
+--------------------------------------------------------------------------------
+1. Setelah tiba di tempat, mitra menekan tombol "Mulai Pengerjaan".
+   Status berubah menjadi 'in_progress' (Sedang Dikerjakan).
+2. Live Chat Terintegrasi (/chat/{help}):
+   - Customer dan Mitra dapat bertukar pesan teks secara instan.
+   - Chat menggunakan Livewire Polling 5 detik yang responsif dan hemat data.
+   - Memudahkan koordinasi patokan jalan, instruksi khusus, atau tambahan kebutuhan.
+
+--------------------------------------------------------------------------------
+2.10. Penyelesaian Tugas, Bukti Foto & Konfirmasi Selesai (Auto-Confirm)
+--------------------------------------------------------------------------------
+1. Begitu tugas tuntas, Mitra wajib mengunggah Foto Bukti Selesai (completion_proof).
+2. Status berubah menjadi: 'waiting_customer_confirmation' (Menunggu Konfirmasi).
+3. Customer menerima notifikasi dan memeriksa hasil kerja fisik serta foto bukti.
+4. Jika sesuai, Customer menekan tombol "Konfirmasi Bantuan Selesai".
+5. Proteksi Perlindungan Mitra (Auto-Confirm 24 Jam):
+   Jika customer tidak menekan konfirmasi dan tidak mengajukan komplain dalam
+   waktu 24 jam setelah mitra mengunggah bukti, Task Scheduler cron job
+   (AutoConfirmHelps) akan secara otomatis menyelesaikan pesanan tersebut dan
+   mencairkan upah mitra demi keadilan hak pekerja.
+
+--------------------------------------------------------------------------------
+2.11. Pelepasan Dana Otomatis (Escrow Payout) & Penambahan Saldo Mitra
+--------------------------------------------------------------------------------
+1. Event status berubah menjadi 'selesai' ditangkap oleh HelpObserver.
+2. HelpObserver menghitung upah bersih mitra (payout amount) dengan mengurangi
+   persentase potongan fee platform yang telah ditetapkan Super Admin.
+3. Saldo langsung masuk seketika ke Dompet Saldo Mitra (UserBalance).
+4. Catatan mutasi otomatis dibuat pada tabel balance_transactions dengan rincian
+   potongan platform yang transparan.
+
+--------------------------------------------------------------------------------
+2.12. Rating & Ulasan Dua Arah (Mutual Rating)
+--------------------------------------------------------------------------------
+1. Rating Customer ke Mitra:
+   - Bintang 1 hingga 5, catatan ulasan teks, dan opsi anonim (is_anonymous).
+2. Rating Mitra ke Customer:
+   - Mitra juga dapat memberikan ulasan balik terhadap kenyamanan bekerja dengan
+     customer bersangkutan.
+3. Dampak Reputasi:
+   - Rating rata-rata mitra terpampang di profil publik.
+   - Sistem proteksi otomatis: jika rating mitra anjlok drastis atau sering
+     mendapat komplain, sistem dapat memicu Shadow Ban.
+
+--------------------------------------------------------------------------------
+2.13. Alur Pembatalan, Auto-Cancel, dan Pengembalian Dana (Refund)
+--------------------------------------------------------------------------------
+- Pembatalan oleh Customer:
+  * Jika dibatalkan saat status masih 'menunggu_mitra' (belum ada mitra yang mengambil),
+    dana saldo customer langsung di-refund 100% instan oleh HelpObserver tanpa potongan.
+- Pembatalan Otomatis Sistem (Auto-Cancel Expired Helps):
+  * Cron scheduler (AutoCancelHelps) memeriksa bantuan yang melewati batas kedaluwarsa
+    tanpa ada mitra yang mengambil.
+  * Bantuan otomatis dibatalkan, dan dana customer dikembalikan otomatis ke saldo.
+- Pengajuan Batal oleh Mitra (Partner Cancel Request):
+  * Jika terjadi kendala darurat (kendaraan mogok/musibah), mitra dapat mengajukan
+    batal dengan alasan sah agar pesanan dapat dilepas kembali ke antrean publik.
+
+--------------------------------------------------------------------------------
+2.14. Penanganan Komplain, Pelanggaran, dan Sanksi (SP1 - SP3)
+--------------------------------------------------------------------------------
+- Fitur Laporan Pelanggaran (PartnerReport):
+  * Baik customer maupun mitra dapat melaporkan indikasi penipuan, ketidaksopanan,
+    pekerjaan tidak tuntas, atau pelanggaran ketentuan.
+- Tindakan Disiplin Admin:
+  * Admin meninjau bukti obrolan, foto, dan lokasi.
+  * Admin dapat memberikan Surat Peringatan: SP 1, SP 2, atau SP 3.
+  * Penjatuhan Shadow Ban atau Pemblokiran Akun Permanen (Banned).
+- Real-time Session Purge:
+  * Endpoint /check-account-status memantau status akun di latar belakang.
+  * Akun yang diblokir atau di-banned akan langsung dihapus sesi login-nya
+    (purged session) secara realtime dari server, memutus akses seketika.
+- Halaman SP Acknowledge:
+  * Pengguna yang mendapat SP wajib membaca surat peringatan dan menekan tombol
+    konfirmasi pengakuan (acknowledge) sebelum diizinkan menggunakan aplikasi kembali.
+
+================================================================================
+3. PENJELASAN LENGKAP SEMUA FITUR BERDASARKAN ROLE PENGGUNA
+================================================================================
+
+--------------------------------------------------------------------------------
+3.1. Fitur Role Customer (Pelanggan)
+--------------------------------------------------------------------------------
+1. Dashboard Customer:
+   - Menampilkan ringkasan saldo dompet, kupon promo/banner, status pesanan aktif.
+   - Tombol cepat Buat Bantuan, Top Up Saldo, dan Riwayat Transaksi.
+2. Buat Permintaan Bantuan (Create Help):
+   - Kategori serabutan, deskripsi tugas, foto kondisi awal, opsi perlengkapan.
+   - Bantuan instan / terjadwal dengan integrasi peta dan GPS.
+3. Riwayat Bantuan (Helps History):
+   - Filter tab: Berlangsung, Selesai, Dibatalkan.
+   - Detail pengerjaan, nama mitra, foto bukti selesai, dan invoice digital.
+4. Live Tracking Mitra:
+   - Tampilan visual posisi mitra secara realtime di atas peta Leaflet.
+5. Live Chat:
+   - Komunikasi langsung dengan mitra yang menangani pesanan.
+6. Dompet & Keuangan (Wallet System):
+   - Top Up Saldo: Mengajukan topup transfer bank manual dengan upload bukti transfer.
+   - Penarikan Dana (Withdraw): Menarik saldo kembali ke rekening bank pribadi.
+   - Riwayat Transaksi (Mutasi debit & kredit saldo).
+7. Kelola Multi-Alamat (Address Book ala Shopee):
+   - Menyimpan beberapa alamat (Rumah, Kantor, Gudang, Orang Tua).
+   - Pengaturan alamat utama (Default Address) untuk pemesanan cepat.
+8. Rekening Bank Tersimpan:
+   - Tambah, edit, dan hapus rekening bank untuk kebutuhan penarikan dana.
+9. Rating & Review:
+   - Memberikan penilaian bintang 1-5 dan ulasan performa kerja mitra.
+10. Lapor Pengaduan (Dispute / Report):
+    - Melaporkan keluhan performa mitra atau meminta mediasi admin.
+11. Notifikasi Terintegrasi:
+    - Pemberitahuan pesanan diambil, mitra dalam perjalanan, mitra tiba, hingga selesai.
+
+--------------------------------------------------------------------------------
+3.2. Fitur Role Mitra (Penyedia Jasa Serabutan)
+--------------------------------------------------------------------------------
+1. Dashboard Mitra:
+   - Tampilan saldo pendapatan, rating kepuasan kerja, statistik bantuan selesai.
+   - Toggle status ketersediaan kerja.
+2. Penemuan Bantuan Terbuka (Find Helps):
+   - Feed bantuan yang tersedia di sekitar wilayah mitra.
+   - Tampilan perkiraan jarak, nominal pendapatan bersih, dan tombol ambil bantuan.
+3. Manajemen Bantuan Berjalan (Active Jobs):
+   - Alur langkah interaktif: Menuju Lokasi -> Tiba di Lokasi -> Mulai Kerja -> Upload Bukti.
+   - Pengiriman koordinat GPS background secara kontinu.
+4. Upload Bukti Kerja (Completion Proof):
+   - Kamera / unggah foto hasil kerja nyata sebelum meminta konfirmasi pelanggan.
+5. Pengajuan Pembatalan Darurat:
+   - Opsi pengajuan pembatalan dengan alasan valid jika terjadi halangan darurat.
+6. Dompet Saldo & Withdraw Pendapatan:
+   - Melihat pendapatan yang masuk dari tiap order yang rampung.
+   - Pengajuan penarikan dana ke rekening bank mitra dengan verifikasi PIN keamanan.
+   - Riwayat status withdraw (Pending, Processing, Approved, Rejected).
+7. Live Chat:
+   - Komunikasi real-time dengan customer yang sedang dibantu.
+8. Ulasan & Performa Mitra:
+   - Rekap rating bintang, komentar customer, dan kepuasan kerja.
+   - Memberikan rating balik ke customer.
+9. Pengaturan & Profil Mitra:
+   - Ubah foto profil, ganti kata sandi, dan kelola rekening bank tujuan pencairan.
+
+--------------------------------------------------------------------------------
+3.3. Fitur Role Admin Wilayah (Pengawas Operasional Regional)
+--------------------------------------------------------------------------------
+1. Dashboard Analitik Wilayah:
+   - Jumlah total mitra dan customer di kota/kabupaten binaannya.
+   - Total bantuan aktif dan selesai di wilayah kerjanya.
+2. Antrean Verifikasi Identitas (KYC Verifications):
+   - Memeriksa keabsahan foto KTP, kesesuaian NIK, dan foto selfie pengguna.
+   - Fitur 1-Click Approve atau Reject dengan alasan tertulis.
+3. Monitoring Bantuan Wilayah:
+   - Memantau seluruh bantuan yang berjalan di daerahnya.
+   - Melihat detail invoice, status pembayaran, dan riwayat perjalanan mitra.
+4. Manajemen Mitra & Customer Regional:
+   - Mengaktifkan, menonaktifkan, atau menangguhkan akun bermasalah.
+   - Fitur Shadow-Ban (menyembunyikan akun dari peredaran tanpa memblokir total).
+   - Fitur Reset Password & Reset Sesi Pengguna.
+5. Moderasi Laporan Pelanggaran (Dispute Resolution):
+   - Membaca kronologi laporan, foto bukti komplain, dan keterangan saksi.
+   - Memberikan resolusi sengketa (misal: pengembalian dana manual/refund).
+   - Menerbitkan Surat Peringatan (SP 1, SP 2, SP 3) atau Sanksi Banned.
+6. Approval Topup & Withdraw Wilayah:
+   - Memvalidasi bukti mutasi transfer topup dari customer/mitra.
+   - Menyetujui atau menolak permohonan withdraw pengguna.
+7. Audit Log Aktivitas Mitra (Partner Activity Log):
+   - Memeriksa rekaman jejak digital mitra (login time, IP address, device user-agent,
+     riwayat pengambilan order, dan perubahan lokasi).
+   - Fitur Export Log Aktivitas ke format CSV, Excel, dan Tampilan Cetak (Print View).
+
+--------------------------------------------------------------------------------
+3.4. Fitur Role Super Admin (Pengelola Pusat & Konfigurasi Sistem)
+--------------------------------------------------------------------------------
+1. Dashboard Nasional:
+   - Statistik menyeluruh transaksi keuangan nasional, perputaran saldo, dan omzet platform.
+2. Pengaturan Finansial & Tarif Bantuan (/superadmin/settings/*):
+   - Konfigurasi Potongan Fee Pendapatan Mitra (Persentase % bagian platform).
+   - Konfigurasi Biaya Admin Layanan / Biaya Topup Transfer Bank.
+   - Konfigurasi Tarif Dasar Bantuan & Tarif Tambahan per Radius Jarak (KM).
+3. Manajemen Wilayah Operasional (Cities & Districts):
+   - Menambah, mengubah, atau menutup cakupan kota/kabupaten dan kecamatan di Indonesia.
+   - Menetapkan admin yang bertanggung jawab atas suatu kota.
+4. Manajemen Kategori Bantuan (Categories Master):
+   - Menambah jenis jasa baru, mengunggah ikon kategori, menetapkan upah referensi.
+5. Manajemen Akun Admin Wilayah:
+   - Membuat akun admin baru, mengatur hak akses kota, memantau kinerja admin.
+6. Pengelolaan Banner & Promo:
+   - Menambah banner informasi/promo yang muncul di beranda aplikasi customer & mitra.
+7. Manajemen Bank Platform (Bank Channels):
+   - Menentukan nomor rekening resmi perusahaan (BCA, Mandiri, BRI, BNI, e-Wallet)
+     yang menjadi tujuan transfer topup oleh pengguna.
+8. Ekspor Transaksi Keuangan (Financial Export):
+   - Ekspor seluruh laporan transaksi mutasi saldo dan komisi platform ke format Microsoft Excel.
+9. Manajemen Media & Server Storage:
+   - Monitoring kapasitas penyimpanan server untuk dokumen KTP, foto bukti kerja, dan avatars.
+10. Global Activity Log:
+    - Audit trail lengkap seluruh peristiwa penting dalam sistem (siapa mengubah apa dan kapan).
+
+--------------------------------------------------------------------------------
+3.5. Fitur Bersama (Shared Features: Dompet, Keamanan, Profil)
+--------------------------------------------------------------------------------
+- Sistem PIN Transaksi (6 digit PIN terenkripsi untuk keamanan penarikan dana).
+- Manajemen Profil & Pengaturan Keamanan (Ubah kata sandi kuat, kelola notifikasi).
+- Kebijakan Pemutusan Sesi Paksa (Force Logout jika akun terkena sanksi blokir).
+
+================================================================================
+4. TEKNOLOGI LENGKAP YANG DIGUNAKAN
+================================================================================
+
+--------------------------------------------------------------------------------
+4.1. Backend Framework & Arsitektur
+--------------------------------------------------------------------------------
+- Bahasa Pemrograman : PHP 8.2+
+- Framework Utama    : Laravel 12 (versi rilis LTS modern)
+- Arsitektur Pola    : MVC (Model-View-Controller) dipadukan dengan Component-Based
+                       Reactivity dan Domain-Driven Services / Observers.
+- Observer Pattern   : `HelpObserver` (mengotomasi refund saldo saat order batal,
+                       mengotomasi pencairan komisi mitra saat order tuntas, dan
+                       memicu notifikasi status transaksi).
+- Enums Terpadu      : `HelpStatus` (mengonsolidasikan seluruh status transaksi
+                       kanonik dan memetakan status legacy secara aman).
+- Autentikasi        : Laravel Breeze, Custom Session Authentication, Signed URLs,
+                       serta Laravel Socialite (Google OAuth 2.0).
+
+--------------------------------------------------------------------------------
+4.2. Frontend & Reaktivitas Komponen
+--------------------------------------------------------------------------------
+- Livewire 3         : Menggerakkan seluruh halaman dinamis tanpa perlu menulis
+                       API REST terpisah. State sinkron antara backend dan browser.
+- Livewire Volt      : Pendekatan single-file component deklaratif yang cepat dan rapi.
+- Alpine.js v3       : Library JavaScript minimalis untuk mengelola interaksi UI
+                       lokal (modal popup, dropdown menu, toggle tab, preview gambar).
+- Axios              : Digunakan untuk permintaan HTTP background ringan (polling
+                       status verifikasi dan autocomplete).
+- SweetAlert2        : Dialog konfirmasi interaktif, notifikasi alert modern, dan feedback.
+
+--------------------------------------------------------------------------------
+4.3. UI/UX & Mobile-First Container
+--------------------------------------------------------------------------------
+- Tailwind CSS       : Utility-first CSS framework untuk styling modern, cepat, dan ringan.
+- Tailwind Forms     : Plugin reset elemen input, select, dan form kustom.
+- Mobile App Shell   : Layout khusus layar smartphone (max-width 420px) dengan
+                       Bottom Navigation Bar dinamis untuk Customer & Mitra.
+- Responsive Desktop : Layout dashboard desktop elegan berbasis sidebar untuk
+                       Admin Wilayah dan Super Admin.
+- Vite 7             : Bundler aset frontend super cepat untuk kompilasi CSS dan JS.
+
+--------------------------------------------------------------------------------
+4.4. Pemetaan, Geocoding & GPS Tracking
+--------------------------------------------------------------------------------
+- Leaflet.js         : Library peta open-source interaktif yang ringan dan responsif.
+- OpenStreetMap (OSM): Tile map provider gratis dan berpresisi tinggi.
+- Geocoding API      : Integrasi OpenStreetMap Nominatim & Photon API untuk
+                       pencarian autocomplete nama jalan, gedung, dan kelurahan.
+- Geolocation API    : HTML5 `navigator.geolocation.watchPosition` dengan parameter
+                       `enableHighAccuracy: true` untuk pelacakan pergerakan mitra.
+- Haversine Formula  : Algoritma matematika di backend untuk menghitung jarak akurat
+                       antar dua titik koordinat bumi (latitude & longitude) dalam meter.
+
+--------------------------------------------------------------------------------
+4.5. Database & Relasi Data
+--------------------------------------------------------------------------------
+- Sistem Database    : MySQL 8 / MariaDB (lingkungan produksi & lokal) dan SQLite
+                       (lingkungan testing terotomasi via PHPUnit).
+- Migrasi Database   : Skema terstruktur dengan puluhan file migrasi yang mencakup
+                       tabel users, helps, user_balances, balance_transactions,
+                       chats, registrations, partner_activities, partner_reports,
+                       withdraw_requests, bank_channels, customer_addresses, dsb.
+- Model Concerns     : Trait modular untuk Help (status lifecycle, timeline journey,
+                       kalkulasi payout, dan pembatalan mitra).
+
+--------------------------------------------------------------------------------
+4.6. Sistem Penyimpanan Media & Kompresi Berkas
+--------------------------------------------------------------------------------
+- Laravel Storage    : Disk penyimpanan publik dan lokal (`storage/app/public`).
+- Image Compression  : `ImageCompressionService` memanfaatkan ekstensi PHP GD untuk
+                       mengompresi foto KTP, foto selfie, dan foto bukti kerja secara
+                       otomatis sebelum disimpan ke disk, menghemat ruang penyimpanan.
+
+--------------------------------------------------------------------------------
+4.7. Background Task, Cron Scheduler & Otomasi Sistem
+--------------------------------------------------------------------------------
+- Task Scheduler     : Laravel Artisan Schedule yang dijalankan setiap menit:
+  * `helps:auto-cancel` : Memeriksa dan membatalkan pesanan kedaluwarsa secara otomatis.
+  * `helps:auto-confirm`: Mengonfirmasi pesanan yang telah selesai 24 jam secara otomatis.
+  * `balance:sync`      : Menjaga integritas dan sinkronisasi saldo pengguna.
+- Ekspor Berkas      : Skrip ekspor kustom ke format CSV dan file spreadsheet Excel (.xlsx).
+
+--------------------------------------------------------------------------------
+4.8. Keamanan, Proteksi Sesi, dan Enkripsi
+--------------------------------------------------------------------------------
+- Hashing Kata Sandi : Algoritma Bcrypt dengan validasi kekuatan sandi kompleks.
+- Keamanan Transaksi : Autentikasi PIN 6 digit untuk proses penarikan saldo (Withdraw).
+- Proteksi Request   : Token CSRF otomatis di setiap form dan permintaan AJAX.
+- Rate Limiting      : Middleware throttle untuk mencegah brute force login,
+                       registrasi massal, dan spamming API.
+- Realtime Purge     : Fitur `purgeSessions()` yang langsung menghapus file sesi
+                       dan database session saat user di-banned oleh admin.
+- Escrow Protection  : Perlindungan saldo pelanggan dan kepastian hak komisi mitra.
+
+================================================================================
+5. PENUTUP & KESIMPULAN
+================================================================================
+Project SayaBantu dirancang secara matang sebagai solusi digital terintegrasi untuk
+jasa serabutan di Indonesia. Dengan memadukan arsitektur modern (Laravel 12 + Livewire 3),
+antarmuka mobile-first yang intuitif, perlindungan saldo sistem escrow, serta pelacakan
+GPS otomatis, platform ini menghadirkan pengalaman yang mudah, cepat, dan aman bagi
+semua pihak yang terlibat.
+
+Dokumentasi ini mencerminkan struktur nyata yang telah diimplementasikan di dalam
+seluruh source code proyek SayaBantu.
+================================================================================
+                    AKHIR DOKUMEN PENJELASAN RESMI SAYABANTU
+================================================================================
+

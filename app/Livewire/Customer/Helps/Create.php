@@ -76,8 +76,10 @@ class Create extends Component
 
     public $full_address = '';
 
+    /** @var float|null */
     public ?float $latitude = null;
 
+    /** @var float|null */
     public ?float $longitude = null;
 
     // Scheduling
@@ -87,14 +89,17 @@ class Create extends Component
 
     public $confirmAutoCancelMinutes = 30;
 
+    /** @var string|null */
     public ?string $scheduled_date = null; // YYYY-MM-DD
 
+    /** @var string|null */
     public ?string $scheduled_time = null; // HH:MM
 
     public $timezoneLabel = 'WIB';
 
     public $timezoneIana = 'Asia/Jakarta';
 
+    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|string|null */
     public mixed $photo = null;
 
     public $showInsufficientModal = false;
@@ -111,6 +116,7 @@ class Create extends Component
 
     public $topupMethod = 'qris';
 
+    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|string|null */
     public mixed $topupReceipt = null;
 
     public $availableBanks = [];
@@ -123,6 +129,7 @@ class Create extends Component
 
     public $hasActivePendingTopup = false;
 
+    /** @var \App\Models\TopupRequest|null */
     public mixed $activePendingTopup = null;
 
     public $confirmAmount = 0;
@@ -137,6 +144,7 @@ class Create extends Component
 
     public $currentBalance = 0;
 
+    /** @var string|null */
     public ?string $confirmScheduled = null;
 
     public $confirmHelpType = 'scheduled';

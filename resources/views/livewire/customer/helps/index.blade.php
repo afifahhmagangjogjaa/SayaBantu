@@ -260,8 +260,11 @@
                                     </div>
 
                                     @if(!empty($help->partner_cancel_requested_at))
+                                        @php
+                                            $isIndexReassigned = str_contains(strtolower($help->partner_cancel_reason ?? ''), 'rekan jasa lain') || str_contains(strtolower($help->partner_cancel_reason ?? ''), 'keberangkatan');
+                                        @endphp
                                         <div class="mb-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-                                            <p class="font-semibold text-amber-900">Rekan Jasa Berhalangan:</p>
+                                            <p class="font-semibold text-amber-900">{{ $isIndexReassigned ? 'Pengalihan Rekan Jasa:' : 'Rekan Jasa Berhalangan:' }}</p>
                                             <p class="italic text-[11px] text-amber-800">"{{ $help->partner_cancel_reason ?: 'Kendala darurat di jalan' }}"</p>
                                             <p class="text-[10px] text-amber-700 mt-1 font-medium">⚡ Sistem otomatis mencari Rekan Jasa pengganti.</p>
                                         </div>

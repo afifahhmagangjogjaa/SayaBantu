@@ -89,21 +89,23 @@ class GpsTracker extends Component
             // Update lokasi menggunakan service
             $result = $this->locationService->updatePartnerLocation($help, $latitude, $longitude);
 
-            // Update UI info
-            $this->currentStatus = $result['status'];
-            $this->distanceInfo = [
-                'from_initial' => $result['distance_from_initial'],
-                'to_customer' => $result['distance_to_customer'],
-            ];
-            $this->lastUpdate = now()->format('H:i:s');
+            if (! empty($result['success'])) {
+                // Update UI info
+                $this->currentStatus = $result['status'] ?? $this->currentStatus;
+                $this->distanceInfo = [
+                    'from_initial' => $result['distance_from_initial'] ?? 0,
+                    'to_customer' => $result['distance_to_customer'] ?? null,
+                ];
+                $this->lastUpdate = now()->format('H:i:s');
 
-            // Jika status berubah, dispatch event
-            if ($result['status_changed']) {
-                $this->dispatch('status-changed', [
-                    'helpId' => $this->helpId,
-                    'oldStatus' => $result['old_status'],
-                    'newStatus' => $result['status'],
-                ]);
+                // Jika status berubah, dispatch event
+                if (! empty($result['status_changed'])) {
+                    $this->dispatch('status-changed', [
+                        'helpId' => $this->helpId,
+                        'oldStatus' => $result['old_status'] ?? $this->currentStatus,
+                        'newStatus' => $result['status'] ?? $this->currentStatus,
+                    ]);
+                }
             }
 
             // Refresh tracking status
